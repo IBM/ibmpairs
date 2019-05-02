@@ -13,3 +13,16 @@ Python data structures.
 
 If you like to contribute, please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 A list of maintainers is recorded in [MAINTAINERS.md](MAINTAINERS.md).
+
+
+# Installation and Usage
+
+If you have installed the Python package manager [PIP](https://github.com/pypa/pip),
+simply run
+```Bash
+pip install git+https://github.com/ibm/ibmpairs
+```
+Then you import the IBM PAIRS API wrapper via:
+```Python
+from ibmpairs import paw
+```
