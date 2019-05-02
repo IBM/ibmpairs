@@ -1,0 +1,5 @@
+# files to include in Python package other than code
+include CONTRIBUTING.md
+include README.md
+include LICENSE
+include MAINTAINERS.md
