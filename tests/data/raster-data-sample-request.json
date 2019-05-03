@@ -1,0 +1,18 @@
+{
+  "layers": [
+    {
+      "id": "92"
+    }
+  ],
+  "spatial": {
+    "type": "square",
+    "coordinates": [30,-100,30.5,-99.6]
+  },
+  "temporal": {
+    "intervals": [
+      {
+        "snapshot": "2018-11-01T00:00:00"
+      }
+    ]
+  }
+}

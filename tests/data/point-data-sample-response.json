@@ -1,0 +1,22 @@
+{
+    "data": [
+        {
+            "layerId":      "48552",
+            "layerName":    "t2m_an  temperature 2m",
+            "dataset":      "ECMWF Reanalysis (Surface Level)",
+            "timestamp":    1483250400000,
+            "longitude":    139.7,
+            "latitude":     35.7,
+            "value":        "284.97930908203125"
+        },
+        {
+            "layerId":      "48552",
+            "layerName":    "t2m_an  temperature 2m",
+            "dataset":      "ECMWF Reanalysis (Surface Level)",
+            "timestamp":    1483250400000,
+            "longitude":    -90.0,
+            "latitude":     40.0,
+            "value":        "269.1735534667969"
+        }
+    ]
+}

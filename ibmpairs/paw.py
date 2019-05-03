@@ -1226,8 +1226,11 @@ class PAIRSQuery(object):
                     logging.info(msg)
                     raise Exception(msg)
 
-            # read data acknowledgement
-            self.read_data_acknowledgement()
+            # try to read data acknowledgement
+            try:
+                self.read_data_acknowledgement()
+            except:
+                pass
 
             # silently try to list the rasters and vectors
             try:

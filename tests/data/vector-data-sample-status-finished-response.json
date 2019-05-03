@@ -1,0 +1,19 @@
+{
+    "id": "1554912000_35115995",
+    "status": "Running",
+    "start": 1554947115996,
+    "pql": null,
+    "folder": "1554947115995",
+    "swLat": 39.0,
+    "swLon": -100.0,
+    "neLat": 41.0,
+    "neLon": -98.0,
+    "nickname": null,
+    "exPercent": 26.0,
+    "flag": false,
+    "hadoopId": null,
+    "ready": false,
+    "rtStatus": null,
+    "pdStatus": "Running",
+    "statusCode": 20
+}
