@@ -9,7 +9,7 @@ core RESTful API served through the host reachable via
 Python data structures.
 
 
-# General notes
+# General Notes
 
 If you like to contribute, please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 A list of maintainers is recorded in [MAINTAINERS.md](MAINTAINERS.md).

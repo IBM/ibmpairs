@@ -71,6 +71,11 @@ it significantly helps to detect bugs while the project grows. Please place corr
 code into the `tests` directory. Please make pull requests after your contribution
 has passed all tests, only.
 
+Right now, at least
+```Bash
+python tests/test_paw.py
+```
+has to pass without error.
 
 ## Coding style guidelines
 
