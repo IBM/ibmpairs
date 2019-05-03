@@ -26,3 +26,7 @@ Then you import the IBM PAIRS API wrapper via:
 ```Python
 from ibmpairs import paw
 ```
+
+# Getting started
+
+Simply get your feet wet with the [tutorial](tutorials/IBM-PAIRS-API-wrapper-tutorial.ipynb).
