@@ -13,10 +13,10 @@ from __future__ import absolute_import
 
 __maintainer__  = "Physical Analytics, TJ Watson Research Center"
 __copyright__   = "(c) 2017-2019, IBM Research"
-__authors__     = ['Conrad Albrecht', 'Marcus Freitag']
+__authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "Apr 2019"
+__date__        = "May 2019"
 
 # fold: imports{{{
 # basic imports
@@ -89,6 +89,10 @@ PAIRS_BASE_URI = '/'
 PAIRS_QUERY_METADATA_FILE_NAME      = 'output.info'
 ## PAIRS vector JSON file name
 PAIRS_VECTOR_CSV_FILE_NAME          = 'Vector_Data_Output.csv'
+## PAIRS data acknowledgement file name
+PAIRS_DATA_ACK_FILE_NAME            = 'data_acknowledgement.txt'
+## default PAIRS password file path
+PAIRS_DEFAULT_PASSWORD_FILE_NAME    = 'ibmpairspass.txt'
 ## PAIRS vector query (Geo)JSON output format names
 PAIRS_VECTOR_JSON_TYPE_NAME         = 'json'
 PAIRS_VECTOR_GEOJSON_TYPE_NAME      = 'geojson'
@@ -184,19 +188,18 @@ def get_pairs_api_password(
     :type user:         str
     :param passFile:    path to file with password, it is expected to have the format
                         `<server>:<user>:<password>`, colons in passwords need to be escaped
-                        defaults: `~/.pairspass` and `.pairspass`.
     :type passFile:     str
     :returns:           corresponding password if available, `None` otherwise
     :rtype:             str
     '''
-    # Search for a .pairspass file in (a) the current working directory and (b) $HOME
+    # Search for a password file in (a) the current working directory and (b) $HOME
     if passFile is None:
-        if os.path.isfile(os.path.join(os.getcwd(), '.pairspass')):
-            passFile = os.path.join(os.getcwd(), '.pairspass')
-        elif os.path.isfile(os.path.join(os.path.expanduser('~'), '.pairspass')):
-            passFile = os.path.join(os.path.expanduser('~'), '.pairspass')
+        if os.path.isfile(os.path.join(os.getcwd(), PAIRS_DEFAULT_PASSWORD_FILE_NAME)):
+            passFile = os.path.join(os.getcwd(), PAIRS_DEFAULT_PASSWORD_FILE_NAME)
+        elif os.path.isfile(os.path.join(os.path.expanduser('~'), PAIRS_DEFAULT_PASSWORD_FILE_NAME)):
+            passFile = os.path.join(os.path.expanduser('~'), PAIRS_DEFAULT_PASSWORD_FILE_NAME)
         else:
-            raise ValueError('passFile = None requires existence of a .pairspass file in a default location.')
+            raise ValueError("passFile = None requires existence of a '{}' file in a default location.".format(PAIRS_DEFAULT_PASSWORD_FILE_NAME))
 
     # Often the value to server is the same as some global variable PAIRS_SERVER
     # That however if later handed to PAIRSQuery objects. The following code allows
@@ -444,29 +447,22 @@ class PAIRSQuery(object):
         self.BadDownloadFile     = None
         # general query metadata (based on `output.info`)
         self.metadata            = None
-        # raster specific metadata (derived from `self.metadata`)
-        self.queryRastersMetadata= None
-        # vector specific metadata (derived from `self.metadata`)
-        self.queryVectorsMetadata= None
         # dict of in-memory data of the query result indexed by the file's name
         self.data                = dict()
-        # (key is 'raster id' column of self.queryRastersMetadata)
-        self.raster              = dict()
-        # Pandas DataFrame of the raster data
-        self.df                  = None
-        # Pandas DataFrame of the statistics of the data
-        # (count, mean, std, min, 25%, 50%, 75%, max)
-        self.df_describe         = None
         self.vectorFormat        = vectorFormat
         # data frame of the vector data
         self.vdf                 = None
         # geo data frame with query polygon information
         self.pdf                 = None
-        # Column name of the values column for the dataframes
-        self.valueColumnName     = None
         # keyword to indicate translation of timestamp column in the dataframe.
-        # Valid keywords: 'datetime', 'year_doy', 'year'
-        self.translateTimestamp  = None
+        # data acknowledgement information
+        self.dataAcknowledgeText = None
+        # if loading data from existing ZIP, get the data acknowledgement
+        if isinstance(query, string_type):
+            try:
+                self.read_data_acknowledgement()
+            except Exception as e:
+                pass
 
     def __copy__(self):
         cls = self.__class__
@@ -746,6 +742,45 @@ class PAIRSQuery(object):
             msg = 'Information to construct query directory incomplete.'
             logging.warning(msg)
             raise Exception(msg)
+
+    def read_data_acknowledgement(self):
+        """
+        Extracts data acknowledge statement from PAIRS query result ZIP file.
+
+        :raises Exception:      if no acknowledgement is found
+        """
+        # attempt to extract only if not set already
+        if self.dataAcknowledgeText is None:
+            # check that there exists a file with the acknowledgement
+            if os.path.exists(self.zipFilePath) and \
+               PAIRS_DATA_ACK_FILE_NAME in zipfile.ZipFile(self.zipFilePath).namelist():
+                # extract data acknowledgement from PAIRS query ZIP file
+                try:
+                    with zipfile.ZipFile(self.zipFilePath).open(PAIRS_DATA_ACK_FILE_NAME) as f:
+                        self.dataAcknowledgeText = ''.join(codecs.getreader('utf-8')(f))
+                    logging.info('Data acknowledgement successfully loaded, print with `self.print_data_acknowledgement()`')
+                except Exception as e:
+                    msg = 'Unable to read data acknowledgement from PAIRS query result ZIP file: {}'.format(e)
+                    logging.error(msg)
+                    raise Exception(msg)
+            else:
+                msg = 'No PAIRS query ZIP file identified, or no acknowledgement in ZIP file found. Did you run `self.download()`, yet?'
+                logging.warning(msg)
+                raise Exception(msg)
+        else:
+            logging.info('Data acknowledgement loaded already - print with `self.print_data_acknowledgement()`')
+
+    def print_data_acknowledgement(self):
+        """
+        Simply print out data acknowledgement statement.
+
+        """
+        try:
+            self.read_data_acknowledgement()
+        except:
+            pass
+        print("The data acknowledgement for self.data is:\n{}".format(self.dataAcknowledgeText))
+
 
     def get_query_params(self):
         """
@@ -1190,6 +1225,9 @@ class PAIRSQuery(object):
                     )
                     logging.info(msg)
                     raise Exception(msg)
+
+            # read data acknowledgement
+            self.read_data_acknowledgement()
 
             # silently try to list the rasters and vectors
             try:
