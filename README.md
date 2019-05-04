@@ -31,7 +31,7 @@ from ibmpairs import paw
 
 Simply get your feet wet with the [tutorial](tutorials/IBM-PAIRS-API-wrapper-tutorial.ipynb).
 
-# running in a Docker container
+# Running in a Docker container
 
 A self-contained environment can be built with [Docker](http://www.docker.com) using
 ```Bash
