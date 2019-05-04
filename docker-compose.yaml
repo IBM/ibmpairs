@@ -1,0 +1,17 @@
+#########################################################
+# IBM PAIRS API wrapper container composition           #
+#########################################################
+# Copyright 2019 Physical Analytics, IBM Research, IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+version: '2.3'
+services:
+    ibmpairs:
+        image:          ibmpairs:latest
+        build:
+            context:    .
+        container_name: ibmpairs
+        hostname:       ibmpairs
+        ports:
+            - '127.0.0.1:18380:18380'

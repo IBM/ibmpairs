@@ -30,3 +30,23 @@ from ibmpairs import paw
 # Getting started
 
 Simply get your feet wet with the [tutorial](tutorials/IBM-PAIRS-API-wrapper-tutorial.ipynb).
+
+# running in a Docker container
+
+A self-contained environment can be built with [Docker](http://www.docker.com) using
+```Bash
+docker build -t ibmpairs .
+```
+and launched via
+```Bash
+docker run \
+    -dit \
+    -p 18380:18380 \
+    --name ibmpairs \
+    ibmpairs:latest
+```
+or, instead of the above, simply `docker-compose up ibmpairs` such that you can type
+into your browser
+```
+http://localhost:18380
+```

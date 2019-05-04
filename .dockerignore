@@ -1,0 +1,5 @@
+# exclude compiled Python files
+*.pyc
+*.swp
+*.swn
+*.swo
