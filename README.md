@@ -5,7 +5,7 @@ This repository provides an interface to the geo-spatial big data platform
 
 E.g. the module in the subdirectory `paw` serves as a wrapper employing the IBM PAIRS
 core RESTful API served through the host reachable via
-[https://pairs.res.ibm.com](https://pairs.res.ibm.com) to load data into (native)
+[https://pairs.res.ibm.com](https://pairs.res.ibm.com/manual/api-doc/) to load data into (native)
 Python data structures.
 
 
