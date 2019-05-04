@@ -349,6 +349,7 @@ class PAIRSQuery(object):
 
     def __init__(
             self, query, pairsHost, auth,
+            port                    = 80,
             overwriteExisting       = True,
             deleteDownload          = False,
             downloadDir             = DOWNLOAD_DIR,
@@ -366,6 +367,8 @@ class PAIRSQuery(object):
         :type pairsHost:            str
         :param auth:                user name and password as tuple for access to pairsHost
         :type auth:                 (str, str)
+        :param port:                port to use for pairsHost
+        :type port:                 int
         :param overwriteExisting:   destroy locally cached data, if existing, otherwise grab the latest
                                     locally cached data, `latest` is defined by alphanumerical ordering
                                     of the PAIRS query ID
@@ -404,9 +407,16 @@ class PAIRSQuery(object):
             raise Exception(
                 "I am sorry, ZIP file '{}' does not exist, canno create PAIRS query object.".format(self.zipFilePath)
             )
+        # check and set port for IBM PAIRS core API server
+        if isinstance(port, int) and port > 0 and port < 65536:
+            self.pairsPort       = port
+        else:
+            logging.warning("Incorrect port number provided: {}, defaulting to port 80".format(port))
+            self.pairsPort       = 80
         # host serving PAIRS API to connect to
         self.pairsHost           = urlparse(
-            '' if pairsHost is None else pairsHost
+            '' if pairsHost is None else \
+            '{}:{}'.format(pairsHost, self.pairsPort) if self.pairsPort != 80 else pairsHost
         )
         if pairsHost is not None and self.pairsHost.scheme not in ['http', 'https']:
             raise Exception('Invalid PAIRS host URL: {}'.format(pairsHost))
