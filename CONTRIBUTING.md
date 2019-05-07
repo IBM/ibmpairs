@@ -82,7 +82,42 @@ has to pass without error.
 When writing code please adopt the following coding style guidelines:
 - try to well document your code, ideally with an approximate ratio 1:3 of documentation to code
 - each function (of a class etc.) should have sufficient documentation on input, output,
-  and how it processes information
+  and how it processes information, the goal is to have all documentation required for
+  the API in code
+- try to reserve one line for each argument of a function/class (call), e.g. instead
+  of
+  ```Python
+  funct(arg1, arg2, arg3=default1, argum4=default2, ...)
+  ```
+  this is preferred:
+  ```Python
+  funct(
+    arg1,
+    arg2,
+    arg3    = default1,
+    argum4  = default2,
+    ...
+  )
+  ```
+  Similarely, it holds for dictionaries:
+  ```Python
+  {
+    "key1": [
+        {
+            "subkey1": "val1",
+            "subkey2": "val2",
+            ...
+        }
+    ],
+    "key2":  122.2,
+    ...
+  }
+  ```
+  instead of
+  ```Python
+  {"key1":[{"subkey1":"val1","subkey2":"val2",...}],"key2":122.2,...}
+  ```
+- for indentation, pls use 4 simple space characters
 - try to avoid having more than 80 characters of code per line
 - it would be nice if you use ([VIM](http://vimdoc.sourceforge.net/htmldoc/fold.html)-style)
   text folding markers (`{{{` and `}}}`) to logically group
