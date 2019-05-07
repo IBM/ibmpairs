@@ -81,9 +81,36 @@ has to pass without error.
 
 When writing code please adopt the following coding style guidelines:
 - try to well document your code, ideally with an approximate ratio 1:3 of documentation to code
-- each function (of a class etc.) should have sufficient documentation on input, output,
+- each function (of a class etc.) should have sufficient documentation on input, output, exceptions
   and how it processes information, the goal is to have all documentation required for
-  the API in code
+  the API in code such that [Sphinx](https://documentation-style-guide-sphinx.readthedocs.io/en/latest/style-guide.html)
+  can automatically generate documentation, an example:
+  ```Python
+  def numbers_2_string(numbers):
+      """
+      This is a one-liner summarizing the function.
+
+      And here comes more details.
+
+      :param numbers:       list of random numbers to convert to string
+      :type numbers:        [float]
+      :returns:             the user given numbers, concatenated by space
+      :rtype:               str
+      :raises Exception:    if given input cannot be interpreted
+      """
+      # check that all elements in input are floating point numbers
+      if not all(
+        [
+            isinstance(num, float)
+            for num in numbers
+        ]
+      ):
+        raise Exception("Sorry, input contains non-floating point elements.")
+
+      # return space-concatenated numbers
+      return ' '.join(numbers)
+  ```
+  *note*: is example also incorporates other aspects mentioned below
 - try to reserve one line for each argument of a function/class (call), e.g. instead
   of
   ```Python
@@ -117,10 +144,20 @@ When writing code please adopt the following coding style guidelines:
   ```Python
   {"key1":[{"subkey1":"val1","subkey2":"val2",...}],"key2":122.2,...}
   ```
-- for indentation, pls use 4 simple space characters
+- for indentation, please use 4 simple space characters
 - try to avoid having more than 80 characters of code per line
 - it would be nice if you use ([VIM](http://vimdoc.sourceforge.net/htmldoc/fold.html)-style)
   text folding markers (`{{{` and `}}}`) to logically group
   your code
+- please choose descriptive names for variables, e.g. for quantities with physical
+  units we tend to include the unit in the name, some examples:
+
+  | variable example | description                                                                    |
+  |------------------|--------------------------------------------------------------------------------|
+  | `myVar`          | simple variable using [camel cases](https://en.wikipedia.org/wiki/Camel_case)  |
+  | `MyClass`        | class instance having fist character upper case                                |
+  | `MY_CONST_MS`    | a global constant with units miliseconds                                       |
+  | `my_funct`       | a function name                                                                |
+
 
 You can always take existing code as an example of good coding style.
