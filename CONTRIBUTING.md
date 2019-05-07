@@ -97,6 +97,7 @@ When writing code please adopt the following coding style guidelines:
       :returns:             the user given numbers, concatenated by space
       :rtype:               str
       :raises Exception:    if given input cannot be interpreted
+                            if the input is not an iterable
       """
       # check that all elements in input are floating point numbers
       if not all(
@@ -105,12 +106,12 @@ When writing code please adopt the following coding style guidelines:
             for num in numbers
         ]
       ):
-        raise Exception("Sorry, input contains non-floating point elements.")
+          raise Exception("Sorry, input contains non-floating point elements.")
 
       # return space-concatenated numbers
       return ' '.join(numbers)
   ```
-  *note*: is example also incorporates other aspects mentioned below
+  *note*: this example also incorporates other aspects mentioned below
 - try to reserve one line for each argument of a function/class (call), e.g. instead
   of
   ```Python
@@ -152,12 +153,13 @@ When writing code please adopt the following coding style guidelines:
 - please choose descriptive names for variables, e.g. for quantities with physical
   units we tend to include the unit in the name, some examples:
 
-  | variable example | description                                                                    |
-  |------------------|--------------------------------------------------------------------------------|
-  | `myVar`          | simple variable using [camel cases](https://en.wikipedia.org/wiki/Camel_case)  |
-  | `MyClass`        | class instance having fist character upper case                                |
-  | `MY_CONST_MS`    | a global constant with units miliseconds                                       |
-  | `my_funct`       | a function name                                                                |
+  | variable example        | description                                                                    |
+  |-------------------------|--------------------------------------------------------------------------------|
+  | `timeStartRunningSec`   | simple variable using [camel cases](https://en.wikipedia.org/wiki/Camel_case)  |
+  | `PingServer`            | class instance having fist character upper case                                |
+  | `MAX_TIME_THESHOLD_MS`  | a global constant with units miliseconds                                       |
+  | `time_service_response` | a function name                                                                |
 
+  *note*: this way the code becomes more human readable (documentation of variable by name)
 
 You can always take existing code as an example of good coding style.
