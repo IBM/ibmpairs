@@ -1,0 +1,33 @@
+######################################
+# IBM PAIRS API wrapper Travis build #
+######################################
+# Copyright 2019 Physical Analytics, IBM Research, IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+# programming language used
+language: python
+python:
+    - '2.7'
+    - '3.6'
+
+# Ubuntu docker container base to use
+dist: xenial
+
+# Git branches Travis uses to trigger
+branches:
+  only:
+    - master
+
+# environment installs
+install:
+# get required Python modules
+- pip install -r requirements.txt
+# get documentation generation tool
+- pip install sphinx sphinx_rtd_theme
+
+script:
+# code testing
+- pytest --capture=no
+# testing documentation generation
+- cd docs && make html
