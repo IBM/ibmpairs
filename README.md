@@ -1,5 +1,7 @@
 # IBM PAIRS Geoscope open source modules
 
+[![Build Status](https://travis-ci.org/IBM/ibmpairs.svg?branch=master)](https://travis-ci.org/IBM/ibmpairs)
+
 This repository provides an interface to the geo-spatial big data platform
 [IBM PAIRS Geoscope](https://ibmpairs.mybluemix.net).
 
@@ -30,6 +32,17 @@ from ibmpairs import paw
 # Getting started
 
 Simply get your feet wet with the [tutorial](tutorials/IBM-PAIRS-API-wrapper-tutorial.ipynb).
+The full API documentation you can generate by running
+```Bash
+cd docs && make html
+```
+to open `docs/_build/html/index.html` with your favorite browser, provided you
+have installed [Sphinx](https://www.sphinx-doc.org/) and the corresponding
+[ReadTheDocs](https://readthedocs.org/) theme by running e.g.
+```Bash
+pip install sphinx sphinx_rtd_theme
+```
+
 
 # Running in a Docker container
 
