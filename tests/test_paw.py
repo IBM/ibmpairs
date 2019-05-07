@@ -151,7 +151,7 @@ class TestPointQuery(unittest.TestCase):
         ## column names agree with data response
         self.assertListEqual(
             sorted(
-                testPointQuery.querySubmit.json()['data'][0].keys() \
+                list(testPointQuery.querySubmit.json()['data'][0].keys()) \
               + [paw.PAIRS_VECTOR_GEOMETRY_COLUMN_NAME]
             ),
             sorted(testPointQuery.vdf.columns),
@@ -419,7 +419,7 @@ class TestPollQuery(unittest.TestCase):
         # check that 'details' of raster data have been successfully loaded by
         # getting the spatial reference information
         self.assertIsInstance(
-            testRasterQuery.metadata.values()[0]["details"]["spatialRef"],
+            list(testRasterQuery.metadata.values())[0]["details"]["spatialRef"],
             string_type
         )
         # check that all data are listed as type raster
@@ -439,7 +439,6 @@ class TestPollQuery(unittest.TestCase):
                     testRasterQuery.data[name],
                     numpy.ndarray
                 )
-                
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
 
@@ -506,7 +505,7 @@ class TestPollQuery(unittest.TestCase):
         # check that 'details' of raster data have been successfully loaded by
         # getting the spatial reference information
         self.assertIsInstance(
-            testRasterAggQuery.metadata.values()[0]["details"]["spatialRef"],
+            list(testRasterAggQuery.metadata.values())[0]["details"]["spatialRef"],
             string_type
         )
         # check that all data are listed as type vector
@@ -634,7 +633,7 @@ class TestPollQuery(unittest.TestCase):
         # check that the dataset and datalayer column names have been added
         self.assertIn(
             'layerName',
-            testRasterQuery.dataframe[testRasterQuery.metadata.keys()[0]].columns
+            testRasterQuery.dataframe[list(testRasterQuery.metadata.keys())[0]].columns
         )
 
 
