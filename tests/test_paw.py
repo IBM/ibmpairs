@@ -104,10 +104,20 @@ class TestPointQuery(unittest.TestCase):
             and len(payload['spatial']['coordinates']) > 1 \
             and len(payload['spatial']['coordinates']) % 2 == 0:
                 respCode    = 200
-            # generate response body
-            response_body   = json.load(
-                open(os.path.join(TEST_DATA_DIR,'point-data-sample-response.json'))
-            )
+            # check whether a raster or vector point query is performed
+            if re.match('^P', payload['layers'][0]['id']) is not None:
+                # so far, vector queries can take a single point only
+                if 2==len(payload['spatial']['coordinates']):
+                    response_body   = json.load(
+                        open(os.path.join(TEST_DATA_DIR, 'point-data-sample-response-vector.json'))
+                    )
+                else:
+                    respCode    = 400
+            else:
+                # generate response body
+                response_body   = json.load(
+                    open(os.path.join(TEST_DATA_DIR,'point-data-sample-response-raster.json'))
+                )
             headers         = {}
             return respCode, headers, json.dumps(response_body)
         ## add endpoint
@@ -124,15 +134,15 @@ class TestPointQuery(unittest.TestCase):
         cls.pairsServerMock.stop()
     #}}}
 
-    def test_from_point_query(self):
+    def test_from_point_query_raster(self):
         """
-        Test querying point data.
+        Test querying raster point data.
         """
         # query mocked data
         logging.info("TEST: Query (mocked) point data.")
         # define point query
         testPointQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request.json'))),
+            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
@@ -142,6 +152,12 @@ class TestPointQuery(unittest.TestCase):
         # for complience with general PAW query scheme, perform fake poll and download
         testPointQuery.poll_till_finished()
         testPointQuery.download()
+        testPointQuery.create_layers()
+        # try to split property string column (although having no effect, it should run through) 
+        colsBeforeSplit     = len(testPointQuery.vdf.columns)
+        testPointQuery.split_property_string_column()
+        colsAfterSplit      = len(testPointQuery.vdf.columns)
+        self.assertEqual(colsBeforeSplit, colsAfterSplit)
         # check vector data frame
         ## number of data points is correct
         logging.info("TEST: Perform vector data frame tests.")
@@ -170,6 +186,60 @@ class TestPointQuery(unittest.TestCase):
             string_type,
         )
 
+    def test_from_point_query_vector(self):
+        """
+        Test querying vector point data.
+        """
+        # query mocked data
+        logging.info("TEST: Query (mocked) point data.")
+        # define point query
+        testPointQuery = paw.PAIRSQuery(
+            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
+            'https://'+PAIRS_SERVER,
+            auth        = PAIRS_CREDENTIALS,
+            baseURI     = PAIRS_BASE_URI,
+        )
+        # submit point query
+        testPointQuery.submit()
+        # for complience with general PAW query scheme, perform fake poll and download
+        testPointQuery.poll_till_finished()
+        testPointQuery.download()
+        testPointQuery.create_layers()
+        # check vector data frame
+        ## number of data points is correct
+        logging.info("TEST: Perform vector data frame tests.")
+        self.assertEqual(
+            2, len(testPointQuery.vdf)
+        )
+        ## column names agree with data response
+        self.assertListEqual(
+            sorted(
+                list(testPointQuery.querySubmit.json()['data'][0].keys())
+            ),
+            sorted(testPointQuery.vdf.columns),
+        )
+        ## check (some) data types from response
+        self.assertIsInstance(
+            testPointQuery.vdf.timestamp[0],
+            datetime.datetime,
+        )
+        self.assertIsInstance(
+            testPointQuery.vdf.value[0],
+            string_type,
+        )
+        # check property string column splitting
+        colsBeforeSplit     = len(testPointQuery.vdf.columns)
+        testPointQuery.split_property_string_column()
+        colsAfterSplit      = len(testPointQuery.vdf.columns)
+        if paw.PROPERTY_STRING_COL_NAME_POINT in testPointQuery.vdf.columns:
+            self.assertLess(colsBeforeSplit, colsAfterSplit)
+        else:
+            self.assertEqual(colsBeforeSplit, colsAfterSplit)
+        # run twice to double-check it is not increasing the number of columns
+        testPointQuery.split_property_string_column()
+        colsAfter2ndSplit   = len(testPointQuery.vdf.columns)
+        self.assertEqual(colsAfterSplit, colsAfter2ndSplit)
+
     @unittest.skipIf(
         not REAL_CONNECT,
         "Skip checking mock against real service."
@@ -180,24 +250,40 @@ class TestPointQuery(unittest.TestCase):
         """
         # get real data
         self.pairsServerMock.stop()
-        testPointQueryReal = paw.PAIRSQuery.from_point_query(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request.json'))),
+        testPointQueryRasterReal = paw.PAIRSQuery(
+            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
+            'https://'+PAIRS_SERVER,
+            auth        = PAIRS_CREDENTIALS,
+            baseURI     = PAIRS_BASE_URI,
+        )
+        testPointQueryVectorReal = paw.PAIRSQuery(
+            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
         )
         self.pairsServerMock.start()
         # get mock data
-        testPointQueryMock = paw.PAIRSQuery.from_point_query(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request.json'))),
+        testPointQueryRasterMock = paw.PAIRSQuery(
+            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
+            'https://'+PAIRS_SERVER,
+            auth        = PAIRS_CREDENTIALS,
+            baseURI     = PAIRS_BASE_URI,
+        )
+        testPointQueryVectorMock = paw.PAIRSQuery(
+            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
         )
         # compare data entry keys
         self.assertListEqual(
-            sorted(testPointQueryReal.querySubmit.json()['data'][0].keys()),
-            sorted(testPointQueryMock.querySubmit.json()['data'][0].keys()),
+            sorted(testPointQueryRasterReal.querySubmit.json()['data'][0].keys()),
+            sorted(testPointQueryRasterMock.querySubmit.json()['data'][0].keys()),
+        )
+        self.assertListEqual(
+            sorted(testPointQueryVectorReal.querySubmit.json()['data'][0].keys()),
+            sorted(testPointQueryVectorMock.querySubmit.json()['data'][0].keys()),
         )
 
     def test_dataframe_generation(self):
@@ -207,7 +293,7 @@ class TestPointQuery(unittest.TestCase):
         # query mocked data
         logging.info("TEST: Generation of unified PAW dataframe for point data.")
         testPointQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request.json'))),
+            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
@@ -220,7 +306,7 @@ class TestPointQuery(unittest.TestCase):
         testPointQuery.set_lat_lon_columns('latitude', 'longitude', 'geometry')
 #}}}
 
-# fold: test PAIRS raster queries{{{
+# fold: test PAIRS raster and vector queries{{{
 class TestPollQuery(unittest.TestCase):
     """
     Test cases for poll-queries of raster and vector data from PAIRS.
@@ -597,6 +683,20 @@ class TestPollQuery(unittest.TestCase):
                     testVectorQuery.data[name],
                     pandas.DataFrame,
                 )
+                # try to split property string column (if any)
+                testVectorQuery.vdf = testVectorQuery.data[name]
+                # check property string column splitting
+                colsBeforeSplit     = len(testVectorQuery.vdf.columns)
+                testVectorQuery.split_property_string_column()
+                colsAfterSplit      = len(testVectorQuery.vdf.columns)
+                if paw.PROPERTY_STRING_COL_NAME in testVectorQuery.vdf.columns:
+                    self.assertLess(colsBeforeSplit, colsAfterSplit)
+                else:
+                    self.assertEqual(colsBeforeSplit, colsAfterSplit)
+                # run twice to double-check it is not increasing the number of columns
+                testVectorQuery.split_property_string_column()
+                colsAfter2ndSplit   = len(testVectorQuery.vdf.columns)
+                self.assertEqual(colsAfterSplit, colsAfter2ndSplit)
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testVectorQuery.dataAcknowledgeText)
 

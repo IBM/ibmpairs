@@ -1,0 +1,15 @@
+{
+  "layers": [{"id": "P385C4765"}],
+  "temporal": {
+    "intervals": [
+      {
+        "start": "2018-01-01T00:00:00Z",
+        "end": "2018-01-03T00:00:00Z"
+      }
+    ]
+  },
+  "spatial": {
+    "type": "point",
+    "coordinates": ["39", "-100.7"]
+  }
+}

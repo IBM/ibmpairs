@@ -48,6 +48,8 @@ pip install sphinx sphinx_rtd_theme
 
 A self-contained environment can be built with [Docker](http://www.docker.com) using
 ```Bash
+git clone https://github.com/ibm/ibmpairs
+cd ibmpairs
 docker build -t ibmpairs .
 ```
 and launched via

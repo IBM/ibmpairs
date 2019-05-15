@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "property": "county:50897",
+      "timestamp": 1514808000000,
+      "region": "50897",
+      "value": "-13.4992",
+      "dataset": "Prism Historical Data",
+      "layerId": "P385C4765",
+      "layerName": "tmean",
+      "unit": ""
+    },
+    {
+      "property": "county:50897",
+      "timestamp": 1514894400000,
+      "region": "50897",
+      "value": "-9.36853",
+      "dataset": "Prism Historical Data",
+      "layerId": "P385C4765",
+      "layerName": "tmean",
+      "unit": ""
+    }
+  ]
+}
