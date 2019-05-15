@@ -3,4 +3,8 @@
 *.swp
 *.swn
 *.swo
+# exclude hidden files and directories
 _*
+.*
+# exclude password files
+ibmpairspass.txt
