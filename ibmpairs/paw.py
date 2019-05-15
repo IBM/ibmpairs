@@ -999,7 +999,11 @@ class PAIRSQuery(object):
                                 )
                             )
                         else:
-                            logging.warning("No timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
+                            logging.warning(
+                                "No geo-coordinate columns '{}' detected.".format(
+                                    [PAIRS_VECTOR_LONGITUDE_COLUMN_NAME, PAIRS_VECTOR_LATITUDE_COLUMN_NAME]
+                                )
+                            )
                     except Exception as e:
                         logging.error("Unable to load point data into dataframe: '{}'.".format(e))
                         raise Exception()
