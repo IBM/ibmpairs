@@ -178,7 +178,7 @@ else:
 # fold: misc functions {{{
 def get_pairs_api_password(
     server, user,
-    passFile=None
+    passFile=None,
 ):
     '''
     Tries to obtain the PAIRS API password for a given user on a given server.
@@ -1235,9 +1235,18 @@ class PAIRSQuery(object):
                         logging.error('Aborted download: Zip file already present and overwriteExisting set to False')
 
                 else:
-                    msg = "Downloading data not an option (yet), status code is '{}'".format(
-                        self.queryStatus.json()['statusCode']
-                    )
+                    if PAIRS_QUERY_ERR_STAT_REG_EX.match(str(statusCode)):
+                        msg = "I am sorry, PAIRS query failed, status code from IBM PAIRS is '{}'".format(
+                            self.queryStatus.json()['statusCode']
+                        )
+                    elif PAIRS_QUERY_RUN_STAT_REG_EX.match(str(statusCode)):
+                        msg = "Hold on, please, downloading data not an option yet, status code from IBM PAIRS is '{}'".format(
+                            self.queryStatus.json()['statusCode']
+                        )
+                    else:
+                        msg = "Hm, not sure what is going on, status code from IBM PAIRS is '{}'".format(
+                            self.queryStatus.json()['statusCode']
+                        )
                     logging.info(msg)
                     raise Exception(msg)
 

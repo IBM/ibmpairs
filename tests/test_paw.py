@@ -11,7 +11,8 @@ SPDX-License-Identifier: BSD-3-Clause
       to check the defined mocks against real responses from the PAIRS server
       set by `PAW_TESTS_PAIRS_SERVER` with base URI `PAW_TESTS_PAIRS_BASE_URI`.
     - credentials can be set with `PAW_TESTS_PAIRS_USER` and a corresponding
-      `ibmpairspass.txt` file, cf. `ibmpairs.paw.get_pairs_api_password()`
+      `ibmpairspass.txt` file or another one specified by `PAW_TESTS_PAIRS_PASSWORD_FILE_NAME`,
+      cf. `ibmpairs.paw.get_pairs_api_password()`
 
 
 **TODO**:
@@ -68,7 +69,9 @@ PAIRS_PASSWORD_FILE_NAME    = 'ibmpairspass.txt'
 for var in (
     'REAL_CONNECT',
     'PAIRS_SERVER',
+    'PAIRS_BASE_URI',
     'PAIRS_USER',
+    'PAIRS_PASSWORD_FILE_NAME',
 ):
     if 'PAW_TESTS_'+var in os.environ:
         exec(
@@ -79,10 +82,22 @@ REAL_CONNECT            = REAL_CONNECT == 'true'
 # set credentials
 if os.path.exists(os.path.expanduser(PAIRS_PASSWORD_FILE_NAME)):
     try:
-        PAIRS_PASSWORD  = paw.get_pairs_api_password(PAIRS_SERVER, PAIRS_USER)
-    except:
+        PAIRS_PASSWORD  = paw.get_pairs_api_password(
+            PAIRS_SERVER,
+            PAIRS_USER,
+            passFile=PAIRS_PASSWORD_FILE_NAME,
+        )
+    except Exception as e:
         PAIRS_PASSWORD  = None
-PAIRS_CREDENTIALS       = (PAIRS_USER, PAIRS_PASSWORD)
+PAIRS_CREDENTIALS       = (PAIRS_USER, PAIRS_PASSWORD,)
+if REAL_CONNECT:
+    logging.info(
+        "Using IBM PAIRS server base endpoint '{}{}' and login user '{}' with password file '{}'.".format(
+            PAIRS_SERVER, PAIRS_BASE_URI, PAIRS_USER, PAIRS_PASSWORD_FILE_NAME,
+        )
+    )
+else:
+    logging.warning('Not testing against real PAIRS instance.')
 # }}}
 
 # fold: test PAIRS point queries{{{
@@ -127,11 +142,15 @@ class TestPointQuery(unittest.TestCase):
             callback=point_data_endpoint,
             content_type='application/json',
         )
-        cls.pairsServerMock.start()
+        if not REAL_CONNECT:
+            cls.pairsServerMock.start()
 
     @classmethod
     def tearDownClass(cls):
-        cls.pairsServerMock.stop()
+        try:
+            cls.pairsServerMock.stop()
+        except:
+            pass
     #}}}
 
     def test_from_point_query_raster(self):
@@ -153,7 +172,7 @@ class TestPointQuery(unittest.TestCase):
         testPointQuery.poll_till_finished()
         testPointQuery.download()
         testPointQuery.create_layers()
-        # try to split property string column (although having no effect, it should run through) 
+        # try to split property string column (although having no effect, it should run through)
         colsBeforeSplit     = len(testPointQuery.vdf.columns)
         testPointQuery.split_property_string_column()
         colsAfterSplit      = len(testPointQuery.vdf.columns)
@@ -242,49 +261,65 @@ class TestPointQuery(unittest.TestCase):
 
     @unittest.skipIf(
         not REAL_CONNECT,
-        "Skip checking mock against real service."
+        "Skip checking mock against real service (point query)."
     )
     def test_mock_from_point_query(self):
         """
         Checks the real PAIRS point query service against the mock used.
         """
         # get real data
-        self.pairsServerMock.stop()
-        testPointQueryRasterReal = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
-            'https://'+PAIRS_SERVER,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
+        try:
+            self.pairsServerMock.stop()
+        except Exception as e:
+            # catch not all requests called error
+            logging.warning(
+                'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
+            )
+        testRealRasterResponse = requests.post(
+            'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
+            auth    = PAIRS_CREDENTIALS,
         )
-        testPointQueryVectorReal = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
-            'https://'+PAIRS_SERVER,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
+        testRealVectorResponse = requests.post(
+            'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
+            auth    = PAIRS_CREDENTIALS,
         )
-        self.pairsServerMock.start()
+        # make sure the return from the real server was successful
+        self.assertEqual(200, testRealRasterResponse.status_code)
+        self.assertEqual(200, testRealVectorResponse.status_code)
         # get mock data
+        self.pairsServerMock.start()
         testPointQueryRasterMock = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
         )
+        testPointQueryRasterMock.submit()
         testPointQueryVectorMock = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
         )
+        testPointQueryVectorMock.submit()
         # compare data entry keys
         self.assertListEqual(
-            sorted(testPointQueryRasterReal.querySubmit.json()['data'][0].keys()),
+            sorted(testRealRasterResponse.json()['data'][0].keys()),
             sorted(testPointQueryRasterMock.querySubmit.json()['data'][0].keys()),
         )
         self.assertListEqual(
-            sorted(testPointQueryVectorReal.querySubmit.json()['data'][0].keys()),
+            sorted(testRealVectorResponse.json()['data'][0].keys()),
             sorted(testPointQueryVectorMock.querySubmit.json()['data'][0].keys()),
         )
+        try:
+            self.pairsServerMock.stop()
+        except Exception as e:
+            # catch not all requests called error
+            logging.warning(
+                'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
+            )
 
     def test_dataframe_generation(self):
         """
@@ -447,11 +482,15 @@ class TestPollQuery(unittest.TestCase):
             content_type='application/json',
         )
         ### start the mocked server
-        cls.pairsServerMock.start()
+        if not REAL_CONNECT:
+            cls.pairsServerMock.start()
 
     @classmethod
     def tearDownClass(cls):
-        cls.pairsServerMock.stop()
+        try:
+            cls.pairsServerMock.stop()
+        except:
+            pass
     #}}}
 
 
@@ -738,11 +777,7 @@ class TestPollQuery(unittest.TestCase):
 
 
     # fold: test cached mock data to simulate PAIRS server against real service#{{{
-    @unittest.skipIf(
-        not REAL_CONNECT,
-        "Skip checking mock against real service."
-    )
-    def test_mock_raster_query(self):
+    def compare_mock_vs_real_query(self, queryJSON):
         """
         Checks the real PAIRS raster query service against the mock used.
         """
@@ -759,9 +794,11 @@ class TestPollQuery(unittest.TestCase):
         logging.info("TEST: Perform query to real PAIRS server.")
         subResp = requests.post(
             'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
-            json    = json.load(open(os.path.join(TEST_DATA_DIR,'raster-data-sample-request.json'))),
+            json    = json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
             auth    = PAIRS_CREDENTIALS,
-        ).json()
+        )
+        self.assertEqual(200, subResp.status_code)
+        subResp = subResp.json()
         self.assertIn(
             'id',
             subResp.keys()
@@ -775,7 +812,10 @@ class TestPollQuery(unittest.TestCase):
             statResp = requests.get(
                 'https://'+PAIRS_SERVER+PAIRS_BASE_URI+STATUS_ENDPOINT+subResp['id'],
                 auth    = PAIRS_CREDENTIALS,
-            ).json()
+            )
+            self.assertEqual(200, statResp.status_code)
+            statResp = statResp.json()
+            # check returned stati to exist and be of correct format
             assert set(['id', 'rtStatus', 'statusCode']) <= set(statResp.keys())
             self.assertIsInstance(
                 statResp['statusCode'],
@@ -789,19 +829,20 @@ class TestPollQuery(unittest.TestCase):
             auth    = PAIRS_CREDENTIALS,
             stream  = True,
         )
-        pairsDataZip = '/tmp/pairs-test-raster-download-{}.zip'.format(subResp['id'])
+        self.assertEqual(200, downloadResp.status_code)
+        pairsDataZip = '/tmp/pairs-test-download-{}.zip'.format(subResp['id'])
         with open(pairsDataZip, 'wb') as f:
             for chunk in downloadResp.iter_content(chunk_size=1024):
                 if chunk:
                     f.write(chunk)
-        self.pairsServerMock.start()
         # basic test of real data
         self.assertTrue(
             zipfile.is_zipfile(pairsDataZip)
         )
         # get mock data
+        self.pairsServerMock.start()
         testRasterQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'raster-data-sample-request.json'))),
+            json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
@@ -832,6 +873,19 @@ class TestPollQuery(unittest.TestCase):
                     mockInfo[key], realInfo[key],
                     delta = self.REL_FILESIZE_DEV * realInfo[key]
                 )
+
+    @unittest.skipIf(
+        not REAL_CONNECT,
+        "Skip checking mock against real service (raster query)."
+    )
+    def test_mock_raster_query(self):
+        self.compare_mock_vs_real_query('raster-data-sample-request.json')
+    @unittest.skipIf(
+        not REAL_CONNECT,
+        "Skip checking mock against real service (vector query)."
+    )
+    def test_mock_vector_query(self):
+        self.compare_mock_vs_real_query('vector-data-sample-request.json')
     #}}}
 # }}}
 

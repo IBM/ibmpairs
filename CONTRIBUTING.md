@@ -73,9 +73,10 @@ has passed all tests, only.
 
 Right now, at least
 ```Bash
-python tests/test_paw.py
+pytest
 ```
-has to pass without error.
+has to pass without error. Note, there is a set of environment variables such as
+`PAW_TESTS_REAL_CONNECT`, `PAW_TESTS_PAIRS_PASSWORD_FILE_NAME`, `PAW_TESTS_PAIRS_USER`, etc. which can be employed to configure the test suite at runtime.
 
 ## Coding style guidelines
 
