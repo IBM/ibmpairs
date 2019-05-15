@@ -9,7 +9,7 @@ def readme():
 
 setup(
     name='ibmpairs',
-    version='0.0.1',
+    version='0.0.3',
     description='open source Python modules for the IBM PAIRS Geoscope platform',
     long_description=readme(),
     classifiers=[
