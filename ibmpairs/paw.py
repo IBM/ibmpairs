@@ -40,6 +40,8 @@ import codecs
 import numpy
 import pandas
 import PIL.Image
+# adjust maximum size of pixels for image to load (1 TPix)
+PIL.Image.MAX_IMAGE_PIXELS = 10**12
 from copy import copy, deepcopy
 import errno
 import shutil
