@@ -1090,8 +1090,8 @@ class PAIRSQuery(object):
 
         :param pollIntSec:      seconds to idle between polls
         :type pollIntSec:       float
-        :param printPollStatus: triggers printing the poll status information
-        :type printPollStatus:  bool
+        :param printStatus:     triggers printing the poll status information
+        :type printStatus:      bool
         :param timeout:         maximum (positive) time in seconds allowed to poll
                                 till finished, the default is infinitely polling
         :type timeout:          int
