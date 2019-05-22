@@ -336,6 +336,8 @@ class PAIRSQuery(object):
     SUBMIT_API_STRING            = 'v2/query'
     STATUS_API_STRING            = 'v2/queryjobs/'
     DOWNLOAD_API_STRING          = 'v2/queryjobs/download/'
+    COS_UPLOAD_API_STRING        = 'v2/queryjobs/upload/'
+    COS_API_ENDPOINT             = 'https://s3.us.cloud-object-storage.appdomain.cloud'
     GET_GEOJSON_API_STRING       = 'ws/queryaois/geojson/'
     GET_AOI_INFO_API_STRING      = 'ws/queryaois/aoi/'
     GET_QUERY_INFO               = 'v2/queryhistories/full/queryjob/'
@@ -1149,9 +1151,15 @@ class PAIRSQuery(object):
             else:
                 raise Exception('Query submit response: ' + str(self.querySubmit.status_code))
 
-    def download(self):
+    def download(self, cosInfo=None):
         """
         Get the data previously queried and save the ZIP file.
+
+        :param cosInfo:     tuple with IBM Cloud Object Storage bucket name and access token
+                            if set, the query result is not locally downloaded, but
+                            published in your IBM cloud (this is a useful feature
+                            in combination with IBM Watson Studio notebooks)
+        :type cosInfo:      (str, str)
         """
         # skip point query case
         if self.query is None or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
@@ -1196,43 +1204,76 @@ class PAIRSQuery(object):
 
                     if self.overwriteExisting or not os.path.isfile(self.zipFilePath):
                         # stream the query result (ZIP file)
-                        with open(self.zipFilePath, 'wb') as f:
-                            downloadURL = urljoin(
-                                urljoin(
-                                    self.pairsHost.geturl(),
-                                    self.DOWNLOAD_API_STRING
-                                ),
-                                self.queryID
-                            )
+                        if cosInfo is None:
+                            with open(self.zipFilePath, 'wb') as f:
+                                downloadURL = urljoin(
+                                    urljoin(
+                                        self.pairsHost.geturl(),
+                                        self.DOWNLOAD_API_STRING
+                                    ),
+                                    self.queryID
+                                )
 
-                            downloadResponse = requests.get(
-                                downloadURL,
-                                auth = self.auth,
-                                stream=True,
-                                verify = self.verifySSL,
-                            )
-                            if not downloadResponse.ok:
+                                downloadResponse = requests.get(
+                                    downloadURL,
+                                    auth = self.auth,
+                                    stream=True,
+                                    verify = self.verifySSL,
+                                )
+                                if not downloadResponse.ok:
+                                    self.BadDownloadFile = True
+                                    raise Exception('Sorry, downloading file failed.')
+
+                                for block in downloadResponse.iter_content(1024):
+                                    f.write(block)
+                            # test if downloaded ZIP file is readable
+                            try:
+                                fp = zipfile.ZipFile(self.zipFilePath, 'r')
+                            except Exception as e:
+                                # flag BadZipfile exception
                                 self.BadDownloadFile = True
-                                raise Exception('Sorry, downloading file failed.')
-
-                            for block in downloadResponse.iter_content(1024):
-                                f.write(block)
-                        # test if downloaded ZIP file is readable
-                        try:
-                            fp = zipfile.ZipFile(self.zipFilePath, 'r')
-                        except Exception as e:
-                            # flag BadZipfile exception
-                            self.BadDownloadFile = True
-                            logging.error('Sorry, cannot read downloaded query ZIP file: {}'.format(e))
+                                logging.error('Sorry, cannot read downloaded query ZIP file: {}'.format(e))
+                            else:
+                                fp.close()
+                                self.BadDownloadFile = False
+                                # Create folder manually in case the zipfile was empty.
+                                # ATTENTION: Disabled due to direct reading from ZIP file
+                                #make_sure_path_exists(self.queryDir)
+                                logging.info(
+                                    "Here we go, PAIRS query result successfully downloaded as '{}'.".format(self.zipFilePath)
+                                )
+                        # publish query result to COS
+                        elif isinstance(cosInfo, tuple) and len(cosInfo)==2:
+                            try:
+                                resp = requests.post(
+                                    urljoin(
+                                        urljoin(
+                                            self.pairsHost.geturl(),
+                                            self.COS_UPLOAD_API_STRING
+                                        ),
+                                        str(self.queryID)
+                                    ),
+                                    json   = {
+                                        'provider': 'ibm',
+                                        'endpoint': self.COS_API_ENDPOINT,
+                                        'bucket':   str(cosInfo[0]),
+                                        'token':    str(cosInfo[1]),
+                                    },
+                                    auth   = self.auth,
+                                    verify = self.verifySSL,
+                                )
+                                if resp.status_code != 200:
+                                    raise Exception(
+                                        'PAIRS failed publishing query result to COS: {}'.format(resp.text)
+                                    )
+                            except Exception as e:
+                                raise Exception(
+                                        'Sorry, I have trouble getting your query result to Cloud Object storage: {}.'.format(e)
+                                )
                         else:
-                            fp.close()
-                            self.BadDownloadFile = False
-                            # Create folder manually in case the zipfile was empty.
-                            # ATTENTION: Disabled due to direct reading from ZIP file
-                            #make_sure_path_exists(self.queryDir)
-                            logging.info(
-                                "Here we go, PAIRS query result successfully downloaded as '{}'.".format(self.zipFilePath)
-                            )
+                            msg = 'Sorry, I do not know what to do based on the `cosInfo` you provided.'
+                            logging.error(msg)
+                            raise Exception(msg)
                     else:
                         logging.error('Aborted download: Zip file already present and overwriteExisting set to False')
 
