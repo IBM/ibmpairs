@@ -127,6 +127,7 @@ PROPERTY_STRING_COL_NAME_POINT      = 'property'
 PAIRS_QUERY_RUN_STAT_REG_EX         = re.compile('^(0|1)')
 PAIRS_QUERY_FINISH_STAT_REG_EX      = re.compile('^2')
 PAIRS_QUERY_ERR_STAT_REG_EX         = re.compile('^(3|4)')
+PAIRS_QUERY_DOWNLOADABLE_STAT       = 20
 ## define default download directory for PAIRS query object if needed
 DEFAULT_DOWNLOAD_DIR	            = './downloads'
 ## PAIRS raster file extension
@@ -1181,14 +1182,17 @@ class PAIRSQuery(object):
                 self.downloaded = os.path.exists(self.zipFilePath)
             else:
                 try:
-                    statusCode = self.queryStatus.json()['statusCode']
+                    respJson    = self.queryStatus.json()
+                    statusCode  = respJson['statusCode']
+                    statusMsg   = str(respJson['status'])
                 except Exception as e:
                     logging.error(
                         'Unable to extract query status code from poll JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
                     )
                     raise
 
-                if PAIRS_QUERY_FINISH_STAT_REG_EX.match(str(statusCode)) is not None:
+                # check that the data can be really downloaded
+                if int(statusCode) == PAIRS_QUERY_DOWNLOADABLE_STAT:
                     # TODO: IS THIS STILL A VALID ASSUMPTION?
                     # Save the query ID prominently. This ID also flags that the file
                     # has been downloaded already
@@ -1276,20 +1280,15 @@ class PAIRSQuery(object):
                             raise Exception(msg)
                     else:
                         logging.error('Aborted download: Zip file already present and overwriteExisting set to False')
-
                 else:
                     if PAIRS_QUERY_ERR_STAT_REG_EX.match(str(statusCode)):
-                        msg = "I am sorry, PAIRS query failed, status code from IBM PAIRS is '{}'".format(
-                            self.queryStatus.json()['statusCode']
-                        )
+                        msg = "I am sorry, IBM PAIRS query failed, status code: '{}' ({})".format(statusCode, statusMsg)
                     elif PAIRS_QUERY_RUN_STAT_REG_EX.match(str(statusCode)):
-                        msg = "Hold on, please, downloading data not an option yet, status code from IBM PAIRS is '{}'".format(
-                            self.queryStatus.json()['statusCode']
-                        )
+                        msg = "Hold on, please, downloading data not an option yet, status code: '{}' ({})".format(statusCode, statusMsg)
+                    elif PAIRS_QUERY_FINISH_STAT_REG_EX.match(str(statusCode)):
+                        msg = "Bummer, the PAIRS query finished, but you'll never be able to download anything, status code: '{}' ({})".format(statusCode, statusMsg)
                     else:
-                        msg = "Hm, not sure what is going on, status code from IBM PAIRS is '{}'".format(
-                            self.queryStatus.json()['statusCode']
-                        )
+                        msg = "Hm, not sure what is going on, status code from IBM PAIRS is '{}' ({})".format(statusCode, statusMsg)
                     logging.info(msg)
                     raise Exception(msg)
 
