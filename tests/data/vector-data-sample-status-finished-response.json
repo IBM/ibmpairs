@@ -1,6 +1,6 @@
 {
     "id": "1554912000_35115995",
-    "status": "Running",
+    "status": "Succeeded",
     "start": 1554947115996,
     "pql": null,
     "folder": "1554947115995",
@@ -9,11 +9,11 @@
     "neLat": 41.0,
     "neLon": -98.0,
     "nickname": null,
-    "exPercent": 26.0,
+    "exPercent": 100,
     "flag": false,
     "hadoopId": null,
     "ready": false,
     "rtStatus": null,
-    "pdStatus": "Running",
+    "pdStatus": "Succeeded",
     "statusCode": 20
 }

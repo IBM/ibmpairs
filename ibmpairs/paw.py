@@ -1131,7 +1131,12 @@ class PAIRSQuery(object):
                     if printStatus:
                         try:
                             status = self.queryStatus.json()['status']
-                            logging.info("Query status is '{}' ...".format(status))
+                            progressPercent = float(self.queryStatus.json()['exPercent'])
+                            if progressPercent > 0:
+                                percMsg = ' ({}%)'.format(progressPercent)
+                            else:
+                                percMsg = ''
+                            logging.info("Query status is '{}'{}.".format(status, percMsg))
                         except:
                             pass
                     # break if query not running any more
