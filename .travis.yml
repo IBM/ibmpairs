@@ -24,9 +24,12 @@ install:
 # get required Python modules for IBM PAIRS open source tools
 - pip install -r requirements.txt
 # install Python modules required for testing
-- pip install responses
+- pip install flake8 responses
 # get documentation generation tool
 - pip install sphinx sphinx_rtd_theme
+
+before_script:
+- flake8 . --count --select=E9,F63,F72,F82 --show-source --statistics
 
 script:
 # code testing
