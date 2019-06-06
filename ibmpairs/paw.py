@@ -1567,7 +1567,7 @@ class PAIRSQuery(object):
                 # ATTENTION: temporary hack for file name and name mismatch
                 self.metadata = {
                     fileDict['name'].replace(':', '_'): {
-                         k: v for k, v in fileDict.items() if k is not 'name'
+                         k: v for k, v in fileDict.items() if k != 'name'
                     }
                     for fileDict in outputJson['files']
                 }
