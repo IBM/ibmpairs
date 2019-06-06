@@ -29,10 +29,9 @@ from functools import reduce
 from imp import reload
 from future import standard_library
 standard_library.install_aliases()
-PYTHON_VERSION = sys.version_info[0]
-if PYTHON_VERSION == 2:
+try:
     string_type = basestring
-else:
+except NameError:
     string_type = str
 # make reading file pointer streams in Python 2 and 3
 import codecs
