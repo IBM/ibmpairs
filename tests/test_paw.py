@@ -46,10 +46,9 @@ import zipfile
 import numpy
 import pandas
 # string type compatibility with Python 2 and 3
-PYTHON_VERSION = sys.version_info[0]
-if PYTHON_VERSION == 2:
+try:
     string_type = basestring
-else:
+except NameError:
     string_type = str
 #}}}
 # fold: parameter settings{{{
