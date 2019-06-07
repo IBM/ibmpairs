@@ -17,6 +17,9 @@ SPDX-License-Identifier: BSD-3-Clause
 
 **TODO**:
     - compare mock vs. real data for aggregated queries
+    - check that apiJSON for v2/queryhistories/full/queryjobs/{ID} is complete
+      for aggregation and raster queries, vector queries is empty today
+    - check split_property_string_column() from mixed point query (add corresponding JSON)
 """
 
 # fold: imports{{{
@@ -61,6 +64,7 @@ PAIRS_BASE_URI              = '/'
 QUERY_ENDPOINT              = 'v2/query'
 STATUS_ENDPOINT             = 'v2/queryjobs/'
 DOWNLOAD_ENDPOINT           = 'v2/queryjobs/download/'
+QUERY_INFO_ENDPOINT         = 'v2/queryhistories/full/queryjob/'
 REAL_CONNECT                = False
 PAIRS_USER                  = 'fakeUser'
 PAIRS_PASSWORD              = 'fakePassword'
@@ -158,7 +162,7 @@ class TestPointQuery(unittest.TestCase):
         Test querying raster point data.
         """
         # query mocked data
-        logging.info("TEST: Query (mocked) point data.")
+        logging.info("TEST: Query {}point data (raster).".format('' if REAL_CONNECT else 'mocked '))
         # define point query
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
@@ -172,7 +176,12 @@ class TestPointQuery(unittest.TestCase):
         testPointQuery.poll_till_finished()
         testPointQuery.download()
         testPointQuery.create_layers()
-        # try to split property string column (although having no effect, it should run through)
+        # split property string column (3 new columns should be generated for specific example)
+        colsBeforeSplit     = len(testPointQuery.vdf.columns)
+        testPointQuery.split_property_string_column()
+        colsAfterSplit      = len(testPointQuery.vdf.columns)
+        self.assertEqual(colsBeforeSplit+3, colsAfterSplit)
+        # recalling column splitting function should be invariant now
         colsBeforeSplit     = len(testPointQuery.vdf.columns)
         testPointQuery.split_property_string_column()
         colsAfterSplit      = len(testPointQuery.vdf.columns)
@@ -181,20 +190,20 @@ class TestPointQuery(unittest.TestCase):
         ## number of data points is correct
         logging.info("TEST: Perform vector data frame tests.")
         self.assertEqual(
-            2, len(testPointQuery.vdf)
+            5, len(testPointQuery.vdf)
         )
         ## column names agree with data response
         self.assertListEqual(
             sorted(
                 list(testPointQuery.querySubmit.json()['data'][0].keys()) \
-              + [paw.PAIRS_VECTOR_GEOMETRY_COLUMN_NAME]
+              + [paw.PAIRS_VECTOR_GEOMETRY_COLUMN_NAME, 'horizon', 'model', 'issuetime']
             ),
             sorted(testPointQuery.vdf.columns),
         )
         ## check (some) data types from response
         self.assertIsInstance(
             testPointQuery.vdf.longitude[0],
-            float,
+            (int, float),
         )
         self.assertIsInstance(
             testPointQuery.vdf.timestamp[0],
@@ -210,7 +219,7 @@ class TestPointQuery(unittest.TestCase):
         Test querying vector point data.
         """
         # query mocked data
-        logging.info("TEST: Query (mocked) point data.")
+        logging.info("TEST: Query {}point data (vector).".format('' if REAL_CONNECT else 'mocked '))
         # define point query
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
@@ -454,15 +463,23 @@ class TestPollQuery(unittest.TestCase):
             callback=submit_query_endpoint,
             content_type='application/json',
         )
-        ### query downloads
-        for queryZIPPath in [
-            cls.PAIRS_RASTER_ZIP_PATH,
-            cls.PAIRS_AGG_RASTER_ZIP_PATH,
-            cls.PAIRS_VECTOR_ZIP_PATH
-        ]:
+        ### query downloads and query info
+        for queryZIPPath, queryInfoJSONFileName in zip(
+            [
+                cls.PAIRS_RASTER_ZIP_PATH,
+                cls.PAIRS_AGG_RASTER_ZIP_PATH,
+                cls.PAIRS_VECTOR_ZIP_PATH
+            ],
+            [
+                'raster-data-sample-query-json-response.json',
+                'aggregation-data-sample-query-json-response.json',
+                'vector-data-sample-query-json-response.json',
+            ]
+        ):
             queryID = os.path.splitext(
                 os.path.basename(queryZIPPath)
             )[0].split('-')[-1]
+            # query download
             with open(queryZIPPath, 'rb') as queryData:
                 cls.pairsServerMock.add(
                     responses.GET,
@@ -472,6 +489,17 @@ class TestPollQuery(unittest.TestCase):
                     content_type='application/zip',
                     stream=True,
                 )
+            # query info
+            cls.pairsServerMock.add(
+                responses.GET,
+                r'https://{}{}{}{}'.format(PAIRS_SERVER, PAIRS_BASE_URI, QUERY_INFO_ENDPOINT, queryID),
+                body        = json.dumps(
+                    json.load(
+                        open(os.path.join(TEST_DATA_DIR, queryInfoJSONFileName))
+                    )
+                ),
+                status      = 200,
+            )
         ### query status
         cls.pairsServerMock.add_callback(
             responses.GET,
@@ -495,26 +523,45 @@ class TestPollQuery(unittest.TestCase):
 
 
     # fold: test ordinary raster queries#{{{
-    def raster_query(self, useLocalZip=False):
+    def raster_query(self, mode='query'):
         """
         Query raster data in various ways.
+
+        :param mode:        sets the PAIRS query mode:
+                            - `query` queries PAIRS
+                            - `cached` uses locally cached PAIRS ZIP file
+                            - `reload` uses PAIRS query ID
+        :type mode:         str
+        :raises Exception:  if function parameters are incorrectly set
         """
+        # check function parameters
         # query mocked data
-        logging.info("TEST: Query (mocked) data.")
+        logging.info("TEST: Query {} raster data ({}).".format('' if REAL_CONNECT else 'mocked', mode))
+        # define query
+        if mode=='query':
+            queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'raster-data-sample-request.json')))
+        elif mode=='cached':
+            queryDef = self.PAIRS_RASTER_ZIP_PATH
+        elif mode=='reload':
+            queryDef = os.path.splitext(
+                os.path.basename(self.PAIRS_RASTER_ZIP_PATH)
+            )[0].split('-')[-1]
+        else:
+            raise Exception("PAIRS raster query mode '{}' not defined.".format(mode))
+
         testRasterQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'raster-data-sample-request.json'))) \
-            if not useLocalZip else self.PAIRS_RASTER_ZIP_PATH,
+            queryDef,
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
         )
         # check that query got submitted
         testRasterQuery.submit()
-        if not useLocalZip:
+        if not mode=='cached':
             self.assertTrue(testRasterQuery.querySubmit.ok)
         # poll and check that data status is finished
         testRasterQuery.poll_till_finished(printStatus=True)
-        if not useLocalZip:
+        if not mode=='cached':
             self.assertTrue(testRasterQuery.queryStatus.ok)
         # check that certain files exist
         testRasterQuery.download()
@@ -577,30 +624,54 @@ class TestPollQuery(unittest.TestCase):
         """
         Test querying raster data from local PAIRS ZIP file.
         """
-        self.raster_query(useLocalZip=True)
+        self.raster_query(mode='cached')
+
+    def test_raster_query_reload(self):
+        """
+        Test reloading previously queried data with PAIRS query ID.
+        """
+        self.raster_query(mode='reload')
     #}}}
 
     # fold: test raster aggregation queries#{{{
-    def raster_aggregation_query(self, useLocalZip=False):
+    def raster_aggregation_query(self, mode='query'):
         """
         Query aggregated raster data.
+
+        :param mode:        sets the PAIRS query mode:
+                            - `query` queries PAIRS
+                            - `cached` uses locally cached PAIRS ZIP file
+                            - `reload` uses PAIRS query ID
+        :type mode:         str
+        :raises Exception:  if function parameters are incorrectly set
         """
+        # check function parameters
+        logging.info("TEST: Query {} aggregation data ({}).".format('' if REAL_CONNECT else 'mocked', mode))
+        # define query
+        if mode=='query':
+            queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'aggregation-data-sample-request.json')))
+        elif mode=='cached':
+            queryDef = self.PAIRS_AGG_RASTER_ZIP_PATH
+        elif mode=='reload':
+            queryDef = os.path.splitext(
+                os.path.basename(self.PAIRS_AGG_RASTER_ZIP_PATH)
+            )[0].split('-')[-1]
+        else:
+            raise Exception("PAIRS aggregation query mode '{}' not defined.".format(mode))
         # query mocked data
-        logging.info("TEST: Query (mocked) aggregation data.")
         testRasterAggQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'aggregation-data-sample-request.json'))) \
-            if not useLocalZip else self.PAIRS_AGG_RASTER_ZIP_PATH,
+            queryDef,
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
         )
         # check that query got submitted
         testRasterAggQuery.submit()
-        if not useLocalZip:
+        if not mode=='cached':
             self.assertTrue(testRasterAggQuery.querySubmit.ok)
         # poll and check that data status is finished
         testRasterAggQuery.poll_till_finished(printStatus=True)
-        if not useLocalZip:
+        if not mode=='cached':
             self.assertTrue(testRasterAggQuery.queryStatus.ok)
         # check that certain files exist
         testRasterAggQuery.download()
@@ -663,30 +734,54 @@ class TestPollQuery(unittest.TestCase):
         """
         Test querying aggregated raster data from local PAIRS ZIP file.
         """
-        self.raster_aggregation_query(useLocalZip=True)
+        self.raster_aggregation_query(mode='cached')
+
+    def test_raster_aggregation_query_reload(self):
+        """
+        Test reloading previously queried aggregation data with PAIRS query ID.
+        """
+        self.raster_aggregation_query(mode='reload')
     #}}}
 
     # fold: test vector queries #{{{
-    def vector_query(self, useLocalZip=False):
+    def vector_query(self, mode='query'):
         """
         Query vector data in various ways.
+
+        :param mode:        sets the PAIRS query mode:
+                            - `query` queries PAIRS
+                            - `cached` uses locally cached PAIRS ZIP file
+                            - `reload` uses PAIRS query ID
+        :type mode:         str
+        :raises Exception:  if function parameters are incorrectly set
         """
+        # check function parameters
+        logging.info("TEST: Query {} vector data ({}).".format('' if REAL_CONNECT else 'mocked', mode))
+        # define query
+        if mode=='query':
+            queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'vector-data-sample-request.json')))
+        elif mode=='cached':
+            queryDef = self.PAIRS_VECTOR_ZIP_PATH
+        elif mode=='reload':
+            queryDef = os.path.splitext(
+                os.path.basename(self.PAIRS_VECTOR_ZIP_PATH)
+            )[0].split('-')[-1]
+        else:
+            raise Exception("PAIRS vector query mode '{}' not defined.".format(mode))
         # query mocked data
-        logging.info("TEST: Query (mocked) data.")
         testVectorQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'vector-data-sample-request.json'))) \
-            if not useLocalZip else self.PAIRS_VECTOR_ZIP_PATH,
+            queryDef,
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
         )
         # check that query got submitted
         testVectorQuery.submit()
-        if not useLocalZip:
+        if not mode=='cached':
             self.assertTrue(testVectorQuery.querySubmit.ok)
         # poll and check that data status is finished
         testVectorQuery.poll_till_finished(printStatus=True)
-        if not useLocalZip:
+        if mode not in ['cached', 'reload']:
             self.assertTrue(testVectorQuery.queryStatus.ok)
         # check that certain files exist
         testVectorQuery.download()
@@ -749,7 +844,13 @@ class TestPollQuery(unittest.TestCase):
         """
         Test querying vector data from local PAIRS ZIP file.
         """
-        self.vector_query(useLocalZip=True)
+        self.vector_query(mode='cached')
+
+    def test_vector_query_reload(self):
+        """
+        Test reloading previously queried vector data with PAIRS query ID.
+        """
+        self.vector_query(mode='reload')
     #}}}
 
     def TO_BE_IMPLEMENTED_test_dataframe_generation(self):

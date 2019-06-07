@@ -1,0 +1,17 @@
+{
+  "id": 0,
+  "user": {
+    "id": 0,
+    "login": "",
+    "password": ""
+  },
+  "type": "square",
+  "date": 1544227850894,
+  "apiString": null,
+  "queryjob": "1544202000_25850895",
+  "apiJson": "{\"name\":null,\"spatial\":{\"type\":\"square\",\"aoi\":null,\"coordinates\":[34.52,-87.96,35.0,-86.6],\"aggregation\":{\"aoi\":[\"50001\",\"50002\"],\"type\":\"fullStat\"}},\"temporal\":{\"intervals\":[{\"start\":\"1541030400000\",\"end\":\"1541116800000\",\"snapshot\":null}],\"snapshots\":null},\"layers\":[{\"id\":\"92\",\"alias\":null,\"filterOnly\":false,\"type\":\"raster\",\"temporal\":null,\"aggregation\":null,\"filter\":null,\"dimensions\":null,\"custom\":null,\"output\":null,\"expression\":null}],\"outputType\":null,\"outputLevel\":null,\"description\":null,\"publish\":true,\"notification\":null,\"folder\":null,\"jobId\":null,\"user\":null}",
+  "sizeTotal": null,
+  "sizeRaw": null,
+  "sizeZip": null,
+  "countTotal": null
+}

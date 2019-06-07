@@ -16,7 +16,7 @@ __copyright__   = "(c) 2017-2019, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "May 2019"
+__date__        = "June 2019"
 
 # fold: imports{{{
 # basic imports
@@ -232,6 +232,7 @@ def get_pairs_api_password(
         return password
     else:
         raise ValueError('Unable to find PAIRS password for {0}@{1} in {2}.'.format(user, server, passFile))
+
 def make_sure_path_exists(dirpath):
     """
     Creates directory if it does not exist yet. (avoids race condition).
@@ -271,64 +272,24 @@ def get_polygon(aoiSquare):
     :returns:       Shapely polygon
     """
     return box(aoiSquare[1], aoiSquare[0], aoiSquare[3], aoiSquare[2])
-
-def json_from_qPars(qPars):
-    """
-    Given "simple" PAIRS query arguments, construct the full PAIRS query JSON load.
-
-    :param qPars:   simple PAIRS query parameters
-    :type qPars:    dict
-    :returns:       full PAIRS query JSON load required to submit/define a PAIRS query
-    :rtype:         dict
-    """
-    # generate PAIRS API query JSON load from parameters
-    query = dict()
-    query["layers"] = [
-        {
-            "type":     qPars['qType'],
-            "id":       qPars['layerID']
-        }
-    ]
-
-    # temporal information
-    if isinstance(qPars['startTime'], datetime) and isinstance(qPars['endTime'], datetime):
-        startEpochTime  = int(
-            (qPars['startTime'] - PAIRSQuery.EPOCH_ZERO).total_seconds()
-        ) * 1000
-        endEpochTime    = int(
-            (qPars['endTime']-PAIRSQuery.EPOCH_ZERO).total_seconds()
-        ) * 1000
-        query["temporal"] = {
-            "intervals":    [ {"start": startEpochTime, "end": endEpochTime} ]
-        }
-    elif isinstance(qPars['startTime'], str) and isinstance(qPars['endTime'], str):
-        query["temporal"] = {
-            "intervals":    [ {"start": qPars['startTime'], "end": qPars['endTime']} ]
-        }
-    else:
-        raise Exception(
-            'Timestamps in unknown format.'
-        )
-
-    # spatial information
-    if 'aoiSquare' in qPars:
-        query["spatial"]= {"type": "square", "coordinates": qPars['aoiSquare']}
-    elif 'aoiPoly' in qPars:
-        query["spatial"]= {"type": "poly", "aoi": qPars['aoiPoly']}
-    else:
-        raise
-
-    # general settings
-    ## output type specification
-    if 'vectorFormat' in qPars:
-        query["outputType"] = qPars['vectorFormat']
-    ## do not publish the data (for PAIRS GeoServer)
-    query['publish'] = False
-
-    return query
 #}}}
 
 # fold: PAIRS query class for managing single queries {{{
+# set mocked query status
+class MockSubmitResponse():
+    """
+    Helper class for mocking a PAIRS query submit response.
+
+    It is useful to simulate a query submission when reloading a previously submitted
+    query based on a given PAIRS query ID.
+    """
+    def __init__(self, queryID, status_code=200):
+        self.status_code = status_code
+        self.queryID     = queryID
+        self.ok          = True
+    def json(self):
+        return {'id': str(self.queryID)}
+
 class PAIRSQuery(object):
     """
     Representation of a PAIRS query.
@@ -354,20 +315,21 @@ class PAIRSQuery(object):
     VECTOR_FILE_EXTENSION        = PAIRS_CSV_FILE_EXTENSION
 
     def __init__(
-            self, query, pairsHost, auth,
-            port                    = 80,
-            overwriteExisting       = True,
-            deleteDownload          = False,
-            downloadDir             = DOWNLOAD_DIR,
-            baseURI                 = PAIRS_BASE_URI,
-            verifySSL               = True,
-            vectorFormat            = None,
-        ):
+        self, query, pairsHost, auth,
+        port                    = 80,
+        overwriteExisting       = True,
+        deleteDownload          = False,
+        downloadDir             = DOWNLOAD_DIR,
+        baseURI                 = PAIRS_BASE_URI,
+        verifySSL               = True,
+        vectorFormat            = None,
+    ):
         """
         :param query:               dictionary equivalent to PAIRS JSON load that defines a query or
-                                    path that references a ZIP file identified with a PAIRS query
+                                    path that references a ZIP file identified with a PAIRS query or
+                                    ID of existing (submitted) query
         :type query:                dict or
-                                    string
+                                    str
         :param pairsHost:           base URL + scheme of PAIRS host to connect to,
                                     e.g. 'https://pairs.res.ibm.com'
         :type pairsHost:            str
@@ -381,7 +343,7 @@ class PAIRSQuery(object):
                                     *note:* ignored in case of a file path (string) is provided as query
         :type overwriteExisting:    bool
         :param deleteDownload:      destroy downloaded data with destruction of class instance
-        :type overwriteExisting:    bool
+        :type deleteDownload:       bool
         :param downloadDir:         directory where to store downloaded data
                                     note: ignored if the `query` is a string representing the
                                     PAIRS query ZIP directory
@@ -393,6 +355,7 @@ class PAIRSQuery(object):
         :param vectorFormat:        data format of the vector data
         :type vectorFormat:         str
         :raises Exception:          if an invalid URL was specified
+                                    if the query defintion is not understood
                                     if a manually set PAIRS query ZIP directory does not exist
         """
         # update API resources with base URI
@@ -402,36 +365,69 @@ class PAIRSQuery(object):
         self.GET_GEOJSON_API_STRING     = urljoin(baseURI, self.GET_GEOJSON_API_STRING)
         self.GET_AOI_INFO_API_STRING    = urljoin(baseURI, self.GET_AOI_INFO_API_STRING)
         self.GET_QUERY_INFO             = urljoin(baseURI, self.GET_QUERY_INFO)
-        self.verifySSL                  = verifySSL
 
-        # JSON load defining the query
-        self.query               = query if isinstance(query, dict) else None
-        # ZIP file path storing the PAIRS query result
-        # note: directly set by user if the query is of type string
-        self.zipFilePath         = query if isinstance(query, string_type) else None
-        if self.zipFilePath is not None and not os.path.exists(self.zipFilePath):
-            raise Exception(
-                "I am sorry, ZIP file '{}' does not exist, canno create PAIRS query object.".format(self.zipFilePath)
-            )
+        # use SSL verification
+        self.verifySSL                  = verifySSL
+        # PAIRS API authentication
+        self.auth                       = auth
         # check and set port for IBM PAIRS core API server
         if isinstance(port, int) and port > 0 and port < 65536:
-            self.pairsPort       = port
+            self.pairsPort              = port
         else:
             logging.warning("Incorrect port number provided: {}, defaulting to port 80".format(port))
-            self.pairsPort       = 80
+            self.pairsPort              = 80
         # host serving PAIRS API to connect to
-        self.pairsHost           = urlparse(
+        self.pairsHost                  = urlparse(
             '' if pairsHost is None else \
             '{}:{}'.format(pairsHost, self.pairsPort) if self.pairsPort != 80 else pairsHost
         )
         if pairsHost is not None and self.pairsHost.scheme not in ['http', 'https']:
             raise Exception('Invalid PAIRS host URL: {}'.format(pairsHost))
+        # query information retrieved via PAIRS API
+        self.queryInfo                  = None
+        # associated PAIRS query ID (found in the JSON load)
+        self.queryID                    = None
+
+        # define query (depending on what information is provided)
+        # submit of query
+        self.querySubmit                = None
+        ## JSON load defining the query
+        if isinstance(query, dict):
+            self.query                  = query
+            self.zipFilePath            = None
+            logging.info('PAIRS query JSON initialized.')
+        elif isinstance(query, string_type):
+            ## ZIP file path storing the PAIRS query result
+            if os.path.exists(query):
+                self.zipFilePath        = query
+                self.query              = None
+                try:
+                    zipfile.ZipFile(self.zipFilePath).namelist()
+                except:
+                    raise('Hm, cannot load data from ZIP file.')
+                logging.info("Will load PAIRS query data from '{}'.".format(query))
+            else:
+                ## PAIRS query ID defining the query result
+                try:
+                    self.query          = self.get_query_JSON(query)
+                except Exception as e:
+                    self.query          = None
+                    logging.warning(
+                        "Unable to fetch query definition from PAIRS for query ID '{}': {}".format(query, e)
+                    )
+                self.queryID            = query
+                self.zipFilePath        = None
+                self.querySubmit        = MockSubmitResponse(self.queryID)
+                logging.info("Will load PAIRS query data from '{}'.".format(query))
+        else:
+            raise Exception(
+                "Query definition of type '{}' not an option.".format(type(query))
+            )
+
         # indicate if query is used in PAIRS Jupyter notebook (spin-up from e.g. MVP)
         self.isPairsJupyter      = False
         # set base URI
         self.baseURI             = baseURI
-        # PAIRS API authentication
-        self.auth                = auth
         # folder to save query result
         self.downloadDir         = os.path.dirname(self.zipFilePath) if self.zipFilePath is not None else downloadDir
         # overwriting download directory according to ZIP directory information given (if any)
@@ -440,23 +436,19 @@ class PAIRSQuery(object):
             logging.info("Download directory '{}' created.".format(self.downloadDir))
         # keep downloaded data in file
         self.deleteDownload      = deleteDownload
-        # associated PAIRS query ID (found in the JSON load)
-        self.queryID             = None
         # flags prominently that query data is downloaded and available as files to be loaded
         self.downloaded          = os.path.exists(self.zipFilePath if self.zipFilePath is not None else '')
         # Query parameters to compose the json query
         self.qPars               = None
         # hash of the JSON query
         # (used as subfolder for saving files and to see if corresponding Tiff already exists)
-        self.qHash               = getQueryHash(query) if isinstance(self.query, dict) else None
+        self.qHash               = getQueryHash(query if isinstance(self.query, dict) else {})
         # overwrite existing files
-        self.overwriteExisting   = overwriteExisting if isinstance(self.query, dict) else False
+        self.overwriteExisting   = overwriteExisting if (
+            isinstance(self.query, dict) or isinstance(self.querySubmit, MockSubmitResponse)
+        ) else False
         # Query directory
         self.queryDir            = None
-        # query information retrieved via PAIRS API
-        self.queryInfo           = None
-        # submit of query
-        self.querySubmit         = None
         # status of query
         self.queryStatus         = None
         # flag to indicate a failed Zip or GeoTiff generation. Used to re-issue the query
@@ -576,100 +568,6 @@ class PAIRSQuery(object):
                 )
                 raise
 
-    @classmethod
-    def from_query_id(
-        cls, queryID, pairsHost, auth,
-        overwriteExisting   = True,
-        downloadDir         = DOWNLOAD_DIR,
-        baseURI             = PAIRS_BASE_URI,
-        clone4Mod           = False,
-        verifySSL           = True,
-    ):
-        """
-        Load data from an existing (previously submitted) query.
-
-        :param queryID:             ID assigned by PAIRS query API (used to poll and download the data)
-        :type queryID:              str
-        :param pairsHost:           PAIRS host to be used for PAIRS API calls
-        :type pairsHost:            str
-        :param auth:                credentials ('user', 'password') for authentication with PAIRS
-        :type auth:                 tuple
-        :param overwriteExisting:   destroy locally cached data, if existing
-        :type overwriteExisting:    bool
-        :param downloadDir:         base directory where to store the downloaded/cached data
-        :type downloadDir:          str
-        :param baseURI:             base URI to use for PAIRS API calls
-        :type baseURI:              str
-        :param clone4Mod:           triggers if the query object will be used to define a new query
-        :type clone4Mod:            bool
-        :param verifySSL:           if set SSL connections are verified
-        :type verifySSL:            bool
-        :returns:                   PAIRS API wrapper query object
-        :rtype:                     api_wrapper.PAIRSQuery
-        :raises Exception:          if there was an error on getting the PAIRS query JSON load
-        """
-        # set mocked query status
-        class MockSubmitResponse():
-            def __init__(self, status_code=200):
-                self.status_code = status_code
-            def json(self):
-                return {'id': str(queryID)}
-
-        # instantiate class object
-        clsInstance = cls(
-            query               = None,
-            pairsHost           = pairsHost if not clone4Mod else None,
-            baseURI             = baseURI,
-            auth                = auth,
-            overwriteExisting   = overwriteExisting,
-            downloadDir         = downloadDir,
-            verifySSL           = verifySSL,
-        )
-        # clone (parsed) PAIRS host object (if any)
-        if clone4Mod:
-            clsInstance.pairsHost = pairsHost
-        else:
-            # set query ID
-            clsInstance.queryID     = queryID
-            # flag that data is already downloaded
-            clsInstance.downloaded  = True
-        # obtain and set JSON load for query from PAIRS
-        try:
-            clsInstance.query = clsInstance.get_query_JSON(queryID)
-            # mocked submit response
-            if clone4Mod:
-                clsInstance.querySubmit = MockSubmitResponse(500)
-            else:
-                clsInstance.querySubmit = MockSubmitResponse()
-        except Exception as e:
-            # mocked submit code indicating error with query
-            clsInstance.querySubmit = MockSubmitResponse(status_code=500)
-
-        # Check if a subfolder beginning in the queryID exists already
-        if not clone4Mod:
-            for f in next(os.walk(downloadDir))[1]:
-                if f[:len(queryID)] == clsInstance.queryID:
-                    # Found subfolder
-                    clsInstance.queryDir = os.path.join(downloadDir, f)
-                    clsInstance.qHash = f[len(queryID)+1:]
-
-                    clsInstance.list_rasters()
-                    break
-
-            if clsInstance.queryDir==None:
-                # Exact query not known, so use hashed json None
-                clsInstance.qHash = hashlib.md5(json.dumps(None).encode('utf-8')).hexdigest()
-                clsInstance.queryDir = os.path.join(
-                    downloadDir,
-                    queryID + '_' + clsInstance.qHash
-                )
-        else:
-            # reset query hash such that it is recomputed on download time
-            clsInstance.qHash = None
-
-
-        return clsInstance
-
 
     @classmethod
     def from_query_result_dir(
@@ -740,7 +638,7 @@ class PAIRSQuery(object):
         """
         # recompute query hash
         try:
-            self.qHash = getQueryHash(self.query) if isinstance(self.query, dict) else None
+            self.qHash = getQueryHash(self.query if isinstance(self.query, dict) else {})
         except:
             errMsg = 'Unable to determine query hash.'
             logging.error(errMsg)
@@ -826,10 +724,12 @@ class PAIRSQuery(object):
                 raise Exception()
             timeInfo = timeInfo[0]
             self.qPars['startTime']     = datetime.fromtimestamp(
-                int(timeInfo['start']) // 1000
+                int(timeInfo['start']) // 1000,
+                tz=pytz.UTC
             )
             self.qPars['endTime']       = datetime.fromtimestamp(
-                int(timeInfo['end']) // 1000
+                int(timeInfo['end']) // 1000,
+                tz=pytz.UTC
             )
             # get spatial information
             if self.query['spatial']['coordinates'] is not None \
@@ -844,61 +744,6 @@ class PAIRSQuery(object):
             # reset query parameters
             self.qPars = dict()
             raise Exception('Query cannot be mapped to simple query parameters.')
-
-    def clone_by_query_ID(self):
-        """
-        Clone query object based on its PAIRS query ID.
-
-        :returns:           cloned PAIRS query object
-        :rtype:             pairs_python.core.api_wrapper.PAIRSQuery
-        :raises Exception:  if there is no query ID available
-        """
-        try:
-            if self.queryID is not None:
-                # clone query
-                clonedQuery = PAIRSQuery.from_query_id(
-                    self.queryID,
-                    self.pairsHost,
-                    self.auth,
-                    overwriteExisting   = self.overwriteExisting,
-                    downloadDir         = self.downloadDir \
-                                          if self.downloadDir is not None \
-                                          else DEFAULT_DOWNLOAD_DIR,
-                    baseURI             = self.baseURI,
-                    clone4Mod           = True,
-                    verifySSL           = self.verifySSL,
-                )
-                # tweak query output type if parent query is from PAIRS Jupyter notebook
-                if self.isPairsJupyter:
-                    clonedQuery.query['outputType'] = PAIRS_VECTOR_GEOJSON_TYPE_NAME
-                    clonedQuery.vectorFormat        = PAIRS_VECTOR_GEOJSON_TYPE_NAME
-                # extract simple query parameters from query JSON load (if any)
-                try:
-                    clonedQuery.get_query_params()
-                except:
-                    pass
-
-                return clonedQuery
-            else:
-                raise Exception('No query ID found.')
-        except Exception as e:
-            logging.error("Unable to clone query by ID: '{}'".format(e))
-            raise
-
-    def recompute_query_JSON_from_qPars(self):
-        """
-        """
-        try:
-            # make sure there is any info at all
-            if bool(self.qPars):
-                self.query = json_from_qPars(self.qPars)
-            else:
-                raise Exception('No qPars information found.')
-        except Exception as e:
-            logging.error(
-                'Unable to update PAIRS query JSON load from qPars: {}'.format(e)
-            )
-            raise
 
 
     def submit(self):
@@ -971,49 +816,62 @@ class PAIRSQuery(object):
                     # set query status equal to submit status
                     self.queryStatus = self.querySubmit
                     # convert data into (vector) dataframe
-                    try:
-                        if self.queryStatus.status_code != 200:
-                            raise Exception(
-                                    "Querying PAIRS resulted in HTML error code '{}': {}.".format(
-                                    self.queryStatus.status_code,
-                                    self.queryStatus.text
+                    # catch empty return
+                    if self.queryStatus.json() is None:
+                        logging.warning('No point data available to load/returned.')
+                    else:
+                        try:
+                            if self.queryStatus.status_code != 200:
+                                raise Exception(
+                                        "Querying PAIRS resulted in HTML error code '{}': {}.".format(
+                                        self.queryStatus.status_code,
+                                        self.queryStatus.text,
+                                    )
                                 )
-                            )
-                        self.vdf = pandas.DataFrame(
-                            self.queryStatus.json()['data']
-                        )
-                        logging.info('Point data successfully imported into self.vdf')
-                        # check for (default) timestamp column
-                        if PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in self.vdf.columns:
-                            self.set_timestamp_column(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME)
-                            logging.info("Timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
-                        else:
-                            logging.warning("No timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
-                        # check for (default) geo-coordinate columns
-                        if PAIRS_VECTOR_LONGITUDE_COLUMN_NAME in self.vdf.columns \
-                        and PAIRS_VECTOR_LATITUDE_COLUMN_NAME in self.vdf.columns:
-                            self.set_lat_lon_columns(
-                                PAIRS_VECTOR_LATITUDE_COLUMN_NAME,
-                                PAIRS_VECTOR_LONGITUDE_COLUMN_NAME,
-                                PAIRS_VECTOR_GEOMETRY_COLUMN_NAME,
-                            )
-                            logging.info(
-                                "Geo-coordinate columns '{}' and '{}' detected.".format(
-                                    PAIRS_VECTOR_LONGITUDE_COLUMN_NAME,
+                            else:
+                                self.vdf = pandas.DataFrame(
+                                    self.queryStatus.json()['data']
+                                )
+                            logging.info('Point data successfully imported into self.vdf')
+                            # check for (default) timestamp column
+                            if PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in self.vdf.columns:
+                                self.set_timestamp_column(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME)
+                                logging.info("Timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
+                            else:
+                                logging.warning("No timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
+                            # check for (default) geo-coordinate columns
+                            if PAIRS_VECTOR_LONGITUDE_COLUMN_NAME in self.vdf.columns \
+                            and PAIRS_VECTOR_LATITUDE_COLUMN_NAME in self.vdf.columns:
+                                self.set_lat_lon_columns(
                                     PAIRS_VECTOR_LATITUDE_COLUMN_NAME,
+                                    PAIRS_VECTOR_LONGITUDE_COLUMN_NAME,
+                                    PAIRS_VECTOR_GEOMETRY_COLUMN_NAME,
                                 )
-                            )
-                        else:
-                            logging.warning(
-                                "No geo-coordinate columns '{}' detected.".format(
-                                    [PAIRS_VECTOR_LONGITUDE_COLUMN_NAME, PAIRS_VECTOR_LATITUDE_COLUMN_NAME]
+                                logging.info(
+                                    "Geo-coordinate columns '{}' and '{}' detected.".format(
+                                        PAIRS_VECTOR_LONGITUDE_COLUMN_NAME,
+                                        PAIRS_VECTOR_LATITUDE_COLUMN_NAME,
+                                    )
                                 )
-                            )
-                    except Exception as e:
-                        logging.error("Unable to load point data into dataframe: '{}'.".format(e))
-                        raise Exception()
+                            else:
+                                logging.warning(
+                                    "No geo-coordinate columns '{}' detected.".format(
+                                        [PAIRS_VECTOR_LONGITUDE_COLUMN_NAME, PAIRS_VECTOR_LATITUDE_COLUMN_NAME]
+                                    )
+                                )
+                        except Exception as e:
+                            logging.error("Unable to load point data into dataframe: '{}'.".format(e))
+                            raise Exception()
+        # case of PAIRS cached query (previously run)
+        elif isinstance(self.querySubmit, MockSubmitResponse):
+            logging.info(
+                "Alright, using remotely cached PAIRS query with ID '{}'.".format(self.queryID)
+            )
+        # case of locally cached PAIRS query ZIP directory
         elif os.path.exists(self.zipFilePath):
-            logging.info("Alright, using user provided PAIRS query ZIP file '{}'".format(self.zipFilePath))
+            logging.info(
+                "Alright, using locally cached PAIRS query ZIP file '{}'.".format(self.zipFilePath)
+            )
             self.downloaded = True
         else:
             raise Exception(
@@ -1031,8 +889,9 @@ class PAIRSQuery(object):
                             if no query or query ID is defined,
                             if the provided credentials are incorrect
         """
-        # skip point query case
-        if self.query is None or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
+        # skip point query
+        if isinstance(self.querySubmit, MockSubmitResponse) or self.query is None \
+        or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
             # in case the query is a local pointer to a directory, pass polling
             if isinstance(self.query, string_type):
                 passNonSubmitted = True
@@ -1103,7 +962,8 @@ class PAIRSQuery(object):
                                 if a user set timeout has been reached
         """
         # skip point query case
-        if self.query is None or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
+        if isinstance(self.querySubmit, MockSubmitResponse) or self.query is None \
+        or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
             # poll in case no locally cached data is used, only
             if not self.overwriteExisting:
                 self.poll(passNonSubmitted = True)
@@ -1167,8 +1027,9 @@ class PAIRSQuery(object):
                             in combination with IBM Watson Studio notebooks)
         :type cosInfo:      (str, str)
         """
-        # skip point query case
-        if self.query is None or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
+        # skip point query case (including reload query and cached query)
+        if isinstance(self.querySubmit, MockSubmitResponse) or self.query is None \
+        or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
             # one more time poll/try to get query status
             if self.queryStatus is None and self.overwriteExisting:
                 self.poll()
@@ -1348,6 +1209,7 @@ class PAIRSQuery(object):
                 # convert timestamp column
                 try:
                     self.vdf[timeName].astype(str).apply(dateutil.parser.parse)
+                    self.vdf[timeName].apply(lambda ts: pytz.UTC.localize(ts) if ts.tzinfo is None else ts)
                 except:
                     raise Exception(
                         'Sorry, failed to convert timestamps to datetime objects for JSON ID: '+str(json_id)
@@ -1422,7 +1284,7 @@ class PAIRSQuery(object):
                     lambda x: dict(
                         item.split(PROPERTY_STRING_SPLIT_CHAR2, 1)
                         for item in x.split(PROPERTY_STRING_SPLIT_CHAR1)
-                    )
+                    ) if isinstance(x, string_type) else {}
                 ).tolist()
             )
             # check that there was no previous call of this function or there
@@ -1685,7 +1547,7 @@ class PAIRSQuery(object):
         """
         # convert timestamp information (if any)
         if 'timestamp' in layerMeta.keys() and not isinstance(layerMeta['timestamp'], datetime):
-            layerMeta['timestamp'] = datetime.fromtimestamp(int(layerMeta['timestamp']))
+            layerMeta['timestamp'] = datetime.fromtimestamp(int(layerMeta['timestamp']), tz=pytz.UTC)
         # load raster data
         # construct file path to load data from
         layerDataPath = os.path.join(
