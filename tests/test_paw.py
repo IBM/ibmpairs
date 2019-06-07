@@ -38,7 +38,7 @@ import re
 # handle json
 import json
 # handle timestamps
-import datetime
+import datetime, pytz
 # get PAW to test
 sys.path.append('.')
 from ibmpairs import paw
@@ -210,6 +210,10 @@ class TestPointQuery(unittest.TestCase):
             datetime.datetime,
         )
         self.assertIsInstance(
+            testPointQuery.vdf.timestamp[0].tzinfo,
+            type(pytz.UTC),
+        )
+        self.assertIsInstance(
             testPointQuery.vdf.value[0],
             string_type,
         )
@@ -250,6 +254,10 @@ class TestPointQuery(unittest.TestCase):
         self.assertIsInstance(
             testPointQuery.vdf.timestamp[0],
             datetime.datetime,
+        )
+        self.assertIsInstance(
+            testPointQuery.vdf.timestamp[0].tzinfo,
+            type(pytz.UTC),
         )
         self.assertIsInstance(
             testPointQuery.vdf.value[0],
@@ -361,9 +369,9 @@ class TestPollQuery(unittest.TestCase):
     ## relative deviation of file size for comparing downloaded data with mock
     REL_FILESIZE_DEV            = .1
     ## local sample data
-    PAIRS_RASTER_ZIP_PATH       = os.path.join(TEST_DATA_DIR,'12_07_2018T18_39_36-1544202000_23976938.zip')
-    PAIRS_AGG_RASTER_ZIP_PATH   = os.path.join(TEST_DATA_DIR,'12_07_2018T19_10_50-1544202000_25850895.zip')
-    PAIRS_VECTOR_ZIP_PATH       = os.path.join(TEST_DATA_DIR,'04_10_2019T21_45_15-1554912000_35115995.zip')
+    PAIRS_RASTER_ZIP_PATH       = os.path.join(TEST_DATA_DIR, '12_07_2018T18_39_36-1544202000_23976938.zip')
+    PAIRS_AGG_RASTER_ZIP_PATH   = os.path.join(TEST_DATA_DIR, '12_07_2018T19_10_50-1544202000_25850895.zip')
+    PAIRS_VECTOR_ZIP_PATH       = os.path.join(TEST_DATA_DIR, '04_10_2019T21_45_15-1554912000_35115995.zip')
     #}}}
 
     # fold: test environment setup#{{{

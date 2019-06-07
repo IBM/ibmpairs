@@ -1192,14 +1192,16 @@ class PAIRSQuery(object):
         # is the data from a PAIRS point query?
         if self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
             try:
-                self.vdf[timeName] = pandas.to_datetime(
-                    self.vdf[timeName],
-                    unit='ms',
-                    utc=True,
-                )
-            except:
+                if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
+                and self.vdf[timeName].dtype in (numpy.float, numpy.int):
+                    self.vdf[timeName] = self.vdf[timeName].apply(
+                        lambda t: datetime.fromtimestamp(
+                            t/1e3, tz=pytz.UTC
+                        )
+                    )
+            except Exception as e:
                 raise Exception(
-                    "Sorry, failed to convert timestampsof column '{}' to datetime object".format(timeName)
+                    "Sorry, failed to convert timestamps of column '{}' to datetime object: {}".format(timeName, e)
                 )
         else:
             # set meta data
@@ -1217,10 +1219,14 @@ class PAIRSQuery(object):
             elif self.query['outputType'] == PAIRS_VECTOR_CSV_TYPE_NAME:
                 # convert timestamp column
                 try:
-                    self.vdf[timeName] = pandas.to_datetime(self.vdf[timeName], utc=True)
-                except:
+                    if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
+                    and self.vdf[timeName].dtype in (numpy.float, numpy.int):
+                        self.vdf[timeName] = self.vdf[timeName].apply(
+                            lambda t: datetime.fromtimestamp(t, tz=pytz.UTC)
+                        )
+                except Exception as e:
                     raise Exception(
-                        'Sorry, failed to convert timestamps to datetime objects for JSON ID: '+str(json_id)
+                        "Sorry, failed to convert timestamps to datetime objects for JSON ID '{}': {}".format(json_id, e)
                     )
 
     def set_lat_lon_columns(self, latColName, lonColName, geomColName):
