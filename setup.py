@@ -7,6 +7,19 @@ def readme():
     except:
 	    return 'sorry, no details available'
 
+# read required packages
+with open('requirements.txt') as f:
+    reqPackList = [
+        r.rstrip() for r in list(f)
+        if '#' not in r
+    ]
+## optional packages
+#   + [
+#       'geopandas',
+#       'geojson',
+#       'gdal',
+#   ]
+
 setup(
     name='ibmpairs',
     version='0.0.4',
@@ -25,18 +38,7 @@ setup(
     author_email='pairs@us.ibm.com',
     license='BSD-Clause-3',
     packages=['ibmpairs'],
-    install_requires=[
-        'numpy',
-        'Pillow>=1.6',
-        'pandas',
-        'future',
-        'requests>=2.4',
-        'shapely',
-## optional packages
-#        'geopandas',
-#        'geojson',
-#        'gdal',
-    ],
+    install_requires=reqPackList,
     test_suite='tests',
     tests_require=[],
     entry_points={
