@@ -49,6 +49,8 @@ import zipfile
 # handling scientific data
 import numpy
 import pandas
+# handle geometric data
+import shapely
 # string type compatibility with Python 2 and 3
 PYTHON_VERSION = sys.version_info[0]
 if PYTHON_VERSION == 2:
@@ -212,6 +214,10 @@ class TestPointQuery(unittest.TestCase):
         self.assertIsInstance(
             testPointQuery.vdf.timestamp[0].tzinfo,
             type(pytz.UTC),
+        )
+        self.assertIsInstance(
+            testPointQuery.vdf.geometry[0],
+            shapely.geometry.point.Point,
         )
         self.assertIsInstance(
             testPointQuery.vdf.value[0],

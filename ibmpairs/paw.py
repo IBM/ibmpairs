@@ -66,6 +66,9 @@ from shapely.geometry import shape, box, Point
 import re
 import logging
 import itertools
+# file system abstraction
+import fs
+from fs import zipfs
 # }}}
 # fold: optional packages#{{{
 try:
@@ -323,6 +326,7 @@ class PAIRSQuery(object):
         baseURI                 = PAIRS_BASE_URI,
         verifySSL               = True,
         vectorFormat            = None,
+        inMemory                = False,
     ):
         """
         :param query:               dictionary equivalent to PAIRS JSON load that defines a query or
@@ -354,6 +358,9 @@ class PAIRSQuery(object):
         :type verifySSL:            bool
         :param vectorFormat:        data format of the vector data
         :type vectorFormat:         str
+        :param inMemory:            triggers storing files directly in memory
+                                    note: ignored if query is loaded from existing ZIP file
+        :type inMemory:             bool
         :raises Exception:          if an invalid URL was specified
                                     if the query defintion is not understood
                                     if a manually set PAIRS query ZIP directory does not exist
@@ -383,10 +390,20 @@ class PAIRSQuery(object):
         )
         if pairsHost is not None and self.pairsHost.scheme not in ['http', 'https']:
             raise Exception('Invalid PAIRS host URL: {}'.format(pairsHost))
+        # set base URI
+        self.baseURI                    = baseURI
+
         # query information retrieved via PAIRS API
         self.queryInfo                  = None
         # associated PAIRS query ID (found in the JSON load)
         self.queryID                    = None
+
+        # variable for file system object
+        self.fs                         = None
+        # variable for file system of query result
+        self.queryFS                    = None
+        # variable for query result data stream
+        self._queryStream               = None
 
         # define query (depending on what information is provided)
         # submit of query
@@ -398,13 +415,14 @@ class PAIRSQuery(object):
             logging.info('PAIRS query JSON initialized.')
         elif isinstance(query, string_type):
             ## ZIP file path storing the PAIRS query result
+            # TODO: detect and incorporate case where string represents e.g. COS
+            #       to be abstracted by pyfilesystem2, i.e. split apart COS part
+            #       from zipFilePath
             if os.path.exists(query):
-                self.zipFilePath        = query
+                self.zipFilePath        = unicode(query)
                 self.query              = None
-                try:
-                    zipfile.ZipFile(self.zipFilePath).namelist()
-                except:
-                    raise('Hm, cannot load data from ZIP file.')
+                # reset in memory user option, since contradicting
+                inMemory                = False
                 logging.info("Will load PAIRS query data from '{}'.".format(query))
             else:
                 ## PAIRS query ID defining the query result
@@ -426,18 +444,41 @@ class PAIRSQuery(object):
 
         # indicate if query is used in PAIRS Jupyter notebook (spin-up from e.g. MVP)
         self.isPairsJupyter      = False
-        # set base URI
-        self.baseURI             = baseURI
+
         # folder to save query result
-        self.downloadDir         = os.path.dirname(self.zipFilePath) if self.zipFilePath is not None else downloadDir
+        self.downloadDir         = unicode(
+            os.path.dirname(self.zipFilePath) if self.zipFilePath is not None else downloadDir
+        )
         # overwriting download directory according to ZIP directory information given (if any)
-        if self.downloadDir is not None and not os.path.exists(self.downloadDir):
+        if self.downloadDir is not None and not inMemory and not os.path.exists(self.downloadDir):
             os.mkdir(self.downloadDir)
             logging.info("Download directory '{}' created.".format(self.downloadDir))
-        # keep downloaded data in file
+        # file system for query storage
+        if self.fs is None:
+            try:
+                if inMemory:
+                    self.fs = fs.open_fs(u'mem://')
+                else:
+                    self.fs = fs.open_fs(self.downloadDir)
+            except Exception as e:
+                raise Exception(
+                    "Unable to initialize download directory '{}': {}".format(self.downloadDir, e)
+                )
+        # try to open the ZIP file (if any)
+        if self.zipFilePath is not None:
+            try:
+                self._queryStream   = self.fs.open(self.zipFilePath, 'rb')
+                self.queryFS        = zipfs.ZipFS(self.zipFS, write=False)
+                self.queryFS.listdir(u'')
+            except Exception as e:
+                raise('Hm, cannot load data from ZIP file: {}'.format(e))
+            # flags prominently that query data is downloaded and available as files to be loaded
+            self.downloaded = True
+        else:
+            # flag data is not downloaded, yet
+            self.downloaded = False
+        # flag for how to handle downloaded data on object delete
         self.deleteDownload      = deleteDownload
-        # flags prominently that query data is downloaded and available as files to be loaded
-        self.downloaded          = os.path.exists(self.zipFilePath if self.zipFilePath is not None else '')
         # Query parameters to compose the json query
         self.qPars               = None
         # hash of the JSON query
@@ -489,10 +530,10 @@ class PAIRSQuery(object):
     def __del__(self):
         # Delete the file and folder
         if self.deleteDownload and (not self.queryDir is None):
-            if os.path.exists(self.queryDir):
+            if self.fs.exists(self.queryDir):
                 try:
                     # Remove the folder with all its contents
-                    shutil.rmtree(self.queryDir)
+                    self.fs.removetree(self.queryDir)
                 except Exception as e:
                     logging.warning(
                         "Unable to delete query directory '{}': {}.".format(self.queryDir, e)
@@ -501,7 +542,7 @@ class PAIRSQuery(object):
                     logging.info("Query directory '{}' delete.".format(self.queryDir))
             # Remove the zip file
             try:
-                os.remove(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
+                self.fs.remove(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
             except Exception as e:
                 logging.warning(
                     "Unable to delete query result ZIP file '{}': {}.".format(self.queryDir, e)
@@ -510,6 +551,13 @@ class PAIRSQuery(object):
                 logging.info(
                     "Query result ZIP file '{}' deleted: {}.".format(self.queryDir, e)
                 )
+        # decouple from file system
+        try:
+            if self.queryFS is not None: self.queryFS.close()
+            if self._queryStream is not None: self._queryStream.close()
+            if self.fs is not None: self.fs.close()
+        except Exception as e:
+            logging.error('Cannot properly close file system handlers: {}'.format(e))
 
 
     def get_query_JSON(self, queryID, reloadData=False):
@@ -607,7 +655,7 @@ class PAIRSQuery(object):
         # indicate that the data does not need to be downloaded
         clsInstance.downloaded = True
         # set PAIRS query base directory
-        clsInstance.PAIRS_JUPYTER_QUERY_BASE_DIR = queryDir
+        clsInstance.PAIRS_JUPYTER_QUERY_BASE_DIR = unicode(queryDir)
         # load all raster and vector data
         logging.info('Loading query result into memory ...')
         try:
@@ -646,12 +694,13 @@ class PAIRSQuery(object):
 
         # construct query directory name
         if self.downloadDir is not None and self.queryID is not None:
-            self.queryDir = os.path.join(
-                self.downloadDir,
-                self.queryID + '_' + self.qHash
-            )
+            self.queryDir = unicode(
+                os.path.join(
+                    self.downloadDir,
+                    self.queryID + '_' + self.qHash
+                )
         elif self.zipFilePath is not None:
-            self.queryDir = os.path.dirname(self.zipFilePath)
+            self.queryDir = unicode(os.path.dirname(self.zipFilePath))
         else:
             msg = 'Information to construct query directory incomplete.'
             logging.warning(msg)
@@ -666,8 +715,8 @@ class PAIRSQuery(object):
         # attempt to extract only if not set already
         if self.dataAcknowledgeText is None:
             # check that there exists a file with the acknowledgement
-            if os.path.exists(self.zipFilePath) and \
-               PAIRS_DATA_ACK_FILE_NAME in zipfile.ZipFile(self.zipFilePath).namelist():
+            if self.fs.exists(self.zipFilePath) and \
+               PAIRS_DATA_ACK_FILE_NAME in self.queryFS.listdir(u''):
                 # extract data acknowledgement from PAIRS query ZIP file
                 try:
                     with zipfile.ZipFile(self.zipFilePath).open(PAIRS_DATA_ACK_FILE_NAME) as f:
@@ -761,21 +810,23 @@ class PAIRSQuery(object):
                 # check whether locally cache exists at all
                 try:
                     if isinstance(self.query, dict):
-                        self.queryDir = os.path.splitext(
-                            os.path.abspath(
-                                sorted(
-                                    glob.glob(
-                                        os.path.join(
-                                            self.downloadDir,
-                                            '*_{}{}'.format(self.qHash, PAIRS_ZIP_FILE_EXTENSION)
+                        self.queryDir = unicode(
+                            os.path.splitext(
+                                os.path.abspath(
+                                    sorted(
+                                        glob.glob(
+                                            os.path.join(
+                                                self.downloadDir,
+                                                '*_{}{}'.format(self.qHash, PAIRS_ZIP_FILE_EXTENSION)
+                                            )
                                         )
-                                    )
-                                )[0]
-                            )
-                        )[0]
-                        self.queryID = os.path.basename(
-                            self.queryDir
-                        ).rsplit(PAW_QUERY_NAME_SEPARATOR, 1)[0]
+                                    )[0]
+                                )
+                            )[0]
+                        self.queryID = unicode(
+                            os.path.basename(
+                                self.queryDir
+                            ).rsplit(PAW_QUERY_NAME_SEPARATOR, 1)[0]
                         self.downloaded = True
                         logging.info("Alright, using cache of PAIRS query with ID: '{}'".format(self.queryID))
                 except Exception as e:
@@ -1039,7 +1090,7 @@ class PAIRSQuery(object):
             # note: if the ZIP file path is set already, we deal with the case where
             # there is a user specified PAIRS query directory, already
             if self.zipFilePath is None:
-                self.zipFilePath = self.queryDir + PAIRS_ZIP_FILE_EXTENSION
+                self.zipFilePath = unicode(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
 
             # check successful query
             if not self.overwriteExisting:
