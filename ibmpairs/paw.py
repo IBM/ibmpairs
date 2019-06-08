@@ -472,20 +472,6 @@ class PAIRSQuery(object):
             except Exception as e:
                 pass
 
-    def __copy__(self):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        result.__dict__.update(self.__dict__)
-        return result
-
-    def __deepcopy__(self, memo):
-        cls = self.__class__
-        result = cls.__new__(cls)
-        memo[id(self)] = result
-        for k, v in self.__dict__.items():
-            setattr(result, k, deepcopy(v, memo))
-        return result
-
     def __del__(self):
         # Delete the file and folder
         if self.deleteDownload and (not self.queryDir is None):
