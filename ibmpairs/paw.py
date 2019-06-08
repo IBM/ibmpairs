@@ -22,7 +22,7 @@ __date__        = "June 2019"
 # basic imports
 import os, sys
 # compatibility of code with Python 2 and 3
-from builtins import dict, range, map, filter, zip, input, chr
+from builtins import dict, range, map, filter, zip, input, chr, str
 from past.builtins import xrange, execfile, intern, apply, cmp
 from io import open
 from functools import reduce
@@ -419,7 +419,7 @@ class PAIRSQuery(object):
             #       to be abstracted by pyfilesystem2, i.e. split apart COS part
             #       from zipFilePath
             if os.path.exists(query):
-                self.zipFilePath        = unicode(query)
+                self.zipFilePath        = str(query)
                 self.query              = None
                 # reset in memory user option, since contradicting
                 inMemory                = False
@@ -446,7 +446,7 @@ class PAIRSQuery(object):
         self.isPairsJupyter      = False
 
         # folder to save query result
-        self.downloadDir         = unicode(
+        self.downloadDir         = str(
             os.path.dirname(self.zipFilePath) if self.zipFilePath is not None else downloadDir
         )
         # separate ZIP file name from directory (if any)
@@ -651,7 +651,7 @@ class PAIRSQuery(object):
         # indicate that the data does not need to be downloaded
         clsInstance.downloaded = True
         # set PAIRS query base directory
-        clsInstance.PAIRS_JUPYTER_QUERY_BASE_DIR = unicode(queryDir)
+        clsInstance.PAIRS_JUPYTER_QUERY_BASE_DIR = str(queryDir)
         # load all raster and vector data
         logging.info('Loading query result into memory ...')
         try:
@@ -691,11 +691,11 @@ class PAIRSQuery(object):
         # construct query directory name
         # note: download directory abstracted away by self.fs
         if self.queryID is not None:
-            self.queryDir = unicode(
+            self.queryDir = str(
                     self.queryID + '_' + self.qHash
             )
         elif self.zipFilePath is not None:
-            self.queryDir = unicode(os.path.dirname(self.zipFilePath))
+            self.queryDir = str(os.path.dirname(self.zipFilePath))
         else:
             msg = 'Information to construct query directory incomplete.'
             logging.warning(msg)
@@ -805,7 +805,7 @@ class PAIRSQuery(object):
                 # check whether locally cache exists at all
                 try:
                     if isinstance(self.query, dict):
-                        self.queryDir = unicode(
+                        self.queryDir = str(
                             os.path.splitext(
                                 os.path.abspath(
                                     sorted(
@@ -824,7 +824,7 @@ class PAIRSQuery(object):
                                 )
                             )[0]
                         )
-                        self.queryID = unicode(
+                        self.queryID = str(
                             os.path.basename(
                                 self.queryDir
                             ).rsplit(PAW_QUERY_NAME_SEPARATOR, 1)[0]
@@ -1092,7 +1092,7 @@ class PAIRSQuery(object):
             # note: if the ZIP file path is set already, we deal with the case where
             # there is a user specified PAIRS query directory, already
             if self.zipFilePath is None:
-                self.zipFilePath = unicode(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
+                self.zipFilePath = str(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
 
             # check successful query
             if not self.overwriteExisting:
