@@ -159,7 +159,7 @@ class TestPointQuery(unittest.TestCase):
             pass
     #}}}
 
-    def test_from_point_query_raster(self):
+    def test_point_query_raster(self):
         """
         Test querying raster point data.
         """
@@ -224,7 +224,7 @@ class TestPointQuery(unittest.TestCase):
             string_type,
         )
 
-    def test_from_point_query_vector(self):
+    def test_point_query_vector(self):
         """
         Test querying vector point data.
         """
@@ -537,7 +537,7 @@ class TestPollQuery(unittest.TestCase):
 
 
     # fold: test ordinary raster queries#{{{
-    def raster_query(self, mode='query'):
+    def raster_query(self, mode='query', inMemory=False):
         """
         Query raster data in various ways.
 
@@ -546,11 +546,19 @@ class TestPollQuery(unittest.TestCase):
                             - `cached` uses locally cached PAIRS ZIP file
                             - `reload` uses PAIRS query ID
         :type mode:         str
+        :param inMemory:    triggers storing files directly in memory for PAIRS query
+        :type inMemory:     bool
         :raises Exception:  if function parameters are incorrectly set
         """
         # check function parameters
         # query mocked data
-        logging.info("TEST: Query {} raster data ({}).".format('' if REAL_CONNECT else 'mocked', mode))
+        logging.info(
+            "TEST: Query {} raster data ({}{}).".format(
+                '' if REAL_CONNECT else 'mocked',
+                mode,
+                ', in-memory' if inMemory else '',
+            )
+        )
         # define query
         if mode=='query':
             queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'raster-data-sample-request.json')))
@@ -568,6 +576,7 @@ class TestPollQuery(unittest.TestCase):
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            inMemory    = inMemory,
         )
         # check that query got submitted
         testRasterQuery.submit()
@@ -579,26 +588,31 @@ class TestPollQuery(unittest.TestCase):
             self.assertTrue(testRasterQuery.queryStatus.ok)
         # check that certain files exist
         testRasterQuery.download()
-        self.assertTrue(
-            os.path.exists(testRasterQuery.zipFilePath)
-        )
-        logging.info("TEST: Check files downloaded.")
-        with zipfile.ZipFile(testRasterQuery.zipFilePath) as zf:
-            # test the existence of the basic meta file
-            for fileName in ['output.info', ]:
-                self.assertTrue(
-                        fileName in zf.namelist()
-                )
-            # check that for each GeoTiff file there exists a corresonding JSON meta file
-            for rasterFilePath in zf.namelist():
-                # find all PAIRS GeoTiff files
-                if rasterFilePath.endswith('.tiff'):
-                    # check a corresponding JSON file exists
+        if not inMemory:
+            fullZipFilePath = os.path.join(
+                testRasterQuery.downloadDir,
+                testRasterQuery.zipFilePath,
+            )
+            self.assertTrue(
+                os.path.exists(fullZipFilePath)
+            )
+            logging.info("TEST: Check files downloaded.")
+            with zipfile.ZipFile(fullZipFilePath) as zf:
+                # test the existence of the basic meta file
+                for fileName in ['output.info', ]:
                     self.assertTrue(
-                        rasterFilePath+'.json' in zf.namelist()
+                            fileName in zf.namelist()
                     )
-                    # try to temporarily open the JSON file
-                    json.loads(zf.read(rasterFilePath+'.json'))
+                # check that for each GeoTiff file there exists a corresonding JSON meta file
+                for rasterFilePath in zf.namelist():
+                    # find all PAIRS GeoTiff files
+                    if rasterFilePath.endswith('.tiff'):
+                        # check a corresponding JSON file exists
+                        self.assertTrue(
+                            rasterFilePath+'.json' in zf.namelist()
+                        )
+                        # try to temporarily open the JSON file
+                        json.loads(zf.read(rasterFilePath+'.json'))
         # load raster meta data
         logging.info("TEST: Load raster meta data.")
         testRasterQuery.list_layers()
@@ -628,27 +642,42 @@ class TestPollQuery(unittest.TestCase):
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
 
-    def test_raster_query(self):
+    def test_raster_query_standard(self):
         """
         Test querying raster data.
         """
         self.raster_query()
+    def test_raster_query_standard_in_memory(self):
+        """
+        Test querying raster data (in-memory storage).
+        """
+        self.raster_query(inMemory=True)
 
     def test_raster_query_cached(self):
         """
         Test querying raster data from local PAIRS ZIP file.
         """
         self.raster_query(mode='cached')
+    def test_raster_query_cached_in_memory(self):
+        """
+        Test querying raster data from local PAIRS ZIP file (in-memory storage).
+        """
+        self.raster_query(mode='cached', inMemory=True)
 
     def test_raster_query_reload(self):
         """
         Test reloading previously queried data with PAIRS query ID.
         """
         self.raster_query(mode='reload')
+    def test_raster_query_reload_in_memory(self):
+        """
+        Test reloading previously queried data with PAIRS query ID (in-memory storage).
+        """
+        self.raster_query(mode='reload', inMemory=True)
     #}}}
 
     # fold: test raster aggregation queries#{{{
-    def raster_aggregation_query(self, mode='query'):
+    def raster_aggregation_query(self, mode='query', inMemory=False):
         """
         Query aggregated raster data.
 
@@ -657,10 +686,18 @@ class TestPollQuery(unittest.TestCase):
                             - `cached` uses locally cached PAIRS ZIP file
                             - `reload` uses PAIRS query ID
         :type mode:         str
+        :param inMemory:    triggers storing files directly in memory for PAIRS query
+        :type inMemory:     bool
         :raises Exception:  if function parameters are incorrectly set
         """
         # check function parameters
-        logging.info("TEST: Query {} aggregation data ({}).".format('' if REAL_CONNECT else 'mocked', mode))
+        logging.info(
+            "TEST: Query {} raster aggregation data ({}{}).".format(
+                '' if REAL_CONNECT else 'mocked',
+                mode,
+                ', in-memory' if inMemory else '',
+            )
+        )
         # define query
         if mode=='query':
             queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'aggregation-data-sample-request.json')))
@@ -678,6 +715,7 @@ class TestPollQuery(unittest.TestCase):
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            inMemory    = inMemory,
         )
         # check that query got submitted
         testRasterAggQuery.submit()
@@ -689,26 +727,31 @@ class TestPollQuery(unittest.TestCase):
             self.assertTrue(testRasterAggQuery.queryStatus.ok)
         # check that certain files exist
         testRasterAggQuery.download()
-        self.assertTrue(
-            os.path.exists(testRasterAggQuery.zipFilePath)
-        )
-        logging.info("TEST: Check files downloaded.")
-        with zipfile.ZipFile(testRasterAggQuery.zipFilePath) as zf:
-            # test the existence of the basic meta file
-            for fileName in ['output.info', ]:
-                self.assertTrue(
-                        fileName in zf.namelist()
-                )
-            # check that for each aggregated CSV file there exists a corresonding JSON meta file
-            for rasterFilePath in zf.namelist():
-                # find all PAIRS GeoTiff files
-                if rasterFilePath.endswith('.csv'):
-                    # check a corresponding JSON file exists
+        if not inMemory:
+            fullZipFilePath = os.path.join(
+                testRasterAggQuery.downloadDir,
+                testRasterAggQuery.zipFilePath,
+            )
+            self.assertTrue(
+                os.path.exists(fullZipFilePath)
+            )
+            logging.info("TEST: Check files downloaded.")
+            with zipfile.ZipFile(fullZipFilePath) as zf:
+                # test the existence of the basic meta file
+                for fileName in ['output.info', ]:
                     self.assertTrue(
-                        rasterFilePath+'.json' in zf.namelist()
+                            fileName in zf.namelist()
                     )
-                    # try to temporarily open the JSON file
-                    json.loads(zf.read(rasterFilePath+'.json'))
+                # check that for each aggregated CSV file there exists a corresonding JSON meta file
+                for rasterFilePath in zf.namelist():
+                    # find all PAIRS GeoTiff files
+                    if rasterFilePath.endswith('.csv'):
+                        # check a corresponding JSON file exists
+                        self.assertTrue(
+                            rasterFilePath+'.json' in zf.namelist()
+                        )
+                        # try to temporarily open the JSON file
+                        json.loads(zf.read(rasterFilePath+'.json'))
         # load aggregated raster meta data (which are actually vector-type data!)
         logging.info("TEST: Load aggregated raster meta data.")
         testRasterAggQuery.list_layers()
@@ -738,27 +781,42 @@ class TestPollQuery(unittest.TestCase):
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testRasterAggQuery.dataAcknowledgeText)
 
-    def test_raster_aggregation_query(self):
+    def test_raster_aggregation_query_standard(self):
         """
         Test querying aggregated raster data.
         """
         self.raster_aggregation_query()
+    def test_raster_aggregation_query_standard_in_memory(self):
+        """
+        Test querying aggregated raster data (in-memory storage).
+        """
+        self.raster_aggregation_query(inMemory=True)
 
     def test_raster_aggregation_query_cached(self):
         """
         Test querying aggregated raster data from local PAIRS ZIP file.
         """
         self.raster_aggregation_query(mode='cached')
+    def test_raster_aggregation_query_cached_in_memory(self):
+        """
+        Test querying aggregated raster data from local PAIRS ZIP file (in-memory).
+        """
+        self.raster_aggregation_query(mode='cached', inMemory=True)
 
     def test_raster_aggregation_query_reload(self):
         """
         Test reloading previously queried aggregation data with PAIRS query ID.
         """
         self.raster_aggregation_query(mode='reload')
+    def test_raster_aggregation_query_reload_in_memory(self):
+        """
+        Test reloading previously queried aggregation data with PAIRS query ID (in-memory storage).
+        """
+        self.raster_aggregation_query(mode='reload', inMemory=True)
     #}}}
 
     # fold: test vector queries #{{{
-    def vector_query(self, mode='query'):
+    def vector_query(self, mode='query', inMemory=False):
         """
         Query vector data in various ways.
 
@@ -767,10 +825,18 @@ class TestPollQuery(unittest.TestCase):
                             - `cached` uses locally cached PAIRS ZIP file
                             - `reload` uses PAIRS query ID
         :type mode:         str
+        :param inMemory:    triggers storing files directly in memory for PAIRS query
+        :type inMemory:     bool
         :raises Exception:  if function parameters are incorrectly set
         """
         # check function parameters
-        logging.info("TEST: Query {} vector data ({}).".format('' if REAL_CONNECT else 'mocked', mode))
+        logging.info(
+            "TEST: Query {} vector data ({}{}).".format(
+                '' if REAL_CONNECT else 'mocked',
+                mode,
+                ', in-memory' if inMemory else '',
+            )
+        )
         # define query
         if mode=='query':
             queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'vector-data-sample-request.json')))
@@ -788,6 +854,7 @@ class TestPollQuery(unittest.TestCase):
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            inMemory    = inMemory,
         )
         # check that query got submitted
         testVectorQuery.submit()
@@ -799,18 +866,23 @@ class TestPollQuery(unittest.TestCase):
             self.assertTrue(testVectorQuery.queryStatus.ok)
         # check that certain files exist
         testVectorQuery.download()
-        self.assertTrue(
-            os.path.exists(testVectorQuery.zipFilePath)
-        )
-        logging.info("TEST: Check files downloaded.")
-        with zipfile.ZipFile(testVectorQuery.zipFilePath) as zf:
-            pass
-            # test the existence of the basic meta file
-            # ATTENTION: disabled for now, because it needs to be implemented
-            #for fileName in ['output.info', ]:
-            #    self.assertTrue(
-            #            fileName in zf.namelist()
-            #    )
+        if not inMemory:
+            fullZipFilePath = os.path.join(
+                testVectorQuery.downloadDir,
+                testVectorQuery.zipFilePath,
+            )
+            self.assertTrue(
+                os.path.exists(fullZipFilePath)
+            )
+            logging.info("TEST: Check files downloaded.")
+            with zipfile.ZipFile(fullZipFilePath) as zf:
+                pass
+                # test the existence of the basic meta file
+                # ATTENTION: disabled for now, because it needs to be implemented
+                #for fileName in ['output.info', ]:
+                #    self.assertTrue(
+                #            fileName in zf.namelist()
+                #    )
         # load raster meta data
         logging.info("TEST: Load vector meta data.")
         testVectorQuery.list_layers()
@@ -821,7 +893,7 @@ class TestPollQuery(unittest.TestCase):
                 for meta in testVectorQuery.metadata.values()
             ])
         )
-        logging.info("TEST: Create dataframe from raster data.")
+        logging.info("TEST: Create dataframe from vector data.")
         # load the raster data into a NumPy array
         testVectorQuery.create_layers()
         # access the vector dataframe
@@ -848,23 +920,38 @@ class TestPollQuery(unittest.TestCase):
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testVectorQuery.dataAcknowledgeText)
 
-    def test_vector_query(self):
+    def test_vector_query_standard(self):
         """
         Test querying vector data.
         """
         self.vector_query()
+    def test_vector_query_standard_in_memory(self):
+        """
+        Test querying vector data (in-memory storage).
+        """
+        self.vector_query(inMemory=True)
 
     def test_vector_query_cached(self):
         """
         Test querying vector data from local PAIRS ZIP file.
         """
         self.vector_query(mode='cached')
+    def test_vector_query_cached_in_memory(self):
+        """
+        Test querying vector data from local PAIRS ZIP file (in-memory storage).
+        """
+        self.vector_query(mode='cached', inMemory=True)
 
     def test_vector_query_reload(self):
         """
         Test reloading previously queried vector data with PAIRS query ID.
         """
         self.vector_query(mode='reload')
+    def test_vector_query_reload_in_memory(self):
+        """
+        Test reloading previously queried vector data with PAIRS query ID (in-memory storage).
+        """
+        self.vector_query(mode='reload', inMemory=True)
     #}}}
 
     def TO_BE_IMPLEMENTED_test_dataframe_generation(self):

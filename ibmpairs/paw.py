@@ -42,12 +42,7 @@ import pandas
 import PIL.Image
 # adjust maximum size of pixels for image to load (1 TPix)
 PIL.Image.MAX_IMAGE_PIXELS = 10**12
-from copy import copy, deepcopy
 import errno
-import shutil
-import zipfile
-import tempfile
-import glob
 from requests.compat import urlparse, urljoin
 import requests
 import json
@@ -66,6 +61,7 @@ from shapely.geometry import shape, box, Point
 import re
 import logging
 import itertools
+import tempfile
 # file system abstraction
 import fs
 from fs import zipfs
@@ -206,7 +202,11 @@ def get_pairs_api_password(
         elif os.path.isfile(os.path.join(os.path.expanduser('~'), PAIRS_DEFAULT_PASSWORD_FILE_NAME)):
             passFile = os.path.join(os.path.expanduser('~'), PAIRS_DEFAULT_PASSWORD_FILE_NAME)
         else:
-            raise ValueError("passFile = None requires existence of a '{}' file in a default location.".format(PAIRS_DEFAULT_PASSWORD_FILE_NAME))
+            raise ValueError(
+                "passFile = None requires existence of a '{}' file in a default location.".format(
+                    PAIRS_DEFAULT_PASSWORD_FILE_NAME
+                )
+            )
 
     # Often the value to server is the same as some global variable PAIRS_SERVER
     # That however if later handed to PAIRSQuery objects. The following code allows
@@ -449,6 +449,11 @@ class PAIRSQuery(object):
         self.downloadDir         = unicode(
             os.path.dirname(self.zipFilePath) if self.zipFilePath is not None else downloadDir
         )
+        # separate ZIP file name from directory (if any)
+        # note: the download directory where the ZIP file is located gets abstracted
+        # away by self.fs
+        if self.zipFilePath is not None:
+            self.zipFilePath = os.path.basename(self.zipFilePath)
         # overwriting download directory according to ZIP directory information given (if any)
         if self.downloadDir is not None and not inMemory and not os.path.exists(self.downloadDir):
             os.mkdir(self.downloadDir)
@@ -457,7 +462,10 @@ class PAIRSQuery(object):
         if self.fs is None:
             try:
                 if inMemory:
+                    # create in-memory file system
                     self.fs = fs.open_fs(u'mem://')
+                    # ignore user set download directory
+                    self.downloadDir=u''
                 else:
                     self.fs = fs.open_fs(self.downloadDir)
             except Exception as e:
@@ -468,10 +476,10 @@ class PAIRSQuery(object):
         if self.zipFilePath is not None:
             try:
                 self._queryStream   = self.fs.open(self.zipFilePath, 'rb')
-                self.queryFS        = zipfs.ZipFS(self.zipFS, write=False)
+                self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
                 self.queryFS.listdir(u'')
             except Exception as e:
-                raise('Hm, cannot load data from ZIP file: {}'.format(e))
+                raise Exception('Hm, cannot load data from ZIP file: {}'.format(e))
             # flags prominently that query data is downloaded and available as files to be loaded
             self.downloaded = True
         else:
@@ -512,6 +520,8 @@ class PAIRSQuery(object):
                 self.read_data_acknowledgement()
             except Exception as e:
                 pass
+        if isinstance(self.fs, fs.memoryfs.MemoryFS):
+            logging.info('Just FYI: Local file system is in memory - no data safed on local disk.')
 
     def __del__(self):
         # Delete the file and folder
@@ -679,12 +689,11 @@ class PAIRSQuery(object):
             raise Exception(errMsg)
 
         # construct query directory name
-        if self.downloadDir is not None and self.queryID is not None:
+        # note: download directory abstracted away by self.fs
+        if self.queryID is not None:
             self.queryDir = unicode(
-                os.path.join(
-                    self.downloadDir,
                     self.queryID + '_' + self.qHash
-                )
+            )
         elif self.zipFilePath is not None:
             self.queryDir = unicode(os.path.dirname(self.zipFilePath))
         else:
@@ -699,13 +708,13 @@ class PAIRSQuery(object):
         :raises Exception:      if no acknowledgement is found
         """
         # attempt to extract only if not set already
-        if self.dataAcknowledgeText is None:
+        if self.dataAcknowledgeText is None and self.queryFS is not None:
             # check that there exists a file with the acknowledgement
             if self.fs.exists(self.zipFilePath) and \
                PAIRS_DATA_ACK_FILE_NAME in self.queryFS.listdir(u''):
                 # extract data acknowledgement from PAIRS query ZIP file
                 try:
-                    with zipfile.ZipFile(self.zipFilePath).open(PAIRS_DATA_ACK_FILE_NAME) as f:
+                    with self.queryFS.open(PAIRS_DATA_ACK_FILE_NAME, 'rb') as f:
                         self.dataAcknowledgeText = ''.join(codecs.getreader('utf-8')(f))
                     logging.info('Data acknowledgement successfully loaded, print with `self.print_data_acknowledgement()`')
                 except Exception as e:
@@ -800,19 +809,26 @@ class PAIRSQuery(object):
                             os.path.splitext(
                                 os.path.abspath(
                                     sorted(
-                                        glob.glob(
-                                            os.path.join(
-                                                self.downloadDir,
-                                                '*_{}{}'.format(self.qHash, PAIRS_ZIP_FILE_EXTENSION)
+                                        [
+                                            g.path
+                                            for g in self.fs.glob(
+                                                os.path.join(
+                                                    '*_{}{}'.format(
+                                                        self.qHash,
+                                                        PAIRS_ZIP_FILE_EXTENSION
+                                                    )
+                                                )
                                             )
-                                        )
+                                        ]
                                     )[0]
                                 )
                             )[0]
+                        )
                         self.queryID = unicode(
                             os.path.basename(
                                 self.queryDir
                             ).rsplit(PAW_QUERY_NAME_SEPARATOR, 1)[0]
+                        )
                         self.downloaded = True
                         logging.info("Alright, using cache of PAIRS query with ID: '{}'".format(self.queryID))
                 except Exception as e:
@@ -905,7 +921,7 @@ class PAIRSQuery(object):
                 "Alright, using remotely cached PAIRS query with ID '{}'.".format(self.queryID)
             )
         # case of locally cached PAIRS query ZIP directory
-        elif os.path.exists(self.zipFilePath):
+        elif self.fs.exists(self.zipFilePath):
             logging.info(
                 "Alright, using locally cached PAIRS query ZIP file '{}'.".format(self.zipFilePath)
             )
@@ -979,10 +995,10 @@ class PAIRSQuery(object):
                 raise Exception('ATTENTION: Provided credentials are incorrect!')
 
     def poll_till_finished(
-            self,
-            pollIntSec  = None,
-            printStatus = False,
-            timeout     = -1,
+        self,
+        pollIntSec  = None,
+        printStatus = False,
+        timeout     = -1,
     ):
         """
         Polls the status until not running anymore.
@@ -1082,7 +1098,7 @@ class PAIRSQuery(object):
             if not self.overwriteExisting:
                 # check if locally set path for downloaded PAIRS query ZIP file exists
                 # to confirm the download
-                self.downloaded = os.path.exists(self.zipFilePath)
+                self.downloaded = self.fs.exists(self.zipFilePath)
             else:
                 try:
                     respJson    = self.queryStatus.json()
@@ -1108,11 +1124,16 @@ class PAIRSQuery(object):
                                 'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
                             )
                             raise
+                    # note on streaming into memory
+                    if isinstance(self.fs, fs.memoryfs.MemoryFS):
+                        logging.warning(
+                            'Be aware: As directed, downloading query result directly into memory!'
+                        )
 
-                    if self.overwriteExisting or not os.path.isfile(self.zipFilePath):
+                    if self.overwriteExisting or not self.fs.isfile(self.zipFilePath):
                         # stream the query result (ZIP file)
                         if cosInfo is None:
-                            with open(self.zipFilePath, 'wb') as f:
+                            with self.fs.open(self.zipFilePath, 'wb') as f:
                                 downloadURL = urljoin(
                                     urljoin(
                                         self.pairsHost.geturl(),
@@ -1135,13 +1156,14 @@ class PAIRSQuery(object):
                                     f.write(block)
                             # test if downloaded ZIP file is readable
                             try:
-                                fp = zipfile.ZipFile(self.zipFilePath, 'r')
+                                self._queryStream   = self.fs.open(self.zipFilePath, 'rb')
+                                self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
+                                self.queryFS.listdir(u'')
                             except Exception as e:
                                 # flag BadZipfile exception
                                 self.BadDownloadFile = True
                                 logging.error('Sorry, cannot read downloaded query ZIP file: {}'.format(e))
                             else:
-                                fp.close()
                                 self.BadDownloadFile = False
                                 # Create folder manually in case the zipfile was empty.
                                 # ATTENTION: Disabled due to direct reading from ZIP file
@@ -1506,24 +1528,21 @@ class PAIRSQuery(object):
             self.queryStatus is not self.querySubmit if self.queryStatus is not None else True
         ):
             # check if required main meta data info exists
-            if self.isPairsJupyter and not os.path.exists(pairsMetaInfoPath) \
+            if self.isPairsJupyter and not self.fs.exists(pairsMetaInfoPath) \
             or not self.isPairsJupyter \
-                and pairsMetaInfoPath not in zipfile.ZipFile(self.zipFilePath).namelist():
+                and pairsMetaInfoPath not in self.queryFS.listdir(u''):
                 msg = "No PAIRS meta data file '{}' found".format(
                     os.path.basename(pairsMetaInfoPath)
                 )
                 # ATTENTION: temporarily allow missing `output.info` for pure vector data
-                if PAIRS_VECTOR_CSV_FILE_NAME in zipfile.ZipFile(self.zipFilePath).namelist():
+                if PAIRS_VECTOR_CSV_FILE_NAME in self.queryFS.listdir(u''):
                     logging.warning(msg)
                 else:
                     logging.error(msg)
                     raise Exception(msg)
             # ATTENTION: temporarily allow missing `output.info` for pure vector data
-            if os.path.exists(pairsMetaInfoPath) or \
-               pairsMetaInfoPath in zipfile.ZipFile(self.zipFilePath).namelist():
-                with open(pairsMetaInfoPath) if self.isPairsJupyter else \
-                     zipfile.ZipFile(self.zipFilePath).open(pairsMetaInfoPath) \
-                as j:
+            if pairsMetaInfoPath in self.queryFS.listdir(u''):
+                with self.queryFS.open(pairsMetaInfoPath, 'r') as j:
                     outputJson = json.load(codecs.getreader('utf-8')(j))
                 # format meta data as dictionary with key the file name (without extension)
                 # ATTENTION: temporary hack for file name and name mismatch
@@ -1551,12 +1570,10 @@ class PAIRSQuery(object):
                         else ''
                     ) + PAIRS_JSON_FILE_EXTENSION
                 )
-                if self.isPairsJupyter and os.path.exists(metaPath) \
-                or not self.isPairsJupyter and metaPath in zipfile.ZipFile(self.zipFilePath).namelist():
+                if self.isPairsJupyter and self.fs.exists(metaPath) \
+                or not self.isPairsJupyter and metaPath in self.queryFS.listdir(u''):
                     try:
-                        with open(metaPath) if self.isPairsJupyter else \
-                            zipfile.ZipFile(self.zipFilePath).open(metaPath) \
-                        as j:
+                        with self.queryFS.open(metaPath, 'r') as j:
                             metaData.update(
                                 {
                                     'details': json.load(codecs.getreader('utf-8')(j))
@@ -1570,7 +1587,7 @@ class PAIRSQuery(object):
                             "Unable to read detailed meta information for file '{}': {}.".format(metaPath, e)
                         )
             # note: special treatment of default vector data file name
-            if PAIRS_VECTOR_CSV_FILE_NAME in zipfile.ZipFile(self.zipFilePath).namelist():
+            if PAIRS_VECTOR_CSV_FILE_NAME in self.queryFS.listdir(u''):
                 self.metadata[os.path.splitext(PAIRS_VECTOR_CSV_FILE_NAME)[0]] = {
                     'layerType': 'vector',
                 }
@@ -1603,25 +1620,28 @@ class PAIRSQuery(object):
             )
         )
         # extract data to temporary file from ZIP (if any)
-        if not self.isPairsJupyter:
-            # note: it looks like having the delete option causes issues on Windows machines
-            # therefore we extract to the standard temporary directory and hope for the OS
-            # to clean up, and that sufficient disk space is provided in the temporary directory
-            tf = tempfile.NamedTemporaryFile('wb', delete=False,) #dir=self.downloadDir)
-            with zipfile.ZipFile(self.zipFilePath) as zf:
-                tf.write(zf.read(layerDataPath))
-            tf.flush()
-            layerDataPath = tf.name
         # get raster data
         # ATTENTION: temporary hack in order to circumvent issue
         if layerMeta['layerType'] == PAIRS_RASTER_QUERY_NAME \
            and not PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
             if HAS_GDAL:
+                # note: Unforetunately GDAL does not allow to directly take Python
+                # binary file streams, thus one needs to inefficiently write back
+                # to local temporary file to get a physical file name one can and over
+                # with a file name string
                 try:
-                    # directly read from data path
-                    ds = gdal.Open(layerDataPath)
-                    a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float)
-                    ds = None
+                    # extract data to temporary file from ZIP
+                    # note: it looks like having the delete option causes issues on Windows machines
+                    # therefore we extract to the standard temporary directory and hope for the OS
+                    # to clean up, and that sufficient disk space is provided in the temporary directory
+                    with tempfile.NamedTemporaryFile('wb', delete=False,) as tf: #dir=self.downloadDir)
+                        with self.queryFS.open(layerDataPath, 'rb') as zf:
+                            tf.write(zf.read())
+                        tf.flush()
+                        # directly read from data path
+                        ds = gdal.Open(tf.name)
+                        a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float)
+                        ds = None
                 except Exception as e:
                     logging.error(
                         "Unable to load '{}' from '{}' into NumPy array using GDAL: {}".format(fileName, self.zipFilePath, e)
@@ -1631,19 +1651,17 @@ class PAIRSQuery(object):
                     logging.warning(
                         "GDAL is not available for proper GeoTiff loading, default to standard PIL module to load raster data."
                     )
-                    im = PIL.Image.open(layerDataPath)
-                    if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
-                        im.mode='I'
-                    elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
-                        im.mode='F'
-                    a = numpy.array(im).astype(numpy.float)
+                    with self.queryFS.open(layerDataPath, 'rb') as f:
+                        im = PIL.Image.open(f)
+                        if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
+                            im.mode='I'
+                        elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
+                            im.mode='F'
+                        a = numpy.array(im).astype(numpy.float)
                 except Exception as e:
                     logging.error(
                         "Unable to load '{}' from '{}' into NumPy array using PIL: {}".format(fileName, self.zipFilePath, e)
                     )
-            # close temporary file (if any)
-            if not self.isPairsJupyter:
-                tf.close()
             # mask no-data value
             a[a==numpy.float(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
             # assign loaded data to object's data dictionary
@@ -1652,25 +1670,26 @@ class PAIRSQuery(object):
         elif layerMeta['layerType'] == PAIRS_VECTOR_QUERY_NAME \
             or PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
             try:
-                # spatial aggregation vector data
-                if PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
-                    self.data[fileName] = pandas.read_csv(
-                        layerDataPath,
-                        header      = 0,
-                        index_col   = False,
-                        quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
-                    )
-                # *conventional* PAIRS vector data
-                else:
-                    self.data[fileName] = pandas.read_csv(
-                        layerDataPath,
-                        header      = 0,
-                        index_col   = False,
-                        quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
-                        parse_dates = {
-                            PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME: [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM]
-                        },
-                    )
+                with self.queryFS.open(layerDataPath, 'rb') as f:
+                    # spatial aggregation vector data
+                    if PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
+                        self.data[fileName] = pandas.read_csv(
+                            f,
+                            header      = 0,
+                            index_col   = False,
+                            quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
+                        )
+                    # *conventional* PAIRS vector data
+                    else:
+                        self.data[fileName] = pandas.read_csv(
+                            f,
+                            header      = 0,
+                            index_col   = False,
+                            quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
+                            parse_dates = {
+                                PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME: [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM]
+                            },
+                        )
             except Exception as e:
                 logging.error(
                     "Unable to load '{}' from '{}' into Pandas dataframe: {}".format(fileName, self.zipFilePath, e)
