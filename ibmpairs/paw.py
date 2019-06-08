@@ -385,7 +385,7 @@ class PAIRSQuery(object):
             self.pairsPort              = 80
         # host serving PAIRS API to connect to
         self.pairsHost                  = urlparse(
-            '' if pairsHost is None else \
+            u'' if pairsHost is None else \
             '{}:{}'.format(pairsHost, self.pairsPort) if self.pairsPort != 80 else pairsHost
         )
         if pairsHost is not None and self.pairsHost.scheme not in ['http', 'https']:
@@ -1520,7 +1520,7 @@ class PAIRSQuery(object):
         """
         # define path of main PAIRS query meta file
         pairsMetaInfoPath = os.path.join(
-            self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else '',
+            self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else u'',
             PAIRS_QUERY_METADATA_FILE_NAME
         )
         # load meta data just once (and if no point query)
@@ -1542,7 +1542,7 @@ class PAIRSQuery(object):
                     raise Exception(msg)
             # ATTENTION: temporarily allow missing `output.info` for pure vector data
             if pairsMetaInfoPath in self.queryFS.listdir(u''):
-                with self.queryFS.open(pairsMetaInfoPath, 'r') as j:
+                with self.queryFS.open(pairsMetaInfoPath, 'rb') as j:
                     outputJson = json.load(codecs.getreader('utf-8')(j))
                 # format meta data as dictionary with key the file name (without extension)
                 # ATTENTION: temporary hack for file name and name mismatch
@@ -1562,12 +1562,12 @@ class PAIRSQuery(object):
             # a file with same name plus PAIRS file name extension for JSON files)
             for fileName, metaData in self.metadata.items():
                 metaPath = os.path.join(
-                    self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else '',
+                    self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else u'',
                     fileName + (
                         defaultExtension if 'layerType' not in metaData \
                         else self.RASTER_FILE_EXTENSION if metaData['layerType'] == PAIRS_RASTER_QUERY_NAME \
                         else self.VECTOR_FILE_EXTENSION if metaData['layerType'] == PAIRS_VECTOR_QUERY_NAME \
-                        else ''
+                        else u''
                     ) + PAIRS_JSON_FILE_EXTENSION
                 )
                 if self.isPairsJupyter and self.fs.exists(metaPath) \
@@ -1611,12 +1611,12 @@ class PAIRSQuery(object):
         # load raster data
         # construct file path to load data from
         layerDataPath = os.path.join(
-            self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else '',
+            self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else u'',
             fileName + (
                 defaultExtension if 'layerType' not in layerMeta \
                 else self.RASTER_FILE_EXTENSION if layerMeta['layerType'] == PAIRS_RASTER_QUERY_NAME and PAIRS_JSON_SPAT_AGG_KEY not in layerMeta \
                 else self.VECTOR_FILE_EXTENSION if layerMeta['layerType'] == PAIRS_VECTOR_QUERY_NAME or PAIRS_JSON_SPAT_AGG_KEY in layerMeta \
-                else ''
+                else u''
             )
         )
         # extract data to temporary file from ZIP (if any)
