@@ -85,74 +85,74 @@ except:
 #}}}
 # fold: global parameters{{{
 ## PAIRS base URI for API calles
-PAIRS_BASE_URI = '/'
+PAIRS_BASE_URI = u'/'
 ## PAIRS query meta data information file
-PAIRS_QUERY_METADATA_FILE_NAME      = 'output.info'
+PAIRS_QUERY_METADATA_FILE_NAME      = u'output.info'
 ## PAIRS vector JSON file name
-PAIRS_VECTOR_CSV_FILE_NAME          = 'Vector_Data_Output.csv'
+PAIRS_VECTOR_CSV_FILE_NAME          = u'Vector_Data_Output.csv'
 ## PAIRS data acknowledgement file name
-PAIRS_DATA_ACK_FILE_NAME            = 'data_acknowledgement.txt'
+PAIRS_DATA_ACK_FILE_NAME            = u'data_acknowledgement.txt'
 ## default PAIRS password file path
-PAIRS_DEFAULT_PASSWORD_FILE_NAME    = 'ibmpairspass.txt'
+PAIRS_DEFAULT_PASSWORD_FILE_NAME    = u'ibmpairspass.txt'
 ## PAIRS vector query (Geo)JSON output format names
-PAIRS_VECTOR_JSON_TYPE_NAME         = 'json'
-PAIRS_VECTOR_GEOJSON_TYPE_NAME      = 'geojson'
-PAIRS_VECTOR_CSV_TYPE_NAME          = 'csv'
-PAIRS_VECTOR_CSV_QUOTE_CHAR         = "'"
-PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME  = 'timestamp'
-PAIRS_VECTOR_LONGITUDE_COLUMN_NAME  = 'longitude'
-PAIRS_VECTOR_LATITUDE_COLUMN_NAME   = 'latitude'
-PAIRS_VECTOR_GEOMETRY_COLUMN_NAME   = 'geometry'
+PAIRS_VECTOR_JSON_TYPE_NAME         = u'json'
+PAIRS_VECTOR_GEOJSON_TYPE_NAME      = u'geojson'
+PAIRS_VECTOR_CSV_TYPE_NAME          = u'csv'
+PAIRS_VECTOR_CSV_QUOTE_CHAR         = u"'"
+PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME  = u'timestamp'
+PAIRS_VECTOR_LONGITUDE_COLUMN_NAME  = u'longitude'
+PAIRS_VECTOR_LATITUDE_COLUMN_NAME   = u'latitude'
+PAIRS_VECTOR_GEOMETRY_COLUMN_NAME   = u'geometry'
 PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM  = 2
 ## PAIRS query type names
-PAIRS_POINT_QUERY_NAME              = 'point'
-PAIRS_VECTOR_QUERY_NAME             = 'vector'
-PAIRS_RASTER_QUERY_NAME             = 'raster'
+PAIRS_POINT_QUERY_NAME              = u'point'
+PAIRS_VECTOR_QUERY_NAME             = u'vector'
+PAIRS_RASTER_QUERY_NAME             = u'raster'
 ## PAIRS file name extensions
-PAIRS_GEOTIFF_FILE_EXTENSION        = '.tiff'
-PAIRS_CSV_FILE_EXTENSION            = '.csv'
-PAIRS_JSON_FILE_EXTENSION           = '.json'
-PAIRS_ZIP_FILE_EXTENSION            = '.zip'
+PAIRS_GEOTIFF_FILE_EXTENSION        = u'.tiff'
+PAIRS_CSV_FILE_EXTENSION            = u'.csv'
+PAIRS_JSON_FILE_EXTENSION           = u'.json'
+PAIRS_ZIP_FILE_EXTENSION            = u'.zip'
 ## PAIRS JSON relevant constants
-PAIRS_JSON_SPAT_AGG_KEY             = 'spatialAggregation'
+PAIRS_JSON_SPAT_AGG_KEY             = u'spatialAggregation'
 ## define PAIRS's georeference system
-PAIRS_GEOREFERENCE_SYSTEM_NAME      = 'EPSG:4326'
+PAIRS_GEOREFERENCE_SYSTEM_NAME      = u'EPSG:4326'
 # characters that split the property string of PAIRS vector data
-PROPERTY_STRING_SPLIT_CHAR1         = ';'
-PROPERTY_STRING_SPLIT_CHAR2         = ':'
-PROPERTY_STRING_COL_NAME            = 'PropertyString'
-PROPERTY_STRING_COL_NAME_POINT      = 'property'
+PROPERTY_STRING_SPLIT_CHAR1         = u';'
+PROPERTY_STRING_SPLIT_CHAR2         = u':'
+PROPERTY_STRING_COL_NAME            = u'PropertyString'
+PROPERTY_STRING_COL_NAME_POINT      = u'property'
 ## basic PAIRS query stati classes
 PAIRS_QUERY_RUN_STAT_REG_EX         = re.compile('^(0|1)')
 PAIRS_QUERY_FINISH_STAT_REG_EX      = re.compile('^2')
 PAIRS_QUERY_ERR_STAT_REG_EX         = re.compile('^(3|4)')
 PAIRS_QUERY_DOWNLOADABLE_STAT       = 20
 ## define default download directory for PAIRS query object if needed
-DEFAULT_DOWNLOAD_DIR	            = './downloads'
+DEFAULT_DOWNLOAD_DIR	            = u'./downloads'
 ## PAIRS raster file extension
 PAIRS_RASTER_FILE_EXT               = re.compile('.*\.tiff$')
 # PAIRS raster file pixel data type classes
-PAIRS_RASTER_INT_PIX_TYPE_CLASS     = ('bt','sh', 'in')
-PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS   = ('fl','db')
+PAIRS_RASTER_INT_PIX_TYPE_CLASS     = (u'bt', u'sh', u'in')
+PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS   = (u'fl', u'db')
 # PAIRS API wrapper specific setttings
 PAW_QUERY_NAME_SEPARATOR            = '_'
 # load parameters from the command line
 PAW_LOG_LEVEL                       = logging.INFO
-PAW_LOG_LEVEL_ENV                   = ''
+PAW_LOG_LEVEL_ENV                   = u''
 for var in (
-    'PAW_LOG_LEVEL',
+    u'PAW_LOG_LEVEL',
 ):
     if var in os.environ:
         exec("{var}_ENV = os.environ['{var}']".format(var=var))
-if PAW_LOG_LEVEL_ENV == "DEBUG":
+if PAW_LOG_LEVEL_ENV == u"DEBUG":
     PAW_LOG_LEVEL = logging.DEBUG
-elif PAW_LOG_LEVEL_ENV == "INFO":
+elif PAW_LOG_LEVEL_ENV == u"INFO":
     PAW_LOG_LEVEL = logging.INFO
-elif PAW_LOG_LEVEL_ENV == "WARNING":
+elif PAW_LOG_LEVEL_ENV == u"WARNING":
     PAW_LOG_LEVEL = logging.WARNING
-elif PAW_LOG_LEVEL_ENV == "ERROR":
+elif PAW_LOG_LEVEL_ENV == u"ERROR":
     PAW_LOG_LEVEL = logging.ERROR
-elif PAW_LOG_LEVEL_ENV == "CRITICAL":
+elif PAW_LOG_LEVEL_ENV == u"CRITICAL":
     PAW_LOG_LEVEL = logging.CRITICAL
 # }}}
 # fold: settings#{{{
@@ -298,17 +298,17 @@ class PAIRSQuery(object):
     Representation of a PAIRS query.
     """
     # class wide constants/parameters
-    SUBMIT_API_STRING            = 'v2/query'
-    STATUS_API_STRING            = 'v2/queryjobs/'
-    DOWNLOAD_API_STRING          = 'v2/queryjobs/download/'
-    COS_UPLOAD_API_STRING        = 'v2/queryjobs/upload/'
-    COS_API_ENDPOINT             = 'https://s3.us.cloud-object-storage.appdomain.cloud'
-    GET_GEOJSON_API_STRING       = 'ws/queryaois/geojson/'
-    GET_AOI_INFO_API_STRING      = 'ws/queryaois/aoi/'
-    GET_QUERY_INFO               = 'v2/queryhistories/full/queryjob/'
-    VECTOR_GEOJSON_DIR_IN_ZIP    = ''
-    DOWNLOAD_DIR                 = './downloads'
-    PAIRS_JUPYTER_QUERY_BASE_DIR = '.'
+    SUBMIT_API_STRING            = u'v2/query'
+    STATUS_API_STRING            = u'v2/queryjobs/'
+    DOWNLOAD_API_STRING          = u'v2/queryjobs/download/'
+    COS_UPLOAD_API_STRING        = u'v2/queryjobs/upload/'
+    COS_API_ENDPOINT             = u'https://s3.us.cloud-object-storage.appdomain.cloud'
+    GET_GEOJSON_API_STRING       = u'ws/queryaois/geojson/'
+    GET_AOI_INFO_API_STRING      = u'ws/queryaois/aoi/'
+    GET_QUERY_INFO               = u'v2/queryhistories/full/queryjob/'
+    VECTOR_GEOJSON_DIR_IN_ZIP    = u''
+    DOWNLOAD_DIR                 = u'./downloads'
+    PAIRS_JUPYTER_QUERY_BASE_DIR = u'.'
     STATUS_POLL_INTERVAL_SEC     = 10
     PAIRS_FILES_TIMESTAMP_SCHEMA2= '%m_%d_%YT%H:%M:%S'
     PAIRS_FILES_TIMESTAMP_SCHEMA = '%m_%d_%YT%H_%M_%S'
@@ -684,7 +684,7 @@ class PAIRSQuery(object):
         try:
             self.qHash = getQueryHash(self.query if isinstance(self.query, dict) else {})
         except:
-            errMsg = 'Unable to determine query hash.'
+            errMsg = u'Unable to determine query hash.'
             logging.error(errMsg)
             raise Exception(errMsg)
 
@@ -697,7 +697,7 @@ class PAIRSQuery(object):
         elif self.zipFilePath is not None:
             self.queryDir = str(os.path.dirname(self.zipFilePath))
         else:
-            msg = 'Information to construct query directory incomplete.'
+            msg = u'Information to construct query directory incomplete.'
             logging.warning(msg)
             raise Exception(msg)
 
@@ -718,11 +718,11 @@ class PAIRSQuery(object):
                         self.dataAcknowledgeText = ''.join(codecs.getreader('utf-8')(f))
                     logging.info('Data acknowledgement successfully loaded, print with `self.print_data_acknowledgement()`')
                 except Exception as e:
-                    msg = 'Unable to read data acknowledgement from PAIRS query result ZIP file: {}'.format(e)
+                    msg = u'Unable to read data acknowledgement from PAIRS query result ZIP file: {}'.format(e)
                     logging.error(msg)
                     raise Exception(msg)
             else:
-                msg = 'No PAIRS query ZIP file identified, or no acknowledgement in ZIP file found. Did you run `self.download()`, yet?'
+                msg = u'No PAIRS query ZIP file identified, or no acknowledgement in ZIP file found. Did you run `self.download()`, yet?'
                 logging.warning(msg)
                 raise Exception(msg)
         else:
@@ -1048,7 +1048,7 @@ class PAIRSQuery(object):
                             if progressPercent > 0:
                                 percMsg = ' ({}%)'.format(progressPercent)
                             else:
-                                percMsg = ''
+                                percMsg = u''
                             logging.info("Query status is '{}'{}.".format(status, percMsg))
                         except:
                             pass
@@ -1200,7 +1200,7 @@ class PAIRSQuery(object):
                                         'Sorry, I have trouble getting your query result to Cloud Object storage: {}.'.format(e)
                                 )
                         else:
-                            msg = 'Sorry, I do not know what to do based on the `cosInfo` you provided.'
+                            msg = u'Sorry, I do not know what to do based on the `cosInfo` you provided.'
                             logging.error(msg)
                             raise Exception(msg)
                     else:
@@ -1507,7 +1507,7 @@ class PAIRSQuery(object):
                 self.pdf[PAIRS_VECTOR_GEOMETRY_COLUMN_NAME] = pandas.Series(polys)
         logging.info('Here you go, checkout your query object, property `pdf` for the result I assembled for you.')
 
-    def list_layers(self, defaultExtension='', refresh=False):
+    def list_layers(self, defaultExtension=u'', refresh=False):
         """
         Get general metadata information for data of the query.
 
@@ -1592,7 +1592,7 @@ class PAIRSQuery(object):
                     'layerType': 'vector',
                 }
 
-    def create_layer(self, fileName, layerMeta, defaultExtension=''):
+    def create_layer(self, fileName, layerMeta, defaultExtension=u''):
         """
         Load layer data such as raster or vector data.
 
@@ -1654,9 +1654,9 @@ class PAIRSQuery(object):
                     with self.queryFS.open(layerDataPath, 'rb') as f:
                         im = PIL.Image.open(f)
                         if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
-                            im.mode='I'
+                            im.mode=u'I'
                         elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
-                            im.mode='F'
+                            im.mode=u'F'
                         a = numpy.array(im).astype(numpy.float)
                 except Exception as e:
                     logging.error(
@@ -1699,7 +1699,7 @@ class PAIRSQuery(object):
             logging.error(msg)
             raise Exception(msg)
 
-    def create_layers(self, defaultExtension=''):
+    def create_layers(self, defaultExtension=u''):
         """
         Generate data Python data structures for layers queried.
 
