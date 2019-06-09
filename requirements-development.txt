@@ -1,7 +1,6 @@
 pytest
 pytest-ordering
 pytest-cov
-pytest-xdist
 coverage
 codecov
 responses
