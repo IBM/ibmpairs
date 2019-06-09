@@ -194,6 +194,8 @@ def get_pairs_api_password(
     :type passFile:     str
     :returns:           corresponding password if available, `None` otherwise
     :rtype:             str
+    :raises Exception:  if password file does not exist
+                        if password was not found
     '''
     # Search for a password file in (a) the current working directory and (b) $HOME
     if passFile is None:
@@ -236,45 +238,10 @@ def get_pairs_api_password(
     else:
         raise ValueError('Unable to find PAIRS password for {0}@{1} in {2}.'.format(user, server, passFile))
 
-def make_sure_path_exists(dirpath):
-    """
-    Creates directory if it does not exist yet. (avoids race condition).
-
-    :dirpath:  path to the directory
-    """
-    try:
-        os.makedirs(dirpath)
-        logging.info("Directory '{}' created.".format(dirpath))
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
-    return
-
 def getQueryHash(query):
     return hashlib.md5(
         json.dumps(query).encode('utf-8')
     ).hexdigest()
-
-def get_aoiSquare(my_polygon):
-    """
-    Translation from Shapely polygon to PAIRS aoiSquare.
-
-    :my_polygon:    Shapely polygon
-    :returns:       PAIRS aoiSquare
-    """
-    return [my_polygon.bounds[1],     # min. latitude
-            my_polygon.bounds[0],     # min. longitude
-            my_polygon.bounds[3],     # max. latitude
-            my_polygon.bounds[2]]     # max. longitude
-
-def get_polygon(aoiSquare):
-    """
-    Translation from PAIRS aoiSquare to Shapely polygon.
-
-    :aoiSquare:     PAIRS aoiSquare
-    :returns:       Shapely polygon
-    """
-    return box(aoiSquare[1], aoiSquare[0], aoiSquare[3], aoiSquare[2])
 #}}}
 
 # fold: PAIRS query class for managing single queries {{{
@@ -487,8 +454,6 @@ class PAIRSQuery(object):
             self.downloaded = False
         # flag for how to handle downloaded data on object delete
         self.deleteDownload      = deleteDownload
-        # Query parameters to compose the json query
-        self.qPars               = None
         # hash of the JSON query
         # (used as subfolder for saving files and to see if corresponding Tiff already exists)
         self.qHash               = getQueryHash(query if isinstance(self.query, dict) else {})
@@ -740,56 +705,6 @@ class PAIRSQuery(object):
         print("The data acknowledgement for self.data is:\n{}".format(self.dataAcknowledgeText))
 
 
-    def get_query_params(self):
-        """
-        Extract and set query parameters from query JSON load to self.qPars.
-
-        :raises Exception:      if the query is too complext to be mapped to the query parameters.
-        """
-        try:
-            # check that the query JSON load exists
-            if self.query is None:
-                raise Exception()
-            # check that there is just a single PAIRS layer to be queried
-            if len(self.query['layers']) != 1:
-                raise Exception()
-            # populate parameters
-            layer = self.query['layers'][0]
-            self.qPars = dict()
-            self.qPars['layerID']       = layer['id']
-            self.qPars['qType']         = layer['type']
-            # get temporal information
-            if layer['temporal'] is not None:
-                timeInfo = layer['temporal']['intervals']
-            else:
-                timeInfo = self.query['temporal']['intervals']
-            # check that the query is not a temporal snapshot
-            if len(timeInfo) != 1 or timeInfo[0]['snapshot'] is not None:
-                raise Exception()
-            timeInfo = timeInfo[0]
-            self.qPars['startTime']     = datetime.fromtimestamp(
-                int(timeInfo['start']) // 1000,
-                tz=pytz.UTC
-            )
-            self.qPars['endTime']       = datetime.fromtimestamp(
-                int(timeInfo['end']) // 1000,
-                tz=pytz.UTC
-            )
-            # get spatial information
-            if self.query['spatial']['coordinates'] is not None \
-            and self.query['spatial']['type'] == 'square':
-                self.qPars['aoiSquare'] = self.query['spatial']['coordinates']
-            elif self.query['spatial']['aoi'] is not None \
-            and self.query['spatial']['type'] == 'poly':
-                self.qPars['aoiPoly']   = int(self.query['spatial']['aoi'])
-            else:
-                raise Exception()
-        except:
-            # reset query parameters
-            self.qPars = dict()
-            raise Exception('Query cannot be mapped to simple query parameters.')
-
-
     def submit(self):
         """
         Submit query to PAIRS (if defined).
@@ -847,6 +762,7 @@ class PAIRSQuery(object):
                                 self.SUBMIT_API_STRING
                             ),
                             data    = json.dumps(self.query),
+                            headers = {'Content-Type': 'application/json'},
                             auth    = self.auth,
                             verify  = self.verifySSL,
                         )
@@ -859,7 +775,7 @@ class PAIRSQuery(object):
                 try:
                     if self.query['spatial']['type'] != PAIRS_POINT_QUERY_NAME:
                         self.queryID = self.querySubmit.json()['id']
-                        logging.info("query sucessfully submitted, reference ID: {}".format(self.queryID))
+                        logging.info("Query successfully submitted, reference ID: {}".format(self.queryID))
                 except Exception as e:
                     logging.error(
                         'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
@@ -1166,9 +1082,6 @@ class PAIRSQuery(object):
                                 logging.error('Sorry, cannot read downloaded query ZIP file: {}'.format(e))
                             else:
                                 self.BadDownloadFile = False
-                                # Create folder manually in case the zipfile was empty.
-                                # ATTENTION: Disabled due to direct reading from ZIP file
-                                #make_sure_path_exists(self.queryDir)
                                 logging.info(
                                     "Here we go, PAIRS query result successfully downloaded as '{}'.".format(self.zipFilePath)
                                 )
@@ -1191,8 +1104,9 @@ class PAIRSQuery(object):
                                             'token':    str(cosInfo[1]),
                                         }
                                     ),
-                                    auth   = self.auth,
-                                    verify = self.verifySSL,
+                                    headers = {'Content-Type': 'application/json'},
+                                    auth    = self.auth,
+                                    verify  = self.verifySSL,
                                 )
                                 if resp.status_code != 200:
                                     raise Exception(

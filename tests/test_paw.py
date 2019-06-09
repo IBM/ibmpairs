@@ -23,8 +23,9 @@ SPDX-License-Identifier: BSD-3-Clause
 """
 
 # fold: imports{{{
+import pytest
 # general imports
-import sys, os, time, glob
+import sys, os, time, glob, tempfile
 # Python unit testing
 import unittest
 # compare files
@@ -71,6 +72,8 @@ REAL_CONNECT                = False
 PAIRS_USER                  = 'fakeUser'
 PAIRS_PASSWORD              = 'fakePassword'
 PAIRS_PASSWORD_FILE_NAME    = 'ibmpairspass.txt'
+pytest.realConnectZIPPath   = None
+pytest.realConnectQueryID   = None
 # read/overwrite parameters from environment
 for var in (
     'REAL_CONNECT',
@@ -106,6 +109,44 @@ else:
     logging.warning('Not testing against real PAIRS instance.')
 # }}}
 
+# fold: test password reading function #{{{
+def test_password_reader():
+    # if password file cannot be found, error needs to be raised
+    with pytest.raises(Exception):
+        paw.get_pairs_api_password(
+            PAIRS_SERVER, PAIRS_USER,
+            passFile='/not-existing-at-all-random-87jklkooclkclsiddadaoi',
+        )
+    with pytest.raises(Exception) as e_info:
+        paw.get_pairs_api_password(
+            PAIRS_SERVER, PAIRS_USER+'a', passFile=None
+        )
+    # create temporary password file
+    with tempfile.NamedTemporaryFile('w') as tf:
+        tf.write('{}:{}:{}\n'.format(PAIRS_SERVER, PAIRS_USER, PAIRS_PASSWORD,))
+        tf.flush()
+        # function should throw in case it gets an incorrect user or server name
+        with pytest.raises(Exception):
+            paw.get_pairs_api_password(
+                PAIRS_SERVER+'a', PAIRS_USER,
+                passFile=tf.name,
+            )
+        with pytest.raises(Exception):
+            paw.get_pairs_api_password(
+                PAIRS_SERVER, PAIRS_USER+'a',
+                passFile=tf.name,
+            )
+        # finally we want to get back the correct password
+        assert PAIRS_PASSWORD == paw.get_pairs_api_password(
+            'https://'+PAIRS_SERVER, PAIRS_USER,
+            passFile=tf.name,
+        )
+        assert PAIRS_PASSWORD == paw.get_pairs_api_password(
+            PAIRS_SERVER, PAIRS_USER,
+            passFile=tf.name,
+        )
+#}}}
+
 # fold: test PAIRS point queries{{{
 class TestPointQuery(unittest.TestCase):
     """
@@ -140,6 +181,13 @@ class TestPointQuery(unittest.TestCase):
                     open(os.path.join(TEST_DATA_DIR,'point-data-sample-response-raster.json'))
                 )
             headers         = {}
+            # check header (hard stopper if not correct)
+            if not 'Content-Type' in request.headers.keys() \
+            or request.headers['Content-Type'] != 'application/json':
+                respCode        = 415
+                response_body   = {}
+                logging.error('Request header incompatible: {}'.format(request.headers))
+
             return respCode, headers, json.dumps(response_body)
         ## add endpoint
         cls.pairsServerMock.add_callback(
@@ -223,6 +271,8 @@ class TestPointQuery(unittest.TestCase):
             testPointQuery.vdf.value[0],
             string_type,
         )
+        # test deleting query object
+        del testPointQuery
 
     def test_point_query_vector(self):
         """
@@ -232,7 +282,7 @@ class TestPointQuery(unittest.TestCase):
         logging.info("TEST: Query {}point data (vector).".format('' if REAL_CONNECT else 'mocked '))
         # define point query
         testPointQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
+            json.load(open(os.path.join(TEST_DATA_DIR, 'point-data-sample-request-vector.json'), 'r')),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
@@ -281,6 +331,9 @@ class TestPointQuery(unittest.TestCase):
         testPointQuery.split_property_string_column()
         colsAfter2ndSplit   = len(testPointQuery.vdf.columns)
         self.assertEqual(colsAfterSplit, colsAfter2ndSplit)
+
+        # test deleting query object
+        del testPointQuery
 
     @unittest.skipIf(
         not REAL_CONNECT,
@@ -413,6 +466,13 @@ class TestPollQuery(unittest.TestCase):
                     open(os.path.join(TEST_DATA_DIR,'raster-data-sample-response.json'))
                 )
             headers         = {}
+            # check header (hard stopper if not correct)
+            if not str('Content-Type') in request.headers.keys() \
+            or request.headers['Content-Type'] != 'application/json':
+                respCode        = 415
+                response_body   = {}
+                logging.error('Request header incompatible: {}'.format(request.headers))
+
             return respCode, headers, json.dumps(response_body)
 
         # define query status endpoint processings
@@ -553,8 +613,8 @@ class TestPollQuery(unittest.TestCase):
         # check function parameters
         # query mocked data
         logging.info(
-            "TEST: Query {} raster data ({}{}).".format(
-                '' if REAL_CONNECT else 'mocked',
+            "TEST: Query {}raster data ({}{}).".format(
+                '' if REAL_CONNECT else 'mocked ',
                 mode,
                 ', in-memory' if inMemory else '',
             )
@@ -563,11 +623,19 @@ class TestPollQuery(unittest.TestCase):
         if mode=='query':
             queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'raster-data-sample-request.json')))
         elif mode=='cached':
-            queryDef = self.PAIRS_RASTER_ZIP_PATH
+            if REAL_CONNECT:
+                if pytest.realConnectZIPPath is None:
+                    raise Exception('Could not record locally cached ZIP file for raster query.')
+                queryDef = pytest.realConnectZIPPath
+            else:
+                queryDef = self.PAIRS_RASTER_ZIP_PATH
         elif mode=='reload':
-            queryDef = os.path.splitext(
-                os.path.basename(self.PAIRS_RASTER_ZIP_PATH)
-            )[0].split('-')[-1]
+            if REAL_CONNECT:
+                queryDef = pytest.realConnectQueryID
+            else:
+                queryDef = os.path.splitext(
+                    os.path.basename(self.PAIRS_RASTER_ZIP_PATH)
+                )[0].split('-')[-1]
         else:
             raise Exception("PAIRS raster query mode '{}' not defined.".format(mode))
 
@@ -588,11 +656,19 @@ class TestPollQuery(unittest.TestCase):
             self.assertTrue(testRasterQuery.queryStatus.ok)
         # check that certain files exist
         testRasterQuery.download()
+        # check that data acknowledgement was read-in
+        self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
+        testRasterQuery.print_data_acknowledgement()
+        # for real connect to PAIRS and not in-memory case, get info for other
+        # real-world query scenarios
         if not inMemory:
             fullZipFilePath = os.path.join(
                 testRasterQuery.downloadDir,
                 testRasterQuery.zipFilePath,
             )
+            if REAL_CONNECT and mode=='query':
+                pytest.realConnectQueryID = testRasterQuery.queryID
+                pytest.realConnectZIPPath = fullZipFilePath 
             self.assertTrue(
                 os.path.exists(fullZipFilePath)
             )
@@ -641,34 +717,43 @@ class TestPollQuery(unittest.TestCase):
                 )
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
+        
+        # test deleting query object
+        del testRasterQuery 
 
+    @pytest.mark.run(order=1)
     def test_raster_query_standard(self):
         """
         Test querying raster data.
         """
         self.raster_query()
+    @pytest.mark.run(order=1)
     def test_raster_query_standard_in_memory(self):
         """
         Test querying raster data (in-memory storage).
         """
         self.raster_query(inMemory=True)
 
+    @pytest.mark.run(order=2)
     def test_raster_query_cached(self):
         """
         Test querying raster data from local PAIRS ZIP file.
         """
         self.raster_query(mode='cached')
+    @pytest.mark.run(order=2)
     def test_raster_query_cached_in_memory(self):
         """
         Test querying raster data from local PAIRS ZIP file (in-memory storage).
         """
         self.raster_query(mode='cached', inMemory=True)
 
+    @pytest.mark.run(order=2)
     def test_raster_query_reload(self):
         """
         Test reloading previously queried data with PAIRS query ID.
         """
         self.raster_query(mode='reload')
+    @pytest.mark.run(order=2)
     def test_raster_query_reload_in_memory(self):
         """
         Test reloading previously queried data with PAIRS query ID (in-memory storage).
@@ -692,8 +777,8 @@ class TestPollQuery(unittest.TestCase):
         """
         # check function parameters
         logging.info(
-            "TEST: Query {} raster aggregation data ({}{}).".format(
-                '' if REAL_CONNECT else 'mocked',
+            "TEST: Query {}raster aggregation data ({}{}).".format(
+                '' if REAL_CONNECT else 'mocked ',
                 mode,
                 ', in-memory' if inMemory else '',
             )
@@ -780,34 +865,43 @@ class TestPollQuery(unittest.TestCase):
                 )
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testRasterAggQuery.dataAcknowledgeText)
+        
+        # test deleting query object
+        del testRasterAggQuery 
 
+    @pytest.mark.run(order=1)
     def test_raster_aggregation_query_standard(self):
         """
         Test querying aggregated raster data.
         """
         self.raster_aggregation_query()
+    @pytest.mark.run(order=1)
     def test_raster_aggregation_query_standard_in_memory(self):
         """
         Test querying aggregated raster data (in-memory storage).
         """
         self.raster_aggregation_query(inMemory=True)
 
+    @pytest.mark.run(order=2)
     def test_raster_aggregation_query_cached(self):
         """
         Test querying aggregated raster data from local PAIRS ZIP file.
         """
         self.raster_aggregation_query(mode='cached')
+    @pytest.mark.run(order=2)
     def test_raster_aggregation_query_cached_in_memory(self):
         """
         Test querying aggregated raster data from local PAIRS ZIP file (in-memory).
         """
         self.raster_aggregation_query(mode='cached', inMemory=True)
 
+    @pytest.mark.run(order=2)
     def test_raster_aggregation_query_reload(self):
         """
         Test reloading previously queried aggregation data with PAIRS query ID.
         """
         self.raster_aggregation_query(mode='reload')
+    @pytest.mark.run(order=2)
     def test_raster_aggregation_query_reload_in_memory(self):
         """
         Test reloading previously queried aggregation data with PAIRS query ID (in-memory storage).
@@ -831,8 +925,8 @@ class TestPollQuery(unittest.TestCase):
         """
         # check function parameters
         logging.info(
-            "TEST: Query {} vector data ({}{}).".format(
-                '' if REAL_CONNECT else 'mocked',
+            "TEST: Query {}vector data ({}{}).".format(
+                '' if REAL_CONNECT else 'mocked ',
                 mode,
                 ', in-memory' if inMemory else '',
             )
@@ -919,34 +1013,43 @@ class TestPollQuery(unittest.TestCase):
                 self.assertEqual(colsAfterSplit, colsAfter2ndSplit)
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testVectorQuery.dataAcknowledgeText)
+        
+        # test deleting query object
+        del testVectorQuery 
 
+    @pytest.mark.run(order=1)
     def test_vector_query_standard(self):
         """
         Test querying vector data.
         """
         self.vector_query()
+    @pytest.mark.run(order=1)
     def test_vector_query_standard_in_memory(self):
         """
         Test querying vector data (in-memory storage).
         """
         self.vector_query(inMemory=True)
 
+    @pytest.mark.run(order=2)
     def test_vector_query_cached(self):
         """
         Test querying vector data from local PAIRS ZIP file.
         """
         self.vector_query(mode='cached')
+    @pytest.mark.run(order=2)
     def test_vector_query_cached_in_memory(self):
         """
         Test querying vector data from local PAIRS ZIP file (in-memory storage).
         """
         self.vector_query(mode='cached', inMemory=True)
 
+    @pytest.mark.run(order=2)
     def test_vector_query_reload(self):
         """
         Test reloading previously queried vector data with PAIRS query ID.
         """
         self.vector_query(mode='reload')
+    @pytest.mark.run(order=2)
     def test_vector_query_reload_in_memory(self):
         """
         Test reloading previously queried vector data with PAIRS query ID (in-memory storage).
@@ -1052,7 +1155,10 @@ class TestPollQuery(unittest.TestCase):
         testRasterQuery.submit()
         testRasterQuery.poll_till_finished(printStatus=True)
         testRasterQuery.download()
-        pairsMockZip = testRasterQuery.queryDir+'.zip'
+        pairsMockZip = os.path.join(
+            testRasterQuery.downloadDir,
+            testRasterQuery.zipFilePath
+        )
         # make sure that files in mock are available in real download
         # and that the size of the data and the mock are approximately the same
         logging.info("TEST: Check that all files from the mock exist in the real data queried.")
@@ -1080,12 +1186,14 @@ class TestPollQuery(unittest.TestCase):
         not REAL_CONNECT,
         "Skip checking mock against real service (raster query)."
     )
+    @pytest.mark.run(order=1)
     def test_mock_raster_query(self):
         self.compare_mock_vs_real_query('raster-data-sample-request.json')
     @unittest.skipIf(
         not REAL_CONNECT,
         "Skip checking mock against real service (vector query)."
     )
+    @pytest.mark.run(order=1)
     def test_mock_vector_query(self):
         self.compare_mock_vs_real_query('vector-data-sample-request.json')
     #}}}

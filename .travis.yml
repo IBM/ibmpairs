@@ -23,6 +23,7 @@ branches:
 install:
 # get required Python modules for IBM PAIRS open source tools
 - pip install -r requirements.txt
+- pip install -r requirements-development.txt
 # install Python modules required for testing
 - pip install responses
 # get documentation generation tool
@@ -30,6 +31,10 @@ install:
 
 script:
 # code testing
-- pytest --capture=no
+- pytest -vv --cov-report=term --cov=ibmpairs/ --capture=no
 # testing documentation generation
 - cd docs && make html
+
+# publish code coverage to GitHub
+after_success:
+- codecov
