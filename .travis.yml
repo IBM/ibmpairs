@@ -17,23 +17,31 @@ dist: xenial
 # Git branches Travis uses to trigger
 branches:
   only:
+    # stable release branch
     - master
+    # main development branch
+    - develop
 
 # environment installs
 install:
 # get required Python modules for IBM PAIRS open source tools
 - pip install -r requirements.txt
-- pip install -r requirements-development.txt
 # install Python modules required for testing
-- pip install responses
+- pip install -r requirements-development.txt
 # get documentation generation tool
 - pip install sphinx sphinx_rtd_theme
 
+before_script:
+# code linting for
+# - Python syntax error
+# - undefined names
+- flake8 ibmpairs --select=E9,F63,F72,F82 --count --show-source --statistics
+
 script:
-# code testing
+# code testing (with code coverage checking)
 - pytest -vv --cov-report=term --cov=ibmpairs/ --capture=no
-# testing documentation generation
-- cd docs && make html
+# testing documentation generation (and code coverage)
+- cd docs && make html && coverage html
 
 # publish code coverage to GitHub
 after_success:

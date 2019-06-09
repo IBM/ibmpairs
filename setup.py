@@ -19,6 +19,11 @@ with open('requirements.txt') as f:
 #       'geojson',
 #       'gdal',
 #   ]
+with open('requirements-development.txt') as f:
+    reqPackListDev = [
+        r.rstrip() for r in list(f)
+        if '#' not in r
+    ]
 
 setup(
     name='ibmpairs',
@@ -40,7 +45,7 @@ setup(
     packages=['ibmpairs'],
     install_requires=reqPackList,
     test_suite='tests',
-    tests_require=[],
+    tests_require=reqPackListDev,
     entry_points={
     },
     include_package_data=True,

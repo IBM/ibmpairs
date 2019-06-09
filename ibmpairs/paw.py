@@ -29,10 +29,9 @@ from functools import reduce
 from imp import reload
 from future import standard_library
 standard_library.install_aliases()
-PYTHON_VERSION = sys.version_info[0]
-if PYTHON_VERSION == 2:
+try:
     string_type = basestring
-else:
+except NameError:
     string_type = str
 # make reading file pointer streams in Python 2 and 3
 import codecs
@@ -227,7 +226,7 @@ def get_pairs_api_password(
                 if server == serverF and user == userF:
                     passFound = True
                     break
-    except (FileNotFoundError, IOError) as e:
+    except EnvironmentError as e:
         raise e
     except Exception as e:
         raise ValueError('Failed loading PAIRS password from {0}'.format(passFile))
@@ -510,7 +509,7 @@ class PAIRSQuery(object):
                 )
             else:
                 logging.info(
-                    "Query result ZIP file '{}' deleted: {}.".format(self.queryDir, e)
+                    "Query result ZIP file '{}' deleted.".format(self.queryDir)
                 )
         # decouple from file system
         try:
@@ -1188,9 +1187,9 @@ class PAIRSQuery(object):
                 try:
                     self.vdf[timeName].astype(str).apply(dateutil.parser.parse)
                     self.vdf[timeName].apply(lambda ts: pytz.UTC.localize(ts) if ts.tzinfo is None else ts)
-                except:
+                except Exception as e:
                     raise Exception(
-                        'Sorry, failed to convert timestamps to datetime objects for JSON ID: '+str(json_id)
+                        'Sorry, failed to convert timestamps to datetime objects: {}'.format(e)
                     )
             elif self.query['outputType'] == PAIRS_VECTOR_CSV_TYPE_NAME:
                 # convert timestamp column
@@ -1202,7 +1201,7 @@ class PAIRSQuery(object):
                         )
                 except Exception as e:
                     raise Exception(
-                        "Sorry, failed to convert timestamps to datetime objects for JSON ID '{}': {}".format(json_id, e)
+                        "Sorry, failed to convert timestamps to datetime objects: {}".format(e)
                     )
 
     def set_lat_lon_columns(self, latColName, lonColName, geomColName):
@@ -1237,9 +1236,9 @@ class PAIRSQuery(object):
                 )
             else:
                 logging.warning("GeoPandas not available on your system. Cannot convert vector dataframe to GeoPandas dataframe.")
-        except:
+        except Exception as e:
             raise Exception(
-                    "Unable to convert Pandas dataframe to GeoDataframe: '{}'".format(timeName)
+                "Unable to convert Pandas dataframe to GeoDataframe: '{}'".format(e)
             )
 
     def split_property_string_column(self):
@@ -1465,7 +1464,7 @@ class PAIRSQuery(object):
                 # ATTENTION: temporary hack for file name and name mismatch
                 self.metadata = {
                     fileDict['name'].replace(':', '_'): {
-                         k: v for k, v in fileDict.items() if k is not 'name'
+                         k: v for k, v in fileDict.items() if k != 'name'
                     }
                     for fileDict in outputJson['files']
                 }
