@@ -46,5 +46,5 @@ script:
 - cd .. && coverage html
 
 # publish code coverage to GitHub
-after_success:
-- codecov
+#after_success:
+#- codecov
