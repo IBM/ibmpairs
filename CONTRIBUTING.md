@@ -3,6 +3,17 @@
 You are very welcome to contribute to the open source repository of the IBM PAIRS Geoscope.
 To contribute code or documentation, please submit a [pull request](https://github.com/IBM/ibmpairs/pulls).
 
+### Setting up your development environment
+
+You can start off a plan Python 2 or 3 setup. Right now the code is compatible with
+both, however, since the former fades out end of 2019, we focus on the latter.
+
+To obtain all required Python module, simply run
+```Bash
+pip install -r requirements.txt
+pip install -r requirements-development.txt
+```
+from the base of this repo.
 
 ### Proposing new features
 

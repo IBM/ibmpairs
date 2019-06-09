@@ -205,7 +205,7 @@ class TestPointQuery(unittest.TestCase):
         ## check (some) data types from response
         self.assertIsInstance(
             testPointQuery.vdf.longitude[0],
-            (int, float),
+            (int, float, numpy.number),
         )
         self.assertIsInstance(
             testPointQuery.vdf.timestamp[0],
@@ -300,12 +300,12 @@ class TestPointQuery(unittest.TestCase):
             )
         testRealRasterResponse = requests.post(
             'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
-            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
+            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'rb')),
             auth    = PAIRS_CREDENTIALS,
         )
         testRealVectorResponse = requests.post(
             'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
-            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
+            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'), 'rb')),
             auth    = PAIRS_CREDENTIALS,
         )
         # make sure the return from the real server was successful
@@ -612,7 +612,7 @@ class TestPollQuery(unittest.TestCase):
                             rasterFilePath+'.json' in zf.namelist()
                         )
                         # try to temporarily open the JSON file
-                        json.loads(zf.read(rasterFilePath+'.json'))
+                        json.loads(zf.read(rasterFilePath+'.json', pwd=u'').decode('utf-8'))
         # load raster meta data
         logging.info("TEST: Load raster meta data.")
         testRasterQuery.list_layers()
@@ -751,7 +751,7 @@ class TestPollQuery(unittest.TestCase):
                             rasterFilePath+'.json' in zf.namelist()
                         )
                         # try to temporarily open the JSON file
-                        json.loads(zf.read(rasterFilePath+'.json'))
+                        json.loads(zf.read(rasterFilePath+'.json', pwd=u'').decode('utf-8'))
         # load aggregated raster meta data (which are actually vector-type data!)
         logging.info("TEST: Load aggregated raster meta data.")
         testRasterAggQuery.list_layers()

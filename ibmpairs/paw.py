@@ -291,7 +291,7 @@ class MockSubmitResponse():
         self.queryID     = queryID
         self.ok          = True
     def json(self):
-        return {'id': str(self.queryID)}
+        return {u'id': str(self.queryID)}
 
 class PAIRSQuery(object):
     """
@@ -846,11 +846,12 @@ class PAIRSQuery(object):
                                 self.pairsHost.geturl(),
                                 self.SUBMIT_API_STRING
                             ),
-                            json   = self.query,
-                            auth   = self.auth,
-                            verify = self.verifySSL,
+                            data    = json.dumps(self.query),
+                            auth    = self.auth,
+                            verify  = self.verifySSL,
                         )
                 except Exception as e:
+                    raise
                     raise Exception(
                         'Sorry, I have trouble to submit your query: {}.'.format(e)
                     )
@@ -858,7 +859,7 @@ class PAIRSQuery(object):
                 try:
                     if self.query['spatial']['type'] != PAIRS_POINT_QUERY_NAME:
                         self.queryID = self.querySubmit.json()['id']
-                        logging.info("Alright, PAIRS query sucessfully submitted, the reference ID is: {}".format(self.queryID))
+                        logging.info("query sucessfully submitted, reference ID: {}".format(self.queryID))
                 except Exception as e:
                     logging.error(
                         'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
@@ -963,8 +964,8 @@ class PAIRSQuery(object):
                 )
                 self.queryStatus = requests.get(
                     pollURL,
-                    auth = self.auth,
-                    verify = self.verifySSL,
+                    auth    = self.auth,
+                    verify  = self.verifySSL,
                 )
             elif self.queryID is not None and \
                 (not self.querySubmit is None) and \
@@ -980,8 +981,8 @@ class PAIRSQuery(object):
                 )
                 self.queryStatus = requests.get(
                     pollURL,
-                    auth = self.auth,
-                    verify = self.verifySSL,
+                    auth    = self.auth,
+                    verify  = self.verifySSL,
                 )
             elif self.queryID is None and self.query is None:
                 raise Exception(
@@ -1144,9 +1145,9 @@ class PAIRSQuery(object):
 
                                 downloadResponse = requests.get(
                                     downloadURL,
-                                    auth = self.auth,
-                                    stream=True,
-                                    verify = self.verifySSL,
+                                    auth    = self.auth,
+                                    stream  = True,
+                                    verify  = self.verifySSL,
                                 )
                                 if not downloadResponse.ok:
                                     self.BadDownloadFile = True
@@ -1182,12 +1183,14 @@ class PAIRSQuery(object):
                                         ),
                                         str(self.queryID)
                                     ),
-                                    json   = {
-                                        'provider': 'ibm',
-                                        'endpoint': self.COS_API_ENDPOINT,
-                                        'bucket':   str(cosInfo[0]),
-                                        'token':    str(cosInfo[1]),
-                                    },
+                                    data   = json.dumps(
+                                        {
+                                            'provider': 'ibm',
+                                            'endpoint': self.COS_API_ENDPOINT,
+                                            'bucket':   str(cosInfo[0]),
+                                            'token':    str(cosInfo[1]),
+                                        }
+                                    ),
                                     auth   = self.auth,
                                     verify = self.verifySSL,
                                 )
@@ -1573,7 +1576,7 @@ class PAIRSQuery(object):
                 if self.isPairsJupyter and self.fs.exists(metaPath) \
                 or not self.isPairsJupyter and metaPath in self.queryFS.listdir(u''):
                     try:
-                        with self.queryFS.open(metaPath, 'r') as j:
+                        with self.queryFS.open(metaPath, 'rb') as j:
                             metaData.update(
                                 {
                                     'details': json.load(codecs.getreader('utf-8')(j))
