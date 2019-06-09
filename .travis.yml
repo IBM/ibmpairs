@@ -40,8 +40,10 @@ before_script:
 script:
 # code testing (with code coverage checking)
 - pytest -vv --cov-report=term --cov=ibmpairs/ --capture=no
-# testing documentation generation (and code coverage)
-- cd docs && make html && coverage html
+# testing documentation generation
+- cd docs && make html
+# testing code coverage report generation
+- cd .. && coverage html
 
 # publish code coverage to GitHub
 after_success:
