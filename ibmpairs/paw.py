@@ -38,9 +38,6 @@ import codecs
 # modules needed
 import numpy
 import pandas
-import PIL.Image
-# adjust maximum size of pixels for image to load (1 TPix)
-PIL.Image.MAX_IMAGE_PIXELS = 10**12
 import errno
 from requests.compat import urlparse, urljoin
 import requests
@@ -81,6 +78,12 @@ try:
     HAS_GDAL=True
 except:
     HAS_GDAL=False
+    try:
+        import PIL.Image
+        # adjust maximum size of pixels for image to load (1 TPix)
+        PIL.Image.MAX_IMAGE_PIXELS = 10**12
+    except Exception as e:
+        raise ImportError('Neither GDAL nor PIL could be imported.')
 #}}}
 # fold: global parameters{{{
 ## PAIRS base URI for API calles
