@@ -782,6 +782,9 @@ class PAIRSQuery(object):
                     logging.error(
                         'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
                     )
+                    logging.error(
+                        "Maybe your query definition is not right? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
+                    )
                     raise
                 # check for point query that immediately returns
                 if self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
