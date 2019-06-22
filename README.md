@@ -1,7 +1,7 @@
 # IBM PAIRS Geoscope open source modules
 
 [![Build Status](https://travis-ci.org/IBM/ibmpairs.svg?branch=master)](https://travis-ci.org/IBM/ibmpairs)
-[![PyPI version](https://badge.fury.io/py/aif360.svg)](https://badge.fury.io/py/ibmpairs)
+[![PyPI Package](https://badge.fury.io/py/ibmpairs.svg)](https://pypi.org/project/ibmpairs/)
 
 
 This repository provides an interface to the geo-spatial big data platform
