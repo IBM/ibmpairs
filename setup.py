@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from setuptools import setup
 
 def readme():
@@ -30,15 +31,21 @@ setup(
     version='0.0.4',
     description='open source Python modules for the IBM PAIRS Geoscope platform',
     long_description=readme(),
+    long_description_content_type='text/markdown',
     classifiers=[
       'Development Status :: 3 - Alpha',
-      'License :: OSI Approved :: BSD',
+      'License :: OSI Approved :: BSD License',
       'Programming Language :: Python :: 2',
       'Programming Language :: Python :: 3',
       'Topic :: Scientific/Engineering :: GIS',
     ],
     keywords='IBM PAIRS GIS BigGeoData',
-    url='http://github.com/ibm/ibmpairs',
+    url='https://ibmpairs.mybluemix.net',
+    project_urls = {
+        'Documentation': 'https://pairs.res.ibm.com/tutorial',
+        'Source': 'https://github.com/ibm/ibmpairs',
+        'Tracker': 'https://github.com/ibm/ibmpairs/issues',
+    },
     author='Physical Analytics, IBM Research',
     author_email='pairs@us.ibm.com',
     license='BSD-Clause-3',

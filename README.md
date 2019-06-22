@@ -1,6 +1,8 @@
 # IBM PAIRS Geoscope open source modules
 
 [![Build Status](https://travis-ci.org/IBM/ibmpairs.svg?branch=master)](https://travis-ci.org/IBM/ibmpairs)
+[![PyPI version](https://badge.fury.io/py/aif360.svg)](https://badge.fury.io/py/ibmpairs)
+
 
 This repository provides an interface to the geo-spatial big data platform
 [IBM PAIRS Geoscope](https://ibmpairs.mybluemix.net).
@@ -13,8 +15,8 @@ Python data structures.
 
 # General Notes
 
-If you like to contribute, please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
-A list of maintainers is recorded in [MAINTAINERS.md](MAINTAINERS.md).
+If you like to contribute, please read [CONTRIBUTING.md](https://github.com/ibm/ibmpairs/CONTRIBUTING.md)
+first. A list of maintainers is recorded in [MAINTAINERS.md](https://github.com/ibm/ibmpairs/MAINTAINERS.md).
 
 
 # Installation and Usage
@@ -22,7 +24,7 @@ A list of maintainers is recorded in [MAINTAINERS.md](MAINTAINERS.md).
 If you have installed the Python package manager [PIP](https://github.com/pypa/pip),
 simply run
 ```Bash
-pip install --user git+https://github.com/ibm/ibmpairs
+pip install --user ibmpairs
 ```
 Then you import the IBM PAIRS API wrapper via:
 ```Python
@@ -34,10 +36,11 @@ can also run
 pip install --user git+https://github.com/ibm/ibmpairs@develop
 ```
 
+
 # Getting started
 
-Simply get your feet wet with the [tutorial](tutorials/IBM-PAIRS-API-wrapper-tutorial.ipynb).
-The full API documentation you can generate by running
+Simply get your feet wet with the [tutorial](https://github.com/ibm/ibmpairs/tutorials/IBM-PAIRS-API-wrapper-tutorial.ipynb).
+Having cloned into the repo, the full API documentation you can generate by running
 ```Bash
 cd docs && make html
 ```
