@@ -15,8 +15,8 @@ Python data structures.
 
 # General Notes
 
-If you like to contribute, please read [CONTRIBUTING.md](https://github.com/ibm/ibmpairs/CONTRIBUTING.md)
-first. A list of maintainers is recorded in [MAINTAINERS.md](https://github.com/ibm/ibmpairs/MAINTAINERS.md).
+If you like to contribute, please read [CONTRIBUTING.md](https://github.com/ibm/ibmpairs/blob/master/CONTRIBUTING.md)
+first. A list of maintainers is recorded in [MAINTAINERS.md](https://github.com/ibm/ibmpairs/blob/master/MAINTAINERS.md).
 
 
 # Installation and Usage
@@ -39,7 +39,7 @@ pip install --user git+https://github.com/ibm/ibmpairs@develop
 
 # Getting started
 
-Simply get your feet wet with the [tutorial](https://github.com/ibm/ibmpairs/tutorials/IBM-PAIRS-API-wrapper-tutorial.ipynb).
+Simply get your feet wet with the [tutorial](https://github.com/ibm/ibmpairs/blob/master/tutorials/IBM-PAIRS-API-wrapper-tutorial.ipynb).
 Having cloned into the repo, the full API documentation you can generate by running
 ```Bash
 cd docs && make html
