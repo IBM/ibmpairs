@@ -488,7 +488,7 @@ class PAIRSQuery(object):
             except Exception as e:
                 pass
         if isinstance(self.fs, fs.memoryfs.MemoryFS):
-            logging.info('Just FYI: Local file system is in memory - no data safed on local disk.')
+            logging.info('Just FYI: Local file system is in memory - no data saved on local disk.')
 
     def __del__(self):
         # Delete the file and folder
