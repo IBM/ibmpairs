@@ -377,6 +377,8 @@ class PAIRSQuery(object):
         # define query (depending on what information is provided)
         # submit of query
         self.querySubmit                = None
+        # flag for how to handle downloaded data on object delete
+        self.deleteDownload             = deleteDownload
         ## JSON load defining the query
         if isinstance(query, dict):
             self.query                  = query
@@ -454,8 +456,6 @@ class PAIRSQuery(object):
         else:
             # flag data is not downloaded, yet
             self.downloaded = False
-        # flag for how to handle downloaded data on object delete
-        self.deleteDownload      = deleteDownload
         # hash of the JSON query
         # (used as subfolder for saving files and to see if corresponding Tiff already exists)
         self.qHash               = getQueryHash(query if isinstance(self.query, dict) else {})
@@ -1113,7 +1113,9 @@ class PAIRSQuery(object):
                                     auth    = self.auth,
                                     verify  = self.verifySSL,
                                 )
-                                if resp.status_code != 200:
+                                if resp.status_code == 200:
+                                    logging.info('Upload of query result to IBM COS initialized.')
+                                else:
                                     raise Exception(
                                         'PAIRS failed publishing query result to COS: {}'.format(resp.text)
                                     )
@@ -1623,7 +1625,7 @@ class PAIRSQuery(object):
 
     def create_layers(self, defaultExtension=u''):
         """
-        Generate data Python data structures for layers queried.
+        From PAIRS query ZIP file generate Python data structures for layers in memory.
 
         :param defaultExtension:    sets default extension for data layer types not specified
         :type defaultExtension:     str
