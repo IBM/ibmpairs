@@ -597,7 +597,7 @@ class TestPollQuery(unittest.TestCase):
 
 
     # fold: test ordinary raster queries#{{{
-    def raster_query(self, mode='query', inMemory=False):
+    def raster_query(self, mode='query', inMemory=False, searchExist=False):
         """
         Query raster data in various ways.
 
@@ -607,6 +607,8 @@ class TestPollQuery(unittest.TestCase):
                             - `reload` uses PAIRS query ID
         :type mode:         str
         :param inMemory:    triggers storing files directly in memory for PAIRS query
+        :type inMemory:     bool
+        :param searchExist: triggers the search for an existing ZIP file
         :type inMemory:     bool
         :raises Exception:  if function parameters are incorrectly set
         """
@@ -642,17 +644,18 @@ class TestPollQuery(unittest.TestCase):
         testRasterQuery = paw.PAIRSQuery(
             queryDef,
             'https://'+PAIRS_SERVER,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
-            inMemory    = inMemory,
+            auth                = PAIRS_CREDENTIALS,
+            baseURI             = PAIRS_BASE_URI,
+            inMemory            = inMemory,
+            overwriteExisting   = not searchExist,
         )
         # check that query got submitted
         testRasterQuery.submit()
-        if not mode=='cached':
+        if not mode=='cached' and not searchExist:
             self.assertTrue(testRasterQuery.querySubmit.ok)
         # poll and check that data status is finished
         testRasterQuery.poll_till_finished(printStatus=True)
-        if not mode=='cached':
+        if not mode=='cached' and not searchExist:
             self.assertTrue(testRasterQuery.queryStatus.ok)
         # check that certain files exist
         testRasterQuery.download()
@@ -668,7 +671,7 @@ class TestPollQuery(unittest.TestCase):
             )
             if REAL_CONNECT and mode=='query':
                 pytest.realConnectQueryID = testRasterQuery.queryID
-                pytest.realConnectZIPPath = fullZipFilePath 
+                pytest.realConnectZIPPath = fullZipFilePath
             self.assertTrue(
                 os.path.exists(fullZipFilePath)
             )
@@ -717,9 +720,9 @@ class TestPollQuery(unittest.TestCase):
                 )
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
-        
+
         # test deleting query object
-        del testRasterQuery 
+        del testRasterQuery
 
     @pytest.mark.run(order=1)
     def test_raster_query_standard(self):
@@ -740,6 +743,12 @@ class TestPollQuery(unittest.TestCase):
         Test querying raster data from local PAIRS ZIP file.
         """
         self.raster_query(mode='cached')
+    @pytest.mark.run(order=2)
+    def test_raster_query_cached_search(self):
+        """
+        Test querying raster data from local PAIRS ZIP file by query JSON definition.
+        """
+        self.raster_query(searchExist=True)
     @pytest.mark.run(order=2)
     def test_raster_query_cached_in_memory(self):
         """
@@ -762,7 +771,7 @@ class TestPollQuery(unittest.TestCase):
     #}}}
 
     # fold: test raster aggregation queries#{{{
-    def raster_aggregation_query(self, mode='query', inMemory=False):
+    def raster_aggregation_query(self, mode='query', inMemory=False, searchExist=False):
         """
         Query aggregated raster data.
 
@@ -772,6 +781,8 @@ class TestPollQuery(unittest.TestCase):
                             - `reload` uses PAIRS query ID
         :type mode:         str
         :param inMemory:    triggers storing files directly in memory for PAIRS query
+        :type inMemory:     bool
+        :param searchExist: triggers the search for an existing ZIP file
         :type inMemory:     bool
         :raises Exception:  if function parameters are incorrectly set
         """
@@ -798,17 +809,18 @@ class TestPollQuery(unittest.TestCase):
         testRasterAggQuery = paw.PAIRSQuery(
             queryDef,
             'https://'+PAIRS_SERVER,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
-            inMemory    = inMemory,
+            auth                = PAIRS_CREDENTIALS,
+            baseURI             = PAIRS_BASE_URI,
+            inMemory            = inMemory,
+            overwriteExisting   = not searchExist,
         )
         # check that query got submitted
         testRasterAggQuery.submit()
-        if not mode=='cached':
+        if not mode=='cached' and not searchExist:
             self.assertTrue(testRasterAggQuery.querySubmit.ok)
         # poll and check that data status is finished
         testRasterAggQuery.poll_till_finished(printStatus=True)
-        if not mode=='cached':
+        if not mode=='cached' and not searchExist:
             self.assertTrue(testRasterAggQuery.queryStatus.ok)
         # check that certain files exist
         testRasterAggQuery.download()
@@ -865,9 +877,9 @@ class TestPollQuery(unittest.TestCase):
                 )
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testRasterAggQuery.dataAcknowledgeText)
-        
+
         # test deleting query object
-        del testRasterAggQuery 
+        del testRasterAggQuery
 
     @pytest.mark.run(order=1)
     def test_raster_aggregation_query_standard(self):
@@ -888,6 +900,12 @@ class TestPollQuery(unittest.TestCase):
         Test querying aggregated raster data from local PAIRS ZIP file.
         """
         self.raster_aggregation_query(mode='cached')
+    @pytest.mark.run(order=2)
+    def test_raster_aggregation_query_cached_search(self):
+        """
+        Test querying aggregated raster data from local PAIRS ZIP file using query JSON definition.
+        """
+        self.raster_aggregation_query(searchExist=True)
     @pytest.mark.run(order=2)
     def test_raster_aggregation_query_cached_in_memory(self):
         """
@@ -910,7 +928,7 @@ class TestPollQuery(unittest.TestCase):
     #}}}
 
     # fold: test vector queries #{{{
-    def vector_query(self, mode='query', inMemory=False):
+    def vector_query(self, mode='query', inMemory=False, searchExist=False):
         """
         Query vector data in various ways.
 
@@ -920,6 +938,8 @@ class TestPollQuery(unittest.TestCase):
                             - `reload` uses PAIRS query ID
         :type mode:         str
         :param inMemory:    triggers storing files directly in memory for PAIRS query
+        :type inMemory:     bool
+        :param searchExist: triggers the search for an existing ZIP file
         :type inMemory:     bool
         :raises Exception:  if function parameters are incorrectly set
         """
@@ -946,17 +966,18 @@ class TestPollQuery(unittest.TestCase):
         testVectorQuery = paw.PAIRSQuery(
             queryDef,
             'https://'+PAIRS_SERVER,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
-            inMemory    = inMemory,
+            auth                = PAIRS_CREDENTIALS,
+            baseURI             = PAIRS_BASE_URI,
+            inMemory            = inMemory,
+            overwriteExisting   = not searchExist,
         )
         # check that query got submitted
         testVectorQuery.submit()
-        if not mode=='cached':
+        if not mode=='cached' and not searchExist:
             self.assertTrue(testVectorQuery.querySubmit.ok)
         # poll and check that data status is finished
         testVectorQuery.poll_till_finished(printStatus=True)
-        if mode not in ['cached', 'reload']:
+        if mode not in ['cached', 'reload'] and not searchExist:
             self.assertTrue(testVectorQuery.queryStatus.ok)
         # check that certain files exist
         testVectorQuery.download()
@@ -1013,9 +1034,9 @@ class TestPollQuery(unittest.TestCase):
                 self.assertEqual(colsAfterSplit, colsAfter2ndSplit)
         # check that the data acknowledgement statement is not empty
         self.assertIsNotNone(testVectorQuery.dataAcknowledgeText)
-        
+
         # test deleting query object
-        del testVectorQuery 
+        del testVectorQuery
 
     @pytest.mark.run(order=1)
     def test_vector_query_standard(self):
@@ -1037,6 +1058,12 @@ class TestPollQuery(unittest.TestCase):
         """
         self.vector_query(mode='cached')
     @pytest.mark.run(order=2)
+    def test_vector_query_cached_search(self):
+        """
+        Test querying vector data from local PAIRS ZIP file using query JSON definition.
+        """
+        self.vector_query(searchExist=True)
+    @pytest.mark.run(order=2)
     def test_vector_query_cached_in_memory(self):
         """
         Test querying vector data from local PAIRS ZIP file (in-memory storage).
@@ -1056,29 +1083,6 @@ class TestPollQuery(unittest.TestCase):
         """
         self.vector_query(mode='reload', inMemory=True)
     #}}}
-
-    def TO_BE_IMPLEMENTED_test_dataframe_generation(self):
-        """
-        Tests functions that massage the received data to the *unified* PAW dataframe.
-        """
-        # query mocked data
-        logging.info("TEST: Generation of unified PAW dataframe for raster data.")
-        testRasterQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'raster-data-sample-request.json'))),
-            'https://'+PAIRS_SERVER,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
-        )
-        testRasterQuery.submit()
-        testRasterQuery.poll_till_finished(printStatus=True)
-        testRasterQuery.download()
-        # create dataframe from ratser data
-        testRasterQuery.create_dataframe()
-        # check that the dataset and datalayer column names have been added
-        self.assertIn(
-            'layerName',
-            testRasterQuery.dataframe[list(testRasterQuery.metadata.keys())[0]].columns
-        )
 
 
     # fold: test cached mock data to simulate PAIRS server against real service#{{{

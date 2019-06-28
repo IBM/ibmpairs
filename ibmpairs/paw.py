@@ -1076,20 +1076,6 @@ class PAIRSQuery(object):
 
                                 for block in downloadResponse.iter_content(1024):
                                     f.write(block)
-                            # test if downloaded ZIP file is readable
-                            try:
-                                self._queryStream   = self.fs.open(self.zipFilePath, 'rb')
-                                self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
-                                self.queryFS.listdir(u'')
-                            except Exception as e:
-                                # flag BadZipfile exception
-                                self.BadDownloadFile = True
-                                logging.error('Sorry, cannot read downloaded query ZIP file: {}'.format(e))
-                            else:
-                                self.BadDownloadFile = False
-                                logging.info(
-                                    "Here we go, PAIRS query result successfully downloaded as '{}'.".format(self.zipFilePath)
-                                )
                         # publish query result to COS
                         elif isinstance(cosInfo, tuple) and len(cosInfo)==2:
                             try:
@@ -1140,6 +1126,21 @@ class PAIRSQuery(object):
                         msg = "Hm, not sure what is going on, status code from IBM PAIRS is '{}' ({})".format(statusCode, statusMsg)
                     logging.info(msg)
                     raise Exception(msg)
+
+            # test if downloaded ZIP file is readable
+            try:
+                self._queryStream   = self.fs.open(self.zipFilePath, 'rb')
+                self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
+                self.queryFS.listdir(u'')
+            except Exception as e:
+                # flag BadZipfile exception
+                self.BadDownloadFile = True
+                logging.error('Sorry, cannot read downloaded query ZIP file: {}'.format(e))
+            else:
+                self.BadDownloadFile = False
+                logging.info(
+                    "Here we go, PAIRS query result successfully downloaded as '{}'.".format(self.zipFilePath)
+                )
 
             # try to read data acknowledgement
             try:
@@ -1304,6 +1305,8 @@ class PAIRSQuery(object):
                         if there is an error on retrieval, `None` is returned
         """
         try:
+            if not HAS_GEOJSON:
+                raise Exception('Sorry, you have not installed the GeoJSON Python module (e.g. via `pip install geojson`)')
             return shape(
                 geojson.loads(
                     requests.get(
