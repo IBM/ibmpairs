@@ -1608,15 +1608,25 @@ class PAIRSQuery(object):
                         )
                     # *conventional* PAIRS vector data
                     else:
-                        self.data[fileName] = pandas.read_csv(
-                            f,
-                            header      = 0,
-                            index_col   = False,
-                            quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
-                            parse_dates = {
-                                PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME: [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM]
-                            },
-                        )
+                        try:
+                            self.data[fileName] = pandas.read_csv(
+                                f,
+                                header      = 0,
+                                index_col   = False,
+                                quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
+                                parse_dates = {
+                                    PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME: [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM]
+                                },
+                            )
+                        except:
+                            # catch clash due to same timestamp column naming (Pandas bug)
+                            self.data[fileName] = pandas.read_csv(
+                                f,
+                                header      = 0,
+                                index_col   = False,
+                                quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
+                                parse_dates = [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM],
+                            )
             except Exception as e:
                 logging.error(
                     "Unable to load '{}' from '{}' into Pandas dataframe: {}".format(fileName, self.zipFilePath, e)
