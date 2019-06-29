@@ -106,6 +106,8 @@ PAIRS_VECTOR_LONGITUDE_COLUMN_NAME  = u'longitude'
 PAIRS_VECTOR_LATITUDE_COLUMN_NAME   = u'latitude'
 PAIRS_VECTOR_GEOMETRY_COLUMN_NAME   = u'geometry'
 PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM  = 2
+## PAIRS meta data constants
+PAIRS_META_TIMESTAMP_NAME           = u'timestamp'
 ## PAIRS query type names
 PAIRS_POINT_QUERY_NAME              = u'point'
 PAIRS_VECTOR_QUERY_NAME             = u'vector'
@@ -1533,8 +1535,12 @@ class PAIRSQuery(object):
         :raises Exception:          if layer data cannot be loaded from query ZIP file
         """
         # convert timestamp information (if any)
-        if 'timestamp' in layerMeta.keys() and not isinstance(layerMeta['timestamp'], datetime):
-            layerMeta['timestamp'] = datetime.fromtimestamp(int(layerMeta['timestamp']), tz=pytz.UTC)
+        if PAIRS_META_TIMESTAMP_NAME in layerMeta.keys() \
+        and not isinstance(layerMeta[PAIRS_META_TIMESTAMP_NAME], datetime):
+            layerMeta[PAIRS_META_TIMESTAMP_NAME] = datetime.fromtimestamp(
+                int(layerMeta[PAIRS_META_TIMESTAMP_NAME]),
+                tz=pytz.UTC
+            )
         # load raster data
         # construct file path to load data from
         layerDataPath = os.path.join(
@@ -1627,6 +1633,16 @@ class PAIRSQuery(object):
                                 quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
                                 parse_dates = [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM],
                             )
+                        # check if timestamp column is completely empty, and if so,
+                        # assign the timestamp from the meta data
+                        try:
+                            if self.data[fileName][PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME].apply(
+                                lambda t: isinstance(t, pandas._libs.tslibs.nattype.NaTType)
+                            ).all() and PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in layerMeta.columns:
+                                self.data[fileName][PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME] = layerMeta[PAIRS_META_TIMESTAMP_NAME]
+                        except:
+                            # silently pass if this bonus option does not work
+                            pass
             except Exception as e:
                 logging.error(
                     "Unable to load '{}' from '{}' into Pandas dataframe: {}".format(fileName, self.zipFilePath, e)
