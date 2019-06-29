@@ -1606,6 +1606,7 @@ class PAIRSQuery(object):
                 with self.queryFS.open(layerDataPath, 'rb') as f:
                     # spatial aggregation vector data
                     if PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
+                        logging.info('Identified spatial aggregation data.')
                         self.data[fileName] = pandas.read_csv(
                             f,
                             header      = 0,
@@ -1640,12 +1641,18 @@ class PAIRSQuery(object):
                                 lambda t: isinstance(t, pandas._libs.tslibs.nattype.NaTType)
                             ).all() and PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in layerMeta.columns:
                                 self.data[fileName][PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME] = layerMeta[PAIRS_META_TIMESTAMP_NAME]
+                                logging.info(
+                                    "Successfully populated timestamp column '{}' with '{}'.".format(
+                                        PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME,
+                                        layerMeta[PAIRS_META_TIMESTAMP_NAME]
+                                    )
+                                )
                         except:
                             # silently pass if this bonus option does not work
                             pass
             except Exception as e:
                 logging.error(
-                    "Unable to load '{}' from '{}' into Pandas dataframe: {}".format(fileName, self.zipFilePath, e)
+                    "Unable to load '{}' from '{}' into Pandas dataframe: {}".format(layerDataPath, self.zipFilePath, e)
                 )
         else:
             msg = "Sorry, I do not know how to load PAIRS query data of type '{}'".format(layerMeta['layerType'])
