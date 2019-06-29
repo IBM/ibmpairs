@@ -1627,19 +1627,23 @@ class PAIRSQuery(object):
                             )
                         except:
                             # catch clash due to same timestamp column naming (Pandas bug)
-                            self.data[fileName] = pandas.read_csv(
-                                f,
-                                header      = 0,
-                                index_col   = False,
-                                quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
-                                parse_dates = [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM],
-                            )
+                            with self.queryFS.open(layerDataPath, 'rb') as f2:
+                                self.data[fileName] = pandas.read_csv(
+                                    f2,
+                                    header      = 0,
+                                    index_col   = False,
+                                    quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
+                                    parse_dates = [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM],
+                                )
+                        logging.info(
+                            "'{}' from '{}' loaded into Pandas dataframe.".format(layerDataPath, self.zipFilePath)
+                        )
                         # check if timestamp column is completely empty, and if so,
                         # assign the timestamp from the meta data
                         try:
                             if self.data[fileName][PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME].apply(
                                 lambda t: isinstance(t, pandas._libs.tslibs.nattype.NaTType)
-                            ).all() and PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in layerMeta.columns:
+                            ).all() and PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in layerMeta.keys():
                                 self.data[fileName][PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME] = layerMeta[PAIRS_META_TIMESTAMP_NAME]
                                 logging.info(
                                     "Successfully populated timestamp column '{}' with '{}'.".format(
