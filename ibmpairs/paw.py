@@ -775,11 +775,9 @@ class PAIRSQuery(object):
                     raise Exception(
                         'Sorry, I have trouble to submit your query: {}.'.format(e)
                     )
-                # obtain (and internally set) query ID (if any)
+                # check that submission return is proper JSON
                 try:
-                    if self.query['spatial']['type'] != PAIRS_POINT_QUERY_NAME:
-                        self.queryID = self.querySubmit.json()['id']
-                        logging.info("Query successfully submitted, reference ID: {}".format(self.queryID))
+                    _ = self.querySubmit.json()
                 except Exception as e:
                     logging.error(
                         'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
@@ -788,8 +786,13 @@ class PAIRSQuery(object):
                         "Maybe your query definition is not right? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
                     )
                     raise
-                # check for point query that immediately returns
-                if self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
+
+                # obtain (and internally set) query ID, or ...
+                if self.query['spatial']['type'] != PAIRS_POINT_QUERY_NAME:
+                    self.queryID = self.querySubmit.json()['id']
+                    logging.info("Query successfully submitted, reference ID: {}".format(self.queryID))
+                # ... handle point query that immediately returns
+                else:
                     # set query status equal to submit status
                     self.queryStatus = self.querySubmit
                     # convert data into (vector) dataframe
