@@ -1538,7 +1538,7 @@ class PAIRSQuery(object):
         if PAIRS_META_TIMESTAMP_NAME in layerMeta.keys() \
         and not isinstance(layerMeta[PAIRS_META_TIMESTAMP_NAME], datetime):
             layerMeta[PAIRS_META_TIMESTAMP_NAME] = datetime.fromtimestamp(
-                int(layerMeta[PAIRS_META_TIMESTAMP_NAME]),
+                int(layerMeta[PAIRS_META_TIMESTAMP_NAME])/1000.,
                 tz=pytz.UTC
             )
         # load raster data
