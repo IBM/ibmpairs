@@ -416,9 +416,6 @@ class PAIRSQuery(object):
                 "Query definition of type '{}' not an option.".format(type(query))
             )
 
-        # indicate if query is used in PAIRS Jupyter notebook (spin-up from e.g. MVP)
-        self.isPairsJupyter      = False
-
         # folder to save query result
         self.downloadDir         = str(
             os.path.dirname(self.zipFilePath) if self.zipFilePath is not None else downloadDir
@@ -1436,18 +1433,13 @@ class PAIRSQuery(object):
                                     if there is an issue reading the meta data information
         """
         # define path of main PAIRS query meta file
-        pairsMetaInfoPath = os.path.join(
-            self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else u'',
-            PAIRS_QUERY_METADATA_FILE_NAME
-        )
+        pairsMetaInfoPath = PAIRS_QUERY_METADATA_FILE_NAME
         # load meta data just once (and if no point query)
         if (self.metadata is None or refresh) and (
             self.queryStatus is not self.querySubmit if self.queryStatus is not None else True
         ):
             # check if required main meta data info exists
-            if self.isPairsJupyter and not self.fs.exists(pairsMetaInfoPath) \
-            or not self.isPairsJupyter \
-                and pairsMetaInfoPath not in self.queryFS.listdir(u''):
+            if pairsMetaInfoPath not in self.queryFS.listdir(u''):
                 msg = "No PAIRS meta data file '{}' found".format(
                     os.path.basename(pairsMetaInfoPath)
                 )
@@ -1478,17 +1470,13 @@ class PAIRSQuery(object):
             # load (optional) detailed layer information (based on the existence of
             # a file with same name plus PAIRS file name extension for JSON files)
             for fileName, metaData in self.metadata.items():
-                metaPath = os.path.join(
-                    self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else u'',
-                    fileName + (
-                        defaultExtension if 'layerType' not in metaData \
-                        else self.RASTER_FILE_EXTENSION if metaData['layerType'] == PAIRS_RASTER_QUERY_NAME \
-                        else self.VECTOR_FILE_EXTENSION if metaData['layerType'] == PAIRS_VECTOR_QUERY_NAME \
-                        else u''
-                    ) + PAIRS_JSON_FILE_EXTENSION
-                )
-                if self.isPairsJupyter and self.fs.exists(metaPath) \
-                or not self.isPairsJupyter and metaPath in self.queryFS.listdir(u''):
+                metaPath = fileName + (
+                    defaultExtension if 'layerType' not in metaData \
+                    else self.RASTER_FILE_EXTENSION if metaData['layerType'] == PAIRS_RASTER_QUERY_NAME \
+                    else self.VECTOR_FILE_EXTENSION if metaData['layerType'] == PAIRS_VECTOR_QUERY_NAME \
+                    else u''
+                ) + PAIRS_JSON_FILE_EXTENSION
+                if metaPath in self.queryFS.listdir(u''):
                     try:
                         with self.queryFS.open(metaPath, 'rb') as j:
                             metaData.update(
@@ -1531,14 +1519,11 @@ class PAIRSQuery(object):
             )
         # load raster data
         # construct file path to load data from
-        layerDataPath = os.path.join(
-            self.PAIRS_JUPYTER_QUERY_BASE_DIR if self.isPairsJupyter else u'',
-            fileName + (
-                defaultExtension if 'layerType' not in layerMeta \
-                else self.RASTER_FILE_EXTENSION if layerMeta['layerType'] == PAIRS_RASTER_QUERY_NAME and PAIRS_JSON_SPAT_AGG_KEY not in layerMeta \
-                else self.VECTOR_FILE_EXTENSION if layerMeta['layerType'] == PAIRS_VECTOR_QUERY_NAME or PAIRS_JSON_SPAT_AGG_KEY in layerMeta \
-                else u''
-            )
+        layerDataPath = fileName + (
+            defaultExtension if 'layerType' not in layerMeta \
+            else self.RASTER_FILE_EXTENSION if layerMeta['layerType'] == PAIRS_RASTER_QUERY_NAME and PAIRS_JSON_SPAT_AGG_KEY not in layerMeta \
+            else self.VECTOR_FILE_EXTENSION if layerMeta['layerType'] == PAIRS_VECTOR_QUERY_NAME or PAIRS_JSON_SPAT_AGG_KEY in layerMeta \
+            else u''
         )
         # extract data to temporary file from ZIP (if any)
         # get raster data
