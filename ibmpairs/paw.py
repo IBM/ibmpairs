@@ -60,6 +60,7 @@ import itertools
 import tempfile
 # file system abstraction
 import fs
+from fs.osfs import OSFS
 from fs import zipfs
 # }}}
 # fold: optional packages#{{{
@@ -617,7 +618,7 @@ class PAIRSQuery(object):
         clsInstance.downloaded  = True
         # set PAIRS query base directory
         # note: incorporates a hack due to a bug in the fs Python module (on parsing)
-        clsInstance.queryFS     = fs.fs_open(u'osfs://:@'+queryDir+u'?')
+        clsInstance.queryFS     = OSFS(queryDir)
         # load all raster and vector data
         logging.info('Loading query result into memory ...')
         # load all queried layers
