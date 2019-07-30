@@ -613,31 +613,15 @@ class PAIRSQuery(object):
             downloadDir         = None,
             overwriteExisting   = False,
         )
-        # indicate PAIRS Jupyter notebook usage
-        clsInstance.isPairsJupyter = True
-        # set the PAIRS query ID for (meta)information retrieval from PAIRS
-        clsInstance.queryID = queryID
         # indicate that the data does not need to be downloaded
-        clsInstance.downloaded = True
+        clsInstance.downloaded  = True
         # set PAIRS query base directory
-        clsInstance.PAIRS_JUPYTER_QUERY_BASE_DIR = str(queryDir)
+        # note: incorporates a hack due to a bug in the fs Python module (on parsing)
+        clsInstance.queryFS     = fs.fs_open(u'osfs://:@'+queryDir+u'?')
         # load all raster and vector data
         logging.info('Loading query result into memory ...')
-        try:
-            # try to load all queried layers
-            cls.Instance.create_layers()
-        except:
-            # ... or if that fails default to old raster/vector data import
-            try:
-                clsInstance.create_rasters()
-                logging.info('... raster data ...')
-            except Exception as e:
-                logging.warning('... no raster data available ...')
-            try:
-                clsInstance.create_VectorDataFrame()
-                logging.info('... vector data ...')
-            except Exception as e:
-                logging.warning('... no vector data available ...')
+        # load all queried layers
+        clsInstance.create_layers()
         logging.info('... done.')
 
         return clsInstance
