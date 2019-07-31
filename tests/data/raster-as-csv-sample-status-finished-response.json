@@ -1,0 +1,19 @@
+{
+  "id": "1564502400_27280298",
+  "status": "Succeeded",
+  "start": 1564529680298,
+  "pql": null,
+  "folder": "1564529680298",
+  "swLat": 30,
+  "swLon": -100,
+  "neLat": 30.1,
+  "neLon": -99.900002,
+  "nickname": null,
+  "exPercent": 0,
+  "flag": false,
+  "hadoopId": "1535736177095_4289019",
+  "ready": true,
+  "rtStatus": "Succeeded",
+  "pdStatus": null,
+  "statusCode": 20
+}
