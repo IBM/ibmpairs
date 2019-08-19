@@ -1,0 +1,29 @@
+{
+  "batch":true,
+  "spatial": {
+    "type": "point",
+    "coordinates": [
+      38,
+      -122,
+      39,
+      -121,
+      40,
+      -90.3
+    ]
+  },
+  "temporal": {
+    "intervals": [
+      {
+        "start": "2010-08-01",
+                "end": "2019-08-01"
+      }
+    ]
+  },
+  "layers": [
+    {
+      "id": "51",
+      "filterOnly": false,
+      "type": "raster"
+    }
+  ]
+}
