@@ -17,8 +17,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 **TODO**:
     - full integration of query-to-COS feature
-    - add batch-point query tests
-    - compare mock vs. real data for aggregated queries
+    - compare mock vs. real data for aggregated queries, batch point queries, raster as csv
     - check that apiJSON for v2/queryhistories/full/queryjobs/{ID} is complete
       for aggregation and raster queries, vector queries is empty today
     - check split_property_string_column() from mixed point query (add corresponding JSON)
@@ -453,9 +452,13 @@ class TestPollQuery(unittest.TestCase):
             respCode        = 400
             payload         = json.loads(request.body)
             # perform some tests on payload sent
-            if  payload['spatial']['type'] == 'square' \
-                and len(payload['spatial']['coordinates']) == 4:
+            if (
+                payload['spatial']['type'] == 'square' and len(payload['spatial']['coordinates']) == 4
+            ) or (
+                payload['spatial']['type'] == 'point' and 'batch' in payload and payload['batch']
+            ):
                 respCode    = 200
+
             # generate response body (depending on various scenarios)
             if "aggregation" in payload["spatial"].keys():
                 response_body   = json.load(
@@ -468,6 +471,10 @@ class TestPollQuery(unittest.TestCase):
             elif 'outputType' in payload and payload['outputType'] == 'csv':
                 response_body   = json.load(
                     open(os.path.join(TEST_DATA_DIR,'raster-as-csv-sample-response.json'))
+                )
+            elif 'batch' in payload and payload['batch']:
+                response_body   = json.load(
+                    open(os.path.join(TEST_DATA_DIR,'point-batch-data-sample-response-raster.json'))
                 )
             else:
                 response_body   = json.load(
@@ -662,11 +669,12 @@ class TestPollQuery(unittest.TestCase):
             queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'raster-data-sample-request.json')))
         elif mode=='cached':
             if REAL_CONNECT:
+                # use ZIP file path set by previous download of real PAIRS connect
                 if pytest.realConnectZIPPath is None:
                     raise Exception('Could not record locally cached ZIP file for raster query.')
                 queryDef = pytest.realConnectZIPPath
             else:
-                queryDef = self.PAIRS_RASTER_ZIP_PATH 
+                queryDef = self.PAIRS_RASTER_ZIP_PATH
         elif mode=='reload':
             if REAL_CONNECT:
                 queryDef = pytest.realConnectQueryID
@@ -705,9 +713,16 @@ class TestPollQuery(unittest.TestCase):
                 testRasterQuery.downloadDir,
                 testRasterQuery.zipFilePath,
             )
+            # in scenario with real PAIRS connect, store the PAIRS query ZIP path
+            # for later reuse on loading from cached data
             if REAL_CONNECT and mode=='query':
                 pytest.realConnectQueryID = testRasterQuery.queryID
                 pytest.realConnectZIPPath = fullZipFilePath
+                logging.info(
+                    "Saved local raster file '{}' (query ID: '{}') for testing of loading data from cache.".format(
+                        pytest.realConnectZIPPath, pytest.realConnectQueryID
+                     )
+                )
             self.assertTrue(
                 os.path.exists(fullZipFilePath)
             )
@@ -804,165 +819,8 @@ class TestPollQuery(unittest.TestCase):
         self.raster_query(mode='reload', inMemory=True)
     #}}}
 
-    # fold: test raster aggregation queries#{{{
-    def raster_aggregation_query(self, mode='query', inMemory=False, searchExist=False):
-        """
-        Query aggregated raster data.
-
-        :param mode:        sets the PAIRS query mode:
-                            - `query` queries PAIRS
-                            - `cached` uses locally cached PAIRS ZIP file
-                            - `reload` uses PAIRS query ID
-        :type mode:         str
-        :param inMemory:    triggers storing files directly in memory for PAIRS query
-        :type inMemory:     bool
-        :param searchExist: triggers the search for an existing ZIP file
-        :type inMemory:     bool
-        :raises Exception:  if function parameters are incorrectly set
-        """
-        # check function parameters
-        logging.info(
-            "TEST: Query {}raster aggregation data ({}{}).".format(
-                '' if REAL_CONNECT else 'mocked ',
-                mode,
-                ', in-memory' if inMemory else '',
-            )
-        )
-        # define query
-        if mode=='query':
-            queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'aggregation-data-sample-request.json')))
-        elif mode=='cached':
-            queryDef = self.PAIRS_AGG_RASTER_ZIP_PATH
-        elif mode=='reload':
-            queryDef = os.path.splitext(
-                os.path.basename(self.PAIRS_AGG_RASTER_ZIP_PATH)
-            )[0].split('-')[-1]
-        else:
-            raise Exception("PAIRS aggregation query mode '{}' not defined.".format(mode))
-        # query mocked data
-        testRasterAggQuery = paw.PAIRSQuery(
-            queryDef,
-            'https://'+PAIRS_SERVER,
-            auth                = PAIRS_CREDENTIALS,
-            baseURI             = PAIRS_BASE_URI,
-            inMemory            = inMemory,
-            overwriteExisting   = not searchExist,
-        )
-        # check that query got submitted
-        testRasterAggQuery.submit()
-        if not mode=='cached' and not searchExist:
-            self.assertTrue(testRasterAggQuery.querySubmit.ok)
-        # poll and check that data status is finished
-        testRasterAggQuery.poll_till_finished(printStatus=True)
-        if not mode=='cached' and not searchExist:
-            self.assertTrue(testRasterAggQuery.queryStatus.ok)
-        # check that certain files exist
-        testRasterAggQuery.download()
-        if not inMemory:
-            fullZipFilePath = os.path.join(
-                testRasterAggQuery.downloadDir,
-                testRasterAggQuery.zipFilePath,
-            )
-            self.assertTrue(
-                os.path.exists(fullZipFilePath)
-            )
-            logging.info("TEST: Check files downloaded.")
-            with zipfile.ZipFile(fullZipFilePath) as zf:
-                # test the existence of the basic meta file
-                for fileName in ['output.info', ]:
-                    self.assertTrue(
-                            fileName in zf.namelist()
-                    )
-                # check that for each aggregated CSV file there exists a corresonding JSON meta file
-                for rasterFilePath in zf.namelist():
-                    # find all PAIRS GeoTiff files
-                    if rasterFilePath.endswith('.csv'):
-                        # check a corresponding JSON file exists
-                        self.assertTrue(
-                            rasterFilePath+'.json' in zf.namelist()
-                        )
-                        # try to temporarily open the JSON file
-                        json.loads(zf.read(rasterFilePath+'.json', pwd=u'').decode('utf-8'))
-        # load aggregated raster meta data (which are actually vector-type data!)
-        logging.info("TEST: Load aggregated raster meta data.")
-        testRasterAggQuery.list_layers()
-        # check that 'details' of raster data have been successfully loaded by
-        # getting the spatial reference information
-        self.assertIsInstance(
-            list(testRasterAggQuery.metadata.values())[0]["details"]["spatialRef"],
-            string_type
-        )
-        # check that all data are listed as type vector
-        self.assertTrue(
-            all([
-                'vector' == meta['layerType']
-                for meta in testRasterAggQuery.metadata.values()
-            ])
-        )
-        logging.info("TEST: Create Pandas dataframes from aggregated raster data.")
-        # load the aggregated raster data as vector data into Pandas dataframes 
-        testRasterAggQuery.create_layers()
-        # access the numpy array
-        for name, meta in testRasterAggQuery.metadata.items():
-            if meta['layerType'] == 'vector':
-                self.assertIsInstance(
-                    testRasterAggQuery.data[name],
-                    pandas.DataFrame,
-                )
-        # check that the data acknowledgement statement is not empty
-        self.assertIsNotNone(testRasterAggQuery.dataAcknowledgeText)
-
-        # test deleting query object
-        del testRasterAggQuery
-
-    @pytest.mark.run(order=1)
-    def test_raster_aggregation_query_standard(self):
-        """
-        Test querying aggregated raster data.
-        """
-        self.raster_aggregation_query()
-    @pytest.mark.run(order=1)
-    def test_raster_aggregation_query_standard_in_memory(self):
-        """
-        Test querying aggregated raster data (in-memory storage).
-        """
-        self.raster_aggregation_query(inMemory=True)
-
-    @pytest.mark.run(order=2)
-    def test_raster_aggregation_query_cached(self):
-        """
-        Test querying aggregated raster data from local PAIRS ZIP file.
-        """
-        self.raster_aggregation_query(mode='cached')
-    @pytest.mark.run(order=2)
-    def test_raster_aggregation_query_cached_search(self):
-        """
-        Test querying aggregated raster data from local PAIRS ZIP file using query JSON definition.
-        """
-        self.raster_aggregation_query(searchExist=True)
-    @pytest.mark.run(order=2)
-    def test_raster_aggregation_query_cached_in_memory(self):
-        """
-        Test querying aggregated raster data from local PAIRS ZIP file (in-memory).
-        """
-        self.raster_aggregation_query(mode='cached', inMemory=True)
-
-    @pytest.mark.run(order=2)
-    def test_raster_aggregation_query_reload(self):
-        """
-        Test reloading previously queried aggregation data with PAIRS query ID.
-        """
-        self.raster_aggregation_query(mode='reload')
-    @pytest.mark.run(order=2)
-    def test_raster_aggregation_query_reload_in_memory(self):
-        """
-        Test reloading previously queried aggregation data with PAIRS query ID (in-memory storage).
-        """
-        self.raster_aggregation_query(mode='reload', inMemory=True)
-    #}}}
-
     # fold: test vector queries #{{{
-    def vector_query(self, mode='query', inMemory=False, searchExist=False, fromRaster=True, batchPoint=True):
+    def vector_query(self, mode='query', inMemory=False, searchExist=False, queryType=''):
         """
         Query vector data in various ways.
 
@@ -975,10 +833,12 @@ class TestPollQuery(unittest.TestCase):
         :type inMemory:     bool
         :param searchExist: triggers the search for an existing ZIP file
         :type inMemory:     bool
-        :param fromRaster:  use raster query that returns vector CSV (vector points)
-        :type fromRaster:   bool
-        :param batchPoint:  use batch of point queries returning a vector CSV
-        :type batchPoint:   bool
+        :param queryType:   conceptual type of vector query:
+                                - `fromRaster`: raster data is returned pixel by pixel (center coordinates)
+                                - `batchPoint`: a point query is executed as an offline batch
+                                - `spatAgg`: spatial aggregation is performed on raster data
+                            if not specified (default is empty string), an ordinary vector query is performed
+        :type queryType:    str
         :raises Exception:  if function parameters are incorrectly set
         """
         # check function parameters
@@ -991,32 +851,39 @@ class TestPollQuery(unittest.TestCase):
         )
         # define query
         if mode=='query':
-            if fromRaster:
+            if queryType=='fromRaster':
                 queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'raster-as-csv-sample-request.json')))
-            elif batchPoint:
-                queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json')))
+            elif queryType=='batchPoint':
+                queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'point-batch-data-sample-request-raster.json')))
+            elif queryType=='spatAgg':
+                queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'aggregation-data-sample-request.json')))
             else:
                 queryDef = json.load(open(os.path.join(TEST_DATA_DIR,'vector-data-sample-request.json')))
         elif mode=='cached':
             if REAL_CONNECT:
+                # use ZIP file path set by previous download of real PAIRS connect
                 if pytest.realConnectZIPPath is None:
-                    raise Exception('Could not record locally cached ZIP file for raster query.')
+                    raise Exception('Could not record locally cached ZIP file for vector query.')
                 queryDef = pytest.realConnectZIPPath
             else:
-                if fromRaster:
+                if queryType=='fromRaster':
                     queryDef = self.PAIRS_RASTER_CSV_ZIP_PATH
-                elif batchPoint:
+                elif queryType=='batchPoint':
                     queryDef = self.PAIRS_BATCH_POINT_ZIP_PATH
+                elif queryType=='spatAgg':
+                    queryDef = self.PAIRS_AGG_RASTER_ZIP_PATH
                 else:
                     queryDef = self.PAIRS_VECTOR_ZIP_PATH
         elif mode=='reload':
             if REAL_CONNECT:
                 queryDef = pytest.realConnectQueryID
             else:
-                if fromRaster:
+                if queryType=='fromRaster':
                     zipPath = self.PAIRS_RASTER_CSV_ZIP_PATH
-                elif batchPoint:
+                elif queryType=='batchPoint':
                     zipPath = self.PAIRS_BATCH_POINT_ZIP_PATH
+                elif queryType=='spatAgg':
+                    zipPath = self.PAIRS_AGG_RASTER_ZIP_PATH
                 else:
                     zipPath = self.PAIRS_VECTOR_ZIP_PATH
                 queryDef = os.path.splitext(
@@ -1048,19 +915,53 @@ class TestPollQuery(unittest.TestCase):
                 testVectorQuery.downloadDir,
                 testVectorQuery.zipFilePath,
             )
+            # in scenario with real PAIRS connect, store the PAIRS query ZIP path
+            # for later reuse on loading from cached data
+            if REAL_CONNECT and mode=='query':
+                pytest.realConnectQueryID = testVectorQuery.queryID
+                pytest.realConnectZIPPath = fullZipFilePath
+                logging.info(
+                    "Saved local vector file '{}' (query ID: '{}') for testing of loading data from cache.".format(
+                        pytest.realConnectZIPPath, pytest.realConnectQueryID
+                     )
+                )
             self.assertTrue(
                 os.path.exists(fullZipFilePath)
             )
             logging.info("TEST: Check files downloaded.")
             with zipfile.ZipFile(fullZipFilePath) as zf:
                 # test the existence of the basic meta file
+                # ATTENTION: outputs a warning for now, because not fully implemented
+                # by the PAIRS core API
                 for fileName in ['output.info', ]:
-                    self.assertTrue(
-                            fileName in zf.namelist()
-                    )
-        # load raster meta data
+                    try:
+                        self.assertTrue(fileName in zf.namelist())
+                    except:
+                        logging.error(
+                            "Unable to find file 'output.info' for query '{}'".format(testVectorQuery.query)
+                        )
+                # check that for each aggregated CSV file there exists a corresonding JSON meta file
+                # in case of spatial aggregation from raster data
+                if queryType=='spatAgg':
+                    for rasterFilePath in zf.namelist():
+                        # find all PAIRS GeoTiff files
+                        if rasterFilePath.endswith('.csv'):
+                            # check a corresponding JSON file exists
+                            self.assertTrue(
+                                rasterFilePath+'.json' in zf.namelist()
+                            )
+                            # try to temporarily open the JSON file
+                            json.loads(zf.read(rasterFilePath+'.json', pwd=u'').decode('utf-8'))
+        # load vector meta data
         logging.info("TEST: Load vector meta data.")
         testVectorQuery.list_layers()
+        # check that 'details' of raster data have been successfully loaded by
+        # getting the spatial reference information for spatial aggregation data
+        if queryType=='spatAgg':
+            self.assertIsInstance(
+                list(testVectorQuery.metadata.values())[0]["details"]["spatialRef"],
+                string_type
+            )
         # check that all data are listed as type vector
         self.assertTrue(
             all([
@@ -1098,78 +999,151 @@ class TestPollQuery(unittest.TestCase):
         # test deleting query object
         del testVectorQuery
 
-    @pytest.mark.run(order=1)
+    @pytest.mark.run(order=3)
     def test_vector_query_standard(self):
         """
         Test querying vector data.
         """
         self.vector_query()
-    @pytest.mark.run(order=1)
-    def test_raster_query_as_csv(self):
-        """
-        Test querying raster data with CSV return.
-        """
-        self.vector_query(fromRaster=True)
-    @pytest.mark.run(order=1)
+    @pytest.mark.run(order=3)
     def test_vector_query_standard_in_memory(self):
         """
         Test querying vector data (in-memory storage).
         """
         self.vector_query(inMemory=True)
-    @pytest.mark.run(order=1)
-    def test_raster_query_as_csv_in_memory(self):
-        """
-        Test querying raster data (in-memory storage) with CSV return.
-        """
-        self.vector_query(inMemory=True, fromRaster=True)
-    @pytest.mark.run(order=2)
+    @pytest.mark.run(order=4)
     def test_vector_query_cached(self):
         """
         Test querying vector data from local PAIRS ZIP file.
         """
         self.vector_query(mode='cached')
-    @pytest.mark.run(order=2)
+    @pytest.mark.run(order=4)
     def test_vector_query_cached_search(self):
         """
         Test querying vector data from local PAIRS ZIP file using query JSON definition.
         """
         self.vector_query(searchExist=True)
-    @pytest.mark.run(order=2)
-    def test_raster_query_as_csv_cached_search(self):
-        """
-        Test querying raster data returned as CSV from local PAIRS ZIP file by query JSON definition.
-        """
-        self.vector_query(searchExist=True, fromRaster=True)
-    @pytest.mark.run(order=2)
+    @pytest.mark.run(order=4)
     def test_vector_query_cached_in_memory(self):
         """
         Test querying vector data from local PAIRS ZIP file (in-memory storage).
         """
         self.vector_query(mode='cached', inMemory=True)
-    @pytest.mark.run(order=2)
-    def test_raster_query_as_csv_cached_in_memory(self):
-        """
-        Test querying raster data queried as CSV from local PAIRS ZIP file (in-memory storage).
-        """
-        self.vector_query(mode='cached', inMemory=True, fromRaster=True)
-    @pytest.mark.run(order=2)
+    @pytest.mark.run(order=4)
     def test_vector_query_reload(self):
         """
         Test reloading previously queried vector data with PAIRS query ID.
         """
         self.vector_query(mode='reload')
-    @pytest.mark.run(order=2)
-    def test_raster_query_as_csv_reload(self):
-        """
-        Test reloading previously queried raster (returned as CSV) data with PAIRS query ID.
-        """
-        self.vector_query(mode='reload', fromRaster=True)
-    @pytest.mark.run(order=2)
+    @pytest.mark.run(order=4)
     def test_vector_query_reload_in_memory(self):
         """
         Test reloading previously queried vector data with PAIRS query ID (in-memory storage).
         """
         self.vector_query(mode='reload', inMemory=True)
+
+
+    @pytest.mark.run(order=5)
+    def test_raster_query_as_csv(self):
+        """
+        Test querying raster data with CSV return.
+        """
+        self.vector_query(queryType='fromRaster')
+    @pytest.mark.run(order=5)
+    def test_raster_query_as_csv_in_memory(self):
+        """
+        Test querying raster data (in-memory storage) with CSV return.
+        """
+        self.vector_query(inMemory=True, queryType='fromRaster')
+    @pytest.mark.run(order=6)
+    def test_raster_query_as_csv_cached_in_memory(self):
+        """
+        Test querying raster data queried as CSV from local PAIRS ZIP file (in-memory storage).
+        """
+        self.vector_query(mode='cached', inMemory=True, queryType='fromRaster')
+    @pytest.mark.run(order=6)
+    def test_raster_query_as_csv_cached_search(self):
+        """
+        Test querying raster data returned as CSV from local PAIRS ZIP file by query JSON definition.
+        """
+        self.vector_query(searchExist=True, queryType='fromRaster')
+    @pytest.mark.run(order=6)
+    def test_raster_query_as_csv_reload(self):
+        """
+        Test reloading previously queried raster (returned as CSV) data with PAIRS query ID.
+        """
+        self.vector_query(mode='reload', queryType='fromRaster')
+
+
+    @pytest.mark.run(order=7)
+    def test_point_query_raster_batch(self):
+        """
+        Test querying raster data using a batch of points.
+        """
+        self.vector_query(queryType='batchPoint',)
+    @pytest.mark.run(order=7)
+    def test_point_query_raster_batch_in_memory(self):
+        """
+        Test querying raster data using a batch of points in memory.
+        """
+        self.vector_query(inMemory=True, queryType='batchPoint')
+    @pytest.mark.run(order=8)
+    def test_point_query_raster_batch_cached(self):
+        """
+        Test querying raster data using a batch of points from local PAIRS ZIP file.
+        """
+        self.vector_query(mode='cached', queryType='batchPoint')
+    @pytest.mark.run(order=8)
+    def test_point_query_raster_batch_reload_in_memory(self):
+        """
+        Test reloading previously queried batch of point data with PAIRS query ID (in-memory storage).
+        """
+        self.vector_query(mode='reload', inMemory=True, queryType='batchPoint')
+
+
+    @pytest.mark.run(order=9)
+    def test_raster_aggregation_query_standard(self):
+        """
+        Test querying aggregated raster data.
+        """
+        self.vector_query(queryType='spatAgg')
+    @pytest.mark.run(order=9)
+    def test_raster_aggregation_query_standard_in_memory(self):
+        """
+        Test querying aggregated raster data (in-memory storage).
+        """
+        self.vector_query(queryType='spatAgg', inMemory=True)
+
+    @pytest.mark.run(order=10)
+    def test_raster_aggregation_query_cached(self):
+        """
+        Test querying aggregated raster data from local PAIRS ZIP file.
+        """
+        self.vector_query(queryType='spatAgg', mode='cached')
+    @pytest.mark.run(order=10)
+    def test_raster_aggregation_query_cached_search(self):
+        """
+        Test querying aggregated raster data from local PAIRS ZIP file using query JSON definition.
+        """
+        self.vector_query(queryType='spatAgg', searchExist=True)
+    @pytest.mark.run(order=10)
+    def test_raster_aggregation_query_cached_in_memory(self):
+        """
+        Test querying aggregated raster data from local PAIRS ZIP file (in-memory).
+        """
+        self.vector_query(queryType='spatAgg', mode='cached', inMemory=True)
+    @pytest.mark.run(order=10)
+    def test_raster_aggregation_query_reload(self):
+        """
+        Test reloading previously queried aggregation data with PAIRS query ID.
+        """
+        self.vector_query(queryType='spatAgg', mode='reload')
+    @pytest.mark.run(order=10)
+    def test_raster_aggregation_query_reload_in_memory(self):
+        """
+        Test reloading previously queried aggregation data with PAIRS query ID (in-memory storage).
+        """
+        self.vector_query(queryType='spatAgg', mode='reload', inMemory=True)
     #}}}
 
 
@@ -1238,31 +1212,31 @@ class TestPollQuery(unittest.TestCase):
         )
         # get mock data
         self.pairsServerMock.start()
-        testRasterQuery = paw.PAIRSQuery(
+        testMockQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
             'https://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
         )
-        testRasterQuery.submit()
-        testRasterQuery.poll_till_finished(printStatus=True)
-        testRasterQuery.download()
+        testMockQuery.submit()
+        testMockQuery.poll_till_finished(printStatus=True)
+        testMockQuery.download()
         pairsMockZip = os.path.join(
-            testRasterQuery.downloadDir,
-            testRasterQuery.zipFilePath
+            testMockQuery.downloadDir,
+            testMockQuery.zipFilePath
         )
         # make sure that files in mock are available in real download
         # and that the size of the data and the mock are approximately the same
         logging.info("TEST: Check that all files from the mock exist in the real data queried.")
         with zipfile.ZipFile(pairsMockZip, 'r') as mock, \
              zipfile.ZipFile(pairsDataZip, 'r') as real:
-            # generate info dictionaries
+            # generate info dictionaries (case insensitive to names)
             mockInfo = {
-                f.filename: f.file_size
+                f.filename.lower(): f.file_size
                 for f in mock.infolist()
             }
             realInfo = {
-                f.filename: f.file_size
+                f.filename.lower(): f.file_size
                 for f in real.infolist()
             }
             # check that files in mock are contained in real data (in terms of names)
@@ -1288,6 +1262,7 @@ class TestPollQuery(unittest.TestCase):
     @pytest.mark.run(order=1)
     def test_mock_vector_query(self):
         self.compare_mock_vs_real_query('vector-data-sample-request.json')
+    # TODO: add mock tests for aggregation, batch query, etc.
     #}}}
 # }}}
 

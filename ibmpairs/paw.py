@@ -378,15 +378,24 @@ class PAIRSQuery(object):
         self._queryStream               = None
 
         # define query (depending on what information is provided)
-        # submit of query
+        ## assumption on whether or not the query immediately returns
+        ## (e.g. for point query without batch processing)
+        self._isOnlineQuery             = False
+        ## submit of query
         self.querySubmit                = None
         # flag for how to handle downloaded data on object delete
         self.deleteDownload             = deleteDownload
         ## JSON load defining the query
         if isinstance(query, dict):
+            # assign query JSON definition
             self.query                  = query
             self.zipFilePath            = None
-            logging.info('PAIRS query JSON initialized.')
+            # determine the query whether or not the query immediately returns (e.g. for point query)
+            self._isOnlineQuery         =  self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME \
+                and (not self.query['batch'] if 'batch' in self.query else True)
+            logging.info(
+                'PAIRS query JSON initialized{}.'.format(' as online query' if self._isOnlineQuery else '')
+            )
         elif isinstance(query, string_type):
             ## ZIP file path storing the PAIRS query result
             # TODO: detect and incorporate case where string represents e.g. COS
@@ -753,7 +762,6 @@ class PAIRSQuery(object):
                             verify  = self.verifySSL,
                         )
                 except Exception as e:
-                    raise
                     raise Exception(
                         'Sorry, I have trouble to submit your query: {}.'.format(e)
                     )
@@ -770,10 +778,10 @@ class PAIRSQuery(object):
                     raise
 
                 # obtain (and internally set) query ID, or ...
-                if self.query['spatial']['type'] != PAIRS_POINT_QUERY_NAME:
+                if not self._isOnlineQuery:
                     self.queryID = self.querySubmit.json()['id']
                     logging.info("Query successfully submitted, reference ID: {}".format(self.queryID))
-                # ... handle point query that immediately returns
+                # ... handle online (point) query that immediately returns
                 else:
                     # set query status equal to submit status
                     self.queryStatus = self.querySubmit
@@ -823,7 +831,7 @@ class PAIRSQuery(object):
                                 )
                         except Exception as e:
                             logging.error("Unable to load point data into dataframe: '{}'.".format(e))
-                            raise Exception()
+                            raise
         # case of PAIRS cached query (previously run)
         elif isinstance(self.querySubmit, MockSubmitResponse):
             logging.info(
@@ -851,9 +859,9 @@ class PAIRSQuery(object):
                             if no query or query ID is defined,
                             if the provided credentials are incorrect
         """
-        # skip point query
+        # skip online (point) query
         if isinstance(self.querySubmit, MockSubmitResponse) or self.query is None \
-        or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
+        or not self._isOnlineQuery:
             # in case the query is a local pointer to a directory, pass polling
             if isinstance(self.query, string_type):
                 passNonSubmitted = True
@@ -923,9 +931,9 @@ class PAIRSQuery(object):
                                 if no query or query ID is defined
                                 if a user set timeout has been reached
         """
-        # skip point query case
+        # skip online (point) query case
         if isinstance(self.querySubmit, MockSubmitResponse) or self.query is None \
-        or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
+        or not self._isOnlineQuery:
             # poll in case no locally cached data is used, only
             if not self.overwriteExisting:
                 self.poll(passNonSubmitted = True)
@@ -989,9 +997,9 @@ class PAIRSQuery(object):
                             in combination with IBM Watson Studio notebooks)
         :type cosInfo:      (str, str)
         """
-        # skip point query case (including reload query and cached query)
+        # skip online (point) query case (including reload query and cached query)
         if isinstance(self.querySubmit, MockSubmitResponse) or self.query is None \
-        or not self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
+        or not self._isOnlineQuery:
             # one more time poll/try to get query status
             if self.queryStatus is None and self.overwriteExisting:
                 self.poll()
@@ -1160,8 +1168,8 @@ class PAIRSQuery(object):
         :type timeName:     str
         :raises Exception:  if it fails to convert timestamps
         """
-        # is the data from a PAIRS point query?
-        if self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME:
+        # is the data from an online (point) query?
+        if self._isOnlineQuery:
             try:
                 if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
                 and self.vdf[timeName].dtype in (numpy.float, numpy.int):
