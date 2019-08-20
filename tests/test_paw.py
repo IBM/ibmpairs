@@ -1262,7 +1262,20 @@ class TestPollQuery(unittest.TestCase):
     @pytest.mark.run(order=1)
     def test_mock_vector_query(self):
         self.compare_mock_vs_real_query('vector-data-sample-request.json')
-    # TODO: add mock tests for aggregation, batch query, etc.
+    @unittest.skipIf(
+        not REAL_CONNECT,
+        "Skip checking mock against real service (raster aggregation query)."
+    )
+    @pytest.mark.run(order=1)
+    def test_mock_raster_aggregation_query(self):
+        self.compare_mock_vs_real_query('aggregation-data-sample-request.json')
+    @unittest.skipIf(
+        not REAL_CONNECT,
+        "Skip checking mock against real service (batch point query)."
+    )
+    @pytest.mark.run(order=1)
+    def test_mock_point_batch_query(self):
+        self.compare_mock_vs_real_query('point-batch-data-sample-request-raster.json')
     #}}}
 # }}}
 
