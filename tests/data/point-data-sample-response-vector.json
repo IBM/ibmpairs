@@ -1,24 +1,24 @@
 {
   "data": [
     {
-      "property": "county:50897",
+      "layerId": "P515C5656",
+      "layerName": "tmax",
+      "dataset": "Example Data",
       "timestamp": 1514808000000,
       "region": "50897",
-      "value": "-13.4992",
-      "dataset": "Prism Historical Data",
-      "layerId": "P385C4765",
-      "layerName": "tmean",
-      "unit": ""
+      "value": "-8.69396",
+      "unit": "degree Celsius",
+      "property": "county:50897"
     },
     {
-      "property": "county:50897",
+      "layerId": "P515C5656",
+      "layerName": "tmax",
+      "dataset": "Example Data",
       "timestamp": 1514894400000,
       "region": "50897",
-      "value": "-9.36853",
-      "dataset": "Prism Historical Data",
-      "layerId": "P385C4765",
-      "layerName": "tmean",
-      "unit": ""
+      "value": "-0.467072",
+      "unit": "degree Celsius",
+      "property": "county:50897"
     }
   ]
 }

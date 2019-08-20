@@ -1,0 +1,13 @@
+{
+  "id": 0,
+  "user": {},
+  "type": "point",
+  "date": 1566225965408,
+  "apiString": null,
+  "queryjob": "1566187200_38765410",
+  "apiJson": "{\"name\":null,\"spatial\":{\"type\":\"point\",\"aoi\":null,\"coordinates\":[38.0,-122.0,39.0,-121.0,40.0,-90.3],\"aggregation\":null},\"temporal\":{\"intervals\":[{\"start\":\"1280620800000\",\"end\":\"1564617600000\",\"snapshot\":null}],\"snapshots\":null},\"layers\":[{\"id\":\"51\",\"alias\":null,\"filterOnly\":false,\"type\":\"raster\",\"temporal\":null,\"aggregation\":null,\"filter\":null,\"dimensions\":null,\"custom\":null,\"output\":null,\"expression\":null}],\"outputType\":null,\"outputLevel\":null,\"description\":null,\"publish\":true,\"notification\":null,\"upload\":null,\"debug\":false,\"batch\":true,\"folder\":null,\"jobId\":null,\"user\":null}",
+  "sizeTotal": 0,
+  "sizeRaw": 5422587,
+  "sizeZip": 0,
+  "countTotal": 0
+}

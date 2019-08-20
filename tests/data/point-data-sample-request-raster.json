@@ -1,14 +1,52 @@
 {
     "layers": [
-        {"type": "raster", "id": "48552"}
+        {
+            "type": "raster",
+            "id": "48663",
+            "dimensions" : [
+                {"name" : "model", "value" : 18},
+                {"name" : "horizon", "value" : "1428"}
+            ]
+        },
+        {
+            "type": "raster",
+            "id": "48663",
+            "dimensions": [
+                {"name": "model", "value" : 20},
+                {"name" : "horizon", "value" : "720"}
+            ]
+        },
+        {
+            "type": "raster",
+            "id" : "91"
+        },
+        {
+           "type": "raster",
+           "id": "49175",
+           "dimensions" : [
+               {"name" : "horizon", "value" : "15"},
+               {"name" : "issuetime", "value" : "12"}
+           ]
+        },
+        {
+            "type": "raster",
+            "id": "49175",
+            "dimensions": [
+                {"name": "horizon", "value" : "5"},
+                {"name": "issuetime", "value" : "12"}
+            ]
+        }
     ],
     "spatial": {
         "type": "point",
-        "coordinates": ["35.7", "139.7", "40", "-90"]
+        "coordinates": ["48.7", "-97."]
     },
     "temporal": {
         "intervals": [
-            {"start": "2017-01-01T00:00:00Z", "end": "2017-01-01T00:00:00Z"}
+            {
+                "start": "2018-05-31T00:00:00Z",
+                "end": "2018-06-01T00:00:00Z"
+            }
         ]
     }
 }

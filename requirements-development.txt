@@ -1,0 +1,7 @@
+pytest
+pytest-ordering
+pytest-cov
+coverage
+codecov
+responses
+flake8

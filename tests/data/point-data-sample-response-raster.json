@@ -1,22 +1,53 @@
 {
-    "data": [
-        {
-            "layerId":      "48552",
-            "layerName":    "t2m_an  temperature 2m",
-            "dataset":      "ECMWF Reanalysis (Surface Level)",
-            "timestamp":    1483250400000,
-            "longitude":    139.7,
-            "latitude":     35.7,
-            "value":        "284.97930908203125"
-        },
-        {
-            "layerId":      "48552",
-            "layerName":    "t2m_an  temperature 2m",
-            "dataset":      "ECMWF Reanalysis (Surface Level)",
-            "timestamp":    1483250400000,
-            "longitude":    -90.0,
-            "latitude":     40.0,
-            "value":        "269.1735534667969"
-        }
-    ]
+  "data": [
+    {
+      "layerId": "48663",
+      "layerName": "Temperature",
+      "dataset": "Weather Forecast",
+      "timestamp": 1527811200000,
+      "longitude": -97,
+      "latitude": 48.7,
+      "value": "290.00775146484375",
+      "property": "model:18;horizon:1428"
+    },
+    {
+      "layerId": "48663",
+      "layerName": "Temperature",
+      "dataset": "Weather Forecast",
+      "timestamp": 1527811200000,
+      "longitude": -97,
+      "latitude": 48.7,
+      "value": "297.39556884765625",
+      "property": "model:20;horizon:720"
+    },
+    {
+      "layerId": "49175",
+      "layerName": "Daily precipitation",
+      "dataset": "16 day weather forecast (GFS)",
+      "timestamp": 1527811200000,
+      "longitude": -97,
+      "latitude": 48.7,
+      "value": "4.82742691040026",
+      "property": "horizon:15;issuetime:12"
+    },
+    {
+      "layerId": "49175",
+      "layerName": "Daily precipitation",
+      "dataset": "16 day weather forecast (GFS)",
+      "timestamp": 1527811200000,
+      "longitude": -97,
+      "latitude": 48.7,
+      "value": "0.3643639683723514",
+      "property": "horizon:5;issuetime:12"
+    },
+    {
+      "layerId": "91",
+      "layerName": "Daily Precipitation",
+      "dataset": "Daily US weather (PRISM)",
+      "timestamp": 1527768000000,
+      "longitude": -97,
+      "latitude": 48.7,
+      "value": "0.01"
+    }
+  ]
 }
