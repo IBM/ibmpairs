@@ -70,6 +70,8 @@ STATUS_ENDPOINT             = 'v2/queryjobs/'
 DOWNLOAD_ENDPOINT           = 'v2/queryjobs/download/'
 QUERY_INFO_ENDPOINT         = 'v2/queryhistories/full/queryjob/'
 REAL_CONNECT                = False
+USE_SSL                     = True
+VERIFY_SSL                  = True
 PAIRS_USER                  = 'fakeUser'
 PAIRS_PASSWORD              = 'fakePassword'
 PAIRS_PASSWORD_FILE_NAME    = 'ibmpairspass.txt'
@@ -78,6 +80,8 @@ pytest.realConnectQueryID   = None
 # read/overwrite parameters from environment
 for var in (
     'REAL_CONNECT',
+    'USE_SSL',
+    'VERIFY_SSL',
     'PAIRS_SERVER',
     'PAIRS_BASE_URI',
     'PAIRS_USER',
@@ -88,7 +92,14 @@ for var in (
             "%s = os.environ['PAW_TESTS_%s']" % (var, var)
         )
 # convert types read in from environment
-REAL_CONNECT            = REAL_CONNECT == 'true'
+if isinstance(REAL_CONNECT, string_type):
+    REAL_CONNECT    = REAL_CONNECT.lower()  == 'true'
+if isinstance(VERIFY_SSL, string_type):
+    VERIFY_SSL      = VERIFY_SSL.lower()    == 'true'
+if isinstance(USE_SSL, string_type):
+    USE_SSL         = USE_SSL.lower()       == 'true'
+# set protocol
+WEB_PROTOCOL            = 'https' if USE_SSL else 'http'
 # set credentials
 if os.path.exists(os.path.expanduser(PAIRS_PASSWORD_FILE_NAME)):
     try:
@@ -139,7 +150,7 @@ def test_password_reader():
             )
         # finally we want to get back the correct password
         assert PAIRS_PASSWORD == paw.get_pairs_api_password(
-            'https://'+PAIRS_SERVER, PAIRS_USER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER, PAIRS_USER,
             passFile=tf.name,
         )
         assert PAIRS_PASSWORD == paw.get_pairs_api_password(
@@ -193,7 +204,7 @@ class TestPointQuery(unittest.TestCase):
         ## add endpoint
         cls.pairsServerMock.add_callback(
             responses.POST,
-            'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
             callback=point_data_endpoint,
             content_type='application/json',
         )
@@ -217,9 +228,10 @@ class TestPointQuery(unittest.TestCase):
         # define point query
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
-            'https://'+PAIRS_SERVER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            verifySSL   = VERIFY_SSL,
         )
         # submit point query
         testPointQuery.submit()
@@ -284,9 +296,10 @@ class TestPointQuery(unittest.TestCase):
         # define point query
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR, 'point-data-sample-request-vector.json'), 'r')),
-            'https://'+PAIRS_SERVER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            verifySSL   = VERIFY_SSL,
         )
         # submit point query
         testPointQuery.submit()
@@ -353,14 +366,16 @@ class TestPointQuery(unittest.TestCase):
                 'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
             )
         testRealRasterResponse = requests.post(
-            'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
             json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'r')),
             auth    = PAIRS_CREDENTIALS,
+            verify  = VERIFY_SSL,
         )
         testRealVectorResponse = requests.post(
-            'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
             json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'), 'r')),
             auth    = PAIRS_CREDENTIALS,
+            verify  = VERIFY_SSL,
         )
         # make sure the return from the real server was successful
         self.assertEqual(200, testRealRasterResponse.status_code)
@@ -369,16 +384,18 @@ class TestPointQuery(unittest.TestCase):
         self.pairsServerMock.start()
         testPointQueryRasterMock = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
-            'https://'+PAIRS_SERVER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            verifySSL   = VERIFY_SSL,
         )
         testPointQueryRasterMock.submit()
         testPointQueryVectorMock = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
-            'https://'+PAIRS_SERVER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            verifySSL   = VERIFY_SSL,
         )
         testPointQueryVectorMock.submit()
         # compare data entry keys
@@ -406,9 +423,10 @@ class TestPointQuery(unittest.TestCase):
         logging.info("TEST: Generation of unified PAW dataframe for point data.")
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
-            'https://'+PAIRS_SERVER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            verifySSL   = VERIFY_SSL,
         )
         # submit query
         testPointQuery.submit()
@@ -572,7 +590,7 @@ class TestPollQuery(unittest.TestCase):
         ### query submit
         cls.pairsServerMock.add_callback(
             responses.POST,
-            'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
             callback=submit_query_endpoint,
             content_type='application/json',
         )
@@ -600,7 +618,7 @@ class TestPollQuery(unittest.TestCase):
             with open(queryZIPPath, 'rb') as queryData:
                 cls.pairsServerMock.add(
                     responses.GET,
-                    r'https://{}{}{}{}'.format(PAIRS_SERVER, PAIRS_BASE_URI, DOWNLOAD_ENDPOINT, queryID),
+                    r'{}://{}{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, DOWNLOAD_ENDPOINT, queryID),
                     body        = queryData.read(),
                     status      = 200,
                     content_type='application/zip',
@@ -609,7 +627,7 @@ class TestPollQuery(unittest.TestCase):
             # query info
             cls.pairsServerMock.add(
                 responses.GET,
-                r'https://{}{}{}{}'.format(PAIRS_SERVER, PAIRS_BASE_URI, QUERY_INFO_ENDPOINT, queryID),
+                r'{}://{}{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, QUERY_INFO_ENDPOINT, queryID),
                 body        = json.dumps(
                     json.load(
                         open(os.path.join(TEST_DATA_DIR, queryInfoJSONFileName))
@@ -621,7 +639,7 @@ class TestPollQuery(unittest.TestCase):
         cls.pairsServerMock.add_callback(
             responses.GET,
             re.compile(
-                r'https://{}{}{}[0-9]+_[0-9]+'.format(PAIRS_SERVER, PAIRS_BASE_URI, STATUS_ENDPOINT)
+                r'{}://{}{}{}[0-9]+_[0-9]+'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, STATUS_ENDPOINT)
             ),
             callback=poll_query_status_endpoint,
             content_type='application/json',
@@ -687,11 +705,12 @@ class TestPollQuery(unittest.TestCase):
 
         testRasterQuery = paw.PAIRSQuery(
             queryDef,
-            'https://'+PAIRS_SERVER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth                = PAIRS_CREDENTIALS,
             baseURI             = PAIRS_BASE_URI,
             inMemory            = inMemory,
             overwriteExisting   = not searchExist,
+            verifySSL           = VERIFY_SSL,
         )
         # check that query got submitted
         testRasterQuery.submit()
@@ -894,11 +913,12 @@ class TestPollQuery(unittest.TestCase):
         # query mocked data
         testVectorQuery = paw.PAIRSQuery(
             queryDef,
-            'https://'+PAIRS_SERVER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth                = PAIRS_CREDENTIALS,
             baseURI             = PAIRS_BASE_URI,
             inMemory            = inMemory,
             overwriteExisting   = not searchExist,
+            verifySSL           = VERIFY_SSL,
         )
         # check that query got submitted
         testVectorQuery.submit()
@@ -1164,9 +1184,10 @@ class TestPollQuery(unittest.TestCase):
         # check query submit
         logging.info("TEST: Perform query to real PAIRS server.")
         subResp = requests.post(
-            'https://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
             json    = json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
             auth    = PAIRS_CREDENTIALS,
+            verify  = VERIFY_SSL,
         )
         self.assertEqual(200, subResp.status_code)
         subResp = subResp.json()
@@ -1181,8 +1202,9 @@ class TestPollQuery(unittest.TestCase):
         # check query poll
         while True:
             statResp = requests.get(
-                'https://'+PAIRS_SERVER+PAIRS_BASE_URI+STATUS_ENDPOINT+subResp['id'],
+                WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+STATUS_ENDPOINT+subResp['id'],
                 auth    = PAIRS_CREDENTIALS,
+                verify  = VERIFY_SSL,
             )
             self.assertEqual(200, statResp.status_code)
             statResp = statResp.json()
@@ -1196,9 +1218,10 @@ class TestPollQuery(unittest.TestCase):
                 break
         # check query result
         downloadResp = requests.get(
-            'https://'+PAIRS_SERVER+PAIRS_BASE_URI+DOWNLOAD_ENDPOINT+subResp['id'],
+            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+DOWNLOAD_ENDPOINT+subResp['id'],
             auth    = PAIRS_CREDENTIALS,
             stream  = True,
+            verify  = VERIFY_SSL,
         )
         self.assertEqual(200, downloadResp.status_code)
         pairsDataZip = '/tmp/pairs-test-download-{}.zip'.format(subResp['id'])
@@ -1214,9 +1237,10 @@ class TestPollQuery(unittest.TestCase):
         self.pairsServerMock.start()
         testMockQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
-            'https://'+PAIRS_SERVER,
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
+            verifySSL   = VERIFY_SSL,
         )
         testMockQuery.submit()
         testMockQuery.poll_till_finished(printStatus=True)
