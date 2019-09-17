@@ -177,11 +177,12 @@ if HAS_COLOREDLOGS:
         stream      = sys.stdout,
     )
 else:
-    logger.basicConfig(
-        format      = '%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]',
-        level       = PAW_LOG_LEVEL,
+    logger.setLevel(PAW_LOG_LEVEL)
+    logger.addHandler(
+        logging.StreamHandler(sys.stdout).setFormatter(
+            logging.Formatter('%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]'),
+        )
     )
-    logger.StreamHandler(sys.stdout)
 #}}}
 
 # fold: misc functions {{{
