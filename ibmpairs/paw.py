@@ -1177,7 +1177,7 @@ class PAIRSQuery(object):
                 if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
                 and self.vdf[timeName].dtype in (numpy.float, numpy.int):
                     self.vdf[timeName] = self.vdf[timeName].apply(
-                        lambda t: datetime.fromtimestamp(
+                        lambda t: t if numpy.isnan(t) else datetime.fromtimestamp(
                             t/1e3, tz=pytz.UTC
                         )
                     )
