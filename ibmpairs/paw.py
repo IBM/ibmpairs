@@ -1568,13 +1568,24 @@ class PAIRSQuery(object):
                     logger.warning(
                         "GDAL is not available for proper GeoTiff loading, default to standard PIL module to load raster data."
                     )
-                    with self.queryFS.open(layerDataPath, 'rb') as f:
-                        im = PIL.Image.open(f)
-                        if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
-                            im.mode=u'I'
-                        elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
-                            im.mode=u'F'
-                        a = numpy.array(im).astype(numpy.float)
+                    # note: it seems we (unfortunately) have to temporarily write/export
+                    # the image to load to the local file system first, because directly
+                    # reading the multi-wrapped virtual file handler with PIL.Image.open()
+                    # is extremely slow
+                    # TODO: explore more elegant options (problem with stream-buffer size?)
+                    with tempfile.NamedTemporaryFile('wb', delete=False,) as tf:
+                        # write raster data/image to temporary file
+                        with self.queryFS.open(layerDataPath, 'rb') as zf:
+                            tf.write(zf.read())
+                        tf.flush()
+                        # load temporary file with PIL into NumPy array
+                        with open(tf.name, 'rb') as f:
+                            im = PIL.Image.open(f)
+                            if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
+                                im.mode=u'I'
+                            elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
+                                im.mode=u'F'
+                            a = numpy.array(im).astype(numpy.float)
                 except Exception as e:
                     logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using PIL: {}".format(fileName, self.zipFilePath, e)
