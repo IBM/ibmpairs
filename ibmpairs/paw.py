@@ -131,6 +131,7 @@ PROPERTY_STRING_COL_NAME_POINT      = u'property'
 PAIRS_QUERY_RUN_STAT_REG_EX         = re.compile('^(0|1)')
 PAIRS_QUERY_FINISH_STAT_REG_EX      = re.compile('^2')
 PAIRS_QUERY_ERR_STAT_REG_EX         = re.compile('^(3|4)')
+PAIRS_PASSWORD_FILE_COMMENT_REG_EX  = re.compile('^\s*#')
 PAIRS_QUERY_DOWNLOADABLE_STAT       = 20
 ## define default download directory for PAIRS query object if needed
 DEFAULT_DOWNLOAD_DIR	            = u'./downloads'
@@ -230,11 +231,12 @@ def get_pairs_api_password(
         # parse PAIRS API access password file
         with open(passFile) as f:
             for line in f:
-                serverF, userF, password  = re.split(r'(?<!\\):',line.strip())
-                password = password.replace('\:', ':')
-                if server == serverF and user == userF:
-                    passFound = True
-                    break
+                if not re.match(PAIRS_PASSWORD_FILE_COMMENT_REG_EX, line):
+                    serverF, userF, password  = re.split(r'(?<!\\):',line.strip())
+                    password = password.replace('\:', ':')
+                    if server == serverF and user == userF:
+                        passFound = True
+                        break
     except EnvironmentError as e:
         raise e
     except Exception as e:
