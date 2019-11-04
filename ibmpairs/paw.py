@@ -16,7 +16,7 @@ __copyright__   = "(c) 2017-2019, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "August 2019"
+__date__        = "November 2019"
 
 # fold: imports{{{
 # basic imports
@@ -131,6 +131,7 @@ PROPERTY_STRING_COL_NAME_POINT      = u'property'
 PAIRS_QUERY_RUN_STAT_REG_EX         = re.compile('^(0|1)')
 PAIRS_QUERY_FINISH_STAT_REG_EX      = re.compile('^2')
 PAIRS_QUERY_ERR_STAT_REG_EX         = re.compile('^(3|4)')
+PAIRS_PASSWORD_FILE_COMMENT_REG_EX  = re.compile('^\s*#')
 PAIRS_QUERY_DOWNLOADABLE_STAT       = 20
 ## define default download directory for PAIRS query object if needed
 DEFAULT_DOWNLOAD_DIR	            = u'./downloads'
@@ -161,25 +162,28 @@ elif PAW_LOG_LEVEL_ENV == u"CRITICAL":
     PAW_LOG_LEVEL = logging.CRITICAL
 # }}}
 # fold: settings#{{{
+## get (global) logger
+logger = logging.getLogger(__name__)
 ## set log level
 if HAS_COLOREDLOGS:
     coloredlogs.install(
-        level=PAW_LOG_LEVEL,
+        level       = PAW_LOG_LEVEL,
         fmt='%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]',
-        level_styles={
+        level_styles= {
             'info':     {'color': 'green'},
             'warning':  {'color': 'yellow'},
             'error':    {'color': 'red'},
             'critical': {'color': 'red', 'bold': True},
         },
-        stream=sys.stdout,
+        stream      = sys.stdout,
     )
 else:
-    logging.basicConfig(
-        format      = '%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]',
-        level       = logging.INFO,
+    logger.setLevel(PAW_LOG_LEVEL)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(
+        logging.Formatter('%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]'),
     )
-    logging.StreamHandler(sys.stdout)
+    logger.addHandler(handler)
 #}}}
 
 # fold: misc functions {{{
@@ -227,11 +231,12 @@ def get_pairs_api_password(
         # parse PAIRS API access password file
         with open(passFile) as f:
             for line in f:
-                serverF, userF, password  = re.split(r'(?<!\\):',line.strip())
-                password = password.replace('\:', ':')
-                if server == serverF and user == userF:
-                    passFound = True
-                    break
+                if not re.match(PAIRS_PASSWORD_FILE_COMMENT_REG_EX, line):
+                    serverF, userF, password  = re.split(r'(?<!\\):',line.strip())
+                    password = password.replace('\:', ':')
+                    if server == serverF and user == userF:
+                        passFound = True
+                        break
     except EnvironmentError as e:
         raise e
     except Exception as e:
@@ -353,7 +358,7 @@ class PAIRSQuery(object):
         if isinstance(port, int) and port > 0 and port < 65536:
             self.pairsPort              = port
         else:
-            logging.warning("Incorrect port number provided: {}, defaulting to port 80".format(port))
+            logger.warning("Incorrect port number provided: {}, defaulting to port 80".format(port))
             self.pairsPort              = 80
         # host serving PAIRS API to connect to
         self.pairsHost                  = urlparse(
@@ -393,7 +398,7 @@ class PAIRSQuery(object):
             # determine the query whether or not the query immediately returns (e.g. for point query)
             self._isOnlineQuery         =  self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME \
                 and (not self.query['batch'] if 'batch' in self.query else True)
-            logging.info(
+            logger.info(
                 'PAIRS query JSON initialized{}.'.format(' as online query' if self._isOnlineQuery else '')
             )
         elif isinstance(query, string_type):
@@ -406,20 +411,20 @@ class PAIRSQuery(object):
                 self.query              = None
                 # reset in memory user option, since contradicting
                 inMemory                = False
-                logging.info("Will load PAIRS query data from '{}'.".format(query))
+                logger.info("Will load PAIRS query data from '{}'.".format(query))
             else:
                 ## PAIRS query ID defining the query result
                 try:
                     self.query          = self.get_query_JSON(query)
                 except Exception as e:
                     self.query          = None
-                    logging.warning(
+                    logger.warning(
                         "Unable to fetch query definition from PAIRS for query ID '{}': {}".format(query, e)
                     )
                 self.queryID            = query
                 self.zipFilePath        = None
                 self.querySubmit        = MockSubmitResponse(self.queryID)
-                logging.info("Will load PAIRS query data from '{}'.".format(query))
+                logger.info("Will load PAIRS query data from '{}'.".format(query))
         else:
             raise Exception(
                 "Query definition of type '{}' not an option.".format(type(query))
@@ -437,7 +442,7 @@ class PAIRSQuery(object):
         # overwriting download directory according to ZIP directory information given (if any)
         if self.downloadDir is not None and not inMemory and not os.path.exists(self.downloadDir):
             os.mkdir(self.downloadDir)
-            logging.info("Download directory '{}' created.".format(self.downloadDir))
+            logger.info("Download directory '{}' created.".format(self.downloadDir))
         # file system for query storage
         if self.fs is None:
             try:
@@ -497,7 +502,7 @@ class PAIRSQuery(object):
             except Exception as e:
                 pass
         if isinstance(self.fs, fs.memoryfs.MemoryFS):
-            logging.info('Just FYI: Local file system is in memory - no data saved on local disk.')
+            logger.info('Just FYI: Local file system is in memory - no data saved on local disk.')
 
     def __del__(self):
         # Delete the file and folder
@@ -507,20 +512,20 @@ class PAIRSQuery(object):
                     # Remove the folder with all its contents
                     self.fs.removetree(self.queryDir)
                 except Exception as e:
-                    logging.warning(
+                    logger.warning(
                         "Unable to delete query directory '{}': {}.".format(self.queryDir, e)
                     )
                 else:
-                    logging.info("Query directory '{}' delete.".format(self.queryDir))
+                    logger.info("Query directory '{}' delete.".format(self.queryDir))
             # Remove the zip file
             try:
                 self.fs.remove(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
             except Exception as e:
-                logging.warning(
+                logger.warning(
                     "Unable to delete query result ZIP file '{}': {}.".format(self.queryDir, e)
                 )
             else:
-                logging.info(
+                logger.info(
                     "Query result ZIP file '{}' deleted.".format(self.queryDir)
                 )
         # decouple from file system
@@ -529,7 +534,7 @@ class PAIRSQuery(object):
             if self._queryStream is not None: self._queryStream.close()
             if self.fs is not None: self.fs.close()
         except Exception as e:
-            logging.error('Cannot properly close file system handlers: {}'.format(e))
+            logger.error('Cannot properly close file system handlers: {}'.format(e))
 
 
     def get_query_JSON(self, queryID, reloadData=False):
@@ -550,7 +555,7 @@ class PAIRSQuery(object):
             try:
                 return self.queryInfo['apiJson']
             except Exception as e:
-                logging.error(
+                logger.error(
                     "Unable to extract query JSON load from PAIRS query info: '{}'.".format(e)
                 )
                 raise
@@ -581,7 +586,7 @@ class PAIRSQuery(object):
 
                 return self.queryInfo['apiJson']
             except Exception as e:
-                logging.error(
+                logger.error(
                     "Unable to fetch query information from PAIRS for ID '{}': '{}'".format(
                         queryID, e
                     )
@@ -626,10 +631,10 @@ class PAIRSQuery(object):
         # note: incorporates a hack due to a bug in the fs Python module (on parsing)
         clsInstance.queryFS     = OSFS(queryDir)
         # load all raster and vector data
-        logging.info('Loading query result into memory ...')
+        logger.info('Loading query result into memory ...')
         # load all queried layers
         clsInstance.create_layers()
-        logging.info('... done.')
+        logger.info('... done.')
 
         return clsInstance
 
@@ -645,7 +650,7 @@ class PAIRSQuery(object):
             self.qHash = getQueryHash(self.query if isinstance(self.query, dict) else {})
         except:
             errMsg = u'Unable to determine query hash.'
-            logging.error(errMsg)
+            logger.error(errMsg)
             raise Exception(errMsg)
 
         # construct query directory name
@@ -658,7 +663,7 @@ class PAIRSQuery(object):
             self.queryDir = str(os.path.dirname(self.zipFilePath))
         else:
             msg = u'Information to construct query directory incomplete.'
-            logging.warning(msg)
+            logger.warning(msg)
             raise Exception(msg)
 
     def read_data_acknowledgement(self):
@@ -676,17 +681,17 @@ class PAIRSQuery(object):
                 try:
                     with self.queryFS.open(PAIRS_DATA_ACK_FILE_NAME, 'rb') as f:
                         self.dataAcknowledgeText = ''.join(codecs.getreader('utf-8')(f))
-                    logging.info('Data acknowledgement successfully loaded, print with `self.print_data_acknowledgement()`')
+                    logger.info('Data acknowledgement successfully loaded, print with `self.print_data_acknowledgement()`')
                 except Exception as e:
                     msg = u'Unable to read data acknowledgement from PAIRS query result ZIP file: {}'.format(e)
-                    logging.error(msg)
+                    logger.error(msg)
                     raise Exception(msg)
             else:
                 msg = u'No PAIRS query ZIP file identified, or no acknowledgement in ZIP file found. Did you run `self.download()`, yet?'
-                logging.warning(msg)
+                logger.warning(msg)
                 raise Exception(msg)
         else:
-            logging.info('Data acknowledgement loaded already - print with `self.print_data_acknowledgement()`')
+            logger.info('Data acknowledgement loaded already - print with `self.print_data_acknowledgement()`')
 
     def print_data_acknowledgement(self):
         """
@@ -711,7 +716,7 @@ class PAIRSQuery(object):
         if self.query is not None:
             # fake submit for using existing cache
             if not self.overwriteExisting:
-                logging.warning("Fake submit to PAIRS in order to use (latest) locally cached data.")
+                logger.warning("Fake submit to PAIRS in order to use (latest) locally cached data.")
                 # check whether locally cache exists at all
                 try:
                     if isinstance(self.query, dict):
@@ -740,10 +745,10 @@ class PAIRSQuery(object):
                             ).rsplit(PAW_QUERY_NAME_SEPARATOR, 1)[0]
                         )
                         self.downloaded = True
-                        logging.info("Alright, using cache of PAIRS query with ID: '{}'".format(self.queryID))
+                        logger.info("Alright, using cache of PAIRS query with ID: '{}'".format(self.queryID))
                 except Exception as e:
                     msg = "I am sorry, you asked for using the local cache, but your query does not match any existing. I am gonna query PAIRS instead: '{}'.".format(e)
-                    logging.warning(msg)
+                    logger.warning(msg)
                     self.overwriteExisting = True
                     self.queryID = False
             # query PAIRS (if any)
@@ -769,10 +774,10 @@ class PAIRSQuery(object):
                 try:
                     _ = self.querySubmit.json()
                 except Exception as e:
-                    logging.error(
+                    logger.error(
                         'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
                     )
-                    logging.error(
+                    logger.error(
                         "Maybe your query definition is not right? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
                     )
                     raise
@@ -780,7 +785,7 @@ class PAIRSQuery(object):
                 # obtain (and internally set) query ID, or ...
                 if not self._isOnlineQuery:
                     self.queryID = self.querySubmit.json()['id']
-                    logging.info("Query successfully submitted, reference ID: {}".format(self.queryID))
+                    logger.info("Query successfully submitted, reference ID: {}".format(self.queryID))
                 # ... handle online (point) query that immediately returns
                 else:
                     # set query status equal to submit status
@@ -788,7 +793,7 @@ class PAIRSQuery(object):
                     # convert data into (vector) dataframe
                     # catch empty return
                     if self.queryStatus.json() is None:
-                        logging.warning('No point data available to load/returned.')
+                        logger.warning('No point data available to load/returned.')
                     else:
                         try:
                             if self.queryStatus.status_code != 200:
@@ -802,13 +807,13 @@ class PAIRSQuery(object):
                                 self.vdf = pandas.DataFrame(
                                     self.queryStatus.json()['data']
                                 )
-                            logging.info('Point data successfully imported into self.vdf')
+                            logger.info('Point data successfully imported into self.vdf')
                             # check for (default) timestamp column
                             if PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in self.vdf.columns:
                                 self.set_timestamp_column(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME)
-                                logging.info("Timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
+                                logger.info("Timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
                             else:
-                                logging.warning("No timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
+                                logger.warning("No timestamp column '{}' detected.".format(PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME))
                             # check for (default) geo-coordinate columns
                             if PAIRS_VECTOR_LONGITUDE_COLUMN_NAME in self.vdf.columns \
                             and PAIRS_VECTOR_LATITUDE_COLUMN_NAME in self.vdf.columns:
@@ -817,29 +822,29 @@ class PAIRSQuery(object):
                                     PAIRS_VECTOR_LONGITUDE_COLUMN_NAME,
                                     PAIRS_VECTOR_GEOMETRY_COLUMN_NAME,
                                 )
-                                logging.info(
+                                logger.info(
                                     "Geo-coordinate columns '{}' and '{}' detected.".format(
                                         PAIRS_VECTOR_LONGITUDE_COLUMN_NAME,
                                         PAIRS_VECTOR_LATITUDE_COLUMN_NAME,
                                     )
                                 )
                             else:
-                                logging.warning(
+                                logger.warning(
                                     "No geo-coordinate columns '{}' detected.".format(
                                         [PAIRS_VECTOR_LONGITUDE_COLUMN_NAME, PAIRS_VECTOR_LATITUDE_COLUMN_NAME]
                                     )
                                 )
                         except Exception as e:
-                            logging.error("Unable to load point data into dataframe: '{}'.".format(e))
+                            logger.error("Unable to load point data into dataframe: '{}'.".format(e))
                             raise
         # case of PAIRS cached query (previously run)
         elif isinstance(self.querySubmit, MockSubmitResponse):
-            logging.info(
+            logger.info(
                 "Alright, using remotely cached PAIRS query with ID '{}'.".format(self.queryID)
             )
         # case of locally cached PAIRS query ZIP directory
         elif self.fs.exists(self.zipFilePath):
-            logging.info(
+            logger.info(
                 "Alright, using locally cached PAIRS query ZIP file '{}'.".format(self.zipFilePath)
             )
             self.downloaded = True
@@ -966,14 +971,14 @@ class PAIRSQuery(object):
                                 percMsg = ' ({}%)'.format(progressPercent)
                             else:
                                 percMsg = u''
-                            logging.info("Query status is '{}'{}.".format(status, percMsg))
+                            logger.info("Query status is '{}'{}.".format(status, percMsg))
                         except:
                             pass
                     # break if query not running any more
                     try:
                         statusCode = self.queryStatus.json()['statusCode']
                     except Exception as e:
-                        logging.error(
+                        logger.error(
                             'Unable to extract query status code from poll JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
                         )
                         raise
@@ -1022,7 +1027,7 @@ class PAIRSQuery(object):
                     statusCode  = respJson['statusCode']
                     statusMsg   = str(respJson['status'])
                 except Exception as e:
-                    logging.error(
+                    logger.error(
                         'Unable to extract query status code from poll JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
                     )
                     raise
@@ -1037,13 +1042,13 @@ class PAIRSQuery(object):
                         try:
                             self.queryID = self.querySubmit.json()['id']
                         except Exception as e:
-                            logging.error(
+                            logger.error(
                                 'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
                             )
                             raise
                     # note on streaming into memory
                     if isinstance(self.fs, fs.memoryfs.MemoryFS):
-                        logging.warning(
+                        logger.warning(
                             'Be aware: As directed, downloading query result directly into memory!'
                         )
 
@@ -1095,7 +1100,7 @@ class PAIRSQuery(object):
                                     verify  = self.verifySSL,
                                 )
                                 if resp.status_code == 200:
-                                    logging.info('Upload of query result to IBM COS initialized.')
+                                    logger.info('Upload of query result to IBM COS initialized.')
                                 else:
                                     raise Exception(
                                         'PAIRS failed publishing query result to COS: {}'.format(resp.text)
@@ -1106,10 +1111,10 @@ class PAIRSQuery(object):
                                 )
                         else:
                             msg = u'Sorry, I do not know what to do based on the `cosInfo` you provided.'
-                            logging.error(msg)
+                            logger.error(msg)
                             raise Exception(msg)
                     else:
-                        logging.error('Aborted download: Zip file already present and overwriteExisting set to False')
+                        logger.error('Aborted download: Zip file already present and overwriteExisting set to False')
                 else:
                     if PAIRS_QUERY_ERR_STAT_REG_EX.match(str(statusCode)):
                         msg = "I am sorry, IBM PAIRS query failed, status code: '{}' ({})".format(statusCode, statusMsg)
@@ -1119,7 +1124,7 @@ class PAIRSQuery(object):
                         msg = "Bummer, the PAIRS query finished, but you'll never be able to download anything, status code: '{}' ({})".format(statusCode, statusMsg)
                     else:
                         msg = "Hm, not sure what is going on, status code from IBM PAIRS is '{}' ({})".format(statusCode, statusMsg)
-                    logging.info(msg)
+                    logger.info(msg)
                     raise Exception(msg)
 
             # test if downloaded ZIP file is readable
@@ -1130,10 +1135,10 @@ class PAIRSQuery(object):
             except Exception as e:
                 # flag BadZipfile exception
                 self.BadDownloadFile = True
-                logging.error('Sorry, cannot read downloaded query ZIP file: {}'.format(e))
+                logger.error('Sorry, cannot read downloaded query ZIP file: {}'.format(e))
             else:
                 self.BadDownloadFile = False
-                logging.info(
+                logger.info(
                     "Here we go, PAIRS query result successfully downloaded as '{}'.".format(self.zipFilePath)
                 )
 
@@ -1148,7 +1153,7 @@ class PAIRSQuery(object):
                 self.list_layers()
                 pass
             except Exception as e:
-                logging.warning("Ah, implicitly running `list_layers()` did not work out: '{}'".format(e))
+                logger.warning("Ah, implicitly running `list_layers()` did not work out: '{}'".format(e))
 
 
     def set_geometry_id_column(self, regionName):
@@ -1174,7 +1179,7 @@ class PAIRSQuery(object):
                 if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
                 and self.vdf[timeName].dtype in (numpy.float, numpy.int):
                     self.vdf[timeName] = self.vdf[timeName].apply(
-                        lambda t: datetime.fromtimestamp(
+                        lambda t: t if numpy.isnan(t) else datetime.fromtimestamp(
                             t/1e3, tz=pytz.UTC
                         )
                     )
@@ -1239,7 +1244,7 @@ class PAIRSQuery(object):
                     geometry    = geomColName,
                 )
             else:
-                logging.warning("GeoPandas not available on your system. Cannot convert vector dataframe to GeoPandas dataframe.")
+                logger.warning("GeoPandas not available on your system. Cannot convert vector dataframe to GeoPandas dataframe.")
         except Exception as e:
             raise Exception(
                 "Unable to convert Pandas dataframe to GeoDataframe: '{}'".format(e)
@@ -1280,14 +1285,14 @@ class PAIRSQuery(object):
                 self.vdf = pandas.concat([self.vdf, split], axis=1)
             # most likely this function ran before
             elif len(doubledCols) == len(split.columns):
-                logging.warning('FYI: Looks like you ran this functon before?')
+                logger.warning('FYI: Looks like you ran this functon before?')
                 for col in doubledCols:
                     self.vdf[col] = split[col]
             # most likely there is a clash between existing columns not previously
             # generated by this function
             else:
                 msg = "Oops, it looks like the columns {} exist, sorry, won't overwrite.".format(doubledCols)
-                logging.error(msg)
+                logger.error(msg)
                 raise Exception(msg)
 
     def query_pairs_polygon(self, polyID):
@@ -1318,7 +1323,7 @@ class PAIRSQuery(object):
                 )
             )
         except Exception as e:
-            logging.error(str(e))
+            logger.error(str(e))
             return None
 
     def query_pairs_polygon_meta(self, polyID):
@@ -1343,7 +1348,7 @@ class PAIRSQuery(object):
                 verify = self.verifySSL,
             ).json()['name']
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
             return None
 
     def get_vector_polygon_table(self, includeGeometry=False):
@@ -1387,7 +1392,7 @@ class PAIRSQuery(object):
         ]
         # get polygons from PAIRS
         if includeGeometry:
-            logging.info(
+            logger.info(
                 'Alright, start fetching {} polygons from PAIRS, stay tuned ...'.format(len(polyIDs))
             )
             polys = [
@@ -1395,9 +1400,9 @@ class PAIRSQuery(object):
                 for polyID in polyIDs
             ]
             if None in polys:
-                logging.warning('Sorry, failed to retrieve (some) vector geometries from PAIRS.')
+                logger.warning('Sorry, failed to retrieve (some) vector geometries from PAIRS.')
         # get polygon names/info from PAIRS
-        logging.info('Let me get the polygon meta data information for you ...')
+        logger.info('Let me get the polygon meta data information for you ...')
         polyNameIDs = [
             [
                 polyID,
@@ -1406,7 +1411,7 @@ class PAIRSQuery(object):
             for polyID in polyIDs
         ]
         if None in polyNameIDs:
-            logging.warning('Sorry, failed to retrieve (some) vector meta data from PAIRS.')
+            logger.warning('Sorry, failed to retrieve (some) vector meta data from PAIRS.')
         # append information to pandas dataframe
         if HAS_GEOPANDAS:
             self.pdf = self.pdf.append(
@@ -1427,7 +1432,7 @@ class PAIRSQuery(object):
             )
             if includeGeometry:
                 self.pdf[PAIRS_VECTOR_GEOMETRY_COLUMN_NAME] = pandas.Series(polys)
-        logging.info('Here you go, checkout your query object, property `pdf` for the result I assembled for you.')
+        logger.info('Here you go, checkout your query object, property `pdf` for the result I assembled for you.')
 
     def list_layers(self, defaultExtension=u'', refresh=False):
         """
@@ -1453,9 +1458,9 @@ class PAIRSQuery(object):
                 )
                 # ATTENTION: temporarily allow missing `output.info` for pure vector data
                 if PAIRS_VECTOR_CSV_FILE_NAME in self.queryFS.listdir(u''):
-                    logging.warning(msg)
+                    logger.warning(msg)
                 else:
-                    logging.error(msg)
+                    logger.error(msg)
                     raise Exception(msg)
             # ATTENTION: temporarily allow missing `output.info` for pure vector data
             if pairsMetaInfoPath in self.queryFS.listdir(u''):
@@ -1469,12 +1474,12 @@ class PAIRSQuery(object):
                     }
                     for fileDict in outputJson['files']
                 }
-                logging.info(
+                logger.info(
                     "PAIRS meta data loaded from '{}'.".format(os.path.basename(pairsMetaInfoPath))
                 )
             else:
                 self.metadata = {}
-                logging.info("Initializing empty meta data dictionary.")
+                logger.info("Initializing empty meta data dictionary.")
             # load (optional) detailed layer information (based on the existence of
             # a file with same name plus PAIRS file name extension for JSON files)
             for fileName, metaData in self.metadata.items():
@@ -1492,11 +1497,11 @@ class PAIRSQuery(object):
                                     'details': json.load(codecs.getreader('utf-8')(j))
                                 }
                             )
-                        logging.debug(
+                        logger.debug(
                             "Detailed meta information for data file name '{}' loaded.".format(metaPath)
                         )
                     except Exception as e:
-                        logging.debug(
+                        logger.debug(
                             "Unable to read detailed meta information for file '{}': {}.".format(metaPath, e)
                         )
             # note: special treatment of default vector data file name
@@ -1557,23 +1562,34 @@ class PAIRSQuery(object):
                         a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float)
                         ds = None
                 except Exception as e:
-                    logging.error(
+                    logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using GDAL: {}".format(fileName, self.zipFilePath, e)
                     )
             else:
                 try:
-                    logging.warning(
+                    logger.warning(
                         "GDAL is not available for proper GeoTiff loading, default to standard PIL module to load raster data."
                     )
-                    with self.queryFS.open(layerDataPath, 'rb') as f:
-                        im = PIL.Image.open(f)
-                        if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
-                            im.mode=u'I'
-                        elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
-                            im.mode=u'F'
-                        a = numpy.array(im).astype(numpy.float)
+                    # note: it seems we (unfortunately) have to temporarily write/export
+                    # the image to load to the local file system first, because directly
+                    # reading the multi-wrapped virtual file handler with PIL.Image.open()
+                    # is extremely slow
+                    # TODO: explore more elegant options (problem with stream-buffer size?)
+                    with tempfile.NamedTemporaryFile('wb', delete=False,) as tf:
+                        # write raster data/image to temporary file
+                        with self.queryFS.open(layerDataPath, 'rb') as zf:
+                            tf.write(zf.read())
+                        tf.flush()
+                        # load temporary file with PIL into NumPy array
+                        with open(tf.name, 'rb') as f:
+                            im = PIL.Image.open(f)
+                            if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
+                                im.mode=u'I'
+                            elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
+                                im.mode=u'F'
+                            a = numpy.array(im).astype(numpy.float)
                 except Exception as e:
-                    logging.error(
+                    logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using PIL: {}".format(fileName, self.zipFilePath, e)
                     )
             # mask no-data value
@@ -1587,7 +1603,7 @@ class PAIRSQuery(object):
                 with self.queryFS.open(layerDataPath, 'rb') as f:
                     # spatial aggregation vector data
                     if PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
-                        logging.info('Identified spatial aggregation data.')
+                        logger.info('Identified spatial aggregation data.')
                         self.data[fileName] = pandas.read_csv(
                             f,
                             header      = 0,
@@ -1616,7 +1632,7 @@ class PAIRSQuery(object):
                                     quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
                                     parse_dates = [PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM],
                                 )
-                        logging.info(
+                        logger.info(
                             "'{}' from '{}' loaded into Pandas dataframe.".format(layerDataPath, self.zipFilePath)
                         )
                         # check if timestamp column is completely empty, and if so,
@@ -1626,7 +1642,7 @@ class PAIRSQuery(object):
                                 lambda t: isinstance(t, pandas._libs.tslibs.nattype.NaTType)
                             ).all() and PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in layerMeta.keys():
                                 self.data[fileName][PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME] = layerMeta[PAIRS_META_TIMESTAMP_NAME]
-                                logging.info(
+                                logger.info(
                                     "Successfully populated timestamp column '{}' with '{}'.".format(
                                         PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME,
                                         layerMeta[PAIRS_META_TIMESTAMP_NAME]
@@ -1636,12 +1652,12 @@ class PAIRSQuery(object):
                             # silently pass if this bonus option does not work
                             pass
             except Exception as e:
-                logging.error(
+                logger.error(
                     "Unable to load '{}' from '{}' into Pandas dataframe: {}".format(layerDataPath, self.zipFilePath, e)
                 )
         else:
             msg = "Sorry, I do not know how to load PAIRS query data of type '{}'".format(layerMeta['layerType'])
-            logging.error(msg)
+            logger.error(msg)
             raise Exception(msg)
 
     def create_layers(self, defaultExtension=u''):
