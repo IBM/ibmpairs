@@ -16,7 +16,7 @@ __copyright__   = "(c) 2017-2019, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "August 2019"
+__date__        = "November 2019"
 
 # fold: imports{{{
 # basic imports
