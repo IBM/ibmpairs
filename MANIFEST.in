@@ -4,3 +4,4 @@ include README.md
 include LICENSE
 include MAINTAINERS.md
 include requirements.txt
+include requirements-development.txt
