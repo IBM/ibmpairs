@@ -37,4 +37,10 @@ sed \
     -i 's~dev_url:.*$~dev_url: "'"$IBMPAIRS_OPENSOURCE_DEVELOPMENT_URL"'"~' \
     "$condaMetaFile"
 
+# HACK: remove testing modules not available in conda-forge, because not strictly
+#_required to run ibmpairs Python package
+sed \
+    -ie '/- pytest-ordering/ s/^#*/#/' \
+    "$condaMetaFile"
+
 exit 0
