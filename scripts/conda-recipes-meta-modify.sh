@@ -57,4 +57,20 @@ awk -i inplace \
     "$condaMetaFile" || \
 { echo "ERROR: Failed cleaning testing requirements."; exit $EXIT_FAILURE; }
 
+# adapt modules for ibmpairs module installation
+awk -i inplace \
+    '$1 == "requirements:"{t=1}
+    t==1 && $1 == "host:"{t++; next}
+    t==2 && /:[[:blank:]]*$/{t=0}
+    t != 2' \
+    "$condaMetaFile" || \
+{ echo "ERROR: Failed adapting conda-forge installation requirements."; exit $EXIT_FAILURE; }
+sed -i \
+    '/^requirements:.*/a \
+  host:\
+    - pip\
+    - python' \
+    "$condaMetaFile" || \
+{ echo "ERROR: Failed adapting conda-forge installation requirements."; exit $EXIT_FAILURE; }
+
 exit $EXIT_SUCCESS
