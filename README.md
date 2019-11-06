@@ -27,6 +27,11 @@ simply run
 ```Bash
 pip install --user ibmpairs
 ```
+Alternatively,
+```Bash
+conda install ibmpairs
+```
+works as well.
 Then you import the IBM PAIRS API wrapper via:
 ```Python
 from ibmpairs import paw
