@@ -29,7 +29,7 @@ pip install --user ibmpairs
 ```
 Alternatively,
 ```Bash
-conda install ibmpairs
+conda install -c conda-forge ibmpairs
 ```
 works as well.
 Then you import the IBM PAIRS API wrapper via:
