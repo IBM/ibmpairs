@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/IBM/ibmpairs.svg?branch=master)](https://travis-ci.org/IBM/ibmpairs)
 [![PyPI Package](https://badge.fury.io/py/ibmpairs.svg)](https://pypi.org/project/ibmpairs/)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/ibmpairs.svg)](https://anaconda.org/conda-forge/ibmpairs)
 
 
 This repository provides an interface to the geo-spatial big data platform
