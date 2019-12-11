@@ -226,11 +226,13 @@ class TestPointQuery(unittest.TestCase):
         # query mocked data
         logging.info("TEST: Query {}point data (raster).".format('' if REAL_CONNECT else 'mocked '))
         # define point query
+        # note: test automatic correction for trailing slash in PAIRS base URI
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
+            baseURI     = PAIRS_BASE_URI[:-1] \
+                if len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' else PAIRS_BASE_URI,
             verifySSL   = VERIFY_SSL,
         )
         # submit point query
@@ -658,20 +660,22 @@ class TestPollQuery(unittest.TestCase):
 
 
     # fold: test ordinary raster queries#{{{
-    def raster_query(self, mode='query', inMemory=False, searchExist=False):
+    def raster_query(self, mode='query', inMemory=False, searchExist=False, wrongBaseURI=False,):
         """
         Query raster data in various ways.
 
-        :param mode:        sets the PAIRS query mode:
-                            - `query` queries PAIRS
-                            - `cached` uses locally cached PAIRS ZIP file
-                            - `reload` uses PAIRS query ID
-        :type mode:         str
-        :param inMemory:    triggers storing files directly in memory for PAIRS query
-        :type inMemory:     bool
-        :param searchExist: triggers the search for an existing ZIP file
-        :type inMemory:     bool
-        :raises Exception:  if function parameters are incorrectly set
+        :param mode:            sets the PAIRS query mode:
+                                - `query` queries PAIRS
+                                - `cached` uses locally cached PAIRS ZIP file
+                                - `reload` uses PAIRS query ID
+        :type mode:             str
+        :param inMemory:        triggers storing files directly in memory for PAIRS query
+        :type inMemory:         bool
+        :param searchExist:     triggers the search for an existing ZIP file
+        :type searchExist:      bool
+        :param wrongBaseURI:    remove trailing slash from PAIRS base URI to simulate user typo
+        :type wrongBaseURI:     bool
+        :raises Exception:      if function parameters are incorrectly set
         """
         # check function parameters
         # query mocked data
@@ -703,11 +707,14 @@ class TestPollQuery(unittest.TestCase):
         else:
             raise Exception("PAIRS raster query mode '{}' not defined.".format(mode))
 
+        # note: test automatic correction for trailing slash in PAIRS base URI
         testRasterQuery = paw.PAIRSQuery(
             queryDef,
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth                = PAIRS_CREDENTIALS,
-            baseURI             = PAIRS_BASE_URI,
+            baseURI             = PAIRS_BASE_URI[:-1] \
+                if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
+                    else PAIRS_BASE_URI,
             inMemory            = inMemory,
             overwriteExisting   = not searchExist,
             verifySSL           = VERIFY_SSL,
@@ -801,6 +808,12 @@ class TestPollQuery(unittest.TestCase):
         """
         self.raster_query()
     @pytest.mark.run(order=1)
+    def test_raster_query_standard_user_typo(self):
+        """
+        Test querying raster data (user typo in PAIRS base URI).
+        """
+        self.raster_query(wrongBaseURI=True)
+    @pytest.mark.run(order=1)
     def test_raster_query_standard_in_memory(self):
         """
         Test querying raster data (in-memory storage).
@@ -839,26 +852,28 @@ class TestPollQuery(unittest.TestCase):
     #}}}
 
     # fold: test vector queries #{{{
-    def vector_query(self, mode='query', inMemory=False, searchExist=False, queryType=''):
+    def vector_query(self, mode='query', inMemory=False, searchExist=False, wrongBaseURI=False, queryType=''):
         """
         Query vector data in various ways.
 
-        :param mode:        sets the PAIRS query mode:
-                            - `query` queries PAIRS
-                            - `cached` uses locally cached PAIRS ZIP file
-                            - `reload` uses PAIRS query ID
-        :type mode:         str
-        :param inMemory:    triggers storing files directly in memory for PAIRS query
-        :type inMemory:     bool
-        :param searchExist: triggers the search for an existing ZIP file
-        :type inMemory:     bool
-        :param queryType:   conceptual type of vector query:
-                                - `fromRaster`: raster data is returned pixel by pixel (center coordinates)
-                                - `batchPoint`: a point query is executed as an offline batch
-                                - `spatAgg`: spatial aggregation is performed on raster data
-                            if not specified (default is empty string), an ordinary vector query is performed
-        :type queryType:    str
-        :raises Exception:  if function parameters are incorrectly set
+        :param mode:            sets the PAIRS query mode:
+                                - `query` queries PAIRS
+                                - `cached` uses locally cached PAIRS ZIP file
+                                - `reload` uses PAIRS query ID
+        :type mode:             str
+        :param inMemory:        triggers storing files directly in memory for PAIRS query
+        :type inMemory:         bool
+        :param searchExist:     triggers the search for an existing ZIP file
+        :type inMemory:         bool
+        :param wrongBaseURI:    remove trailing slash from PAIRS base URI to simulate user typo
+        :type wrongBaseURI:     bool
+        :param queryType:       conceptual type of vector query:
+                                    - `fromRaster`: raster data is returned pixel by pixel (center coordinates)
+                                    - `batchPoint`: a point query is executed as an offline batch
+                                    - `spatAgg`: spatial aggregation is performed on raster data
+                                if not specified (default is empty string), an ordinary vector query is performed
+        :type queryType:        str
+        :raises Exception:      if function parameters are incorrectly set
         """
         # check function parameters
         logging.info(
@@ -915,7 +930,9 @@ class TestPollQuery(unittest.TestCase):
             queryDef,
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
             auth                = PAIRS_CREDENTIALS,
-            baseURI             = PAIRS_BASE_URI,
+            baseURI             = PAIRS_BASE_URI[:-1] \
+                if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
+                    else PAIRS_BASE_URI,
             inMemory            = inMemory,
             overwriteExisting   = not searchExist,
             verifySSL           = VERIFY_SSL,
@@ -1025,6 +1042,12 @@ class TestPollQuery(unittest.TestCase):
         Test querying vector data.
         """
         self.vector_query()
+    @pytest.mark.run(order=3)
+    def test_vector_query_standard_user_typo(self):
+        """
+        Test querying vector data (user typo in PAIRS base URI).
+        """
+        self.vector_query(wrongBaseURI=True)
     @pytest.mark.run(order=3)
     def test_vector_query_standard_in_memory(self):
         """

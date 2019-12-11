@@ -342,6 +342,8 @@ class PAIRSQuery(object):
                                     if the query defintion is not understood
                                     if a manually set PAIRS query ZIP directory does not exist
         """
+        # append trailing slash if base URI is missing it
+        if len(baseURI)>0 and baseURI[-1]!='/': baseURI+='/'
         # update API resources with base URI
         self.SUBMIT_API_STRING          = urljoin(baseURI, self.SUBMIT_API_STRING)
         self.STATUS_API_STRING          = urljoin(baseURI, self.STATUS_API_STRING)
