@@ -757,7 +757,7 @@ class PAIRSQuery(object):
             if self.overwriteExisting:
                 # try to submit query to PAIRS
                 try:
-                    if (self.querySubmit is None) or (self.querySubmit.status_code != 200):
+                    if (self.querySubmit is None) or (self.querySubmit.status_code not in (200, 201)):
                         self.querySubmit = requests.post(
                             urljoin(
                                 self.pairsHost.geturl(),
@@ -774,7 +774,7 @@ class PAIRSQuery(object):
                     )
                 # check that submission return is proper JSON
                 try:
-                    _ = self.querySubmit.json()
+                    _ = self.querySubmit.json()['id']
                 except Exception as e:
                     logger.error(
                         'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
