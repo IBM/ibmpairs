@@ -774,7 +774,7 @@ class PAIRSQuery(object):
                     )
                 # check that submission return is proper JSON
                 try:
-                    _ = self.querySubmit.json()['id']
+                    _ = self.querySubmit.json()
                 except Exception as e:
                     logger.error(
                         'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
@@ -786,7 +786,13 @@ class PAIRSQuery(object):
 
                 # obtain (and internally set) query ID, or ...
                 if not self._isOnlineQuery:
-                    self.queryID = self.querySubmit.json()['id']
+                    try:
+                        self.queryID = self.querySubmit.json()['id']
+                    except Exception as e:
+                        logger.error(
+                            'Unable to extract query ID from submit JSON return, the JSON-load is: {}'.format(self.querySubmit.json())
+                        )
+                        raise
                     logger.info("Query successfully submitted, reference ID: {}".format(self.queryID))
                 # ... handle online (point) query that immediately returns
                 else:
