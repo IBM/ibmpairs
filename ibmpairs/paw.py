@@ -87,16 +87,18 @@ except:
         raise ImportError('Neither GDAL nor PIL could be imported.')
 #}}}
 # fold: global parameters{{{
-## PAIRS base URI for API calles
-PAIRS_BASE_URI = u'/'
 ## PAIRS query meta data information file
 PAIRS_QUERY_METADATA_FILE_NAME      = u'output.info'
 ## PAIRS vector JSON file name
 PAIRS_VECTOR_CSV_FILE_NAME          = u'Vector_Data_Output.csv'
 ## PAIRS data acknowledgement file name
 PAIRS_DATA_ACK_FILE_NAME            = u'data_acknowledgement.txt'
-## default PAIRS password file path
+## some defaults for PAIRS access
 PAIRS_DEFAULT_PASSWORD_FILE_NAME    = u'ibmpairspass.txt'
+PAIRS_DEFAULT_SERVER                = u'pairs.res.ibm.com'
+PAIRS_DEFAULT_PROTOCOL              = u'https'
+PAIRS_DEFAULT_BASE_URI              = u'/'
+PAIRS_DEFAULT_USER                  = None
 ## PAIRS vector query (Geo)JSON output format names
 PAIRS_VECTOR_JSON_TYPE_NAME         = u'json'
 PAIRS_VECTOR_GEOJSON_TYPE_NAME      = u'geojson'
@@ -144,21 +146,31 @@ PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS   = (u'fl', u'db')
 PAW_QUERY_NAME_SEPARATOR            = '_'
 # load parameters from the command line
 PAW_LOG_LEVEL                       = logging.INFO
-PAW_LOG_LEVEL_ENV                   = u''
+LOG_LEVEL_ENV                       = u''
+PAW_ENV_BASE_NAME                   = u'PAW'
 for var in (
-    u'PAW_LOG_LEVEL',
+    u'LOG_LEVEL_ENV',
+    u'PAIRS_DEFAULT_SERVER',
+    u'PAIRS_DEFAULT_PROTOCOL',
+    u'PAIRS_DEFAULT_BASE_URI',
+    u'PAIRS_DEFAULT_USER',
+    u'PAIRS_DEFAULT_PASSWORD_FILE_NAME',
 ):
-    if var in os.environ:
-        exec("{var}_ENV = os.environ['{var}']".format(var=var))
-if PAW_LOG_LEVEL_ENV == u"DEBUG":
+    if PAW_ENV_BASE_NAME+'_'+var in os.environ:
+        exec(
+            "{var} = os.environ['{pawBaseName}_{var}']".format(
+                var=var, pawBaseName = PAW_ENV_BASE_NAME,
+            )
+        )
+if LOG_LEVEL_ENV == u"DEBUG":
     PAW_LOG_LEVEL = logging.DEBUG
-elif PAW_LOG_LEVEL_ENV == u"INFO":
+elif LOG_LEVEL_ENV == u"INFO":
     PAW_LOG_LEVEL = logging.INFO
-elif PAW_LOG_LEVEL_ENV == u"WARNING":
+elif LOG_LEVEL_ENV == u"WARNING":
     PAW_LOG_LEVEL = logging.WARNING
-elif PAW_LOG_LEVEL_ENV == u"ERROR":
+elif LOG_LEVEL_ENV == u"ERROR":
     PAW_LOG_LEVEL = logging.ERROR
-elif PAW_LOG_LEVEL_ENV == u"CRITICAL":
+elif LOG_LEVEL_ENV == u"CRITICAL":
     PAW_LOG_LEVEL = logging.CRITICAL
 # }}}
 # fold: settings#{{{
@@ -202,10 +214,15 @@ def get_pairs_api_password(
                         `<server>:<user>:<password>`, colons in passwords need to be escaped
     :type passFile:     str
     :returns:           corresponding password if available, `None` otherwise
+                        *note*: if either user or server is `None`, no password searched
+                        for, and `None` is returned
     :rtype:             str
     :raises Exception:  if password file does not exist
                         if password was not found
     '''
+    # of either no user or server is provided
+    if server is None or user is None:
+        return None
     # Search for a password file in (a) the current working directory and (b) $HOME
     if passFile is None:
         if os.path.isfile(os.path.join(os.getcwd(), PAIRS_DEFAULT_PASSWORD_FILE_NAME)):
@@ -295,12 +312,24 @@ class PAIRSQuery(object):
     VECTOR_FILE_EXTENSION        = PAIRS_CSV_FILE_EXTENSION
 
     def __init__(
-        self, query, pairsHost, auth,
-        port                    = 80,
+        self, query,
+        pairsHost               = '{}://{}'.format(
+            PAIRS_DEFAULT_PROTOCOL,
+            PAIRS_DEFAULT_SERVER,
+        ),
+        auth                    = (
+            PAIRS_DEFAULT_USER,
+            get_pairs_api_password(
+                server  = PAIRS_DEFAULT_SERVER,
+                user    = PAIRS_DEFAULT_USER,
+                passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
+            )
+        ),
+        port                    = None,
         overwriteExisting       = True,
         deleteDownload          = False,
         downloadDir             = DOWNLOAD_DIR,
-        baseURI                 = PAIRS_BASE_URI,
+        baseURI                 = PAIRS_DEFAULT_BASE_URI,
         verifySSL               = True,
         vectorFormat            = None,
         inMemory                = False,
@@ -342,35 +371,63 @@ class PAIRSQuery(object):
                                     if the query defintion is not understood
                                     if a manually set PAIRS query ZIP directory does not exist
         """
-        # append trailing slash if base URI is missing it
-        if len(baseURI)>0 and baseURI[-1]!='/': baseURI+='/'
-        # update API resources with base URI
-        self.SUBMIT_API_STRING          = urljoin(baseURI, self.SUBMIT_API_STRING)
-        self.STATUS_API_STRING          = urljoin(baseURI, self.STATUS_API_STRING)
-        self.DOWNLOAD_API_STRING        = urljoin(baseURI, self.DOWNLOAD_API_STRING)
-        self.GET_GEOJSON_API_STRING     = urljoin(baseURI, self.GET_GEOJSON_API_STRING)
-        self.GET_AOI_INFO_API_STRING    = urljoin(baseURI, self.GET_AOI_INFO_API_STRING)
-        self.GET_QUERY_INFO             = urljoin(baseURI, self.GET_QUERY_INFO)
+        # check and set port for IBM PAIRS core API server
+        if port is not None:
+            if isinstance(port, int) and port > 0 and port < 65536:
+                self.pairsPort  = port
+            else:
+                logger.warning("Incorrect port number provided: {}, defaulting to port 80".format(port))
+                self.pairsPort  = 80
+        else:
+            self.pairsPort                  = None
+        # parse host URL serving PAIRS API to connect to
+        self.pairsHost                  = urlparse(
+            u'' if pairsHost is None else pairsHost
+        )
+        if pairsHost is not None and self.pairsHost.scheme not in ['http', 'https']:
+            raise Exception(
+                "Invalid PAIRS host URL: {}\n correct example: 'https://pairs.res.ibm.com:80/'".format(pairsHost)
+            )
+        if self.pairsPort is not None:
+            if self.pairsHost.port is None:
+                self.pairsHost              = urlparse(
+                    '{}://{}:{}{}'.format(
+                        self.pairsHost.scheme, self.pairsHost.netloc, self.pairsPort, self.pairsHost.path
+                    )
+                )
+            elif self.pairsHost.port != self.pairsPort:
+                logger.warning(
+                    "Port explicitly specified by `port`='{}' clashes with `pairsHost`='{}' parsing, using spec from `pairsHost`.".format(
+                        port, pairsHost
+                    )
+                )
+
+        # make sure the baseURI has trailing and leading slash
+        baseURIBeforeMerge = self.pairsHost.path
+        if len(baseURI)>0:
+            if baseURI[-1]!='/':    baseURI = baseURI+'/'
+            if baseURI[0]!='/':     baseURI = '/'+baseURI
+        # add baseURI to full PAIRS host specs (if any)
+        self.pairsHost = urlparse(urljoin(self.pairsHost.geturl(), baseURI))
+        # check merge vs. naive merge and inform user about deviation
+        if self.pairsHost.path != baseURIBeforeMerge+baseURI:
+            logger.warning(
+                "`pairsHost`='{}' and `baseURI`='{}' merged to: '{}'".format(
+                    pairsHost, baseURI, self.pairsHost.geturl(),
+                )
+            )
+        else:
+            logger.debug(
+                "The full PAIRS base URL reads: '{}'".format(self.pairsHost.geturl())
+            )
 
         # use SSL verification
         self.verifySSL                  = verifySSL
         # PAIRS API authentication
         self.auth                       = auth
-        # check and set port for IBM PAIRS core API server
-        if isinstance(port, int) and port > 0 and port < 65536:
-            self.pairsPort              = port
-        else:
-            logger.warning("Incorrect port number provided: {}, defaulting to port 80".format(port))
-            self.pairsPort              = 80
-        # host serving PAIRS API to connect to
-        self.pairsHost                  = urlparse(
-            u'' if pairsHost is None else \
-            '{}:{}'.format(pairsHost, self.pairsPort) if self.pairsPort != 80 else pairsHost
-        )
-        if pairsHost is not None and self.pairsHost.scheme not in ['http', 'https']:
-            raise Exception('Invalid PAIRS host URL: {}'.format(pairsHost))
+
         # set base URI
-        self.baseURI                    = baseURI
+        self.baseURI                    = self.pairsHost.path
 
         # query information retrieved via PAIRS API
         self.queryInfo                  = None
@@ -601,7 +658,7 @@ class PAIRSQuery(object):
         cls, queryDir,
         pairsHost    = None,
         queryID      = None,
-        baseURI      = PAIRS_BASE_URI,
+        baseURI      = PAIRS_DEFAULT_BASE_URI,
     ):
         """
         Generates a PAIRS query object from a native PAIRS query directory.
