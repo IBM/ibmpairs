@@ -148,30 +148,43 @@ PAW_QUERY_NAME_SEPARATOR            = '_'
 PAW_LOG_LEVEL                       = logging.INFO
 LOG_LEVEL_ENV                       = u''
 PAW_ENV_BASE_NAME                   = u'PAW'
-for var in (
+ENVIRONMENT_VARIABLES               = (
     u'LOG_LEVEL_ENV',
     u'PAIRS_DEFAULT_SERVER',
     u'PAIRS_DEFAULT_PROTOCOL',
     u'PAIRS_DEFAULT_BASE_URI',
     u'PAIRS_DEFAULT_USER',
     u'PAIRS_DEFAULT_PASSWORD_FILE_NAME',
-):
-    if PAW_ENV_BASE_NAME+'_'+var in os.environ:
-        exec(
-            "{var} = os.environ['{pawBaseName}_{var}']".format(
-                var=var, pawBaseName = PAW_ENV_BASE_NAME,
+)
+def load_environment_variables():
+    """
+    Some settings of this module can be set by environment variables. This function loads them.
+
+    In particular, server credentials and connection details are set via
+    `paw.ENVIRONMENT_VARIABLES` prefixed by `paw.PAW_ENV_BASE_NAME+'_'`, e.g. by
+    starting your Python shell with:
+
+    .. code-block:: bash
+       PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
+    """
+    for var in ENVIRONMENT_VARIABLES:
+        if PAW_ENV_BASE_NAME+'_'+var in os.environ:
+            exec(
+                "global {var}; {var} = os.environ['{pawBaseName}_{var}']".format(
+                    var=var, pawBaseName=PAW_ENV_BASE_NAME,
+                )
             )
-        )
-if LOG_LEVEL_ENV == u"DEBUG":
-    PAW_LOG_LEVEL = logging.DEBUG
-elif LOG_LEVEL_ENV == u"INFO":
-    PAW_LOG_LEVEL = logging.INFO
-elif LOG_LEVEL_ENV == u"WARNING":
-    PAW_LOG_LEVEL = logging.WARNING
-elif LOG_LEVEL_ENV == u"ERROR":
-    PAW_LOG_LEVEL = logging.ERROR
-elif LOG_LEVEL_ENV == u"CRITICAL":
-    PAW_LOG_LEVEL = logging.CRITICAL
+    if LOG_LEVEL_ENV == u"DEBUG":
+        PAW_LOG_LEVEL = logging.DEBUG
+    elif LOG_LEVEL_ENV == u"INFO":
+        PAW_LOG_LEVEL = logging.INFO
+    elif LOG_LEVEL_ENV == u"WARNING":
+        PAW_LOG_LEVEL = logging.WARNING
+    elif LOG_LEVEL_ENV == u"ERROR":
+        PAW_LOG_LEVEL = logging.ERROR
+    elif LOG_LEVEL_ENV == u"CRITICAL":
+        PAW_LOG_LEVEL = logging.CRITICAL
+load_environment_variables()
 # }}}
 # fold: settings#{{{
 ## get (global) logger
@@ -342,6 +355,8 @@ class PAIRSQuery(object):
                                     str
         :param pairsHost:           base URL + scheme of PAIRS host to connect to,
                                     e.g. 'https://pairs.res.ibm.com'
+                                    *note*: the initialization tries its best to autodetect
+                                    even the `baseURI` and `port` if contained in `pairsHost` already
         :type pairsHost:            str
         :param auth:                user name and password as tuple for access to pairsHost
         :type auth:                 (str, str)
@@ -851,6 +866,11 @@ class PAIRSQuery(object):
                         )
                         raise
                     logger.info("Query successfully submitted, reference ID: {}".format(self.queryID))
+                    # silently poll the PAIRS query status to populate self.queryStatus for user
+                    try:
+                        self.poll()
+                    except:
+                        pass
                 # ... handle online (point) query that immediately returns
                 else:
                     # set query status equal to submit status
