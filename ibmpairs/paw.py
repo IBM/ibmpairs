@@ -205,6 +205,7 @@ if HAS_COLOREDLOGS:
             'critical': {'color': 'red', 'bold': True},
         },
         stream      = sys.stdout,
+        logger      = logger,
     )
 else:
     logger.setLevel(PAW_LOG_LEVEL)
