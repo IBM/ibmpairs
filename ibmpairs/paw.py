@@ -2,7 +2,7 @@
 IBM PAIRS RESTful API wrapper: A Python module to access PAIRS's core API to
 load data into Python compatible data formats.
 
-Copyright 2019 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2020 Physical Analytics, IBM Research All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 """
@@ -12,11 +12,11 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 __maintainer__  = "Physical Analytics, TJ Watson Research Center"
-__copyright__   = "(c) 2017-2019, IBM Research"
+__copyright__   = "(c) 2017-2020, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "November 2019"
+__date__        = "January 2020"
 
 # fold: imports{{{
 # basic imports
@@ -144,8 +144,9 @@ PAIRS_RASTER_INT_PIX_TYPE_CLASS     = (u'bt', u'sh', u'in')
 PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS   = (u'fl', u'db')
 # PAIRS API wrapper specific setttings
 PAW_QUERY_NAME_SEPARATOR            = '_'
+KEEP_QUERY_SOURCE_DIR_OPEN          = False
 # load parameters from the command line
-PAW_LOG_LEVEL                       = logging.INFO
+PAW_LOG_LEVEL                       = logging.DEBUG #logging.INFO
 LOG_LEVEL_ENV                       = u''
 PAW_ENV_BASE_NAME                   = u'PAW'
 ENVIRONMENT_VARIABLES               = (
@@ -167,6 +168,7 @@ def load_environment_variables():
     .. code-block:: bash
        PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
     """
+    # set global variables reading from environment variables
     for var in ENVIRONMENT_VARIABLES:
         if PAW_ENV_BASE_NAME+'_'+var in os.environ:
             exec(
@@ -174,6 +176,8 @@ def load_environment_variables():
                     var=var, pawBaseName=PAW_ENV_BASE_NAME,
                 )
             )
+    # adjust non-string variables
+    global PAW_LOG_LEVEL
     if LOG_LEVEL_ENV == u"DEBUG":
         PAW_LOG_LEVEL = logging.DEBUG
     elif LOG_LEVEL_ENV == u"INFO":
@@ -455,6 +459,8 @@ class PAIRSQuery(object):
         self.queryFS                    = None
         # variable for query result data stream
         self._queryStream               = None
+        # define whether or not to use virtual disk in memory for query result
+        self.inMemory                   = inMemory
 
         # define query (depending on what information is provided)
         ## assumption on whether or not the query immediately returns
@@ -484,7 +490,7 @@ class PAIRSQuery(object):
                 self.zipFilePath        = str(query)
                 self.query              = None
                 # reset in memory user option, since contradicting
-                inMemory                = False
+                self.inMemory           = False
                 logger.info("Will load PAIRS query data from '{}'.".format(query))
             else:
                 ## PAIRS query ID defining the query result
@@ -514,36 +520,11 @@ class PAIRSQuery(object):
         if self.zipFilePath is not None:
             self.zipFilePath = os.path.basename(self.zipFilePath)
         # overwriting download directory according to ZIP directory information given (if any)
-        if self.downloadDir is not None and not inMemory and not os.path.exists(self.downloadDir):
+        if self.downloadDir is not None and not self.inMemory and not os.path.exists(self.downloadDir):
             os.mkdir(self.downloadDir)
             logger.info("Download directory '{}' created.".format(self.downloadDir))
         # file system for query storage
-        if self.fs is None:
-            try:
-                if inMemory:
-                    # create in-memory file system
-                    self.fs = fs.open_fs(u'mem://')
-                    # ignore user set download directory
-                    self.downloadDir=u''
-                else:
-                    self.fs = fs.open_fs(self.downloadDir)
-            except Exception as e:
-                raise Exception(
-                    "Unable to initialize download directory '{}': {}".format(self.downloadDir, e)
-                )
-        # try to open the ZIP file (if any)
-        if self.zipFilePath is not None:
-            try:
-                self._queryStream   = self.fs.open(self.zipFilePath, 'rb')
-                self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
-                self.queryFS.listdir(u'')
-            except Exception as e:
-                raise Exception('Hm, cannot load data from ZIP file: {}'.format(e))
-            # flags prominently that query data is downloaded and available as files to be loaded
-            self.downloaded = True
-        else:
-            # flag data is not downloaded, yet
-            self.downloaded = False
+        self._openDataSource(force=True)
         # hash of the JSON query
         # (used as subfolder for saving files and to see if corresponding Tiff already exists)
         self.qHash               = getQueryHash(query if isinstance(self.query, dict) else {})
@@ -604,12 +585,97 @@ class PAIRSQuery(object):
                 )
         # decouple from file system
         try:
-            if self.queryFS is not None: self.queryFS.close()
-            if self._queryStream is not None: self._queryStream.close()
-            if self.fs is not None: self.fs.close()
+            self._closeDataSource(force=True)
         except Exception as e:
             logger.error('Cannot properly close file system handlers: {}'.format(e))
 
+    def _openDataSource(self, force=False):
+        """
+        Wrapper function to properly open the data source associated with query.
+
+        *note*: Designed to be immutable. Use `self._closeDataSource()` to open
+        the data source from scratch. `KEEP_QUERY_SOURCE_DIR_OPEN` lets the function
+        skip any operation.
+
+        :param force:   enforce to open data source, independent of global settings
+        :type force:    bool
+        """
+        if not KEEP_QUERY_SOURCE_DIR_OPEN or force:
+            logger.debug("Attempt to open data source ...")
+            if self.fs is None or self.fs.isclosed():
+                try:
+                    if self.inMemory:
+                        # create in-memory file system
+                        self.fs = fs.open_fs(u'mem://')
+                        # ignore user set download directory
+                        self.downloadDir=u''
+                    else:
+                        self.fs = fs.open_fs(self.downloadDir)
+                except Exception as e:
+                    raise Exception(
+                        "Unable to initialize download directory '{}': {}".format(self.downloadDir, e)
+                    )
+            # try to open the ZIP file (if any)
+            if self.zipFilePath is not None:
+                try:
+                    # get query stream if not existing or not open
+                    if self._queryStream is None or not self._queryStream.readable():
+                        # try to close unusable ZIP file stream
+                        try:
+                            self._queryStream.close()
+                        except:
+                            pass
+                        self._queryStream   = self.fs.open(self.zipFilePath, 'rb')
+                        # try to close any previous open file system
+                        if self.queryFS is not None:
+                            try:
+                                self.queryFS.close()
+                            except:
+                                pass
+                        # open file system
+                        self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
+                    # test file system by listing contents
+                    self.queryFS.listdir(u'')
+                except Exception as e:
+                    raise Exception('Hm, cannot load data from ZIP file: {}'.format(e))
+                # flags prominently that query data is downloaded and available as files to be loaded
+                if force: self.downloaded = True
+            else:
+                # flag data is not downloaded, yet
+                if force: self.downloaded = False
+            logger.debug("Open data source succeeded.")
+
+    def _closeDataSource(self, force=False):
+        """
+        Wrapper function to properly close the data source associated with query.
+
+        *note*: After the call all file system descriptors are certainly detached
+        from the query object except for the case where the global variable
+        `KEEP_QUERY_SOURCE_DIR_OPEN` makes this function just skip any action.
+
+        :param force:   enforce to close data source, independent of global settings
+        :type force:    bool
+        """
+        if (not KEEP_QUERY_SOURCE_DIR_OPEN and not self.inMemory) or force:
+            logger.debug("Closing data source.")
+            try:
+                self.queryFS.close()
+            except:
+                pass
+            finally:
+                self.queryFS = None
+            try:
+                self._queryStream.close()
+            except:
+                pass
+            finally:
+                self._queryStream = None
+            try:
+                self.fs.close()
+            except:
+                pass
+            finally:
+                self.fs = None
 
     def get_query_JSON(self, queryID, reloadData=False):
         """
@@ -747,25 +813,31 @@ class PAIRSQuery(object):
         :raises Exception:      if no acknowledgement is found
         """
         # attempt to extract only if not set already
-        if self.dataAcknowledgeText is None and self.queryFS is not None:
-            # check that there exists a file with the acknowledgement
-            if self.fs.exists(self.zipFilePath) and \
-               PAIRS_DATA_ACK_FILE_NAME in self.queryFS.listdir(u''):
-                # extract data acknowledgement from PAIRS query ZIP file
-                try:
-                    with self.queryFS.open(PAIRS_DATA_ACK_FILE_NAME, 'rb') as f:
-                        self.dataAcknowledgeText = ''.join(codecs.getreader('utf-8')(f))
-                    logger.info('Data acknowledgement successfully loaded, print with `self.print_data_acknowledgement()`')
-                except Exception as e:
-                    msg = u'Unable to read data acknowledgement from PAIRS query result ZIP file: {}'.format(e)
-                    logger.error(msg)
+        self._openDataSource()
+        try:
+            if self.dataAcknowledgeText is None and self.queryFS is not None:
+                # check that there exists a file with the acknowledgement
+                if self.fs.exists(self.zipFilePath) and \
+                   PAIRS_DATA_ACK_FILE_NAME in self.queryFS.listdir(u''):
+                    # extract data acknowledgement from PAIRS query ZIP file
+                    try:
+                        with self.queryFS.open(PAIRS_DATA_ACK_FILE_NAME, 'rb') as f:
+                            self.dataAcknowledgeText = ''.join(codecs.getreader('utf-8')(f))
+                        logger.info('Data acknowledgement successfully loaded, print with `self.print_data_acknowledgement()`')
+                    except Exception as e:
+                        msg = u'Unable to read data acknowledgement from PAIRS query result ZIP file: {}'.format(e)
+                        logger.error(msg)
+                        raise Exception(msg)
+                else:
+                    msg = u'No PAIRS query ZIP file identified, or no acknowledgement in ZIP file found. Did you run `self.download()`, yet?'
+                    logger.warning(msg)
                     raise Exception(msg)
             else:
-                msg = u'No PAIRS query ZIP file identified, or no acknowledgement in ZIP file found. Did you run `self.download()`, yet?'
-                logger.warning(msg)
-                raise Exception(msg)
-        else:
-            logger.info('Data acknowledgement loaded already - print with `self.print_data_acknowledgement()`')
+                logger.info('Data acknowledgement loaded already - print with `self.print_data_acknowledgement()`')
+        except:
+            raise
+        finally:
+            self._closeDataSource()
 
     def print_data_acknowledgement(self):
         """
@@ -787,11 +859,21 @@ class PAIRSQuery(object):
                             if no local cache is available which is requested to use
                             if no PAIRS query ID can be identified from the return of the PAIRS server
         """
+        # get information for if-statement to follow from data source (if any)
+        locallyCachedZIP = False
+        try:
+            self._openDataSource()
+            locallyCachedZIP = self.fs.exists(self.zipFilePath)
+        except:
+            pass
+        finally:
+            self._closeDataSource()
         if self.query is not None:
             # fake submit for using existing cache
             if not self.overwriteExisting:
                 logger.warning("Fake submit to PAIRS in order to use (latest) locally cached data.")
                 # check whether locally cache exists at all
+                self._openDataSource()
                 try:
                     if isinstance(self.query, dict):
                         self.queryDir = str(
@@ -825,6 +907,8 @@ class PAIRSQuery(object):
                     logger.warning(msg)
                     self.overwriteExisting = True
                     self.queryID = False
+                finally:
+                    self._closeDataSource()
             # query PAIRS (if any)
             if self.overwriteExisting:
                 # try to submit query to PAIRS
@@ -928,7 +1012,7 @@ class PAIRSQuery(object):
                 "Alright, using remotely cached PAIRS query with ID '{}'.".format(self.queryID)
             )
         # case of locally cached PAIRS query ZIP directory
-        elif self.fs.exists(self.zipFilePath):
+        elif locallyCachedZIP:
             logger.info(
                 "Alright, using locally cached PAIRS query ZIP file '{}'.".format(self.zipFilePath)
             )
@@ -1096,16 +1180,23 @@ class PAIRSQuery(object):
 
             # construct path
             self.get_query_dir_name()
-            # note: if the ZIP file path is set already, we deal with the case where
-            # there is a user specified PAIRS query directory, already
-            if self.zipFilePath is None:
-                self.zipFilePath = str(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
 
             # check successful query
             if not self.overwriteExisting:
+                # note: if the ZIP file path is set already, we deal with the case where
+                # there is a user specified PAIRS query directory, already
+                if self.zipFilePath is None:
+                    self.zipFilePath = str(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
+
                 # check if locally set path for downloaded PAIRS query ZIP file exists
                 # to confirm the download
-                self.downloaded = self.fs.exists(self.zipFilePath)
+                self._openDataSource()
+                try:
+                    self.downloaded = self.fs.exists(self.zipFilePath)
+                except:
+                    raise
+                finally:
+                    self._closeDataSource()
             else:
                 try:
                     respJson    = self.queryStatus.json()
@@ -1132,74 +1223,82 @@ class PAIRSQuery(object):
                             )
                             raise
                     # note on streaming into memory
-                    if isinstance(self.fs, fs.memoryfs.MemoryFS):
-                        logger.warning(
-                            'Be aware: As directed, downloading query result directly into memory!'
-                        )
+                    self._openDataSource()
+                    try:
+                        if isinstance(self.fs, fs.memoryfs.MemoryFS):
+                            logger.warning(
+                                'Be aware: As directed, downloading query result into memory!'
+                            )
 
-                    if self.overwriteExisting or not self.fs.isfile(self.zipFilePath):
-                        # stream the query result (ZIP file)
-                        if cosInfo is None:
-                            with self.fs.open(self.zipFilePath, 'wb') as f:
-                                downloadURL = urljoin(
-                                    urljoin(
-                                        self.pairsHost.geturl(),
-                                        self.DOWNLOAD_API_STRING
-                                    ),
-                                    self.queryID
-                                )
-
-                                downloadResponse = requests.get(
-                                    downloadURL,
-                                    auth    = self.auth,
-                                    stream  = True,
-                                    verify  = self.verifySSL,
-                                )
-                                if not downloadResponse.ok:
-                                    self.BadDownloadFile = True
-                                    raise Exception('Sorry, downloading file failed.')
-
-                                for block in downloadResponse.iter_content(1024):
-                                    f.write(block)
-                        # publish query result to COS
-                        elif isinstance(cosInfo, tuple) and len(cosInfo)==2:
-                            try:
-                                resp = requests.post(
-                                    urljoin(
+                        if self.zipFilePath is None:
+                            self.zipFilePath = str(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
+                        if self.overwriteExisting or not self.fs.isfile(self.zipFilePath):
+                            # stream the query result (ZIP file)
+                            if cosInfo is None:
+                                with self.fs.open(self.zipFilePath, 'wb') as f:
+                                    downloadURL = urljoin(
                                         urljoin(
                                             self.pairsHost.geturl(),
-                                            self.COS_UPLOAD_API_STRING
+                                            self.DOWNLOAD_API_STRING
                                         ),
-                                        str(self.queryID)
-                                    ),
-                                    data   = json.dumps(
-                                        {
-                                            'provider': 'ibm',
-                                            'endpoint': self.COS_API_ENDPOINT,
-                                            'bucket':   str(cosInfo[0]),
-                                            'token':    str(cosInfo[1]),
-                                        }
-                                    ),
-                                    headers = {'Content-Type': 'application/json'},
-                                    auth    = self.auth,
-                                    verify  = self.verifySSL,
-                                )
-                                if resp.status_code == 200:
-                                    logger.info('Upload of query result to IBM COS initialized.')
-                                else:
-                                    raise Exception(
-                                        'PAIRS failed publishing query result to COS: {}'.format(resp.text)
+                                        self.queryID
                                     )
-                            except Exception as e:
-                                raise Exception(
-                                        'Sorry, I have trouble getting your query result to Cloud Object storage: {}.'.format(e)
-                                )
+
+                                    downloadResponse = requests.get(
+                                        downloadURL,
+                                        auth    = self.auth,
+                                        stream  = True,
+                                        verify  = self.verifySSL,
+                                    )
+                                    if not downloadResponse.ok:
+                                        self.BadDownloadFile = True
+                                        raise Exception('Sorry, downloading file failed.')
+
+                                    for block in downloadResponse.iter_content(1024):
+                                        f.write(block)
+                            # publish query result to COS
+                            elif isinstance(cosInfo, tuple) and len(cosInfo)==2:
+                                try:
+                                    resp = requests.post(
+                                        urljoin(
+                                            urljoin(
+                                                self.pairsHost.geturl(),
+                                                self.COS_UPLOAD_API_STRING
+                                            ),
+                                            str(self.queryID)
+                                        ),
+                                        data   = json.dumps(
+                                            {
+                                                'provider': 'ibm',
+                                                'endpoint': self.COS_API_ENDPOINT,
+                                                'bucket':   str(cosInfo[0]),
+                                                'token':    str(cosInfo[1]),
+                                            }
+                                        ),
+                                        headers = {'Content-Type': 'application/json'},
+                                        auth    = self.auth,
+                                        verify  = self.verifySSL,
+                                    )
+                                    if resp.status_code == 200:
+                                        logger.info('Upload of query result to IBM COS initialized.')
+                                    else:
+                                        raise Exception(
+                                            'PAIRS failed publishing query result to COS: {}'.format(resp.text)
+                                        )
+                                except Exception as e:
+                                    raise Exception(
+                                            'Sorry, I have trouble getting your query result to Cloud Object storage: {}.'.format(e)
+                                    )
+                            else:
+                                msg = u'Sorry, I do not know what to do based on the `cosInfo` you provided.'
+                                logger.error(msg)
+                                raise Exception(msg)
                         else:
-                            msg = u'Sorry, I do not know what to do based on the `cosInfo` you provided.'
-                            logger.error(msg)
-                            raise Exception(msg)
-                    else:
-                        logger.error('Aborted download: Zip file already present and overwriteExisting set to False')
+                            logger.error('Aborted download: Zip file already present and overwriteExisting set to False')
+                    except:
+                        raise
+                    finally:
+                        self._closeDataSource()
                 else:
                     if PAIRS_QUERY_ERR_STAT_REG_EX.match(str(statusCode)):
                         msg = "I am sorry, IBM PAIRS query failed, status code: '{}' ({})".format(statusCode, statusMsg)
@@ -1214,9 +1313,8 @@ class PAIRSQuery(object):
 
             # test if downloaded ZIP file is readable
             try:
-                self._queryStream   = self.fs.open(self.zipFilePath, 'rb')
-                self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
-                self.queryFS.listdir(u'')
+                self._closeDataSource()
+                self._openDataSource()
             except Exception as e:
                 # flag BadZipfile exception
                 self.BadDownloadFile = True
@@ -1226,6 +1324,8 @@ class PAIRSQuery(object):
                 logger.info(
                     "Here we go, PAIRS query result successfully downloaded as '{}'.".format(self.zipFilePath)
                 )
+            finally:
+                self._closeDataSource()
 
             # try to read data acknowledgement
             try:
@@ -1236,7 +1336,6 @@ class PAIRSQuery(object):
             # silently try to list the rasters and vectors
             try:
                 self.list_layers()
-                pass
             except Exception as e:
                 logger.warning("Ah, implicitly running `list_layers()` did not work out: '{}'".format(e))
 
@@ -1536,64 +1635,70 @@ class PAIRSQuery(object):
         if (self.metadata is None or refresh) and (
             self.queryStatus is not self.querySubmit if self.queryStatus is not None else True
         ):
-            # check if required main meta data info exists
-            if pairsMetaInfoPath not in self.queryFS.listdir(u''):
-                msg = "No PAIRS meta data file '{}' found".format(
-                    os.path.basename(pairsMetaInfoPath)
-                )
+            self._openDataSource()
+            try:
+                # check if required main meta data info exists
+                if pairsMetaInfoPath not in self.queryFS.listdir(u''):
+                    msg = "No PAIRS meta data file '{}' found".format(
+                        os.path.basename(pairsMetaInfoPath)
+                    )
+                    # ATTENTION: temporarily allow missing `output.info` for pure vector data
+                    if PAIRS_VECTOR_CSV_FILE_NAME in self.queryFS.listdir(u''):
+                        logger.warning(msg)
+                    else:
+                        logger.error(msg)
+                        raise Exception(msg)
                 # ATTENTION: temporarily allow missing `output.info` for pure vector data
-                if PAIRS_VECTOR_CSV_FILE_NAME in self.queryFS.listdir(u''):
-                    logger.warning(msg)
-                else:
-                    logger.error(msg)
-                    raise Exception(msg)
-            # ATTENTION: temporarily allow missing `output.info` for pure vector data
-            if pairsMetaInfoPath in self.queryFS.listdir(u''):
-                with self.queryFS.open(pairsMetaInfoPath, 'rb') as j:
-                    outputJson = json.load(codecs.getreader('utf-8')(j))
-                # format meta data as dictionary with key the file name (without extension)
-                # ATTENTION: temporary hack for file name and name mismatch
-                self.metadata = {
-                    fileDict['name'].replace(':', '_'): {
-                         k: v for k, v in fileDict.items() if k != 'name'
+                if pairsMetaInfoPath in self.queryFS.listdir(u''):
+                    with self.queryFS.open(pairsMetaInfoPath, 'rb') as j:
+                        outputJson = json.load(codecs.getreader('utf-8')(j))
+                    # format meta data as dictionary with key the file name (without extension)
+                    # ATTENTION: temporary hack for file name and name mismatch
+                    self.metadata = {
+                        fileDict['name'].replace(':', '_'): {
+                             k: v for k, v in fileDict.items() if k != 'name'
+                        }
+                        for fileDict in outputJson['files']
                     }
-                    for fileDict in outputJson['files']
-                }
-                logger.info(
-                    "PAIRS meta data loaded from '{}'.".format(os.path.basename(pairsMetaInfoPath))
-                )
-            else:
-                self.metadata = {}
-                logger.info("Initializing empty meta data dictionary.")
-            # load (optional) detailed layer information (based on the existence of
-            # a file with same name plus PAIRS file name extension for JSON files)
-            for fileName, metaData in self.metadata.items():
-                metaPath = fileName + (
-                    defaultExtension if 'layerType' not in metaData \
-                    else self.RASTER_FILE_EXTENSION if metaData['layerType'] == PAIRS_RASTER_QUERY_NAME \
-                    else self.VECTOR_FILE_EXTENSION if metaData['layerType'] == PAIRS_VECTOR_QUERY_NAME \
-                    else u''
-                ) + PAIRS_JSON_FILE_EXTENSION
-                if metaPath in self.queryFS.listdir(u''):
-                    try:
-                        with self.queryFS.open(metaPath, 'rb') as j:
-                            metaData.update(
-                                {
-                                    'details': json.load(codecs.getreader('utf-8')(j))
-                                }
+                    logger.info(
+                        "PAIRS meta data loaded from '{}'.".format(os.path.basename(pairsMetaInfoPath))
+                    )
+                else:
+                    self.metadata = {}
+                    logger.info("Initializing empty meta data dictionary.")
+                # load (optional) detailed layer information (based on the existence of
+                # a file with same name plus PAIRS file name extension for JSON files)
+                for fileName, metaData in self.metadata.items():
+                    metaPath = fileName + (
+                        defaultExtension if 'layerType' not in metaData \
+                        else self.RASTER_FILE_EXTENSION if metaData['layerType'] == PAIRS_RASTER_QUERY_NAME \
+                        else self.VECTOR_FILE_EXTENSION if metaData['layerType'] == PAIRS_VECTOR_QUERY_NAME \
+                        else u''
+                    ) + PAIRS_JSON_FILE_EXTENSION
+                    if metaPath in self.queryFS.listdir(u''):
+                        try:
+                            with self.queryFS.open(metaPath, 'rb') as j:
+                                metaData.update(
+                                    {
+                                        'details': json.load(codecs.getreader('utf-8')(j))
+                                    }
+                                )
+                            logger.debug(
+                                "Detailed meta information for data file name '{}' loaded.".format(metaPath)
                             )
-                        logger.debug(
-                            "Detailed meta information for data file name '{}' loaded.".format(metaPath)
-                        )
-                    except Exception as e:
-                        logger.debug(
-                            "Unable to read detailed meta information for file '{}': {}.".format(metaPath, e)
-                        )
-            # note: special treatment of default vector data file name
-            if PAIRS_VECTOR_CSV_FILE_NAME in self.queryFS.listdir(u''):
-                self.metadata[os.path.splitext(PAIRS_VECTOR_CSV_FILE_NAME)[0]] = {
-                    'layerType': 'vector',
-                }
+                        except Exception as e:
+                            logger.debug(
+                                "Unable to read detailed meta information for file '{}': {}.".format(metaPath, e)
+                            )
+                # note: special treatment of default vector data file name
+                if PAIRS_VECTOR_CSV_FILE_NAME in self.queryFS.listdir(u''):
+                    self.metadata[os.path.splitext(PAIRS_VECTOR_CSV_FILE_NAME)[0]] = {
+                        'layerType': 'vector',
+                    }
+            except:
+                raise
+            finally:
+                self._closeDataSource()
 
     def create_layer(self, fileName, layerMeta, defaultExtension=u''):
         """
@@ -1633,6 +1738,7 @@ class PAIRSQuery(object):
                 # binary file streams, thus one needs to inefficiently write back
                 # to local temporary file to get a physical file name one can and over
                 # with a file name string
+                self._openDataSource()
                 try:
                     # extract data to temporary file from ZIP
                     # note: it looks like having the delete option causes issues on Windows machines
@@ -1650,7 +1756,10 @@ class PAIRSQuery(object):
                     logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using GDAL: {}".format(fileName, self.zipFilePath, e)
                     )
+                finally:
+                    self._closeDataSource()
             else:
+                self._openDataSource()
                 try:
                     logger.warning(
                         "GDAL is not available for proper GeoTiff loading, default to standard PIL module to load raster data."
@@ -1677,6 +1786,8 @@ class PAIRSQuery(object):
                     logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using PIL: {}".format(fileName, self.zipFilePath, e)
                     )
+                finally:
+                    self._closeDataSource()
             # mask no-data value
             a[a==numpy.float(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
             # assign loaded data to object's data dictionary
@@ -1684,6 +1795,7 @@ class PAIRSQuery(object):
         # load vector data (note: CSV file format assumed)
         elif layerMeta['layerType'] == PAIRS_VECTOR_QUERY_NAME \
             or PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
+            self._openDataSource()
             try:
                 with self.queryFS.open(layerDataPath, 'rb') as f:
                     # spatial aggregation vector data
@@ -1740,6 +1852,8 @@ class PAIRSQuery(object):
                 logger.error(
                     "Unable to load '{}' from '{}' into Pandas dataframe: {}".format(layerDataPath, self.zipFilePath, e)
                 )
+            finally:
+                self._closeDataSource()
         else:
             msg = "Sorry, I do not know how to load PAIRS query data of type '{}'".format(layerMeta['layerType'])
             logger.error(msg)
