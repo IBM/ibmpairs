@@ -213,6 +213,7 @@ else:
         logging.Formatter('%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]'),
     )
     logger.addHandler(handler)
+print("Log level set to: '{}'".format(logging.getLevelName(logger.getEffectiveLevel())))
 #}}}
 
 # fold: misc functions {{{
@@ -593,15 +594,20 @@ class PAIRSQuery(object):
         """
         Wrapper function to properly open the data source associated with query.
 
-        *note*: Designed to be immutable. Use `self._closeDataSource()` to open
-        the data source from scratch. `KEEP_QUERY_SOURCE_DIR_OPEN` lets the function
-        skip any operation.
+        *notes*:
+            - Designed to be immutable. Use `self._closeDataSource()` to open the
+              data source from scratch.
+            - `KEEP_QUERY_SOURCE_DIR_OPEN` lets the function skip any operation
+              except for when it is forced.
 
         :param force:   enforce to open data source, independent of global settings
         :type force:    bool
+        :returns:       function actually attached and/or opened the data source
+        :rtype:         bool
         """
         if not KEEP_QUERY_SOURCE_DIR_OPEN or force:
-            logger.debug("Attempt to open data source ...")
+            if force: logger.debug("Enforcing data source to open.")
+            hasOpened=False
             if self.fs is None or self.fs.isclosed():
                 try:
                     if self.inMemory:
@@ -609,8 +615,11 @@ class PAIRSQuery(object):
                         self.fs = fs.open_fs(u'mem://')
                         # ignore user set download directory
                         self.downloadDir=u''
+                        logger.debug("Attached to virtual, volatile memory.")
                     else:
                         self.fs = fs.open_fs(self.downloadDir)
+                        logger.debug("Attached to directory '{}'".format(self.downloadDir))
+                    hasOpened = True
                 except Exception as e:
                     raise Exception(
                         "Unable to initialize download directory '{}': {}".format(self.downloadDir, e)
@@ -634,8 +643,10 @@ class PAIRSQuery(object):
                                 pass
                         # open file system
                         self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
+                        logger.debug("Opened data source '{}'".format(self.zipFilePath))
                     # test file system by listing contents
                     self.queryFS.listdir(u'')
+                    hasOpened = True
                 except Exception as e:
                     raise Exception('Hm, cannot load data from ZIP file: {}'.format(e))
                 # flags prominently that query data is downloaded and available as files to be loaded
@@ -643,21 +654,30 @@ class PAIRSQuery(object):
             else:
                 # flag data is not downloaded, yet
                 if force: self.downloaded = False
-            logger.debug("Open data source succeeded.")
+
+            if not hasOpened: logger.debug("Left data source open status untouched.")
+
+            return hasOpened
+        else:
+            return False
 
     def _closeDataSource(self, force=False):
         """
         Wrapper function to properly close the data source associated with query.
 
-        *note*: After the call all file system descriptors are certainly detached
-        from the query object except for the case where the global variable
-        `KEEP_QUERY_SOURCE_DIR_OPEN` makes this function just skip any action.
+        After the call all file system descriptors are certainly detached from the
+        query object, except for the cases where
+            - the global variable `KEEP_QUERY_SOURCE_DIR_OPEN=True`
+            - the data source resides in (volatile) memory
+
+        Regardless, the `force=True` option can explicitly enforce the close.
 
         :param force:   enforce to close data source, independent of global settings
         :type force:    bool
+        :returns:       function performed closing
+        :rtype:         bool
         """
-        if (not KEEP_QUERY_SOURCE_DIR_OPEN and not self.inMemory) or force:
-            logger.debug("Closing data source.")
+        if not (KEEP_QUERY_SOURCE_DIR_OPEN or self.inMemory) or force:
             try:
                 self.queryFS.close()
             except:
@@ -676,6 +696,12 @@ class PAIRSQuery(object):
                 pass
             finally:
                 self.fs = None
+            logger.debug("Data source closed{}.".format(' (enforced)' if force else ''))
+            return True
+        else:
+            logger.debug("Skipped closing data source.")
+            return False
+
 
     def get_query_JSON(self, queryID, reloadData=False):
         """
