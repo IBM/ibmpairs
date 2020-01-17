@@ -145,12 +145,14 @@ PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS   = (u'fl', u'db')
 # PAIRS API wrapper specific setttings
 PAW_QUERY_NAME_SEPARATOR            = '_'
 KEEP_QUERY_SOURCE_DIR_OPEN          = False
+CONFIGURE_LOGGING                   = False
 # load parameters from the command line
 PAW_LOG_LEVEL                       = logging.DEBUG #logging.INFO
 LOG_LEVEL_ENV                       = u''
 PAW_ENV_BASE_NAME                   = u'PAW'
 ENVIRONMENT_VARIABLES               = (
     u'LOG_LEVEL_ENV',
+    u'CONFIGURE_LOGGING',
     u'PAIRS_DEFAULT_SERVER',
     u'PAIRS_DEFAULT_PROTOCOL',
     u'PAIRS_DEFAULT_BASE_URI',
@@ -188,33 +190,37 @@ def load_environment_variables():
         PAW_LOG_LEVEL = logging.ERROR
     elif LOG_LEVEL_ENV == u"CRITICAL":
         PAW_LOG_LEVEL = logging.CRITICAL
+    global CONFIGURE_LOGGING
+    if isinstance(CONFIGURE_LOGGING, str):
+        CONFIGURE_LOGGING = CONFIGURE_LOGGING.lower()=='true'
 load_environment_variables()
 # }}}
 # fold: settings#{{{
 ## get (global) logger
 logger = logging.getLogger(__name__)
 ## set log level
-if HAS_COLOREDLOGS:
-    coloredlogs.install(
-        level       = PAW_LOG_LEVEL,
-        fmt='%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]',
-        level_styles= {
-            'info':     {'color': 'green'},
-            'warning':  {'color': 'yellow'},
-            'error':    {'color': 'red'},
-            'critical': {'color': 'red', 'bold': True},
-        },
-        stream      = sys.stdout,
-        logger      = logger,
-    )
-else:
-    logger.setLevel(PAW_LOG_LEVEL)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(
-        logging.Formatter('%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]'),
-    )
-    logger.addHandler(handler)
-print("Log level set to: '{}'".format(logging.getLevelName(logger.getEffectiveLevel())))
+if CONFIGURE_LOGGING:
+    if HAS_COLOREDLOGS:
+        coloredlogs.install(
+            level       = PAW_LOG_LEVEL,
+            fmt='%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]',
+            level_styles= {
+                'info':     {'color': 'green'},
+                'warning':  {'color': 'yellow'},
+                'error':    {'color': 'red'},
+                'critical': {'color': 'red', 'bold': True},
+            },
+            stream      = sys.stdout,
+            logger      = logger,
+        )
+    else:
+        logger.setLevel(PAW_LOG_LEVEL)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(
+            logging.Formatter('%(levelname)s - %(asctime)s: "%(message)s" [%(funcName)s]'),
+        )
+        logger.addHandler(handler)
+    logging.debug("Log level set to: '{}'".format(logging.getLevelName(logger.getEffectiveLevel())))
 #}}}
 
 # fold: misc functions {{{
@@ -332,23 +338,13 @@ class PAIRSQuery(object):
 
     def __init__(
         self, query,
-        pairsHost               = '{}://{}'.format(
-            PAIRS_DEFAULT_PROTOCOL,
-            PAIRS_DEFAULT_SERVER,
-        ),
-        auth                    = (
-            PAIRS_DEFAULT_USER,
-            get_pairs_api_password(
-                server  = PAIRS_DEFAULT_SERVER,
-                user    = PAIRS_DEFAULT_USER,
-                passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
-            )
-        ),
+        pairsHost               = None,
+        auth                    = None,
         port                    = None,
         overwriteExisting       = True,
         deleteDownload          = False,
         downloadDir             = DOWNLOAD_DIR,
-        baseURI                 = PAIRS_DEFAULT_BASE_URI,
+        baseURI                 = None,
         verifySSL               = True,
         vectorFormat            = None,
         inMemory                = False,
@@ -392,6 +388,7 @@ class PAIRSQuery(object):
                                     if the query defintion is not understood
                                     if a manually set PAIRS query ZIP directory does not exist
         """
+        # get default credentials
         # check and set port for IBM PAIRS core API server
         if port is not None:
             if isinstance(port, int) and port > 0 and port < 65536:
@@ -402,6 +399,10 @@ class PAIRSQuery(object):
         else:
             self.pairsPort                  = None
         # parse host URL serving PAIRS API to connect to
+        if pairsHost is None: pairsHost = '{}://{}'.format(
+            PAIRS_DEFAULT_PROTOCOL,
+            PAIRS_DEFAULT_SERVER,
+        )
         self.pairsHost                  = urlparse(
             u'' if pairsHost is None else pairsHost
         )
@@ -424,6 +425,7 @@ class PAIRSQuery(object):
                 )
 
         # make sure the baseURI has trailing and leading slash
+        if baseURI is None: baseURI = PAIRS_DEFAULT_BASE_URI
         baseURIBeforeMerge = self.pairsHost.path
         if len(baseURI)>0:
             if baseURI[-1]!='/':    baseURI = baseURI+'/'
@@ -445,7 +447,14 @@ class PAIRSQuery(object):
         # use SSL verification
         self.verifySSL                  = verifySSL
         # PAIRS API authentication
-        self.auth                       = auth
+        self.auth                       = (
+            PAIRS_DEFAULT_USER,
+            get_pairs_api_password(
+                server  = PAIRS_DEFAULT_SERVER,
+                user    = PAIRS_DEFAULT_USER,
+                passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
+            )
+        ) if auth is None else auth
 
         # set base URI
         self.baseURI                    = self.pairsHost.path
@@ -766,7 +775,7 @@ class PAIRSQuery(object):
         cls, queryDir,
         pairsHost    = None,
         queryID      = None,
-        baseURI      = PAIRS_DEFAULT_BASE_URI,
+        baseURI      = None,
     ):
         """
         Generates a PAIRS query object from a native PAIRS query directory.
@@ -784,6 +793,7 @@ class PAIRSQuery(object):
         :returns:               PAIRS API wrapper query object
         :rtype:                 api_wrapper.PAIRSQuery
         """
+        if baseURI is None: baseURI = PAIRS_DEFAULT_BASE_URI
         clsInstance = cls(
             query               = None,
             pairsHost           = pairsHost,
