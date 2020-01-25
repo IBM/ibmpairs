@@ -64,6 +64,7 @@ else:
 # define global test parameters
 TEST_DATA_DIR               = 'tests/data'
 PAIRS_SERVER                = 'pairs.res.ibm.com'
+PAIRS_PORT                  = None
 PAIRS_BASE_URI              = '/'
 QUERY_ENDPOINT              = 'v2/query'
 STATUS_ENDPOINT             = 'v2/queryjobs/'
@@ -85,6 +86,7 @@ for var in (
     'PAIRS_SERVER',
     'PAIRS_BASE_URI',
     'PAIRS_USER',
+    'PAIRS_PORT',
     'PAIRS_PASSWORD_FILE_NAME',
 ):
     if 'PAW_TESTS_'+var in os.environ:
@@ -99,7 +101,11 @@ if isinstance(VERIFY_SSL, string_type):
 if isinstance(USE_SSL, string_type):
     USE_SSL         = USE_SSL.lower()       == 'true'
 # set protocol
-WEB_PROTOCOL            = 'https' if USE_SSL else 'http'
+WEB_PROTOCOL        = 'https' if USE_SSL else 'http'
+try:
+    PAIRS_PORT      = int(PAIRS_PORT)
+except:
+    pass
 # set credentials
 if os.path.exists(os.path.expanduser(PAIRS_PASSWORD_FILE_NAME)):
     try:
@@ -230,6 +236,7 @@ class TestPointQuery(unittest.TestCase):
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port        = PAIRS_PORT,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI[:-1] \
                 if len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' else PAIRS_BASE_URI,
@@ -299,6 +306,7 @@ class TestPointQuery(unittest.TestCase):
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR, 'point-data-sample-request-vector.json'), 'r')),
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port        = PAIRS_PORT,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
             verifySSL   = VERIFY_SSL,
@@ -387,6 +395,7 @@ class TestPointQuery(unittest.TestCase):
         testPointQueryRasterMock = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port        = PAIRS_PORT,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
             verifySSL   = VERIFY_SSL,
@@ -395,6 +404,7 @@ class TestPointQuery(unittest.TestCase):
         testPointQueryVectorMock = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'))),
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port        = PAIRS_PORT,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
             verifySSL   = VERIFY_SSL,
@@ -426,6 +436,7 @@ class TestPointQuery(unittest.TestCase):
         testPointQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port        = PAIRS_PORT,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
             verifySSL   = VERIFY_SSL,
@@ -711,6 +722,7 @@ class TestPollQuery(unittest.TestCase):
         testRasterQuery = paw.PAIRSQuery(
             queryDef,
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port                = PAIRS_PORT,
             auth                = PAIRS_CREDENTIALS,
             baseURI             = PAIRS_BASE_URI[:-1] \
                 if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
@@ -929,6 +941,7 @@ class TestPollQuery(unittest.TestCase):
         testVectorQuery = paw.PAIRSQuery(
             queryDef,
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port                = PAIRS_PORT,
             auth                = PAIRS_CREDENTIALS,
             baseURI             = PAIRS_BASE_URI[:-1] \
                 if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
@@ -1261,6 +1274,7 @@ class TestPollQuery(unittest.TestCase):
         testMockQuery = paw.PAIRSQuery(
             json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
             WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port        = PAIRS_PORT,
             auth        = PAIRS_CREDENTIALS,
             baseURI     = PAIRS_BASE_URI,
             verifySSL   = VERIFY_SSL,
