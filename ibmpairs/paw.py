@@ -124,6 +124,8 @@ PAIRS_ZIP_FILE_EXTENSION            = u'.zip'
 PAIRS_JSON_SPAT_AGG_KEY             = u'spatialAggregation'
 ## define PAIRS's georeference system
 PAIRS_GEOREFERENCE_SYSTEM_NAME      = u'EPSG:4326'
+## default PAIRS no-data value
+PAIRS_DEFAULT_NODATA_VALUE          = -9999.
 # characters that split the property string of PAIRS vector data
 PROPERTY_STRING_SPLIT_CHAR1         = u';'
 PROPERTY_STRING_SPLIT_CHAR2         = u':'
@@ -1814,9 +1816,15 @@ class PAIRSQuery(object):
                         # load temporary file with PIL into NumPy array
                         with open(tf.name, 'rb') as f:
                             im = PIL.Image.open(f)
-                            if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
-                                im.mode=u'I'
-                            elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
+                            if 'details' in layerMeta and 'pixelType' in layerMeta['details']:
+                                if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
+                                    im.mode=u'I'
+                                elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
+                                    im.mode=u'F'
+                            else:
+                                logger.warning(
+                                    "No pixel data type identified from query meta data, default to 4 bytes floating point numbers."
+                                )
                                 im.mode=u'F'
                             a = numpy.array(im).astype(numpy.float)
                 except Exception as e:
@@ -1826,7 +1834,13 @@ class PAIRSQuery(object):
                 finally:
                     self._closeDataSource()
             # mask no-data value
-            a[a==numpy.float(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
+            if 'details' in layerMeta and 'pixelNoDataVal' in layerMeta['details']:
+                a[a==numpy.float(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
+            else:
+                logger.warning(
+                        "Unable to identify pixel no-data value, using default '{}'.".format(PAIRS_DEFAULT_NODATA_VALUE)
+                )
+                a[a==numpy.float(PAIRS_DEFAULT_NODATA_VALUE)] = numpy.nan
             # assign loaded data to object's data dictionary
             self.data[fileName] = a
         # load vector data (note: CSV file format assumed)
