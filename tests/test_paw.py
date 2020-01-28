@@ -376,13 +376,25 @@ class TestPointQuery(unittest.TestCase):
                 'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
             )
         testRealRasterResponse = requests.post(
-            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            '{protocol}://{server}{port}{base}{endpoint}'.format(
+                protocol    = WEB_PROTOCOL,
+                server      = PAIRS_SERVER,
+                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                base        = PAIRS_BASE_URI,
+                endpoint    = QUERY_ENDPOINT,
+            ),
             json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'r')),
             auth    = PAIRS_CREDENTIALS,
             verify  = VERIFY_SSL,
         )
         testRealVectorResponse = requests.post(
-            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            '{protocol}://{server}{port}{base}{endpoint}'.format(
+                protocol    = WEB_PROTOCOL,
+                server      = PAIRS_SERVER,
+                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                base        = PAIRS_BASE_URI,
+                endpoint    = QUERY_ENDPOINT,
+            ),
             json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'), 'r')),
             auth    = PAIRS_CREDENTIALS,
             verify  = VERIFY_SSL,
@@ -1220,7 +1232,13 @@ class TestPollQuery(unittest.TestCase):
         # check query submit
         logging.info("TEST: Perform query to real PAIRS server.")
         subResp = requests.post(
-            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
+            '{protocol}://{server}{port}{base}{endpoint}'.format(
+                protocol    = WEB_PROTOCOL,
+                server      = PAIRS_SERVER,
+                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                base        = PAIRS_BASE_URI,
+                endpoint    = QUERY_ENDPOINT,
+            ),
             json    = json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
             auth    = PAIRS_CREDENTIALS,
             verify  = VERIFY_SSL,
@@ -1238,7 +1256,13 @@ class TestPollQuery(unittest.TestCase):
         # check query poll
         while True:
             statResp = requests.get(
-                WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+STATUS_ENDPOINT+subResp['id'],
+                '{protocol}://{server}{port}{base}{endpoint}'.format(
+                    protocol    = WEB_PROTOCOL,
+                    server      = PAIRS_SERVER,
+                    port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    base        = PAIRS_BASE_URI,
+                    endpoint    = STATUS_ENDPOINT+subResp['id'],
+                ),
                 auth    = PAIRS_CREDENTIALS,
                 verify  = VERIFY_SSL,
             )
@@ -1254,7 +1278,13 @@ class TestPollQuery(unittest.TestCase):
                 break
         # check query result
         downloadResp = requests.get(
-            WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+DOWNLOAD_ENDPOINT+subResp['id'],
+            '{protocol}://{server}{port}{base}{endpoint}'.format(
+                protocol    = WEB_PROTOCOL,
+                server      = PAIRS_SERVER,
+                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                base        = PAIRS_BASE_URI,
+                endpoint    = DOWNLOAD_ENDPOINT+subResp['id'],
+            ),
             auth    = PAIRS_CREDENTIALS,
             stream  = True,
             verify  = VERIFY_SSL,
