@@ -1269,7 +1269,7 @@ class TestPollQuery(unittest.TestCase):
             self.assertEqual(200, statResp.status_code)
             statResp = statResp.json()
             # check returned stati to exist and be of correct format
-            assert set(['id', 'rtStatus', 'statusCode']) <= set(statResp.keys())
+            assert set(['id', 'status', 'statusCode']) <= set(statResp.keys())
             self.assertIsInstance(
                 statResp['statusCode'],
                 int
