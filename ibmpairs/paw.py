@@ -1783,14 +1783,23 @@ class PAIRSQuery(object):
                     # note: it looks like having the delete option causes issues on Windows machines
                     # therefore we extract to the standard temporary directory and hope for the OS
                     # to clean up, and that sufficient disk space is provided in the temporary directory
+                    tempFilePath = None
                     with tempfile.NamedTemporaryFile('wb', delete=False,) as tf: #dir=self.downloadDir)
                         with self.queryFS.open(layerDataPath, 'rb') as zf:
                             tf.write(zf.read())
                         tf.flush()
+                        # record path of temporary file
+                        tempFilePath = tf.name
                         # directly read from data path
                         ds = gdal.Open(tf.name)
                         a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float)
                         ds = None
+                    # try to expliticly remove the temporary file used to load the data
+                    if tempFilePath is not None:
+                        try:
+                            os.remove(tempFilePath)
+                        except:
+                            pass
                 except Exception as e:
                     logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using GDAL: {}".format(fileName, self.zipFilePath, e)
@@ -1808,6 +1817,7 @@ class PAIRSQuery(object):
                     # reading the multi-wrapped virtual file handler with PIL.Image.open()
                     # is extremely slow
                     # TODO: explore more elegant options (problem with stream-buffer size?)
+                    tempFilePath = None
                     with tempfile.NamedTemporaryFile('wb', delete=False,) as tf:
                         # write raster data/image to temporary file
                         with self.queryFS.open(layerDataPath, 'rb') as zf:
@@ -1827,6 +1837,12 @@ class PAIRSQuery(object):
                                 )
                                 im.mode=u'F'
                             a = numpy.array(im).astype(numpy.float)
+                    # try to expliticly remove the temporary file used to load the data
+                    if tempFilePath is not None:
+                        try:
+                            os.remove(tempFilePath)
+                        except:
+                            pass
                 except Exception as e:
                     logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using PIL: {}".format(fileName, self.zipFilePath, e)
