@@ -64,7 +64,7 @@ class PAIRSProject(object):
     <downloads/> (typically the value of `downloadDir`). Then the following builds an index of what is in that
     directory:
     
-        from glob imoprt glob
+        from glob import glob
         
         zippedQueries = glob('downloads/*.zip')
         queries = [paw.PAIRSQuery(z) for z in zippedQueries]
