@@ -101,6 +101,7 @@ PAIRS_DEFAULT_BASE_URI              = u'/'
 PAIRS_DEFAULT_USER                  = None
 PAIRS_DEFAULT_PUBLISH_2_GUI         = False
 PAIRS_DEFAULT_GUI_URL               = u'https://ibmpairs-mvp2-api.mybluemix.net/'
+PAIRS_DEFAULT_GUI_TOKEN             = None
 ## PAIRS vector query (Geo)JSON output format names
 PAIRS_VECTOR_JSON_TYPE_NAME         = u'json'
 PAIRS_VECTOR_GEOJSON_TYPE_NAME      = u'geojson'
@@ -164,6 +165,7 @@ ENVIRONMENT_VARIABLES               = (
     u'PAIRS_DEFAULT_PASSWORD_FILE_NAME',
     u'PAIRS_DEFAULT_PUBLISH_2_GUI',
     u'PAIRS_DEFAULT_GUI_URL',
+    u'PAIRS_DEFAULT_GUI_TOKEN',
 )
 def load_environment_variables():
     """
@@ -480,9 +482,9 @@ class PAIRSQuery(object):
         ) if auth is None else auth
 
         # set PAIRS GUI info for publishing query result
-        if guiURL is not None and len(guiURL)>0:
-            if guiURL[-1]!='/':    guiURL = guiURL+'/'
         self.guiURL         = guiURL if guiURL is not None else PAIRS_DEFAULT_GUI_URL
+        if self.guiURL is not None and len(self.guiURL)>0:
+            if self.guiURL[-1]!='/': self.guiURL = self.guiURL+'/'
         if self.guiURL is not None:
             self.publish2GUI    = publish2GUI if publish2GUI is not None else PAIRS_DEFAULT_PUBLISH_2_GUI
         else:
@@ -491,24 +493,27 @@ class PAIRSQuery(object):
         self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
         # get PAIRS GUI token (for publishing PAIRS query result)
         if self.publish2GUI:
-            try:
-                self.guiToken = requests.post(
-                    urljoin(self.guiURL, self.LOGIN_2_GUI),
-                    json    = {
-                        'email':    self.auth[0],
-                        'password': self.guiPassword,
-                    },
-                    headers = {
-                        'Content-Type': 'application/json',
-                        'Referer': 'http://localhost:80',
-                    },
-                    verify  = self.verifySSL,
-                ).json()['token']
-            except Exception as e:
-                self.publish2GUI = False
-                logger.warning(
-                        "Ah, cannot get token for PAIRS GUI (publish query result disabled): {}".format(e)
-                )
+            if PAIRS_DEFAULT_GUI_TOKEN is None:
+                try:
+                    self.guiToken = requests.post(
+                        urljoin(self.guiURL, self.LOGIN_2_GUI),
+                        json    = {
+                            'email':    self.auth[0],
+                            'password': self.guiPassword,
+                        },
+                        headers = {
+                            'Content-Type': 'application/json',
+                            'Referer': 'http://localhost:80',
+                        },
+                        verify  = self.verifySSL,
+                    ).json()['token']
+                except Exception as e:
+                    self.publish2GUI = False
+                    logger.warning(
+                            "Ah, cannot get token for PAIRS GUI (publish query result disabled): {}".format(e)
+                    )
+            else:
+                self.guiToken = PAIRS_DEFAULT_GUI_TOKEN
 
         # set base URI
         self.baseURI                    = self.pairsHost.path
@@ -1262,7 +1267,9 @@ class PAIRSQuery(object):
                     )
                     if resp.status_code!=200:
                         logger.warning(
-                            "Unfortunate, I could not publish your query result to the PAIRS GUI using '{}': {}".format(self.guiURL, resp.text)
+                            "Unfortunate, I could not publish your query result to the PAIRS GUI using '{}' got return code '{}': {}".format(
+                                self.guiURL, resp.status_code, resp.text,
+                            )
                         )
                     else:
                         logger.info(
