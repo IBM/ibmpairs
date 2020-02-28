@@ -16,7 +16,7 @@ __copyright__   = "(c) 2017-2020, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "January 2020"
+__date__        = "February 2020"
 
 # fold: imports{{{
 # basic imports
@@ -99,6 +99,8 @@ PAIRS_DEFAULT_SERVER                = u'pairs.res.ibm.com'
 PAIRS_DEFAULT_PROTOCOL              = u'https'
 PAIRS_DEFAULT_BASE_URI              = u'/'
 PAIRS_DEFAULT_USER                  = None
+PAIRS_DEFAULT_PUBLISH_2_GUI         = False
+PAIRS_DEFAULT_GUI_URL               = u'https://ibmpairs-mvp2-api.mybluemix.net/'
 ## PAIRS vector query (Geo)JSON output format names
 PAIRS_VECTOR_JSON_TYPE_NAME         = u'json'
 PAIRS_VECTOR_GEOJSON_TYPE_NAME      = u'geojson'
@@ -160,6 +162,8 @@ ENVIRONMENT_VARIABLES               = (
     u'PAIRS_DEFAULT_BASE_URI',
     u'PAIRS_DEFAULT_USER',
     u'PAIRS_DEFAULT_PASSWORD_FILE_NAME',
+    u'PAIRS_DEFAULT_PUBLISH_2_GUI',
+    u'PAIRS_DEFAULT_GUI_URL',
 )
 def load_environment_variables():
     """
@@ -195,6 +199,9 @@ def load_environment_variables():
     global CONFIGURE_LOGGING
     if isinstance(CONFIGURE_LOGGING, str):
         CONFIGURE_LOGGING = CONFIGURE_LOGGING.lower()=='true'
+    global PAIRS_DEFAULT_PUBLISH_2_GUI
+    if isinstance(CONFIGURE_LOGGING, str):
+        PAIRS_DEFAULT_PUBLISH_2_GUI = PAIRS_DEFAULT_PUBLISH_2_GUI.lower()=='true'
 load_environment_variables()
 # }}}
 # fold: settings#{{{
@@ -327,6 +334,8 @@ class PAIRSQuery(object):
     GET_GEOJSON_API_STRING       = u'ws/queryaois/geojson/'
     GET_AOI_INFO_API_STRING      = u'ws/queryaois/aoi/'
     GET_QUERY_INFO               = u'v2/queryhistories/full/queryjob/'
+    LOGIN_2_GUI                  = u'users/login'
+    PUBLISH_QUERY_RESULT_2_GUI   = u'queryjobs/{queryID}/mapcorejob'
     VECTOR_GEOJSON_DIR_IN_ZIP    = u''
     DOWNLOAD_DIR                 = u'./downloads'
     PAIRS_JUPYTER_QUERY_BASE_DIR = u'.'
@@ -350,6 +359,9 @@ class PAIRSQuery(object):
         verifySSL               = True,
         vectorFormat            = None,
         inMemory                = False,
+        guiURL                  = None,
+        publish2GUI             = None,
+        guiPassword             = None,
     ):
         """
         :param query:               dictionary equivalent to PAIRS JSON load that defines a query or
@@ -386,6 +398,15 @@ class PAIRSQuery(object):
         :param inMemory:            triggers storing files directly in memory
                                     note: ignored if query is loaded from existing ZIP file
         :type inMemory:             bool
+        :param guiURL:              URL of PAIRS GUI to be used for publishing query result (if any)
+        :type guiURL:               str
+        :param publish2GUI:         determines whether or not the query result is automatically published
+                                    to the PAIRS GUI
+        :type publish2GUI:          bool
+        :param guiPassword:         password to be used when PAIRS GUI password is different from
+                                    PAIRS API password, note: the user is the same as for the PAIRS API
+                                    (typically the user's e-mail address)
+        :type guiPassword:          str
         :raises Exception:          if an invalid URL was specified
                                     if the query defintion is not understood
                                     if a manually set PAIRS query ZIP directory does not exist
@@ -457,6 +478,37 @@ class PAIRSQuery(object):
                 passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
             )
         ) if auth is None else auth
+
+        # set PAIRS GUI info for publishing query result
+        if guiURL is not None and len(guiURL)>0:
+            if guiURL[-1]!='/':    guiURL = guiURL+'/'
+        self.guiURL         = guiURL if guiURL is not None else PAIRS_DEFAULT_GUI_URL
+        if self.guiURL is not None:
+            self.publish2GUI    = publish2GUI if publish2GUI is not None else PAIRS_DEFAULT_PUBLISH_2_GUI
+        else:
+            self.publish2GUI    = False
+        # set GUI password (default to PAIRS API password)
+        self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
+        # get PAIRS GUI token (for publishing PAIRS query result)
+        if self.publish2GUI:
+            try:
+                self.guiToken = requests.post(
+                    urljoin(self.guiURL, self.LOGIN_2_GUI),
+                    json    = {
+                        'email':    self.auth[0],
+                        'password': self.guiPassword,
+                    },
+                    headers = {
+                        'Content-Type': 'application/json',
+                        'Referer': 'http://localhost:80',
+                    },
+                    verify  = self.verifySSL,
+                ).json()['token']
+            except Exception as e:
+                self.publish2GUI = False
+                logger.warning(
+                        "Ah, cannot get token for PAIRS GUI (publish query result disabled): {}".format(e)
+                )
 
         # set base URI
         self.baseURI                    = self.pairsHost.path
@@ -1131,7 +1183,8 @@ class PAIRSQuery(object):
         timeout     = -1,
     ):
         """
-        Polls the status until not running anymore.
+        Polls the status until not running anymore. If successful the result is
+        published in the PAIRS GUI (given the user specified this on query generation).
 
         :param pollIntSec:      seconds to idle between polls
         :type pollIntSec:       float
@@ -1196,6 +1249,30 @@ class PAIRSQuery(object):
                     time.sleep(
                         pollIntSec if pollIntSec is not None \
                         else PAIRSQuery.STATUS_POLL_INTERVAL_SEC
+                    )
+                # publish PAIRS query result to PAIRS GUI (if any)
+                if self.publish2GUI and hasattr(self, 'guiToken'):
+                    resp = requests.post(
+                        urljoin(
+                            self.guiURL,
+                            self.PUBLISH_QUERY_RESULT_2_GUI.format(queryID=self.queryID),
+                        ),
+                        headers = {'X-Access-Token': self.guiToken},
+                        verify  = self.verifySSL,
+                    )
+                    if resp.status_code!=200:
+                        logger.warning(
+                            "Unfortunate, I could not publish your query result to the PAIRS GUI using '{}': {}".format(self.guiURL, resp.text)
+                        )
+                    else:
+                        logger.info(
+                            "Query with ID '{}' successfully published to PAIRS GUI using '{}'.".format(
+                                self.queryID, self.guiURL,
+                            )
+                        )
+                else:
+                    logger.debug(
+                        "Query won't be published to PAIRS GUI, because either it is not requested by user or there is no GUI API token available (cf. `self.guiToken` and `self.publish2GUI`)."
                     )
             else:
                 raise Exception('Query submit response: ' + str(self.querySubmit.status_code))
