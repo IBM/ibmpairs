@@ -21,6 +21,7 @@ SPDX-License-Identifier: BSD-3-Clause
     - check that apiJSON for v2/queryhistories/full/queryjobs/{ID} is complete
       for aggregation and raster queries, vector queries is empty today
     - check split_property_string_column() from mixed point query (add corresponding JSON)
+    - add test of *publish query to GUI*-feature for `REAL_CONNECT=True`
 """
 
 # fold: imports{{{
