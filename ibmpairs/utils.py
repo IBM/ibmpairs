@@ -3,6 +3,7 @@ IBM PAIRS Utilities: A collection of tools complementing the
 RESTful API wrapper.
 
 Copyright 2020 Physical Analytics, IBM Research. All Rights Reserved.
+
 SPDX-License-Identifier: BSD-3-Clause
 '''
 
@@ -18,63 +19,62 @@ logger = logging.getLogger(__name__)
 
 class PAIRSProject(object):
     '''
-    Utility class to submit a large number of queries to IBM PAIRS. The class leverages ibmpairs.paw.PAIRSQuery
+    Utility class to submit a large number of queries to IBM PAIRS. The class leverages ``ibmpairs.paw.PAIRSQuery``
     and maintains a local queue.
-    
-    Usage:
-        project = PAIRSProject(queryList)
-        project.submitAllQueued()
-    
-    Queries contained in `queryList` can be either query JSONs or `paw.PAIRSQuery` objects. In the latter case,
-    only queries that have previously not been submitted will be submitted when calling `submitAllQueued`. Once
+
+    Usage
+    -----
+    >>> project = PAIRSProject(queryList)
+    >>> project.submitAllQueued()
+
+    Queries contained in ``queryList`` can be either query JSONs or ``paw.PAIRSQuery`` objects. In the latter case,
+    only queries that have previously not been submitted will be submitted when calling ``submitAllQueued``. Once
     queries have completed processing, the downloaded data can be found in the directory indicated by
-    `downloadDir`. (There can be multiple download directories if `queryList` contains `paw.PAIRSQuery` objects.)
-    
+    ``downloadDir``. (There can be multiple download directories if ``queryList`` contains ``paw.PAIRSQuery`` objects.)
+
     While queries are running, the class gives a periodic status update via python's logging module.
-    Note that this happens at the logging.INFO level. A rudimentary setup for this would be as follows:
-    
-        import logging
-        logging.basicConfig(level = <log-level required for your application>)
-        pawLogger = logging.getLogger('ibmpairs.paw')
-        pawLogger.setLevel(logging.ERROR)
-        pairsUtilsLogger = logging.getLogger('ibmpairs.utils')
-        pairsUtilsLogger.setLevel(logging.INFO)
-    
+    Note that this happens at the ``logging.INFO`` level. A rudimentary setup for this would be as follows:
+
+    >>> import logging
+    >>> logging.basicConfig(level = <log-level required for your application>)
+    >>> pawLogger = logging.getLogger('ibmpairs.paw')
+    >>> pawLogger.setLevel(logging.ERROR)
+    >>> pairsUtilsLogger = logging.getLogger('ibmpairs.utils')
+    >>> pairsUtilsLogger.setLevel(logging.INFO)
+
     The class stores queries in 4 queues, accessible as
-        project.queries['queued']
-        project.queries['running']
-        project.queries['completed']
-        project.queries['failed']
-        
-    One can obtain a list of all query JSONs in one particular queue by calling getQueryJSONs('<queue name>').
+
+    >>> project.queries['queued']
+    >>> project.queries['running']
+    >>> project.queries['completed']
+    >>> project.queries['failed']
+
+    One can obtain a list of all query JSONs in one particular queue by calling ``getQueryJSONs('<queue name>')``.
     The following is then feasible:
-    
-        import json
-        with open('completedQueries.json', 'w') as fp:
-            json.dump(completedQueries, fp)
-        
-        # ... some other code ...
-        
-        with open('completedQueries.json', 'r') as fp:
-            recoveredQueries = json.load(fp)
-        newProject = PAIRSProject(recoveredQueries)
-        
-    The properties of the `paw` library make it quite simple to work with completed queries even if the program
-    hosting the `PAIRSProject` object has been terminated. Assume the data of completed queries is stored in
-    <downloads/> (typically the value of `downloadDir`). Then the following builds an index of what is in that
+
+    >>> import json
+    >>> with open('completedQueries.json', 'w') as fp:
+    >>>     json.dump(completedQueries, fp)
+    >>> # ... some other code ...
+    >>> with open('completedQueries.json', 'r') as fp:
+    >>>     recoveredQueries = json.load(fp)
+    >>> newProject = PAIRSProject(recoveredQueries)
+
+    The properties of the ``paw`` library make it quite simple to work with completed queries even if the program
+    hosting the ``PAIRSProject`` object has been terminated. Assume the data of completed queries is stored in
+    ``<downloads/>`` (typically the value of ``downloadDir``). Then the following builds an index of what is in that
     directory:
-    
-        from glob import glob
-        
-        zippedQueries = glob('downloads/*.zip')
-        queries = [paw.PAIRSQuery(z) for z in zippedQueries]
-        for q in queries:
-            q.list_layers()
-            
-    Crucially, the `list_layers` function here, parses the contents of a query without loading
-    the data to memory. (This is in contrast to `create_layers`.)
+
+    >>> from glob imoprt glob
+    >>> zippedQueries = glob('downloads/*.zip')
+    >>> queries = [paw.PAIRSQuery(z) for z in zippedQueries]
+    >>> for q in queries:
+    >>>     q.list_layers()
+
+    Crucially, the ``list_layers`` function here, parses the contents of a query without loading
+    the data to memory. (This is in contrast to ``create_layers``.)
     '''
-    
+
     def __init__(self, queryList, auth = None, downloadDir='./downloads', overwriteExisting = False, maxConcurrent = 2, logEverySeconds = 30):
         '''
         :param queryList:           list containing a mix of PAIRS query JSONs and paw.PAIRSQuery objects.
@@ -98,13 +98,13 @@ class PAIRSProject(object):
                                     logger in seconds (logging.INFO)
         :type logEverySeconds:      int
         '''
-        
+
         if maxConcurrent > MAX_CONCURRENT:
             raise Exception('Maximum value for maxConcurrent is {}.'.format(MAX_CONCURRENT))
-        
+
         self.maxConcurrent = maxConcurrent
         self.logEverySeconds = logEverySeconds
-        
+
         self.queries = {
             'queued' : deque(),
             'running' : deque(),
@@ -129,20 +129,20 @@ class PAIRSProject(object):
                 self.queries['queued'].append(
                     paw.PAIRSQuery(q, auth = auth, downloadDir = downloadDir, overwriteExisting = overwriteExisting)
                 )
-    
+
     def __len__(self):
         lengths = [
             len(self.queries['queued']), len(self.queries['running']),
             len(self.queries['completed']), len(self.queries['failed'])
         ]
         return reduce(lambda x, y: x + y, lengths)
-    
+
     def __repr__(self):
         return 'PAIRSProject: {}/{}/{}/{} queued/running/completed/failed.'.format(
             len(self.queries['queued']), len(self.queries['running']),
             len(self.queries['completed']), len(self.queries['failed'])
         )
-    
+
     def _submitOneQuery(self):
         if len(self.queries['running']) >= self.maxConcurrent:
             return False
@@ -150,7 +150,7 @@ class PAIRSProject(object):
             q = self.queries['queued'].popleft()
         except IndexError:
             return False
-        
+
         try:
             q.submit()
         except Exception as e:
@@ -161,10 +161,10 @@ class PAIRSProject(object):
             logger.debug('Query submitted.')
         sleep(1)
         return True
-    
+
     def _logStatus(self):
         logger.info(self.__repr__())
-    
+
     def submitAllQueued(self):
         '''
         Submits all queries in the local queue. Ensures that there are always maxConcurrent
@@ -172,14 +172,14 @@ class PAIRSProject(object):
         server side for a particular user. There is no guarantee that a user can submit
         maxConcurrent queries at a given time.)
         '''
-        
+
         while True:
             if (len(self.queries['queued']) == 0) and (len(self.queries['running']) == 0):
                 break
-            
+
             while self._submitOneQuery():
                 pass
-            
+
             logTimer = time()
             while True:
                 try:
@@ -206,8 +206,8 @@ class PAIRSProject(object):
                         self.queries['failed'].append(q)
                         logger.debug('Query failed.')
                         self._submitOneQuery()
-                    
-                    
+
+
                     if time() - logTimer > self.logEverySeconds:
                         logTimer = time()
                         self._logStatus()
@@ -215,11 +215,11 @@ class PAIRSProject(object):
     def getQueryJSONs(self, status):
         '''
         Returns all query JSONs in the queue self.queries[status].
-        
+
         :param status:    indicates queue from which query JSONs should be returned.
         :type status:     string
         '''
-        
+
         if status not in self.queries:
             raise Exception('\'status\' has to be one of {}'.format(self.queries.keys()))
         return [q.query for q in self.queries[status]]
