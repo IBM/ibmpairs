@@ -176,6 +176,7 @@ def load_environment_variables():
     starting your Python shell with:
 
     .. code-block:: bash
+    
        PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
     """
     # set global variables reading from environment variables
