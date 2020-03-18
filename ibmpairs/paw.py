@@ -16,7 +16,7 @@ __copyright__   = "(c) 2017-2020, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "January 2020"
+__date__        = "February 2020"
 
 # fold: imports{{{
 # basic imports
@@ -99,6 +99,9 @@ PAIRS_DEFAULT_SERVER                = u'pairs.res.ibm.com'
 PAIRS_DEFAULT_PROTOCOL              = u'https'
 PAIRS_DEFAULT_BASE_URI              = u'/'
 PAIRS_DEFAULT_USER                  = None
+PAIRS_DEFAULT_PUBLISH_2_GUI         = False
+PAIRS_DEFAULT_GUI_URL               = u'https://ibmpairs-mvp2-api.mybluemix.net/'
+PAIRS_DEFAULT_GUI_TOKEN             = None
 ## PAIRS vector query (Geo)JSON output format names
 PAIRS_VECTOR_JSON_TYPE_NAME         = u'json'
 PAIRS_VECTOR_GEOJSON_TYPE_NAME      = u'geojson'
@@ -124,6 +127,8 @@ PAIRS_ZIP_FILE_EXTENSION            = u'.zip'
 PAIRS_JSON_SPAT_AGG_KEY             = u'spatialAggregation'
 ## define PAIRS's georeference system
 PAIRS_GEOREFERENCE_SYSTEM_NAME      = u'EPSG:4326'
+## default PAIRS no-data value
+PAIRS_DEFAULT_NODATA_VALUE          = -9999.
 # characters that split the property string of PAIRS vector data
 PROPERTY_STRING_SPLIT_CHAR1         = u';'
 PROPERTY_STRING_SPLIT_CHAR2         = u':'
@@ -158,6 +163,9 @@ ENVIRONMENT_VARIABLES               = (
     u'PAIRS_DEFAULT_BASE_URI',
     u'PAIRS_DEFAULT_USER',
     u'PAIRS_DEFAULT_PASSWORD_FILE_NAME',
+    u'PAIRS_DEFAULT_PUBLISH_2_GUI',
+    u'PAIRS_DEFAULT_GUI_URL',
+    u'PAIRS_DEFAULT_GUI_TOKEN',
 )
 def load_environment_variables():
     """
@@ -193,6 +201,9 @@ def load_environment_variables():
     global CONFIGURE_LOGGING
     if isinstance(CONFIGURE_LOGGING, str):
         CONFIGURE_LOGGING = CONFIGURE_LOGGING.lower()=='true'
+    global PAIRS_DEFAULT_PUBLISH_2_GUI
+    if isinstance(CONFIGURE_LOGGING, str):
+        PAIRS_DEFAULT_PUBLISH_2_GUI = PAIRS_DEFAULT_PUBLISH_2_GUI.lower()=='true'
 load_environment_variables()
 # }}}
 # fold: settings#{{{
@@ -325,6 +336,8 @@ class PAIRSQuery(object):
     GET_GEOJSON_API_STRING       = u'ws/queryaois/geojson/'
     GET_AOI_INFO_API_STRING      = u'ws/queryaois/aoi/'
     GET_QUERY_INFO               = u'v2/queryhistories/full/queryjob/'
+    LOGIN_2_GUI                  = u'users/login'
+    PUBLISH_QUERY_RESULT_2_GUI   = u'queryjobs/{queryID}/mapcorejob'
     VECTOR_GEOJSON_DIR_IN_ZIP    = u''
     DOWNLOAD_DIR                 = u'./downloads'
     PAIRS_JUPYTER_QUERY_BASE_DIR = u'.'
@@ -348,6 +361,9 @@ class PAIRSQuery(object):
         verifySSL               = True,
         vectorFormat            = None,
         inMemory                = False,
+        guiURL                  = None,
+        publish2GUI             = None,
+        guiPassword             = None,
     ):
         """
         :param query:               dictionary equivalent to PAIRS JSON load that defines a query or
@@ -384,6 +400,15 @@ class PAIRSQuery(object):
         :param inMemory:            triggers storing files directly in memory
                                     note: ignored if query is loaded from existing ZIP file
         :type inMemory:             bool
+        :param guiURL:              URL of PAIRS GUI to be used for publishing query result (if any)
+        :type guiURL:               str
+        :param publish2GUI:         determines whether or not the query result is automatically published
+                                    to the PAIRS GUI
+        :type publish2GUI:          bool
+        :param guiPassword:         password to be used when PAIRS GUI password is different from
+                                    PAIRS API password, note: the user is the same as for the PAIRS API
+                                    (typically the user's e-mail address)
+        :type guiPassword:          str
         :raises Exception:          if an invalid URL was specified
                                     if the query defintion is not understood
                                     if a manually set PAIRS query ZIP directory does not exist
@@ -455,6 +480,40 @@ class PAIRSQuery(object):
                 passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
             )
         ) if auth is None else auth
+
+        # set PAIRS GUI info for publishing query result
+        self.guiURL         = guiURL if guiURL is not None else PAIRS_DEFAULT_GUI_URL
+        if self.guiURL is not None and len(self.guiURL)>0:
+            if self.guiURL[-1]!='/': self.guiURL = self.guiURL+'/'
+        if self.guiURL is not None:
+            self.publish2GUI    = publish2GUI if publish2GUI is not None else PAIRS_DEFAULT_PUBLISH_2_GUI
+        else:
+            self.publish2GUI    = False
+        # set GUI password (default to PAIRS API password)
+        self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
+        # get PAIRS GUI token (for publishing PAIRS query result)
+        if self.publish2GUI:
+            if PAIRS_DEFAULT_GUI_TOKEN is None:
+                try:
+                    self.guiToken = requests.post(
+                        urljoin(self.guiURL, self.LOGIN_2_GUI),
+                        json    = {
+                            'email':    self.auth[0],
+                            'password': self.guiPassword,
+                        },
+                        headers = {
+                            'Content-Type': 'application/json',
+                            'Referer': 'http://localhost:80',
+                        },
+                        verify  = self.verifySSL,
+                    ).json()['token']
+                except Exception as e:
+                    self.publish2GUI = False
+                    logger.warning(
+                            "Ah, cannot get token for PAIRS GUI (publish query result disabled): {}".format(e)
+                    )
+            else:
+                self.guiToken = PAIRS_DEFAULT_GUI_TOKEN
 
         # set base URI
         self.baseURI                    = self.pairsHost.path
@@ -1129,7 +1188,8 @@ class PAIRSQuery(object):
         timeout     = -1,
     ):
         """
-        Polls the status until not running anymore.
+        Polls the status until not running anymore. If successful the result is
+        published in the PAIRS GUI (given the user specified this on query generation).
 
         :param pollIntSec:      seconds to idle between polls
         :type pollIntSec:       float
@@ -1194,6 +1254,32 @@ class PAIRSQuery(object):
                     time.sleep(
                         pollIntSec if pollIntSec is not None \
                         else PAIRSQuery.STATUS_POLL_INTERVAL_SEC
+                    )
+                # publish PAIRS query result to PAIRS GUI (if any)
+                if self.publish2GUI and hasattr(self, 'guiToken'):
+                    resp = requests.post(
+                        urljoin(
+                            self.guiURL,
+                            self.PUBLISH_QUERY_RESULT_2_GUI.format(queryID=self.queryID),
+                        ),
+                        headers = {'X-Access-Token': self.guiToken},
+                        verify  = self.verifySSL,
+                    )
+                    if resp.status_code!=200:
+                        logger.warning(
+                            "Unfortunate, I could not publish your query result to the PAIRS GUI using '{}' got return code '{}': {}".format(
+                                self.guiURL, resp.status_code, resp.text,
+                            )
+                        )
+                    else:
+                        logger.info(
+                            "Query with ID '{}' successfully published to PAIRS GUI using '{}'.".format(
+                                self.queryID, self.guiURL,
+                            )
+                        )
+                else:
+                    logger.debug(
+                        "Query won't be published to PAIRS GUI, because either it is not requested by user or there is no GUI API token available (cf. `self.guiToken` and `self.publish2GUI`)."
                     )
             else:
                 raise Exception('Query submit response: ' + str(self.querySubmit.status_code))
@@ -1781,14 +1867,23 @@ class PAIRSQuery(object):
                     # note: it looks like having the delete option causes issues on Windows machines
                     # therefore we extract to the standard temporary directory and hope for the OS
                     # to clean up, and that sufficient disk space is provided in the temporary directory
+                    tempFilePath = None
                     with tempfile.NamedTemporaryFile('wb', delete=False,) as tf: #dir=self.downloadDir)
                         with self.queryFS.open(layerDataPath, 'rb') as zf:
                             tf.write(zf.read())
                         tf.flush()
+                        # record path of temporary file
+                        tempFilePath = tf.name
                         # directly read from data path
                         ds = gdal.Open(tf.name)
                         a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float)
                         ds = None
+                    # try to expliticly remove the temporary file used to load the data
+                    if tempFilePath is not None:
+                        try:
+                            os.remove(tempFilePath)
+                        except:
+                            pass
                 except Exception as e:
                     logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using GDAL: {}".format(fileName, self.zipFilePath, e)
@@ -1806,6 +1901,7 @@ class PAIRSQuery(object):
                     # reading the multi-wrapped virtual file handler with PIL.Image.open()
                     # is extremely slow
                     # TODO: explore more elegant options (problem with stream-buffer size?)
+                    tempFilePath = None
                     with tempfile.NamedTemporaryFile('wb', delete=False,) as tf:
                         # write raster data/image to temporary file
                         with self.queryFS.open(layerDataPath, 'rb') as zf:
@@ -1814,11 +1910,23 @@ class PAIRSQuery(object):
                         # load temporary file with PIL into NumPy array
                         with open(tf.name, 'rb') as f:
                             im = PIL.Image.open(f)
-                            if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
-                                im.mode=u'I'
-                            elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
+                            if 'details' in layerMeta and 'pixelType' in layerMeta['details']:
+                                if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
+                                    im.mode=u'I'
+                                elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
+                                    im.mode=u'F'
+                            else:
+                                logger.warning(
+                                    "No pixel data type identified from query meta data, default to 4 bytes floating point numbers."
+                                )
                                 im.mode=u'F'
                             a = numpy.array(im).astype(numpy.float)
+                    # try to expliticly remove the temporary file used to load the data
+                    if tempFilePath is not None:
+                        try:
+                            os.remove(tempFilePath)
+                        except:
+                            pass
                 except Exception as e:
                     logger.error(
                         "Unable to load '{}' from '{}' into NumPy array using PIL: {}".format(fileName, self.zipFilePath, e)
@@ -1826,7 +1934,13 @@ class PAIRSQuery(object):
                 finally:
                     self._closeDataSource()
             # mask no-data value
-            a[a==numpy.float(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
+            if 'details' in layerMeta and 'pixelNoDataVal' in layerMeta['details']:
+                a[a==numpy.float(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
+            else:
+                logger.warning(
+                        "Unable to identify pixel no-data value, using default '{}'.".format(PAIRS_DEFAULT_NODATA_VALUE)
+                )
+                a[a==numpy.float(PAIRS_DEFAULT_NODATA_VALUE)] = numpy.nan
             # assign loaded data to object's data dictionary
             self.data[fileName] = a
         # load vector data (note: CSV file format assumed)
