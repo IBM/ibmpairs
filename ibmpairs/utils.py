@@ -23,7 +23,7 @@ class PAIRSProject(object):
     and maintains a local queue.
 
     Usage
-    -----
+    
     >>> project = PAIRSProject(queryList)
     >>> project.submitAllQueued()
 
