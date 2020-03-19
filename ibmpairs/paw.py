@@ -172,7 +172,7 @@ def load_environment_variables():
     Some settings of this module can be set by environment variables. This function loads them.
 
     In particular, server credentials and connection details are set via
-    `paw.ENVIRONMENT_VARIABLES` prefixed by `paw.PAW_ENV_BASE_NAME+'_'`, e.g. by
+    ``paw.ENVIRONMENT_VARIABLES`` prefixed by ``paw.PAW_ENV_BASE_NAME+'_'``, e.g. by
     starting your Python shell with:
 
     .. code-block:: bash
