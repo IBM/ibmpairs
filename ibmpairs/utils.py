@@ -73,31 +73,26 @@ class PAIRSProject(object):
 
     Crucially, the ``list_layers`` function here, parses the contents of a query without loading
     the data to memory. (This is in contrast to ``create_layers``.)
+    
+    :param queryList:           list containing a mix of PAIRS query JSONs
+                                and ``paw.PAIRSQuery`` objects. For ``paw.PAIRSQuery`` objects, only those which have not been submitted yet will be submitted.
+    :type queryList:            list
+    :param auth:                user name and password as tuple for access to pairsHost
+    :type auth:                 str, str
+    :param overwriteExisting:   destroy locally cached data, if existing,
+                                otherwise grab the latest locally cached data, `latest` is defined by alphanumerical ordering of the PAIRS query ID
+    :type overwriteExisting:    bool
+    :param downloadDir:         directory where to store downloaded data
+    :type downloadDir:          str
+    :param maxConcurrent:       maximum number of concurrent queries. Note that
+                                the maximum number of concurrent queries might be limited server side for a particular user. There is no guarantee that a user can submit maxConcurrent queries at a given time.
+    :type maxConcurrent:        int
+    :param logEverySeconds:     time interval at which the class will send
+                                status messages to its logger in seconds (via ``logging.INFO``)
+    :type logEverySeconds:      int
     '''
 
     def __init__(self, queryList, auth = None, downloadDir='./downloads', overwriteExisting = False, maxConcurrent = 2, logEverySeconds = 30):
-        '''
-        :param queryList:           list containing a mix of PAIRS query JSONs and paw.PAIRSQuery objects.
-                                    For paw.PAIRSQuery objects, only those which have not been submitted
-                                    yet will be submitted.
-        :type queryList:            list
-        :param auth:                user name and password as tuple for access to pairsHost
-        :type auth:                 (str, str)
-        :param overwriteExisting:   destroy locally cached data, if existing, otherwise grab the latest
-                                    locally cached data, `latest` is defined by alphanumerical ordering
-                                    of the PAIRS query ID
-        :type overwriteExisting:    bool
-        :param downloadDir:         directory where to store downloaded data
-        :type downloadDir:          str
-        :param maxConcurrent:       maximum number of concurrent queries. Note that the maximum number
-                                    of concurrent queries might be limited server side for a particular
-                                    user. There is no guarantee that a user can submit
-        maxConcurrent queries at a given time.
-        :type maxConcurrent:        int
-        :param logEverySeconds:     time interval at which the class will send status messages to its
-                                    logger in seconds (logging.INFO)
-        :type logEverySeconds:      int
-        '''
 
         if maxConcurrent > MAX_CONCURRENT:
             raise Exception('Maximum value for maxConcurrent is {}.'.format(MAX_CONCURRENT))
