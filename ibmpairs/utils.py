@@ -213,6 +213,8 @@ class PAIRSProject(object):
 
         :param status:    indicates queue from which query JSONs should be returned.
         :type status:     string
+        :returns:         list of PAIRS query JSONs
+        :rtype:           list
         '''
 
         if status not in self.queries:
