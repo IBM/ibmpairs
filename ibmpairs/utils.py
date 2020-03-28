@@ -53,6 +53,7 @@ class PAIRSProject(object):
     The following is then feasible:
 
     >>> import json
+    >>> completedQueries = oldProject.getQueryJSONs('completed')
     >>> with open('completedQueries.json', 'w') as fp:
     >>>     json.dump(completedQueries, fp)
     >>> # ... some other code ...
