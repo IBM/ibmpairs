@@ -172,10 +172,11 @@ def load_environment_variables():
     Some settings of this module can be set by environment variables. This function loads them.
 
     In particular, server credentials and connection details are set via
-    `paw.ENVIRONMENT_VARIABLES` prefixed by `paw.PAW_ENV_BASE_NAME+'_'`, e.g. by
+    ``paw.ENVIRONMENT_VARIABLES`` prefixed by ``paw.PAW_ENV_BASE_NAME+'_'``, e.g. by
     starting your Python shell with:
 
     .. code-block:: bash
+    
        PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
     """
     # set global variables reading from environment variables
@@ -326,6 +327,53 @@ class MockSubmitResponse():
 class PAIRSQuery(object):
     """
     Representation of a PAIRS query.
+    
+    :param query:               dictionary equivalent to PAIRS JSON load that defines a query or
+                                path that references a ZIP file identified with a PAIRS query or
+                                ID of existing (submitted) query
+    :type query:                dict or
+                                str
+    :param pairsHost:           base URL + scheme of PAIRS host to connect to,
+                                e.g. 'https://pairs.res.ibm.com'
+                                *note*: the initialization tries its best to autodetect
+                                even the `baseURI` and `port` if contained in `pairsHost` already
+    :type pairsHost:            str
+    :param auth:                user name and password as tuple for access to pairsHost
+    :type auth:                 (str, str)
+    :param port:                port to use for pairsHost
+    :type port:                 int
+    :param overwriteExisting:   destroy locally cached data, if existing, otherwise grab the latest
+                                locally cached data, `latest` is defined by alphanumerical ordering
+                                of the PAIRS query ID
+                                *note:* ignored in case of a file path (string) is provided as query
+    :type overwriteExisting:    bool
+    :param deleteDownload:      destroy downloaded data with destruction of class instance
+    :type deleteDownload:       bool
+    :param downloadDir:         directory where to store downloaded data
+                                note: ignored if the `query` is a string representing the
+                                PAIRS query ZIP directory
+    :type downloadDir:          str
+    :param baseURI:             PAIRS API base URI to append to the base URL (cf. `pairsHost`)
+    :type baseURI:              str
+    :param verifySSL:           if set SSL connections are verified
+    :type verifySSL:            bool
+    :param vectorFormat:        data format of the vector data
+    :type vectorFormat:         str
+    :param inMemory:            triggers storing files directly in memory
+                                note: ignored if query is loaded from existing ZIP file
+    :type inMemory:             bool
+    :param guiURL:              URL of PAIRS GUI to be used for publishing query result (if any)
+    :type guiURL:               str
+    :param publish2GUI:         determines whether or not the query result is automatically published
+                                to the PAIRS GUI
+    :type publish2GUI:          bool
+    :param guiPassword:         password to be used when PAIRS GUI password is different from
+                                PAIRS API password, note: the user is the same as for the PAIRS API
+                                (typically the user's e-mail address)
+    :type guiPassword:          str
+    :raises Exception:          if an invalid URL was specified
+                                if the query defintion is not understood
+                                if a manually set PAIRS query ZIP directory does not exist
     """
     # class wide constants/parameters
     SUBMIT_API_STRING            = u'v2/query'
@@ -365,54 +413,6 @@ class PAIRSQuery(object):
         publish2GUI             = None,
         guiPassword             = None,
     ):
-        """
-        :param query:               dictionary equivalent to PAIRS JSON load that defines a query or
-                                    path that references a ZIP file identified with a PAIRS query or
-                                    ID of existing (submitted) query
-        :type query:                dict or
-                                    str
-        :param pairsHost:           base URL + scheme of PAIRS host to connect to,
-                                    e.g. 'https://pairs.res.ibm.com'
-                                    *note*: the initialization tries its best to autodetect
-                                    even the `baseURI` and `port` if contained in `pairsHost` already
-        :type pairsHost:            str
-        :param auth:                user name and password as tuple for access to pairsHost
-        :type auth:                 (str, str)
-        :param port:                port to use for pairsHost
-        :type port:                 int
-        :param overwriteExisting:   destroy locally cached data, if existing, otherwise grab the latest
-                                    locally cached data, `latest` is defined by alphanumerical ordering
-                                    of the PAIRS query ID
-                                    *note:* ignored in case of a file path (string) is provided as query
-        :type overwriteExisting:    bool
-        :param deleteDownload:      destroy downloaded data with destruction of class instance
-        :type deleteDownload:       bool
-        :param downloadDir:         directory where to store downloaded data
-                                    note: ignored if the `query` is a string representing the
-                                    PAIRS query ZIP directory
-        :type downloadDir:          str
-        :param baseURI:             PAIRS API base URI to append to the base URL (cf. `pairsHost`)
-        :type baseURI:              str
-        :param verifySSL:           if set SSL connections are verified
-        :type verifySSL:            bool
-        :param vectorFormat:        data format of the vector data
-        :type vectorFormat:         str
-        :param inMemory:            triggers storing files directly in memory
-                                    note: ignored if query is loaded from existing ZIP file
-        :type inMemory:             bool
-        :param guiURL:              URL of PAIRS GUI to be used for publishing query result (if any)
-        :type guiURL:               str
-        :param publish2GUI:         determines whether or not the query result is automatically published
-                                    to the PAIRS GUI
-        :type publish2GUI:          bool
-        :param guiPassword:         password to be used when PAIRS GUI password is different from
-                                    PAIRS API password, note: the user is the same as for the PAIRS API
-                                    (typically the user's e-mail address)
-        :type guiPassword:          str
-        :raises Exception:          if an invalid URL was specified
-                                    if the query defintion is not understood
-                                    if a manually set PAIRS query ZIP directory does not exist
-        """
         # get default credentials
         # check and set port for IBM PAIRS core API server
         if port is not None:
