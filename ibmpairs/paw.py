@@ -986,8 +986,8 @@ class PAIRSQuery(object):
                                                     )
                                                 )
                                             )
-                                        ]
-                                    )[0]
+                                        ],
+                                    )[-1]
                                 )
                             )[0]
                         )
