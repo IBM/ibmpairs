@@ -304,7 +304,7 @@ def get_pairs_api_password(
 
 def getQueryHash(query):
     return hashlib.md5(
-        json.dumps(query).encode('utf-8')
+        json.dumps(query, sort_keys=True).encode('utf-8')
     ).hexdigest()
 #}}}
 
