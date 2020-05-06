@@ -1,0 +1,13 @@
+{
+  "Access-Control-Allow-Methods": "GET, OPTIONS, POST, PUT, DELETE",
+  "Date": "Wed, 06 May 2020 01:29:12 GMT",
+  "Expires": "Wed, 31 Dec 1969 19:00:00 EST",
+  "Access-Control-Max-Age": "3600",
+  "Connection": "keep-alive",
+  "Cache-Control": "private",
+  "Transfer-Encoding": "chunked",
+  "Server": "nginx/1.10.3 (Ubuntu)",
+  "Access-Control-Allow-Credentials": "true",
+  "Content-Type": "application/json;charset=UTF-8",
+  "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+}

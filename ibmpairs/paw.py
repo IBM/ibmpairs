@@ -16,7 +16,7 @@ __copyright__   = "(c) 2017-2020, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "February 2020"
+__date__        = "May 2020"
 
 # fold: imports{{{
 # basic imports
@@ -327,7 +327,7 @@ class MockSubmitResponse():
 class PAIRSQuery(object):
     """
     Representation of a PAIRS query.
-    
+
     :param query:               dictionary equivalent to PAIRS JSON load that defines a query or
                                 path that references a ZIP file identified with a PAIRS query or
                                 ID of existing (submitted) query
@@ -628,6 +628,8 @@ class PAIRSQuery(object):
                 pass
         if isinstance(self.fs, fs.memoryfs.MemoryFS):
             logger.info('Just FYI: Local file system is in memory - no data saved on local disk.')
+        # add flag for IBM cloud object storage result specification
+        self.inIBMCOS            = False
 
     def __del__(self):
         # Delete the file and folder
@@ -1284,16 +1286,33 @@ class PAIRSQuery(object):
             else:
                 raise Exception('Query submit response: ' + str(self.querySubmit.status_code))
 
-    def download(self, cosInfo=None):
+    def download(
+        self,
+        cosInfo         = None,
+        cosPollIntSec   = None,
+        cosTimeout      = -1,
+        printStatus     = False,
+    ):
         """
         Get the data previously queried and save the ZIP file.
 
-        :param cosInfo:     tuple with IBM Cloud Object Storage bucket name and access token
-                            if set, the query result is not locally downloaded, but
-                            published in your IBM cloud (this is a useful feature
-                            in combination with IBM Watson Studio notebooks)
-        :type cosInfo:      (str, str)
+        :param cosInfo:         tuple with IBM Cloud Object Storage bucket name
+                                and access token
+                                if set, the query result is not locally downloaded, but
+                                published in your IBM cloud (this is a useful feature
+                                in combination with IBM Watson Studio notebooks)
+        :type cosInfo:          (str, str)
+        :param cosPollIntSec:   seconds to idle between polls to IBM COS
+        :type cosPollIntSec:    float
+        :param printStatus:     triggers printing the poll status information
+        :type printStatus:      bool
+        :param cosTimeout:      maximum (positive) time in seconds allowed to poll
+                                till finished, the default is infinitely polling
+        :type cosTimeout:       int
         """
+        # flag IBM COS usage
+        if cosInfo is not None:
+            self.inIBMCOS = True
         # skip online (point) query case (including reload query and cached query)
         if isinstance(self.querySubmit, MockSubmitResponse) or self.query is None \
         or not self._isOnlineQuery:
@@ -1331,7 +1350,7 @@ class PAIRSQuery(object):
                     )
                     raise
 
-                # check that the data can be really downloaded
+                # check that the data is ready for download
                 if int(statusCode) == PAIRS_QUERY_DOWNLOADABLE_STAT:
                     # TODO: IS THIS STILL A VALID ASSUMPTION?
                     # Save the query ID prominently. This ID also flags that the file
@@ -1346,18 +1365,100 @@ class PAIRSQuery(object):
                             )
                             raise
                     # note on streaming into memory
-                    self._openDataSource()
-                    try:
-                        if isinstance(self.fs, fs.memoryfs.MemoryFS):
-                            logger.warning(
-                                'Be aware: As directed, downloading query result into memory!'
-                            )
+                    # TODO: move COS upload to separate function
+                    if self.inIBMCOS:
+                        # publish query result to COS
+                        if isinstance(cosInfo, tuple) and len(cosInfo)==2:
+                            try:
+                                # initialize upload to COS
+                                resp = requests.post(
+                                    urljoin(
+                                        urljoin(
+                                            self.pairsHost.geturl(),
+                                            self.COS_UPLOAD_API_STRING
+                                        ),
+                                        str(self.queryID)
+                                    ),
+                                    data   = json.dumps(
+                                        {
+                                            'provider': 'ibm',
+                                            'endpoint': self.COS_API_ENDPOINT,
+                                            'bucket':   str(cosInfo[0]),
+                                            'token':    str(cosInfo[1]),
+                                        }
+                                    ),
+                                    headers = {'Content-Type': 'application/json'},
+                                    auth    = self.auth,
+                                    verify  = self.verifySSL,
+                                )
+                                if resp.status_code == 200:
+                                    logger.info('Upload of query result to IBM COS initialized.')
+                                else:
+                                    raise Exception(
+                                        'PAIRS failed publishing query result to COS: {}'.format(resp.text)
+                                    )
+                                # track progress of upload to COS
+                                # record start time of polling
+                                startTime = time.time()
+                                # wait for query to finish by constantly polling the API
+                                while resp.status_code==200:
+                                    # check (user defined) timeout
+                                    if cosTimeout > 0:
+                                        if time.time()-startTime > cosTimeout:
+                                            raise Exception(
+                                                "User defined poll timeout for IBM COS reached."
+                                            )
+                                    # poll PAIRS API for status of upload to COS
+                                    resp = requests.get(
+                                        urljoin(
+                                            urljoin(
+                                                self.pairsHost.geturl(),
+                                                self.COS_UPLOAD_API_STRING
+                                            ),
+                                            str(self.queryID)
+                                        ),
+                                        headers = {'Content-Type': 'application/json'},
+                                        auth    = self.auth,
+                                        verify  = self.verifySSL,
+                                    )
+                                    load = resp.json()
+                                    if resp.status_code == 200:
+                                        if printStatus:
+                                            logger.warning(
+                                                "Upload to IBM COS at {:0.1f}%.".format(
+                                                    100*float(load['sizeUploaded'])/float(load['sizeTotal'])
+                                                )
+                                            )
+                                    else:
+                                        raise Exception("Unsuccessful upload status request for COS.")
+                                    # check if upload is complete
+                                    if load['sizeUploaded']==load['sizeTotal']:
+                                        break
+                                    # idle before polling again
+                                    time.sleep(
+                                        cosPollIntSec if cosPollIntSec is not None \
+                                        else PAIRSQuery.STATUS_POLL_INTERVAL_SEC
+                                    )
+                            except Exception as e:
+                                raise Exception(
+                                        'Sorry, I have trouble getting your query result to Cloud Object storage: {}.'.format(e)
+                                )
+                        else:
+                            msg = u'Sorry, I do not know what to do based on the `cosInfo` you provided.'
+                            logger.error(msg)
+                            raise Exception(msg)
+                    else:
+                        self._openDataSource()
+                        try:
+                            if isinstance(self.fs, fs.memoryfs.MemoryFS):
+                                logger.warning(
+                                    'Be aware: As directed, downloading query result into memory!'
+                                )
 
-                        if self.zipFilePath is None:
-                            self.zipFilePath = str(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
-                        if self.overwriteExisting or not self.fs.isfile(self.zipFilePath):
-                            # stream the query result (ZIP file)
-                            if cosInfo is None:
+                            if self.zipFilePath is None:
+                                self.zipFilePath = str(self.queryDir + PAIRS_ZIP_FILE_EXTENSION)
+                            if self.overwriteExisting or not self.fs.isfile(self.zipFilePath):
+                                # stream the query result (ZIP file)
                                 with self.fs.open(self.zipFilePath, 'wb') as f:
                                     downloadURL = urljoin(
                                         urljoin(
@@ -1379,49 +1480,12 @@ class PAIRSQuery(object):
 
                                     for block in downloadResponse.iter_content(1024):
                                         f.write(block)
-                            # publish query result to COS
-                            elif isinstance(cosInfo, tuple) and len(cosInfo)==2:
-                                try:
-                                    resp = requests.post(
-                                        urljoin(
-                                            urljoin(
-                                                self.pairsHost.geturl(),
-                                                self.COS_UPLOAD_API_STRING
-                                            ),
-                                            str(self.queryID)
-                                        ),
-                                        data   = json.dumps(
-                                            {
-                                                'provider': 'ibm',
-                                                'endpoint': self.COS_API_ENDPOINT,
-                                                'bucket':   str(cosInfo[0]),
-                                                'token':    str(cosInfo[1]),
-                                            }
-                                        ),
-                                        headers = {'Content-Type': 'application/json'},
-                                        auth    = self.auth,
-                                        verify  = self.verifySSL,
-                                    )
-                                    if resp.status_code == 200:
-                                        logger.info('Upload of query result to IBM COS initialized.')
-                                    else:
-                                        raise Exception(
-                                            'PAIRS failed publishing query result to COS: {}'.format(resp.text)
-                                        )
-                                except Exception as e:
-                                    raise Exception(
-                                            'Sorry, I have trouble getting your query result to Cloud Object storage: {}.'.format(e)
-                                    )
                             else:
-                                msg = u'Sorry, I do not know what to do based on the `cosInfo` you provided.'
-                                logger.error(msg)
-                                raise Exception(msg)
-                        else:
-                            logger.error('Aborted download: Zip file already present and overwriteExisting set to False')
-                    except:
-                        raise
-                    finally:
-                        self._closeDataSource()
+                                logger.error('Aborted download: Zip file already present and overwriteExisting set to False')
+                        except:
+                            raise
+                        finally:
+                            self._closeDataSource()
                 else:
                     if PAIRS_QUERY_ERR_STAT_REG_EX.match(str(statusCode)):
                         msg = "I am sorry, IBM PAIRS query failed, status code: '{}' ({})".format(statusCode, statusMsg)

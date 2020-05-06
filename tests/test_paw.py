@@ -2,7 +2,7 @@
 """
 Tests the IBM PAIRS API wrapper features.
 
-Copyright 2019 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2020 Physical Analytics, IBM Research All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 
@@ -16,7 +16,9 @@ SPDX-License-Identifier: BSD-3-Clause
 
 
 **TODO**:
-    - full integration of query-to-COS feature
+    - full integration of query-to-COS feature (among others, test against real service)
+      by getting COS bucket information from environment for real connection, delete
+      files from COS?
     - compare mock vs. real data for aggregated queries, batch point queries, raster as csv
     - check that apiJSON for v2/queryhistories/full/queryjobs/{ID} is complete
       for aggregation and raster queries, vector queries is empty today
@@ -70,6 +72,8 @@ PAIRS_BASE_URI              = '/'
 QUERY_ENDPOINT              = 'v2/query'
 STATUS_ENDPOINT             = 'v2/queryjobs/'
 DOWNLOAD_ENDPOINT           = 'v2/queryjobs/download/'
+COS_UPLOAD_ENDPOINT         = 'v2/queryjobs/upload/'
+PAIRS_QUERY_ID_REGEX        = '[0-9]+_[0-9]+'
 QUERY_INFO_ENDPOINT         = 'v2/queryhistories/full/queryjob/'
 REAL_CONNECT                = False
 USE_SSL                     = True
@@ -79,6 +83,8 @@ PAIRS_PASSWORD              = 'fakePassword'
 PAIRS_PASSWORD_FILE_NAME    = 'ibmpairspass.txt'
 pytest.realConnectZIPPath   = None
 pytest.realConnectQueryID   = None
+COS_BUCKET_NAME             = 'test-paw'
+COS_BUCKET_KEY              = 'faKeKEY4M0ckTest'
 # read/overwrite parameters from environment
 for var in (
     'REAL_CONNECT',
@@ -89,6 +95,8 @@ for var in (
     'PAIRS_USER',
     'PAIRS_PORT',
     'PAIRS_PASSWORD_FILE_NAME',
+    'COS_BUCKET_NAME',
+    'COS_BUCKET_KEY',
 ):
     if 'PAW_TESTS_'+var in os.environ:
         exec(
@@ -611,6 +619,51 @@ class TestPollQuery(unittest.TestCase):
             # result return
             return 200, headers, json.dumps(response_body)
 
+        # define upload to IBM COS endpoint
+        def cos_upload_init_endpoint(request):
+            respCode        = 400
+            payload         = json.loads(request.body)
+            # perform some tests on payload sent
+            if(
+                set(('endpoint', 'bucket', 'token')) <= set(payload) \
+                and payload['provider']=='ibm'
+            ):
+                respCode    = 200
+            # check header (hard stopper if not correct)
+            if not str('Content-Type') in request.headers.keys() \
+            or request.headers['Content-Type'] != 'application/json':
+                respCode        = 415
+                logging.error('Request header incompatible: {}'.format(request.headers))
+            # generate response body (depending on various scenarios)
+            headers         = {}
+
+            return respCode, headers, None
+
+        # define upload to IBM COS status endpoint
+        cls.cosPollCount=2
+        def cos_upload_status_endpoint(request):
+            respCode        = 400
+            # check header (hard stopper if not correct)
+            if not str('Content-Type') in request.headers.keys() \
+            or request.headers['Content-Type'] != 'application/json':
+                respCode        = 415
+                logging.error('Request header incompatible: {}'.format(request.headers))
+            # generate response body (depending on various scenarios)
+            headers   = json.load(
+                open(os.path.join(TEST_DATA_DIR,'cos_upload_status_header.json'))
+            )
+            # count down number of polls performed already
+            # define response body by simulating progressive upload
+            if cls.cosPollCount>0:
+                cls.cosPollCount-=1
+            response_body = {
+                'id': 79,
+                'sizeTotal': 336179,
+                'sizeUploaded': int(336179*(1-cls.cosPollCount/2.)),
+                'status': 'finished' if cls.cosPollCount==0 else 'uploading',
+            }
+
+            return 200, headers, json.dumps(response_body)
 
         ## add endpoints
         ### query submit
@@ -618,6 +671,23 @@ class TestPollQuery(unittest.TestCase):
             responses.POST,
             WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
             callback=submit_query_endpoint,
+            content_type='application/json',
+        )
+        ### COS upload endpoints
+        cls.pairsServerMock.add_callback(
+            responses.POST,
+            re.compile(
+                r'{}://{}{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, COS_UPLOAD_ENDPOINT, PAIRS_QUERY_ID_REGEX)
+            ),
+            callback=cos_upload_init_endpoint,
+            content_type='application/json',
+        )
+        cls.pairsServerMock.add_callback(
+            responses.GET,
+            re.compile(
+                r'{}://{}{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, COS_UPLOAD_ENDPOINT, PAIRS_QUERY_ID_REGEX)
+            ),
+            callback=cos_upload_status_endpoint,
             content_type='application/json',
         )
         ### query downloads and query info
@@ -665,7 +735,7 @@ class TestPollQuery(unittest.TestCase):
         cls.pairsServerMock.add_callback(
             responses.GET,
             re.compile(
-                r'{}://{}{}{}[0-9]+_[0-9]+'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, STATUS_ENDPOINT)
+                r'{}://{}{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, STATUS_ENDPOINT, PAIRS_QUERY_ID_REGEX)
             ),
             callback=poll_query_status_endpoint,
             content_type='application/json',
@@ -684,7 +754,14 @@ class TestPollQuery(unittest.TestCase):
 
 
     # fold: test ordinary raster queries#{{{
-    def raster_query(self, mode='query', inMemory=False, searchExist=False, wrongBaseURI=False,):
+    def raster_query(
+        self,
+        mode='query',
+        inMemory        = False,
+        searchExist     = False,
+        wrongBaseURI    = False,
+        cosUpload       = False,
+    ):
         """
         Query raster data in various ways.
 
@@ -699,6 +776,8 @@ class TestPollQuery(unittest.TestCase):
         :type searchExist:      bool
         :param wrongBaseURI:    remove trailing slash from PAIRS base URI to simulate user typo
         :type wrongBaseURI:     bool
+        :param cosUpload:       triggers query result upload to IBM Cloud Object Storage
+        :type cosUpload:        bool
         :raises Exception:      if function parameters are incorrectly set
         """
         # check function parameters
@@ -752,76 +831,81 @@ class TestPollQuery(unittest.TestCase):
         testRasterQuery.poll_till_finished(printStatus=True)
         if not mode=='cached' and not searchExist:
             self.assertTrue(testRasterQuery.queryStatus.ok)
-        # check that certain files exist
-        testRasterQuery.download()
-        # check that data acknowledgement was read-in
-        self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
-        testRasterQuery.print_data_acknowledgement()
-        # for real connect to PAIRS and not in-memory case, get info for other
-        # real-world query scenarios
-        if not inMemory:
-            fullZipFilePath = os.path.join(
-                testRasterQuery.downloadDir,
-                testRasterQuery.zipFilePath,
-            )
-            # in scenario with real PAIRS connect, store the PAIRS query ZIP path
-            # for later reuse on loading from cached data
-            if REAL_CONNECT and mode=='query':
-                pytest.realConnectQueryID = testRasterQuery.queryID
-                pytest.realConnectZIPPath = fullZipFilePath
-                logging.info(
-                    "Saved local raster file '{}' (query ID: '{}') for testing of loading data from cache.".format(
-                        pytest.realConnectZIPPath, pytest.realConnectQueryID
-                     )
+        # check data download
+        testRasterQuery.download(
+            cosInfo = (COS_BUCKET_NAME, COS_BUCKET_KEY) if cosUpload else None,
+            printStatus = cosUpload,
+        )
+        # TODO: modify tests as soon as binding COS with fs is an option to read data
+        if not cosUpload:
+            # check that data acknowledgement was read-in
+            self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
+            testRasterQuery.print_data_acknowledgement()
+            # for real connect to PAIRS and not in-memory case, get info for other
+            # real-world query scenarios
+            if not inMemory:
+                fullZipFilePath = os.path.join(
+                    testRasterQuery.downloadDir,
+                    testRasterQuery.zipFilePath,
                 )
-            self.assertTrue(
-                os.path.exists(fullZipFilePath)
-            )
-            logging.info("TEST: Check files downloaded.")
-            with zipfile.ZipFile(fullZipFilePath) as zf:
-                # test the existence of the basic meta file
-                for fileName in ['output.info', ]:
-                    self.assertTrue(
-                            fileName in zf.namelist()
+                # in scenario with real PAIRS connect, store the PAIRS query ZIP path
+                # for later reuse on loading from cached data
+                if REAL_CONNECT and mode=='query':
+                    pytest.realConnectQueryID = testRasterQuery.queryID
+                    pytest.realConnectZIPPath = fullZipFilePath
+                    logging.info(
+                        "Saved local raster file '{}' (query ID: '{}') for testing of loading data from cache.".format(
+                            pytest.realConnectZIPPath, pytest.realConnectQueryID
+                         )
                     )
-                # check that for each GeoTiff file there exists a corresonding JSON meta file
-                for rasterFilePath in zf.namelist():
-                    # find all PAIRS GeoTiff files
-                    if rasterFilePath.endswith('.tiff'):
-                        # check a corresponding JSON file exists
-                        self.assertTrue(
-                            rasterFilePath+'.json' in zf.namelist()
-                        )
-                        # try to temporarily open the JSON file
-                        json.loads(zf.read(rasterFilePath+'.json', pwd=u'').decode('utf-8'))
-        # load raster meta data
-        logging.info("TEST: Load raster meta data.")
-        testRasterQuery.list_layers()
-        # check that 'details' of raster data have been successfully loaded by
-        # getting the spatial reference information
-        self.assertIsInstance(
-            list(testRasterQuery.metadata.values())[0]["details"]["spatialRef"],
-            string_type
-        )
-        # check that all data are listed as type raster or vector for CSV output
-        self.assertTrue(
-            all([
-                meta['layerType'] == 'raster'
-                for meta in testRasterQuery.metadata.values()
-            ])
-        )
-        logging.info("TEST: Create NumPy arrays from raster data.")
-        # load the raster data into a NumPy array
-        testRasterQuery.create_layers()
-        # access the numpy array
-        for name, meta in testRasterQuery.metadata.items():
-            if meta['layerType'] == 'raster':
-                self.assertIsInstance(
-                    testRasterQuery.data[name],
-                    numpy.ndarray
+                self.assertTrue(
+                    os.path.exists(fullZipFilePath)
                 )
-        # check that the data acknowledgement statement is not empty
-        self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
+                logging.info("TEST: Check files downloaded.")
+                with zipfile.ZipFile(fullZipFilePath) as zf:
+                    # test the existence of the basic meta file
+                    for fileName in ['output.info', ]:
+                        self.assertTrue(
+                                fileName in zf.namelist()
+                        )
+                    # check that for each GeoTiff file there exists a corresonding JSON meta file
+                    for rasterFilePath in zf.namelist():
+                        # find all PAIRS GeoTiff files
+                        if rasterFilePath.endswith('.tiff'):
+                            # check a corresponding JSON file exists
+                            self.assertTrue(
+                                rasterFilePath+'.json' in zf.namelist()
+                            )
+                            # try to temporarily open the JSON file
+                            json.loads(zf.read(rasterFilePath+'.json', pwd=u'').decode('utf-8'))
+            # load raster meta data
+            logging.info("TEST: Load raster meta data.")
+            testRasterQuery.list_layers()
+            # check that 'details' of raster data have been successfully loaded by
+            # getting the spatial reference information
+            self.assertIsInstance(
+                list(testRasterQuery.metadata.values())[0]["details"]["spatialRef"],
+                string_type
+            )
+            # check that all data are listed as type raster or vector for CSV output
+            self.assertTrue(
+                all([
+                    meta['layerType'] == 'raster'
+                    for meta in testRasterQuery.metadata.values()
+                ])
+            )
+            logging.info("TEST: Create NumPy arrays from raster data.")
+            # load the raster data into a NumPy array
+            testRasterQuery.create_layers()
+            # access the numpy array
+            for name, meta in testRasterQuery.metadata.items():
+                if meta['layerType'] == 'raster':
+                    self.assertIsInstance(
+                        testRasterQuery.data[name],
+                        numpy.ndarray
+                    )
+            # check that the data acknowledgement statement is not empty
+            self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
 
         # test deleting query object
         del testRasterQuery
@@ -833,6 +917,11 @@ class TestPollQuery(unittest.TestCase):
         """
         self.raster_query()
     @pytest.mark.run(order=1)
+    def test_raster_query_with_cos_upload(self):
+        """
+        Test querying raster data with upload into IBM Cloud Object Storage.
+        """
+        self.raster_query(cosUpload=True)
     def test_raster_query_standard_user_typo(self):
         """
         Test querying raster data (user typo in PAIRS base URI).
@@ -1215,6 +1304,8 @@ class TestPollQuery(unittest.TestCase):
         self.vector_query(queryType='spatAgg', mode='reload', inMemory=True)
     #}}}
 
+    # fold: test vector queries #{{{
+    # }}}
 
     # fold: test cached mock data to simulate PAIRS server against real service#{{{
     def compare_mock_vs_real_query(self, queryJSON):
