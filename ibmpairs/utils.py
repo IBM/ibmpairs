@@ -161,7 +161,7 @@ class PAIRSProject(object):
     def _logStatus(self):
         logger.info(self.__repr__())
 
-    def submitAllQueued(self, cosInfo=None):
+    def submitAllQueued(self, cosInfo=None, printStatus=False,):
         '''
         Submits all queries in the local queue. Ensures that there are always maxConcurrent
         queries running. (Note that the maximum number of concurrent queries might be limited
@@ -173,6 +173,8 @@ class PAIRSProject(object):
                             published in your IBM cloud (this is a useful feature
                             in combination with IBM Watson Studio notebooks)
         :type cosInfo:      (str, str)
+        :param printStatus: triggers printing the poll status information of downloading a query
+        :type printStatus:  bool
         '''
 
         while True:
@@ -195,7 +197,7 @@ class PAIRSProject(object):
                         self.queries['running'].append(q)
                     elif q.queryStatus.json()['statusCode'] == 20:
                         try:
-                            q.download(cosInfo)
+                            q.download(cosInfo, printStatus)
                         except Exception as e:
                             print('Encountered exception {} while downloading.'.format(e))
                             self.queries['failed'].append(q)
