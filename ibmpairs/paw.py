@@ -1433,7 +1433,8 @@ class PAIRSQuery(object):
                                     else:
                                         raise Exception("Unsuccessful upload status request for COS.")
                                     # check if upload is complete
-                                    if load['sizeUploaded']==load['sizeTotal']:
+                                    if load['sizeUploaded']==load['sizeTotal'] \
+                                      or load['status'] not in ('initializing', 'uploading'):
                                         break
                                     # idle before polling again
                                     time.sleep(
