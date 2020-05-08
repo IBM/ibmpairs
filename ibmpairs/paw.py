@@ -1301,7 +1301,7 @@ class PAIRSQuery(object):
                                 if set, the query result is not locally downloaded, but
                                 published in your IBM cloud (this is a useful feature
                                 in combination with IBM Watson Studio notebooks)
-        :type cosInfo:          (str, str)
+        :type cosInfo:          (str, str, str)
         :param cosPollIntSec:   seconds to idle between polls to IBM COS
         :type cosPollIntSec:    float
         :param printStatus:     triggers printing the poll status information
@@ -1368,7 +1368,7 @@ class PAIRSQuery(object):
                     # TODO: move COS upload to separate function
                     if self.inIBMCOS:
                         # publish query result to COS
-                        if isinstance(cosInfo, tuple) and len(cosInfo)==2:
+                        if isinstance(cosInfo, tuple) and len(cosInfo)==3:
                             try:
                                 # initialize upload to COS
                                 resp = requests.post(
@@ -1382,7 +1382,7 @@ class PAIRSQuery(object):
                                     data   = json.dumps(
                                         {
                                             'provider': 'ibm',
-                                            'endpoint': self.COS_API_ENDPOINT,
+                                            'endpoint': self.COS_API_ENDPOINT if cosInfo[2] is None else cosInfo[2],
                                             'bucket':   str(cosInfo[0]),
                                             'token':    str(cosInfo[1]),
                                         }
