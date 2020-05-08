@@ -1426,7 +1426,7 @@ class PAIRSQuery(object):
                                         if printStatus:
                                             logger.warning(
                                                 "Upload PAIRS query {} to IBM COS at {:0.1f}%.".format(
-                                                    query.queryID,
+                                                    self.queryID,
                                                     100*float(load['sizeUploaded'])/float(load['sizeTotal'])
                                                 )
                                             )
