@@ -1425,7 +1425,8 @@ class PAIRSQuery(object):
                                     if resp.status_code == 200:
                                         if printStatus:
                                             logger.warning(
-                                                "Upload to IBM COS at {:0.1f}%.".format(
+                                                "Upload PAIRS query {} to IBM COS at {:0.1f}%.".format(
+                                                    query.queryID,
                                                     100*float(load['sizeUploaded'])/float(load['sizeTotal'])
                                                 )
                                             )
