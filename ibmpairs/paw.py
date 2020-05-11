@@ -1377,7 +1377,7 @@ class PAIRSQuery(object):
                     if self.inIBMCOS:
                         # publish query result to COS
                         if isinstance(cosInfoJSON, dict) and \
-                           set(COS_INFO_KEYS) <= set(cosInfoJSON):
+                           set(self.COS_INFO_KEYS) <= set(cosInfoJSON):
                             try:
                                 # initialize upload to COS
                                 resp = requests.post(
