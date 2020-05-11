@@ -1526,6 +1526,7 @@ class PAIRSQuery(object):
 
             # silently try to list the rasters and vectors
             try:
+                #TODO: incorporate COS mounting
                 self.list_layers()
             except Exception as e:
                 logger.warning("Ah, implicitly running `list_layers()` did not work out: '{}'".format(e))
