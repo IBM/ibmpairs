@@ -161,20 +161,29 @@ class PAIRSProject(object):
     def _logStatus(self):
         logger.info(self.__repr__())
 
-    def submitAllQueued(self, cosInfo=None, printStatus=False,):
+    def submitAllQueued(self, cosInfoJSON=None, printStatus=False,):
         '''
         Submits all queries in the local queue. Ensures that there are always maxConcurrent
         queries running. (Note that the maximum number of concurrent queries might be limited
         server side for a particular user. There is no guarantee that a user can submit
         maxConcurrent queries at a given time.)
 
-        :param cosInfo:     tuple with IBM Cloud Object Storage bucket name and access token
-                            if set, the query result is not locally downloaded, but
-                            published in your IBM cloud (this is a useful feature
-                            in combination with IBM Watson Studio notebooks)
-        :type cosInfo:      (str, str)
-        :param printStatus: triggers printing the poll status information of downloading a query
-        :type printStatus:  bool
+        :param cosInfoJSON:     IBM PAIRS with Cloud Object Storage bucket information like
+                                ```JSON
+                                {
+                                    "provider": "ibm",
+                                    "endpoint": "https://s3.us.cloud-object-storage.appdomain.cloud",
+                                    "bucket": "<your bucket name>",
+                                    "token": "<your secret token for bucket>"
+                                }
+                                ```
+                                if set, the query result is published in the cloud
+                                and not stored locally on your machine. It is a
+                                useful feature in combination with IBM Watson Studio notebooks
+        :type cosInfoJSON:      dict
+        :param printStatus:     triggers printing the poll status information of downloading
+                                a query
+        :type printStatus:      bool
         '''
 
         while True:
@@ -197,7 +206,7 @@ class PAIRSProject(object):
                         self.queries['running'].append(q)
                     elif q.queryStatus.json()['statusCode'] == 20:
                         try:
-                            q.download(cosInfo, printStatus)
+                            q.download(cosInfoJSON=cosInfoJSON, printStatus=printStatus)
                         except Exception as e:
                             print('Encountered exception {} while downloading.'.format(e))
                             self.queries['failed'].append(q)

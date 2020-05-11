@@ -381,6 +381,7 @@ class PAIRSQuery(object):
     DOWNLOAD_API_STRING          = u'v2/queryjobs/download/'
     COS_UPLOAD_API_STRING        = u'v2/queryjobs/upload/'
     COS_API_ENDPOINT             = u'https://s3.us.cloud-object-storage.appdomain.cloud'
+    COS_INFO_KEYS                = ('provider', 'endpoint', 'bucket', 'token')
     GET_GEOJSON_API_STRING       = u'ws/queryaois/geojson/'
     GET_AOI_INFO_API_STRING      = u'ws/queryaois/aoi/'
     GET_QUERY_INFO               = u'v2/queryhistories/full/queryjob/'
@@ -1288,7 +1289,7 @@ class PAIRSQuery(object):
 
     def download(
         self,
-        cosInfo         = None,
+        cosInfoJSON     = None,
         cosPollIntSec   = None,
         cosTimeout      = -1,
         printStatus     = False,
@@ -1296,12 +1297,19 @@ class PAIRSQuery(object):
         """
         Get the data previously queried and save the ZIP file.
 
-        :param cosInfo:         tuple with IBM Cloud Object Storage bucket name
-                                and access token
-                                if set, the query result is not locally downloaded, but
-                                published in your IBM cloud (this is a useful feature
-                                in combination with IBM Watson Studio notebooks)
-        :type cosInfo:          (str, str, str)
+        :param cosInfoJSON:     IBM PAIRS with Cloud Object Storage bucket information like
+                                ```JSON
+                                {
+                                    "provider": "ibm",
+                                    "endpoint": "https://s3.us.cloud-object-storage.appdomain.cloud",
+                                    "bucket": "<your bucket name>",
+                                    "token": "<your secret token for bucket>"
+                                }
+                                ```
+                                if set, the query result is published in the cloud
+                                and not stored locally on your machine. It is a
+                                useful feature in combination with IBM Watson Studio notebooks
+        :type cosInfoJSON:      dict
         :param cosPollIntSec:   seconds to idle between polls to IBM COS
         :type cosPollIntSec:    float
         :param printStatus:     triggers printing the poll status information
@@ -1311,7 +1319,7 @@ class PAIRSQuery(object):
         :type cosTimeout:       int
         """
         # flag IBM COS usage
-        if cosInfo is not None:
+        if cosInfoJSON is not None:
             self.inIBMCOS = True
         # skip online (point) query case (including reload query and cached query)
         if isinstance(self.querySubmit, MockSubmitResponse) or self.query is None \
@@ -1368,7 +1376,8 @@ class PAIRSQuery(object):
                     # TODO: move COS upload to separate function
                     if self.inIBMCOS:
                         # publish query result to COS
-                        if isinstance(cosInfo, tuple) and len(cosInfo)==3:
+                        if isinstance(cosInfoJSON, dict) and \
+                           set(COS_INFO_KEYS) <= set(cosInfoJSON):
                             try:
                                 # initialize upload to COS
                                 resp = requests.post(
@@ -1379,14 +1388,7 @@ class PAIRSQuery(object):
                                         ),
                                         str(self.queryID)
                                     ),
-                                    data   = json.dumps(
-                                        {
-                                            'provider': 'ibm',
-                                            'endpoint': self.COS_API_ENDPOINT if cosInfo[2] is None else cosInfo[2],
-                                            'bucket':   str(cosInfo[0]),
-                                            'token':    str(cosInfo[1]),
-                                        }
-                                    ),
+                                    json=cosInfoJSON,
                                     headers = {'Content-Type': 'application/json'},
                                     auth    = self.auth,
                                     verify  = self.verifySSL,
@@ -1446,7 +1448,7 @@ class PAIRSQuery(object):
                                         'Sorry, I have trouble getting your query result to Cloud Object storage: {}.'.format(e)
                                 )
                         else:
-                            msg = u'Sorry, I do not know what to do based on the `cosInfo` you provided.'
+                            msg = u'Sorry, I do not know what to do based on the `cosInfoJSON` you provided.'
                             logger.error(msg)
                             raise Exception(msg)
                     else:
