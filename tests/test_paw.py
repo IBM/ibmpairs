@@ -85,6 +85,7 @@ pytest.realConnectZIPPath   = None
 pytest.realConnectQueryID   = None
 COS_BUCKET_NAME             = 'test-paw'
 COS_BUCKET_KEY              = 'faKeKEY4M0ckTest'
+COS_ENDPOINT                = 'https://s3.us-east.cloud-object-storage.appdomain.cloud'
 # read/overwrite parameters from environment
 for var in (
     'REAL_CONNECT',
@@ -833,7 +834,12 @@ class TestPollQuery(unittest.TestCase):
             self.assertTrue(testRasterQuery.queryStatus.ok)
         # check data download
         testRasterQuery.download(
-            cosInfo = (COS_BUCKET_NAME, COS_BUCKET_KEY) if cosUpload else None,
+            cosInfoJSON = {
+                "bucket": COS_BUCKET_NAME,
+                "token": COS_BUCKET_KEY,
+                "provider": "ibm",
+                "endpoint": COS_ENDPOINT,
+            } if cosUpload else None,
             printStatus = cosUpload,
         )
         # TODO: modify tests as soon as binding COS with fs is an option to read data
