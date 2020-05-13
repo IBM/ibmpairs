@@ -1035,7 +1035,7 @@ class PAIRSQuery(object):
                         'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
                     )
                     logger.error(
-                        "Maybe your query definition is not right? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
+                        "Maybe your query definition is not right or PAIRS is temporarily unavailable? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
                     )
                     raise
 
