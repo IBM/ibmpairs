@@ -36,7 +36,8 @@ try:
     string_type = basestring
 except NameError:
     string_type = str
-
+# parallel processing
+import concurrent.futures
 # make reading file pointer streams in Python 2 and 3
 import codecs
 # modules needed
@@ -155,6 +156,8 @@ PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS   = (u'fl', u'db')
 PAW_QUERY_NAME_SEPARATOR            = '_'
 KEEP_QUERY_SOURCE_DIR_OPEN          = False
 CONFIGURE_LOGGING                   = False
+# PAIRS time series parameters
+TIMESERIES_RESPONSE_FILE_SCHEMA     = '{layerID}_{lon}~{lat}_{t0}-{t1}.json'
 # load parameters from the command line
 PAW_LOG_LEVEL                       = logging.DEBUG #logging.INFO
 LOG_LEVEL_ENV                       = u''
@@ -2102,7 +2105,12 @@ class PAIRSQuery(object):
 # fold: class optimized for PAIRS timeseries queries{{{
 class PAIRSTimeSeries(object):
     """
-    Class to assemble time series data from PAIRS data layers.
+    Assemble time series data from PAIRS data layers.
+
+    :param querySpecs:                              defines layers and spatio-temporal intervals to pull from PAIRS,
+                                                    the JSON schema is defined by PAIRSTimeseries.QUERY_INPUT_JSON_SCHEMA
+    :type querySpecs:                               dict
+    :raises jsonschema.exceptions.ValidationError:  in case the input `querySpecs` does not conform to the required format
     """
     # general settings
     UNIX_EPOCH_ZERO_TIME            = datetime.datetime(1970,1,1,0,0,0, tzinfo=pytz.UTC)
@@ -2176,12 +2184,9 @@ class PAIRSTimeSeries(object):
     def __init__(self, querySpecs):
         """
         Defines the data to be retrieved.
-
-        :param querySpecs:                              defines layers and spatio-temporal intervals to pull from PAIRS,
-                                                        the JSON schema is defined by PAIRSTimeseries.QUERY_INPUT_JSON_SCHEMA
-        :type querySpecs:                               dict
-        :raises jsonschema.exceptions.ValidationError:  in case the input `querySpecs` does not conform to the required format
         """
+        # TODO: add option for flexibly modifying server connecting to (as in PAIRSQuery)
+        # TODO: add flexible option to verify SSL
         # define logger
         self.logger     = logging.getLogger(__name__)
         # save input
@@ -2208,6 +2213,7 @@ class PAIRSTimeSeries(object):
 
         ## convert timestamps of input to UNIX epoch
         try:
+            # TODO: make fromisoformat compatible with Python 2
             for entry in self.querySpecs['spatio-temporal-queries']:
                 entry['temporal'] = [
                     {
@@ -2223,7 +2229,7 @@ class PAIRSTimeSeries(object):
 
 
 
-    def _get_pairs_timeseries(self, lon, lat, t0, t1, layerID, auth, requestFunction=requests.get, rawDataDumpDir='/tmp'):
+    def _get_pairs_timeseries(self, lon, lat, t0, t1, layerID, auth, requestFunction=requests.get, rawDataDumpDir=None):
         """
         Extracts time series of point location from PAIRS through time series API endpoint.
 
@@ -2301,7 +2307,7 @@ class PAIRSTimeSeries(object):
             with open(
                 os.path.join(
                     rawDataDumpDir,
-                    '{layerID}_{lon}~{lat}_{t0}-{t1}.json'.format(layerID=layerID, lon=lon, lat=lat, t0=t0, t1=t1,)
+                    TIMESERIES_RESPONSE_FILE_SCHEMA.format(layerID=layerID, lon=lon, lat=lat, t0=t0, t1=t1,)
             ), 'w') as fp:
                 json.dump(responseJSON, fp)
         return df, {
@@ -2334,7 +2340,10 @@ class PAIRSTimeSeries(object):
 
         ## instantiate requests session and parallel execution
         adapter = requests.adapters.HTTPAdapter(max_retries=retryRules)
-        with requests.Session() as http,              concurrent.futures.ThreadPoolExecutor(max_workers=self.PAIRS_NUM_PARALLEL_QUERIES) as pool:
+        with requests.Session() as http, \
+             concurrent.futures.ThreadPoolExecutor(
+                 max_workers=self.PAIRS_NUM_PARALLEL_QUERIES
+             ) as pool:
             # register requests session
             http.mount("https://", adapter)
             http.mount("http://", adapter)
