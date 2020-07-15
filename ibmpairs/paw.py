@@ -26,13 +26,17 @@ from builtins import dict, range, map, filter, zip, input, chr, str
 from past.builtins import xrange, execfile, intern, apply, cmp
 from io import open
 from functools import reduce
-from imp import reload
+try:
+    from importlib import reload
+except:
+    from imp import reload
 from future import standard_library
 standard_library.install_aliases()
 try:
     string_type = basestring
 except NameError:
     string_type = str
+
 # make reading file pointer streams in Python 2 and 3
 import codecs
 # modules needed
@@ -41,7 +45,7 @@ import pandas
 import errno
 from requests.compat import urlparse, urljoin
 import requests
-import json
+import json, jsonschema
 HAS_GEOJSON = False
 try:
     import geojson
@@ -50,7 +54,7 @@ except:
     pass
 import hashlib
 import time
-from datetime import datetime, timedelta
+import datetime
 import dateutil
 import pytz
 from shapely.geometry import shape, box, Point
@@ -135,15 +139,15 @@ PROPERTY_STRING_SPLIT_CHAR2         = u':'
 PROPERTY_STRING_COL_NAME            = u'PropertyString'
 PROPERTY_STRING_COL_NAME_POINT      = u'property'
 ## basic PAIRS query stati classes
-PAIRS_QUERY_RUN_STAT_REG_EX         = re.compile('^(0|1)')
-PAIRS_QUERY_FINISH_STAT_REG_EX      = re.compile('^2')
-PAIRS_QUERY_ERR_STAT_REG_EX         = re.compile('^(3|4)')
-PAIRS_PASSWORD_FILE_COMMENT_REG_EX  = re.compile('^\s*#')
+PAIRS_QUERY_RUN_STAT_REG_EX         = re.compile(r'^(0|1)')
+PAIRS_QUERY_FINISH_STAT_REG_EX      = re.compile(r'^2')
+PAIRS_QUERY_ERR_STAT_REG_EX         = re.compile(r'^(3|4)')
+PAIRS_PASSWORD_FILE_COMMENT_REG_EX  = re.compile(r'^\s*#')
 PAIRS_QUERY_DOWNLOADABLE_STAT       = 20
 ## define default download directory for PAIRS query object if needed
 DEFAULT_DOWNLOAD_DIR	            = u'./downloads'
 ## PAIRS raster file extension
-PAIRS_RASTER_FILE_EXT               = re.compile('.*\.tiff$')
+PAIRS_RASTER_FILE_EXT               = re.compile(r'.*\.tiff$')
 # PAIRS raster file pixel data type classes
 PAIRS_RASTER_INT_PIX_TYPE_CLASS     = (u'bt', u'sh', u'in')
 PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS   = (u'fl', u'db')
@@ -287,7 +291,7 @@ def get_pairs_api_password(
             for line in f:
                 if not re.match(PAIRS_PASSWORD_FILE_COMMENT_REG_EX, line):
                     serverF, userF, password  = re.split(r'(?<!\\):',line.strip())
-                    password = password.replace('\:', ':')
+                    password = password.replace(r'\:', ':')
                     if server == serverF and user == userF:
                         passFound = True
                         break
@@ -394,7 +398,6 @@ class PAIRSQuery(object):
     PAIRS_FILES_TIMESTAMP_SCHEMA2= '%m_%d_%YT%H:%M:%S'
     PAIRS_FILES_TIMESTAMP_SCHEMA = '%m_%d_%YT%H_%M_%S'
     PAIRS_FILES_SPLITTING_CHAR   = '-'
-    EPOCH_ZERO                   = datetime(1970,1,1, tzinfo=pytz.utc)
     RASTER_FILE_EXTENSION        = PAIRS_GEOTIFF_FILE_EXTENSION
     VECTOR_FILE_EXTENSION        = PAIRS_CSV_FILE_EXTENSION
 
@@ -1555,7 +1558,7 @@ class PAIRSQuery(object):
                 if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
                 and self.vdf[timeName].dtype in (numpy.float, numpy.int):
                     self.vdf[timeName] = self.vdf[timeName].apply(
-                        lambda t: t if numpy.isnan(t) else datetime.fromtimestamp(
+                        lambda t: t if numpy.isnan(t) else datetime.datetime.fromtimestamp(
                             t/1e3, tz=pytz.UTC
                         )
                     )
@@ -1582,7 +1585,7 @@ class PAIRSQuery(object):
                     if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
                     and self.vdf[timeName].dtype in (numpy.float, numpy.int):
                         self.vdf[timeName] = self.vdf[timeName].apply(
-                            lambda t: datetime.fromtimestamp(t, tz=pytz.UTC)
+                            lambda t: datetime.datetime.fromtimestamp(t, tz=pytz.UTC)
                         )
                 except Exception as e:
                     raise Exception(
@@ -1907,8 +1910,8 @@ class PAIRSQuery(object):
         """
         # convert timestamp information (if any)
         if PAIRS_META_TIMESTAMP_NAME in layerMeta.keys() \
-        and not isinstance(layerMeta[PAIRS_META_TIMESTAMP_NAME], datetime):
-            layerMeta[PAIRS_META_TIMESTAMP_NAME] = datetime.fromtimestamp(
+        and not isinstance(layerMeta[PAIRS_META_TIMESTAMP_NAME], datetime.datetime):
+            layerMeta[PAIRS_META_TIMESTAMP_NAME] = datetime.datetime.fromtimestamp(
                 int(layerMeta[PAIRS_META_TIMESTAMP_NAME])/1000.,
                 tz=pytz.UTC
             )
@@ -2095,3 +2098,326 @@ class PAIRSQuery(object):
                 self.create_layer(fileName, layerMeta, defaultExtension=defaultExtension)
 
 # }}}
+
+# fold: class optimized for PAIRS timeseries queries{{{
+class PAIRSTimeSeries(object):
+    """
+    Class to assemble time series data from PAIRS data layers.
+    """
+    # general settings
+    UNIX_EPOCH_ZERO_TIME            = datetime.datetime(1970,1,1,0,0,0, tzinfo=pytz.UTC)
+    # time series dataframe related settings
+    DATAFRAME_LATITUDE_NAME         = 'latitude'
+    DATAFRAME_LONGITUDE_NAME        = 'longitude'
+    DATAFRAME_TIMESTAMP_NAME        = 'timestamp'
+    DATAFRAME_TIMESTAMP_FORMAT      = '%Y-%m-%dT%H:%M:%S%z'
+    # PAIRS related configuration settings
+    PAIRS_TIMESERIES_BASE_URL       = 'https://{}/v2/timeseries'.format(PAIRS_DEFAULT_SERVER)
+    PAIRS_QUERY_RETRIES             = 10
+    PAIRS_QUERY_RETRY_BACKOFF_FACTOR= 3
+    PAIRS_JSON_VALUE_KEY_NAME       = 'value'
+    PAIRS_JSON_TIMESTAMP_NAME       = 'timestamp'
+    PAIRS_NUM_PARALLEL_QUERIES      = 2
+    PAIRS_QUERY_SUCCESS_CODES       = [200, 201]
+    # define class variables
+    QUERY_INPUT_JSON_SCHEMA = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "layers": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "pairs-layer-id":   {"type": "string"},
+                        "column-name":      {"type": "string"},
+                        "dimensions": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {"type": "string"},
+                                    "value": {"type": "string"},
+                                },
+                            },
+                        },
+                    },
+                    "required": ["pairs-layer-id", "column-name",],
+                }
+            },
+            "spatio-temporal-queries": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "longitude":{"type": "number"},
+                        "latitude": {"type": "number"},
+                        "temporal": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "start": {"type": "string"},
+                                    "end": {"type": "string"},
+                                },
+                                "required": ["start", "end",],
+                            }
+                        },
+                    },
+                    "required": ["longitude", "latitude", "temporal",],
+                }
+            }
+        },
+        "required": ["layers", "spatio-temporal-queries",],
+    }
+
+
+
+    def __init__(self, querySpecs):
+        """
+        Defines the data to be retrieved.
+
+        :param querySpecs:                              defines layers and spatio-temporal intervals to pull from PAIRS,
+                                                        the JSON schema is defined by PAIRSTimeseries.QUERY_INPUT_JSON_SCHEMA
+        :type querySpecs:                               dict
+        :raises jsonschema.exceptions.ValidationError:  in case the input `querySpecs` does not conform to the required format
+        """
+        # define logger
+        self.logger     = logging.getLogger(__name__)
+        # save input
+        self.querySpecs = querySpecs
+        # check input for correct schema
+        jsonschema.validate(
+            instance    = self.querySpecs,
+            schema      = self.QUERY_INPUT_JSON_SCHEMA,
+        )
+        # reformat input
+        ## transform input (simplify layer information in preparation for query string)
+        self.querySpecs['layers'] = {
+            layer["column-name"]: '{layerID}{dimensionList}'.format(
+                layerID         = layer["pairs-layer-id"],
+                dimensionList   = '&dimension='+','.join(
+                    [
+                        '{name}%3D{value}'.format(name=dimension['name'], value=dimension['value'])
+                        for dimension in layer['dimensions']
+                    ]
+                ) if 'dimensions' in layer else '',
+            )
+            for layer in self.querySpecs['layers']
+        }
+
+        ## convert timestamps of input to UNIX epoch
+        try:
+            for entry in self.querySpecs['spatio-temporal-queries']:
+                entry['temporal'] = [
+                    {
+                        'start':int(1e3*(datetime.datetime.fromisoformat(item['start'])-self.UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                        'end':  int(1e3*(datetime.datetime.fromisoformat(item['end'])-self.UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                    }
+                    for item in entry['temporal']
+                ]
+        except Exception as e:
+            raise Exception('Invalid `querySpecs` given: {}'.format(e))
+        # print reformatted input for debugging
+        self.logger.debug(json.dumps(self.querySpecs, indent=2))
+
+
+
+    def _get_pairs_timeseries(self, lon, lat, t0, t1, layerID, auth, requestFunction=requests.get, rawDataDumpDir='/tmp'):
+        """
+        Extracts time series of point location from PAIRS through time series API endpoint.
+
+        :param lon:             longitude of point of interest
+        :type lon:              float
+        :param lat:             latitude of point of interest
+        :type lat:              float
+        :param t0:              UNIX epoch time in milliseconds to start time series
+        :type t0:               int
+        :param t1:              UNIX epoch time in milliseconds to end time series
+        :type t1:               int
+        :param layerID:         PAIRS layer ID to query, potentially with URL-compatible
+                                dimension specification in format:
+                                `&dimension=<name1>%D3<value1>,<name1>%D3<value1>...`
+        :type layerID:          str
+        :param auth:            PAIRS credentials for authentication
+        :type auth:             (str, str)
+        :param requestFunction: request function to be used for GET call to PAIRS
+        :type requestFunction:  function
+        :param rawDataDumpDir:  if set, the PAIRS query result is dumped as JSON
+                                file into the given directory
+        :type rawDataDumpDir:   str
+        :returns:               time series data queried from PAIRS for layer `layerID`
+                                and dictionary of time series summary information
+                                - temporal interval: [`"first-timestamp"`, `"last-timestamp"`]
+                                - number of timestamps in `"number-data-points"`
+        :rtype:                 pandas.DataFrame, dict
+        :raises Exception:      if `t0` is smaller than `t1` or if the JSON data
+                                dump directory does not exist
+        """
+        # check inputs
+        try:
+            assert t0 < t1
+        except Exception as e:
+            raise Exception('start of time interval is later than its end.: {}'.format(e))
+        if rawDataDumpDir is not None and not os.path.isdir(rawDataDumpDir):
+            raise Exception(
+                "The directory path '{}' does not exist.".format(rawDataDumpDir)
+            )
+
+        # compose PAIRS query URL
+        url="{baseURL}?start={startUNIXEpochMS}&end={endUNIXEpochMS}&lon={longitude}&lat={latitude}&layer={layerID}".format(
+            baseURL             = self.PAIRS_TIMESERIES_BASE_URL,
+            startUNIXEpochMS    = t0,
+            endUNIXEpochMS      = t1,
+            longitude           = lon,
+            latitude            = lat,
+            layerID             = layerID,
+        )
+        self.logger.debug(url)
+        response = requestFunction.get(url=url, auth=auth,)
+        # check that the response is valid
+        if response.status_code not in self.PAIRS_QUERY_SUCCESS_CODES:
+            raise requests.HTTPError(response.status_code)
+        # convert response into Pandas dataframe
+        try:
+            # make Pandas dataframe from PAIRS query JSON
+            responseJSON = response.json()
+            df = pandas.DataFrame(responseJSON['data'])
+            # format Pandas dataframe
+            if len(df)==0:
+                #TODO: fix empty return for PAIRS point query
+                self.logger.warning("{} returned no data: {}".format(url,response.text))
+                return None, None
+            # convert timestamp
+            df[self.PAIRS_JSON_TIMESTAMP_NAME]  = pandas.to_datetime(df[self.PAIRS_JSON_TIMESTAMP_NAME], unit='ms',)
+            # add layer information column
+            df['layerID']                       = layerID
+            df[self.DATAFRAME_LONGITUDE_NAME]   = lon
+            df[self.DATAFRAME_LATITUDE_NAME]    = lat
+        except Exception as e:
+            raise Exception('Unable to convert PAIRS data into Pandas dataframe.: {}'.format(e))
+        # write raw data queried to file (if any)
+        if rawDataDumpDir is not None:
+            with open(
+                os.path.join(
+                    rawDataDumpDir,
+                    '{layerID}_{lon}~{lat}_{t0}-{t1}.json'.format(layerID=layerID, lon=lon, lat=lat, t0=t0, t1=t1,)
+            ), 'w') as fp:
+                json.dump(responseJSON, fp)
+        return df, {
+            'first-timestamp':      responseJSON['start'],
+            'last-timestamp':       responseJSON['end'],
+            'number-data-points':   responseJSON['count'],
+        }
+
+
+
+    def get_dataframe(self, auth, spatioTemporalIndex=False):
+        """
+        Function to query point data from PAIRS.
+        :param auth:                               PAIRS API credentials in (user, password) format
+        :type auth:                                (str, str)
+        :param spatioTemporalIndex:                whether or not to spatio-temorally index the Pandas dataframe to be returned,
+                                                   *note*: temporal index comes last for time series optimization
+        :type spatioTemporalIndex                  bool
+        :returns:                                  table with PAIRS data
+        :rtype:                                    pandas.DataFrame
+        :raises urllib3.exceptions.MaxRetryError:  in case PAIRS is unreachable
+        :raises requests.HTTPError:                in case the PAIRS HTTP response code is not 200
+        """
+        # set up requests session
+        ## set retry rules for PAIRS queries
+        retryRules = requests.packages.urllib3.util.retry.Retry(
+            total           = self.PAIRS_QUERY_RETRIES,
+            backoff_factor  = self.PAIRS_QUERY_RETRY_BACKOFF_FACTOR,
+        )
+
+        ## instantiate requests session and parallel execution
+        adapter = requests.adapters.HTTPAdapter(max_retries=retryRules)
+        with requests.Session() as http,              concurrent.futures.ThreadPoolExecutor(max_workers=self.PAIRS_NUM_PARALLEL_QUERIES) as pool:
+            # register requests session
+            http.mount("https://", adapter)
+            http.mount("http://", adapter)
+            # compile list of arguments for parallel PAIRS query jobs
+            try:
+                parallelExecuteList = [
+                    {
+                        "t0":               interval['start'],
+                        "t1":               interval['end'],
+                        "lon":              query['longitude'],
+                        "lat":              query['latitude'],
+                        "layerID":          layerID,
+                        "requestFunction":  http,
+                    }
+                    for layerName, layerID in self.querySpecs['layers'].items()
+                    for query in self.querySpecs['spatio-temporal-queries']
+                    for interval in query['temporal']
+                ]
+            except Exception as e:
+                raise Exception('Unable to generate PAIRS queries from `querySpecs`: {}'.format(e))
+            # fetch data from PAIRS
+            pairsQueryDataFrames = [
+                df
+                for df, _ in pool.map(
+                    lambda x: self._get_pairs_timeseries(auth=auth, **x),
+                    parallelExecuteList
+                )
+                if df is not None
+            ]
+            self.logger.debug(
+                'There has been {} PAIRS time series queries with no data available.'.format(
+                    len(parallelExecuteList) - len(pairsQueryDataFrames)
+                )
+            )
+
+            # concatenate PAIRS query results
+            fullDf = pandas.concat(pairsQueryDataFrames, axis=0, ignore_index=True)
+
+
+            # reshape Pandas dataframe for final output
+            ## instantiate empty, auxiliary dataframe for iterative joining
+            auxDf = pandas.DataFrame(
+                [],
+                columns=[
+                    self.DATAFRAME_LONGITUDE_NAME,
+                    self.DATAFRAME_LATITUDE_NAME,
+                    self.PAIRS_JSON_TIMESTAMP_NAME,
+                    self.PAIRS_JSON_VALUE_KEY_NAME,
+                ],
+            )
+            ## prepare function to infer column name from PAIRS layer ID (with dimension)
+            inverseLayerDict = { v: k for k, v in self.querySpecs['layers'].items() }
+            ## join groups of data from full query result
+            for layerID, layerData in fullDf.groupby('layerID'):
+                layerData.drop('layerID', inplace=True, axis=1)
+                auxDf = auxDf.merge(
+                    layerData.rename(
+                        columns={self.PAIRS_JSON_VALUE_KEY_NAME: inverseLayerDict[layerID],},
+                    ),
+                    how = 'outer',
+                    on  = [
+                        self.DATAFRAME_LATITUDE_NAME,
+                        self.DATAFRAME_LONGITUDE_NAME,
+                        self.PAIRS_JSON_TIMESTAMP_NAME,
+                    ],
+                )
+            ## reformat data frame include indexing and timestamp column renaming
+            fullDf = auxDf.reset_index(drop=True).drop(
+                self.PAIRS_JSON_VALUE_KEY_NAME, axis=1
+            ).rename(
+                columns = {
+                    self.PAIRS_JSON_TIMESTAMP_NAME: self.DATAFRAME_TIMESTAMP_NAME,
+                }
+            )
+
+            ## spatio-temporal indexing if requested
+            if spatioTemporalIndex:
+                fullDf = fullDf.set_index([
+                    self.DATAFRAME_LONGITUDE_NAME,
+                    self.DATAFRAME_LATITUDE_NAME,
+                    self.DATAFRAME_TIMESTAMP_NAME,
+                ])
+
+
+            return fullDf
+#}}}
