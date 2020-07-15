@@ -1592,7 +1592,6 @@ class TestTimeseriesQuery(unittest.TestCase):
         """
         Checks the real PAIRS point query service against the mock used.
         """
-        # TODO: adapt code below for timeseries queries
         # get real data
         try:
             self.pairsServerMock.stop()

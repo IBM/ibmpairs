@@ -2315,7 +2315,7 @@ class PAIRSTimeSeries(object):
                     json.dump(responseJSON, fp)
                 except:
                     # Python 2
-                    fp.write(unicode(json.dumps(responseJSON, ensure_ascii=False,)))
+                    fp.write(json.dumps(responseJSON, ensure_ascii=False,))
 
         return df, {
             'first-timestamp':      responseJSON['start'],
