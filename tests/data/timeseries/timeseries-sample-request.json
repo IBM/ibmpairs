@@ -1,0 +1,72 @@
+{
+  "layers": [
+    {
+      "column-name": "dewpoint",
+      "pairs-layer-id": "49304"
+    },
+    {
+      "column-name": "temperature",
+      "pairs-layer-id": "49257"
+    },
+    {
+      "column-name": "pressure",
+      "pairs-layer-id": "49248"
+    },
+    {
+      "column-name": "relative_humidity",
+      "pairs-layer-id": "49252"
+    },
+    {
+      "column-name": "wind_speed",
+      "pairs-layer-id": "49313"
+    },
+    {
+      "column-name": "wind_direction",
+      "pairs-layer-id": "50463"
+    },
+    {
+      "column-name": "precipitation_rate",
+      "pairs-layer-id": "49249"
+    },
+    {
+      "column-name": "ndvi_forecast",
+      "pairs-layer-id": "51",
+      "dimensions": [
+        {
+          "name": "horizon",
+          "value": "4"
+        },
+        {
+          "name": "forecast",
+          "value": "a"
+        }
+      ]
+    }
+  ],
+  "spatio-temporal-queries": [
+    {
+      "longitude": -122.03,
+      "latitude": 38.0,
+      "temporal": [
+        {
+          "start": "2019-03-01T00:00:00+00:00",
+          "end": "2019-04-07T00:00:00+00:00"
+        },
+        {
+          "start": "2017-09-01T00:00:00+00:00",
+          "end": "2017-09-07T00:00:00+00:00"
+        }
+      ]
+    },
+    {
+      "longitude": -94,
+      "latitude": 30.5,
+      "temporal": [
+        {
+          "start": "2019-05-01T00:00:00+00:00",
+          "end": "2019-05-07T00:00:00+00:00"
+        }
+      ]
+    }
+  ]
+}
