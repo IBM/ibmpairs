@@ -16,11 +16,12 @@ __copyright__   = "(c) 2017-2020, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "May 2020"
+__date__        = "July 2020"
 
 # fold: imports{{{
 # basic imports
 import os, sys
+import copy
 # compatibility of code with Python 2 and 3
 from builtins import dict, range, map, filter, zip, input, chr, str
 from past.builtins import xrange, execfile, intern, apply, cmp
@@ -56,7 +57,7 @@ except:
 import hashlib
 import time
 import datetime
-import dateutil
+import dateutil, dateutil.parser
 import pytz
 from shapely.geometry import shape, box, Point
 import re
@@ -362,7 +363,7 @@ class PAIRSQuery(object):
     :type downloadDir:          str
     :param baseURI:             PAIRS API base URI to append to the base URL (cf. `pairsHost`)
     :type baseURI:              str
-    :param verifySSL:           if set SSL connections are verified
+    :param verifySSL:                          if SSL connections get verified
     :type verifySSL:            bool
     :param vectorFormat:        data format of the vector data
     :type vectorFormat:         str
@@ -382,7 +383,7 @@ class PAIRSQuery(object):
                                 if the query defintion is not understood
                                 if a manually set PAIRS query ZIP directory does not exist
     """
-    # class wide constants/parameters
+    # class-wide constants/parameters
     SUBMIT_API_STRING            = u'v2/query'
     STATUS_API_STRING            = u'v2/queryjobs/'
     DOWNLOAD_API_STRING          = u'v2/queryjobs/download/'
@@ -2108,7 +2109,7 @@ class PAIRSTimeSeries(object):
     Assemble time series data from PAIRS data layers.
 
     :param querySpecs:                              defines layers and spatio-temporal intervals to pull from PAIRS,
-                                                    the JSON schema is defined by PAIRSTimeseries.QUERY_INPUT_JSON_SCHEMA
+                                                    the JSON schema is defined by PAIRSTimeSeries.QUERY_INPUT_JSON_SCHEMA
     :type querySpecs:                               dict
     :raises jsonschema.exceptions.ValidationError:  in case the input `querySpecs` does not conform to the required format
     """
@@ -2120,7 +2121,7 @@ class PAIRSTimeSeries(object):
     DATAFRAME_TIMESTAMP_NAME        = 'timestamp'
     DATAFRAME_TIMESTAMP_FORMAT      = '%Y-%m-%dT%H:%M:%S%z'
     # PAIRS related configuration settings
-    PAIRS_TIMESERIES_BASE_URL       = 'https://{}/v2/timeseries'.format(PAIRS_DEFAULT_SERVER)
+    PAIRS_TIMESERIES_ENDPOINT       = 'v2/timeseries'
     PAIRS_QUERY_RETRIES             = 10
     PAIRS_QUERY_RETRY_BACKOFF_FACTOR= 3
     PAIRS_JSON_VALUE_KEY_NAME       = 'value'
@@ -2181,16 +2182,11 @@ class PAIRSTimeSeries(object):
 
 
 
-    def __init__(self, querySpecs):
-        """
-        Defines the data to be retrieved.
-        """
-        # TODO: add option for flexibly modifying server connecting to (as in PAIRSQuery)
-        # TODO: add flexible option to verify SSL
-        # define logger
-        self.logger     = logging.getLogger(__name__)
+    def __init__(
+        self, querySpecs,
+    ):
         # save input
-        self.querySpecs = querySpecs
+        self.querySpecs = copy.deepcopy(querySpecs)
         # check input for correct schema
         jsonschema.validate(
             instance    = self.querySpecs,
@@ -2213,23 +2209,26 @@ class PAIRSTimeSeries(object):
 
         ## convert timestamps of input to UNIX epoch
         try:
-            # TODO: make fromisoformat compatible with Python 2
             for entry in self.querySpecs['spatio-temporal-queries']:
                 entry['temporal'] = [
                     {
-                        'start':int(1e3*(datetime.datetime.fromisoformat(item['start'])-self.UNIX_EPOCH_ZERO_TIME).total_seconds()),
-                        'end':  int(1e3*(datetime.datetime.fromisoformat(item['end'])-self.UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                        'start':int(1e3*(dateutil.parser.isoparse(item['start'])-self.UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                        'end':  int(1e3*(dateutil.parser.isoparse(item['end'])-self.UNIX_EPOCH_ZERO_TIME).total_seconds()),
                     }
                     for item in entry['temporal']
                 ]
         except Exception as e:
             raise Exception('Invalid `querySpecs` given: {}'.format(e))
         # print reformatted input for debugging
-        self.logger.debug(json.dumps(self.querySpecs, indent=2))
+        logger.debug(json.dumps(self.querySpecs, indent=2))
 
 
 
-    def _get_pairs_timeseries(self, lon, lat, t0, t1, layerID, auth, requestFunction=requests.get, rawDataDumpDir=None):
+    def _get_pairs_timeseries(
+        self, lon, lat, t0, t1, layerID, auth,
+        requestFunction     = requests.get,
+        rawDataDumpDir      = None
+    ):
         """
         Extracts time series of point location from PAIRS through time series API endpoint.
 
@@ -2271,16 +2270,17 @@ class PAIRSTimeSeries(object):
             )
 
         # compose PAIRS query URL
-        url="{baseURL}?start={startUNIXEpochMS}&end={endUNIXEpochMS}&lon={longitude}&lat={latitude}&layer={layerID}".format(
-            baseURL             = self.PAIRS_TIMESERIES_BASE_URL,
+        url="{baseURL}{timeseriesEndpoint}?start={startUNIXEpochMS}&end={endUNIXEpochMS}&lon={longitude}&lat={latitude}&layer={layerID}".format(
+            baseURL             = self.pairsBaseURL,
+            timeseriesEndpoint  = self.PAIRS_TIMESERIES_ENDPOINT,
             startUNIXEpochMS    = t0,
             endUNIXEpochMS      = t1,
             longitude           = lon,
             latitude            = lat,
             layerID             = layerID,
         )
-        self.logger.debug(url)
-        response = requestFunction.get(url=url, auth=auth,)
+        logger.debug(url)
+        response = requestFunction(url=url, auth=auth, verify=self.verifySSL,)
         # check that the response is valid
         if response.status_code not in self.PAIRS_QUERY_SUCCESS_CODES:
             raise requests.HTTPError(response.status_code)
@@ -2291,8 +2291,7 @@ class PAIRSTimeSeries(object):
             df = pandas.DataFrame(responseJSON['data'])
             # format Pandas dataframe
             if len(df)==0:
-                #TODO: fix empty return for PAIRS point query
-                self.logger.warning("{} returned no data: {}".format(url,response.text))
+                logger.warning("{} returned no data: {}".format(url,response.text))
                 return None, None
             # convert timestamp
             df[self.PAIRS_JSON_TIMESTAMP_NAME]  = pandas.to_datetime(df[self.PAIRS_JSON_TIMESTAMP_NAME], unit='ms',)
@@ -2307,9 +2306,17 @@ class PAIRSTimeSeries(object):
             with open(
                 os.path.join(
                     rawDataDumpDir,
-                    TIMESERIES_RESPONSE_FILE_SCHEMA.format(layerID=layerID, lon=lon, lat=lat, t0=t0, t1=t1,)
+                    TIMESERIES_RESPONSE_FILE_SCHEMA.format(
+                        layerID=layerID, lon=lon, lat=lat, t0=t0, t1=t1,
+                    )
             ), 'w') as fp:
-                json.dump(responseJSON, fp)
+                try:
+                    # Python 3
+                    json.dump(responseJSON, fp)
+                except:
+                    # Python 2
+                    fp.write(unicode(json.dumps(responseJSON, ensure_ascii=False,)))
+
         return df, {
             'first-timestamp':      responseJSON['start'],
             'last-timestamp':       responseJSON['end'],
@@ -2318,9 +2325,21 @@ class PAIRSTimeSeries(object):
 
 
 
-    def get_dataframe(self, auth, spatioTemporalIndex=False):
+    def get_dataframe(
+        self,
+        pairsBaseURL        = None,
+        verifySSL           = True,
+        auth                = None,
+        spatioTemporalIndex = False,
+    ):
         """
         Function to query point data from PAIRS.
+
+        :param pairsBaseURL:                       PAIRS base URL to be used for API endpoint,
+                                                   example: `https://pairs.res.ibm.com:443`
+        :type pairsBaseURL:                        str
+        :param verifySSL:                          if SSL connections get verified
+        :type verifySSL:                           bool
         :param auth:                               PAIRS API credentials in (user, password) format
         :type auth:                                (str, str)
         :param spatioTemporalIndex:                whether or not to spatio-temorally index the Pandas dataframe to be returned,
@@ -2331,6 +2350,27 @@ class PAIRSTimeSeries(object):
         :raises urllib3.exceptions.MaxRetryError:  in case PAIRS is unreachable
         :raises requests.HTTPError:                in case the PAIRS HTTP response code is not 200
         """
+        # set PAIRS connection details
+        ## PAIRS URL (guarantee trailing slash)
+        self.pairsBaseURL = '{}://{}{}{}'.format(
+            PAIRS_DEFAULT_PROTOCOL,
+            PAIRS_DEFAULT_SERVER,
+            PAIRS_DEFAULT_BASE_URI,
+        ) if pairsBaseURL is None else pairsBaseURL
+        if len(self.pairsBaseURL)>0 and self.pairsBaseURL[-1]!='/':
+            self.pairsBaseURL += '/'
+        ## authentication
+        auth = (
+            PAIRS_DEFAULT_USER,
+            get_pairs_api_password(
+                server  = PAIRS_DEFAULT_SERVER,
+                user    = PAIRS_DEFAULT_USER,
+                passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
+            )
+        ) if auth is None else auth
+        ## SSL verification
+        self.verifySSL = verifySSL
+
         # set up requests session
         ## set retry rules for PAIRS queries
         retryRules = requests.packages.urllib3.util.retry.Retry(
@@ -2356,7 +2396,7 @@ class PAIRSTimeSeries(object):
                         "lon":              query['longitude'],
                         "lat":              query['latitude'],
                         "layerID":          layerID,
-                        "requestFunction":  http,
+                        "requestFunction":  http.get,
                     }
                     for layerName, layerID in self.querySpecs['layers'].items()
                     for query in self.querySpecs['spatio-temporal-queries']
@@ -2373,7 +2413,7 @@ class PAIRSTimeSeries(object):
                 )
                 if df is not None
             ]
-            self.logger.debug(
+            logger.debug(
                 'There has been {} PAIRS time series queries with no data available.'.format(
                     len(parallelExecuteList) - len(pairsQueryDataFrames)
                 )
