@@ -65,27 +65,29 @@ else:
 #}}}
 # fold: parameter settings{{{
 # define global test parameters
-TEST_DATA_DIR               = 'tests/data'
-PAIRS_SERVER                = 'pairs.res.ibm.com'
-PAIRS_PORT                  = None
-PAIRS_BASE_URI              = '/'
-QUERY_ENDPOINT              = 'v2/query'
-STATUS_ENDPOINT             = 'v2/queryjobs/'
-DOWNLOAD_ENDPOINT           = 'v2/queryjobs/download/'
-COS_UPLOAD_ENDPOINT         = 'v2/queryjobs/upload/'
-PAIRS_QUERY_ID_REGEX        = '[0-9]+_[0-9]+'
-QUERY_INFO_ENDPOINT         = 'v2/queryhistories/full/queryjob/'
-REAL_CONNECT                = False
-USE_SSL                     = True
-VERIFY_SSL                  = True
-PAIRS_USER                  = 'fakeUser'
-PAIRS_PASSWORD              = 'fakePassword'
-PAIRS_PASSWORD_FILE_NAME    = 'ibmpairspass.txt'
-pytest.realConnectZIPPath   = None
-pytest.realConnectQueryID   = None
-COS_BUCKET_NAME             = 'test-paw'
-COS_BUCKET_KEY              = 'faKeKEY4M0ckTest'
-COS_ENDPOINT                = 'https://s3.us-east.cloud-object-storage.appdomain.cloud'
+TEST_DATA_DIR                   = 'tests/data'
+PAIRS_SERVER                    = 'pairs.res.ibm.com'
+PAIRS_PORT                      = None
+PAIRS_BASE_URI                  = '/'
+QUERY_ENDPOINT                  = 'v2/query'
+STATUS_ENDPOINT                 = 'v2/queryjobs/'
+DOWNLOAD_ENDPOINT               = 'v2/queryjobs/download/'
+COS_UPLOAD_ENDPOINT             = 'v2/queryjobs/upload/'
+TIMESERIES_ENDPOINT             = 'v2/timeseries'
+TIMESERIES_RESPONSE_FILE_SCHEMA = '{layerID}_{lon}~{lat}_{t0}-{t1}.json'
+PAIRS_QUERY_ID_REGEX            = '[0-9]+_[0-9]+'
+QUERY_INFO_ENDPOINT             = 'v2/queryhistories/full/queryjob/'
+REAL_CONNECT                    = False
+USE_SSL                         = True
+VERIFY_SSL                      = True
+PAIRS_USER                      = 'fakeUser'
+PAIRS_PASSWORD                  = 'fakePassword'
+PAIRS_PASSWORD_FILE_NAME        = 'ibmpairspass.txt'
+pytest.realConnectZIPPath       = None
+pytest.realConnectQueryID       = None
+COS_BUCKET_NAME                 = 'test-paw'
+COS_BUCKET_KEY                  = 'faKeKEY4M0ckTest'
+COS_ENDPOINT                    = 'https://s3.us-east.cloud-object-storage.appdomain.cloud'
 # read/overwrite parameters from environment
 for var in (
     'REAL_CONNECT',
@@ -1467,6 +1469,136 @@ class TestPollQuery(unittest.TestCase):
         self.compare_mock_vs_real_query('point-batch-data-sample-request-raster.json')
     #}}}
 # }}}
+
+# fold: test PAIRS timeseries queries{{{
+class TestTimeseriesQuery(unittest.TestCase):
+    """
+    Test cases for querying timeseries from PAIRS (conceptually quite similar to point queries).
+    """
+    # fold: setup mocked environment#{{{
+    @classmethod
+    def setUpClass(cls):
+        # define and start PAIRS mock server
+        cls.pairsServerMock = responses.RequestsMock()
+        cls.responseDataDir = os.path.join(TEST_DATA_DIR, 'timeseries')
+        ## define endpoint processing
+        def timeseries_data_endpoint(request):
+            respCode        = 400
+            headers         = {}
+            response_body   = {}
+            payload         = request.params
+            logging.debug('The timeseries payload is: {}'.format(payload))
+            # perform some tests on payload sent
+            if {'lon', 'lat', 'start', 'end', 'layer'} <= set(payload.keys()):
+                # check if dimensions are given to correct layer information:
+                if 'dimension' in payload.keys():
+                    payload['layer'] += '&dimension='+payload['dimension'].replace('=', '%3D')
+                # generate response body
+                responseJSONFileName = TIMESERIES_RESPONSE_FILE_SCHEMA.format(
+                    lon         = payload['lon'],
+                    lat         = payload['lat'],
+                    layerID     = payload['layer'],
+                    t0          = payload['start'],
+                    t1          = payload['end'],
+                )
+                response_body   = json.load(
+                    open(os.path.join(cls.responseDataDir,responseJSONFileName))
+                )
+                respCode    = 200
+
+            return respCode, headers, json.dumps(response_body)
+        ## add endpoint
+        cls.pairsServerMock.add_callback(
+            responses.GET,
+            re.compile(
+                '{}://{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, TIMESERIES_ENDPOINT,)
+            ),
+            callback=timeseries_data_endpoint,
+            # do not use given parameters for URL matching
+            match_querystring=False,
+        )
+        if not REAL_CONNECT:
+            cls.pairsServerMock.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            cls.pairsServerMock.stop()
+        except:
+            pass
+    #}}}
+
+    def test_timeseries_query(self):
+        """
+        Test querying PAIRS for time series (conceptually to point queries).
+        """
+        # query mocked data
+        logging.info("TEST: Query {}timeseries data.".format('' if REAL_CONNECT else 'mocked '))
+        # define time series query
+        testTimeSeriesQuery = paw.PAIRSTimeSeries(
+            json.load(open(os.path.join(self.responseDataDir,'timeseries-sample-request.json'))),
+        )
+        df = testTimeSeriesQuery.get_dataframe(auth=PAIRS_CREDENTIALS,)
+        # TODO: analyze DataFrame according to what is expected with self.assertIn, etc., data types
+        # check vector data frame
+        del testTimeSeriesQuery
+
+
+    @unittest.skipIf(
+        not REAL_CONNECT,
+        "Skip checking mock against real service (point query)."
+    )
+    def test_mock_from_timeseries_query(self):
+        """
+        Checks the real PAIRS point query service against the mock used.
+        """
+        # TODO: adapt code below for timeseries queries
+        # get real data
+        try:
+            self.pairsServerMock.stop()
+        except Exception as e:
+            # catch not all requests called error
+            logging.warning(
+                'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
+            )
+        testRealRasterResponse = requests.post(
+            '{protocol}://{server}{port}{base}{endpoint}'.format(
+                protocol    = WEB_PROTOCOL,
+                server      = PAIRS_SERVER,
+                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                base        = PAIRS_BASE_URI,
+                endpoint    = QUERY_ENDPOINT,
+            ),
+            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'r')),
+            auth    = PAIRS_CREDENTIALS,
+            verify  = VERIFY_SSL,
+        )
+        # make sure the return from the real server was successful
+        self.assertEqual(200, testRealRasterResponse.status_code)
+        # get mock data
+        self.pairsServerMock.start()
+        testPointQueryRasterMock = paw.PAIRSQuery(
+            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
+            WEB_PROTOCOL+'://'+PAIRS_SERVER,
+            port        = PAIRS_PORT,
+            auth        = PAIRS_CREDENTIALS,
+            baseURI     = PAIRS_BASE_URI,
+            verifySSL   = VERIFY_SSL,
+        )
+        testPointQueryRasterMock.submit()
+        # compare data entry keys
+        self.assertListEqual(
+            sorted(testRealRasterResponse.json()['data'][0].keys()),
+            sorted(testPointQueryRasterMock.querySubmit.json()['data'][0].keys()),
+        )
+        try:
+            self.pairsServerMock.stop()
+        except Exception as e:
+            # catch not all requests called error
+            logging.warning(
+                'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
+            )
+#}}}
 
 if __name__ == '__main__':
     unittest.main()
