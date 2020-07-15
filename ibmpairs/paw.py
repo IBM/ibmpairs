@@ -2352,7 +2352,7 @@ class PAIRSTimeSeries(object):
         """
         # set PAIRS connection details
         ## PAIRS URL (guarantee trailing slash)
-        self.pairsBaseURL = '{}://{}{}{}'.format(
+        self.pairsBaseURL = '{}://{}{}'.format(
             PAIRS_DEFAULT_PROTOCOL,
             PAIRS_DEFAULT_SERVER,
             PAIRS_DEFAULT_BASE_URI,
