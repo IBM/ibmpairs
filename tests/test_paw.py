@@ -396,7 +396,7 @@ class TestPointQuery(unittest.TestCase):
                 '{protocol}://{server}{port}{base}{endpoint}'.format(
                     protocol    = WEB_PROTOCOL,
                     server      = PAIRS_SERVER,
-                    port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                     base        = PAIRS_BASE_URI,
                     endpoint    = QUERY_ENDPOINT,
                 ),
@@ -409,7 +409,7 @@ class TestPointQuery(unittest.TestCase):
                 '{protocol}://{server}{port}{base}{endpoint}'.format(
                     protocol    = WEB_PROTOCOL,
                     server      = PAIRS_SERVER,
-                    port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                     base        = PAIRS_BASE_URI,
                     endpoint    = QUERY_ENDPOINT,
                 ),
@@ -1341,7 +1341,7 @@ class TestPollQuery(unittest.TestCase):
             '{protocol}://{server}{port}{base}{endpoint}'.format(
                 protocol    = WEB_PROTOCOL,
                 server      = PAIRS_SERVER,
-                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                 base        = PAIRS_BASE_URI,
                 endpoint    = QUERY_ENDPOINT,
             ),
@@ -1365,7 +1365,7 @@ class TestPollQuery(unittest.TestCase):
                 '{protocol}://{server}{port}{base}{endpoint}'.format(
                     protocol    = WEB_PROTOCOL,
                     server      = PAIRS_SERVER,
-                    port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                     base        = PAIRS_BASE_URI,
                     endpoint    = STATUS_ENDPOINT+subResp['id'],
                 ),
@@ -1387,7 +1387,7 @@ class TestPollQuery(unittest.TestCase):
             '{protocol}://{server}{port}{base}{endpoint}'.format(
                 protocol    = WEB_PROTOCOL,
                 server      = PAIRS_SERVER,
-                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                 base        = PAIRS_BASE_URI,
                 endpoint    = DOWNLOAD_ENDPOINT+subResp['id'],
             ),
@@ -1508,12 +1508,11 @@ class TestTimeseriesQuery(unittest.TestCase):
                     lon         = payload['lon'],
                     lat         = payload['lat'],
                     layerID     = payload['layer'],
-                    t0          = payload['start'],
+                    t0          = int(payload['start']),
                     t1          = payload['end'],
                 )
-                response_body   = json.load(
-                    open(os.path.join(cls.responseDataDir,responseJSONFileName))
-                )
+                with open(os.path.join(cls.responseDataDir, responseJSONFileName)) as fp:
+                    response_body   = json.load(fp)
                 respCode    = 200
 
             return respCode, headers, json.dumps(response_body)
@@ -1523,7 +1522,7 @@ class TestTimeseriesQuery(unittest.TestCase):
             '{protocol}://{server}{port}{base}{endpoint}'.format(
                 protocol    = WEB_PROTOCOL,
                 server      = PAIRS_SERVER,
-                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                 base        = PAIRS_BASE_URI,
                 endpoint    = TIMESERIES_ENDPOINT,
             ),
@@ -1605,7 +1604,10 @@ class TestTimeseriesQuery(unittest.TestCase):
             TIMESERIES_RESPONSE_FILE_SCHEMA.format(
                 lon         = spatTemp['longitude'],
                 lat         = spatTemp['latitude'],
-                t0          = int(1e3*(dateutil.parser.isoparse(temp['start'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                # mimic temporal shift by one second of start time interval boundary
+                # performed in _get_pairs_timeseries() to make overall interval
+                # with closed boundaries
+                t0          = -1000+int(1e3*(dateutil.parser.isoparse(temp['start'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
                 t1          = int(1e3*(dateutil.parser.isoparse(temp['end'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
                 layerID     = layer['pairs-layer-id']+(
                     '&dimension='+','.join([
@@ -1617,7 +1619,10 @@ class TestTimeseriesQuery(unittest.TestCase):
                 TIMESERIES_REQUEST_QUERY_SCHEMA.format(
                     lon         = spatTemp['longitude'],
                     lat         = spatTemp['latitude'],
-                    start       = int(1e3*(dateutil.parser.isoparse(temp['start'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                    # mimic temporal shift by one second of start time interval boundary
+                    # performed in _get_pairs_timeseries() to make overall interval
+                    # with closed boundaries
+                    start       = -1000+int(1e3*(dateutil.parser.isoparse(temp['start'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
                     end         = int(1e3*(dateutil.parser.isoparse(temp['end'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
                     layer       = layer['pairs-layer-id']+(
                         '&dimension='+','.join([
@@ -1643,7 +1648,8 @@ class TestTimeseriesQuery(unittest.TestCase):
             for spatTemp in self.timeseriesRequestJSON['spatio-temporal-queries']
             for temp in spatTemp['temporal']
         }
-        # get data and compare
+
+        # get data locally saved as files and compare contents
         dirPrefix = str(int(time.time()))
         tempRealDir, tempMockDir = \
             os.path.join(TEMP_DATA_DIR, dirPrefix+'-pairsTSReal'), \
@@ -1654,7 +1660,7 @@ class TestTimeseriesQuery(unittest.TestCase):
             url='{protocol}://{server}{port}{base}{endpoint}{query}'.format(
                 protocol    = WEB_PROTOCOL,
                 server      = PAIRS_SERVER,
-                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                 base        = PAIRS_BASE_URI,
                 endpoint    = TIMESERIES_ENDPOINT,
                 query       = queryString,
@@ -1668,7 +1674,7 @@ class TestTimeseriesQuery(unittest.TestCase):
             # make sure the return from the real server was successful
             self.assertEqual(200, testRealTimeseriesResponse.status_code)
             # dump JSON from real PAIRS to temporary directory
-            with open(os.path.join(tempRealDir,fileName), 'w') as fp:
+            with open(os.path.join(tempRealDir, fileName), 'w') as fp:
                 json.dump(testRealTimeseriesResponse.json(), fp)
             # get mock data
             # note: This procedure is overkill to some extend, because it saves
@@ -1685,7 +1691,7 @@ class TestTimeseriesQuery(unittest.TestCase):
                 pairsBaseURL= '{protocol}://{server}{port}{base}'.format(
                     protocol    = WEB_PROTOCOL,
                     server      = PAIRS_SERVER,
-                    port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                     base        = PAIRS_BASE_URI,
                 ),
                 verifySSL   = VERIFY_SSL,
@@ -1701,8 +1707,13 @@ class TestTimeseriesQuery(unittest.TestCase):
                 auth            = PAIRS_CREDENTIALS,       
                 rawDataDumpDir  = tempMockDir,
             )
-            # TODO: compare data retrieved from PAIRS with cached data
-
+            self.pairsServerMock.stop()
+            # compare data retrieved from PAIRS with cached version
+            self.assertTrue(
+                filecmp.cmp(
+                    os.path.join(tempRealDir,fileName), os.path.join(tempRealDir,fileName)
+                )
+            )
         try:
             self.pairsServerMock.stop()
         except Exception as e:
