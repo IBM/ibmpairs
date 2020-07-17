@@ -2259,6 +2259,8 @@ class PAIRSTimeSeries(object):
         :raises Exception:      if `t0` is smaller than `t1` or if the JSON data
                                 dump directory does not exist
         """
+        # make temporal interval inclusive
+        t0 = copy.copy(t0)-1000
         # check inputs
         try:
             assert t0 < t1
@@ -2275,7 +2277,7 @@ class PAIRSTimeSeries(object):
             timeseriesEndpoint  = self.PAIRS_TIMESERIES_ENDPOINT,
             # adjust for the fact that the starting timestamp (in milliseconds)
             # is exlusive, i.e. a timestamp in PAIRS with exactly t0 would not get returned
-            startUNIXEpochMS    = t0-1000,
+            startUNIXEpochMS    = t0,
             endUNIXEpochMS      = t1,
             longitude           = lon,
             latitude            = lat,
