@@ -2273,7 +2273,9 @@ class PAIRSTimeSeries(object):
         url="{baseURL}{timeseriesEndpoint}?start={startUNIXEpochMS}&end={endUNIXEpochMS}&lon={longitude}&lat={latitude}&layer={layerID}".format(
             baseURL             = self.pairsBaseURL,
             timeseriesEndpoint  = self.PAIRS_TIMESERIES_ENDPOINT,
-            startUNIXEpochMS    = t0,
+            # adjust for the fact that the starting timestamp (in milliseconds)
+            # is exlusive, i.e. a timestamp in PAIRS with exactly t0 would not get returned
+            startUNIXEpochMS    = t0-1000,
             endUNIXEpochMS      = t1,
             longitude           = lon,
             latitude            = lat,
