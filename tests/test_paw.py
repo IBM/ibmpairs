@@ -2,7 +2,7 @@
 """
 Tests the IBM PAIRS API wrapper features.
 
-Copyright 2019 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2020 Physical Analytics, IBM Research All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 
@@ -16,7 +16,9 @@ SPDX-License-Identifier: BSD-3-Clause
 
 
 **TODO**:
-    - full integration of query-to-COS feature
+    - full integration of query-to-COS feature (among others, test against real service)
+      by getting COS bucket information from environment for real connection, delete
+      files from COS?
     - compare mock vs. real data for aggregated queries, batch point queries, raster as csv
     - check that apiJSON for v2/queryhistories/full/queryjobs/{ID} is complete
       for aggregation and raster queries, vector queries is empty today
@@ -41,7 +43,7 @@ import re
 # handle json
 import json
 # handle timestamps
-import datetime, pytz
+import datetime, pytz, dateutil.parser
 # get PAW to test
 sys.path.append('.')
 from ibmpairs import paw
@@ -63,25 +65,36 @@ else:
 #}}}
 # fold: parameter settings{{{
 # define global test parameters
-TEST_DATA_DIR               = 'tests/data'
-PAIRS_SERVER                = 'pairs.res.ibm.com'
-PAIRS_PORT                  = None
-PAIRS_BASE_URI              = '/'
-QUERY_ENDPOINT              = 'v2/query'
-STATUS_ENDPOINT             = 'v2/queryjobs/'
-DOWNLOAD_ENDPOINT           = 'v2/queryjobs/download/'
-QUERY_INFO_ENDPOINT         = 'v2/queryhistories/full/queryjob/'
-REAL_CONNECT                = False
-USE_SSL                     = True
-VERIFY_SSL                  = True
-PAIRS_USER                  = 'fakeUser'
-PAIRS_PASSWORD              = 'fakePassword'
-PAIRS_PASSWORD_FILE_NAME    = 'ibmpairspass.txt'
-pytest.realConnectZIPPath   = None
-pytest.realConnectQueryID   = None
+TEST_DATA_DIR                   = 'tests/data'
+TEMP_DATA_DIR                   = '/tmp'
+PAIRS_SERVER                    = 'pairs.res.ibm.com'
+PAIRS_PORT                      = None
+PAIRS_BASE_URI                  = '/'
+QUERY_ENDPOINT                  = 'v2/query'
+STATUS_ENDPOINT                 = 'v2/queryjobs/'
+DOWNLOAD_ENDPOINT               = 'v2/queryjobs/download/'
+COS_UPLOAD_ENDPOINT             = 'v2/queryjobs/upload/'
+TIMESERIES_ENDPOINT             = 'v2/timeseries'
+TIMESERIES_RESPONSE_FILE_SCHEMA = '{layerID}_{lon}~{lat}_{t0}-{t1}.json'
+TIMESERIES_REQUEST_QUERY_SCHEMA = '?lon={lon}&lat={lat}&start={start}&end={end}&layer={layer}'
+UNIX_EPOCH_ZERO_TIME            = datetime.datetime(1970,1,1,0,0,0, tzinfo=pytz.UTC)
+PAIRS_QUERY_ID_REGEX            = '[0-9]+_[0-9]+'
+QUERY_INFO_ENDPOINT             = 'v2/queryhistories/full/queryjob/'
+REAL_CONNECT                    = False
+USE_SSL                         = True
+VERIFY_SSL                      = True
+PAIRS_USER                      = 'fakeUser'
+PAIRS_PASSWORD                  = 'fakePassword'
+PAIRS_PASSWORD_FILE_NAME        = 'ibmpairspass.txt'
+pytest.realConnectZIPPath       = None
+pytest.realConnectQueryID       = None
+COS_BUCKET_NAME                 = 'test-paw'
+COS_BUCKET_KEY                  = 'faKeKEY4M0ckTest'
+COS_ENDPOINT                    = 'https://s3.us-east.cloud-object-storage.appdomain.cloud'
 # read/overwrite parameters from environment
 for var in (
     'REAL_CONNECT',
+    'TEMP_DATA_DIR',
     'USE_SSL',
     'VERIFY_SSL',
     'PAIRS_SERVER',
@@ -89,6 +102,8 @@ for var in (
     'PAIRS_USER',
     'PAIRS_PORT',
     'PAIRS_PASSWORD_FILE_NAME',
+    'COS_BUCKET_NAME',
+    'COS_BUCKET_KEY',
 ):
     if 'PAW_TESTS_'+var in os.environ:
         exec(
@@ -189,16 +204,14 @@ class TestPointQuery(unittest.TestCase):
             if re.match('^P', payload['layers'][0]['id']) is not None:
                 # so far, vector queries can take a single point only
                 if 2==len(payload['spatial']['coordinates']):
-                    response_body   = json.load(
-                        open(os.path.join(TEST_DATA_DIR, 'point-data-sample-response-vector.json'))
-                    )
+                    with open(os.path.join(TEST_DATA_DIR, 'point-data-sample-response-vector.json')) as fp:
+                        response_body = json.load(fp)
                 else:
                     respCode    = 400
             else:
                 # generate response body
-                response_body   = json.load(
-                    open(os.path.join(TEST_DATA_DIR,'point-data-sample-response-raster.json'))
-                )
+                with open(os.path.join(TEST_DATA_DIR,'point-data-sample-response-raster.json')) as fp:
+                    response_body   = json.load(fp)
             headers         = {}
             # check header (hard stopper if not correct)
             if not 'Content-Type' in request.headers.keys() \
@@ -234,15 +247,16 @@ class TestPointQuery(unittest.TestCase):
         logging.info("TEST: Query {}point data (raster).".format('' if REAL_CONNECT else 'mocked '))
         # define point query
         # note: test automatic correction for trailing slash in PAIRS base URI
-        testPointQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
-            WEB_PROTOCOL+'://'+PAIRS_SERVER,
-            port        = PAIRS_PORT,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI[:-1] \
-                if len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' else PAIRS_BASE_URI,
-            verifySSL   = VERIFY_SSL,
-        )
+        with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json')) as fp:
+            testPointQuery = paw.PAIRSQuery(
+                json.load(fp),
+                WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                port        = PAIRS_PORT,
+                auth        = PAIRS_CREDENTIALS,
+                baseURI     = PAIRS_BASE_URI[:-1] \
+                    if len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' else PAIRS_BASE_URI,
+                verifySSL   = VERIFY_SSL,
+            )
         # submit point query
         testPointQuery.submit()
         # for complience with general PAW query scheme, perform fake poll and download
@@ -304,14 +318,15 @@ class TestPointQuery(unittest.TestCase):
         # query mocked data
         logging.info("TEST: Query {}point data (vector).".format('' if REAL_CONNECT else 'mocked '))
         # define point query
-        testPointQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR, 'point-data-sample-request-vector.json'), 'r')),
-            WEB_PROTOCOL+'://'+PAIRS_SERVER,
-            port        = PAIRS_PORT,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
-            verifySSL   = VERIFY_SSL,
-        )
+        with open(os.path.join(TEST_DATA_DIR, 'point-data-sample-request-vector.json'), 'r') as fp:
+            testPointQuery = paw.PAIRSQuery(
+                json.load(fp),
+                WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                port        = PAIRS_PORT,
+                auth        = PAIRS_CREDENTIALS,
+                baseURI     = PAIRS_BASE_URI,
+                verifySSL   = VERIFY_SSL,
+            )
         # submit point query
         testPointQuery.submit()
         # for complience with general PAW query scheme, perform fake poll and download
@@ -376,30 +391,32 @@ class TestPointQuery(unittest.TestCase):
             logging.warning(
                 'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
             )
-        testRealRasterResponse = requests.post(
-            '{protocol}://{server}{port}{base}{endpoint}'.format(
-                protocol    = WEB_PROTOCOL,
-                server      = PAIRS_SERVER,
-                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
-                base        = PAIRS_BASE_URI,
-                endpoint    = QUERY_ENDPOINT,
-            ),
-            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'r')),
-            auth    = PAIRS_CREDENTIALS,
-            verify  = VERIFY_SSL,
-        )
-        testRealVectorResponse = requests.post(
-            '{protocol}://{server}{port}{base}{endpoint}'.format(
-                protocol    = WEB_PROTOCOL,
-                server      = PAIRS_SERVER,
-                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
-                base        = PAIRS_BASE_URI,
-                endpoint    = QUERY_ENDPOINT,
-            ),
-            json    = json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'), 'r')),
-            auth    = PAIRS_CREDENTIALS,
-            verify  = VERIFY_SSL,
-        )
+        with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'r') as fp:
+            testRealRasterResponse = requests.post(
+                '{protocol}://{server}{port}{base}{endpoint}'.format(
+                    protocol    = WEB_PROTOCOL,
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    base        = PAIRS_BASE_URI,
+                    endpoint    = QUERY_ENDPOINT,
+                ),
+                json    = json.load(fp),
+                auth    = PAIRS_CREDENTIALS,
+                verify  = VERIFY_SSL,
+            )
+        with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'), 'r') as fp:
+            testRealVectorResponse = requests.post(
+                '{protocol}://{server}{port}{base}{endpoint}'.format(
+                    protocol    = WEB_PROTOCOL,
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    base        = PAIRS_BASE_URI,
+                    endpoint    = QUERY_ENDPOINT,
+                ),
+                json    = json.load(fp),
+                auth    = PAIRS_CREDENTIALS,
+                verify  = VERIFY_SSL,
+            )
         # make sure the return from the real server was successful
         self.assertEqual(200, testRealRasterResponse.status_code)
         self.assertEqual(200, testRealVectorResponse.status_code)
@@ -611,6 +628,51 @@ class TestPollQuery(unittest.TestCase):
             # result return
             return 200, headers, json.dumps(response_body)
 
+        # define upload to IBM COS endpoint
+        def cos_upload_init_endpoint(request):
+            respCode        = 400
+            payload         = json.loads(request.body)
+            # perform some tests on payload sent
+            if(
+                set(('endpoint', 'bucket', 'token')) <= set(payload) \
+                and payload['provider']=='ibm'
+            ):
+                respCode    = 200
+            # check header (hard stopper if not correct)
+            if not str('Content-Type') in request.headers.keys() \
+            or request.headers['Content-Type'] != 'application/json':
+                respCode        = 415
+                logging.error('Request header incompatible: {}'.format(request.headers))
+            # generate response body (depending on various scenarios)
+            headers         = {}
+
+            return respCode, headers, None
+
+        # define upload to IBM COS status endpoint
+        cls.cosPollCount=2
+        def cos_upload_status_endpoint(request):
+            respCode        = 400
+            # check header (hard stopper if not correct)
+            if not str('Content-Type') in request.headers.keys() \
+            or request.headers['Content-Type'] != 'application/json':
+                respCode        = 415
+                logging.error('Request header incompatible: {}'.format(request.headers))
+            # generate response body (depending on various scenarios)
+            headers   = json.load(
+                open(os.path.join(TEST_DATA_DIR,'cos_upload_status_header.json'))
+            )
+            # count down number of polls performed already
+            # define response body by simulating progressive upload
+            if cls.cosPollCount>0:
+                cls.cosPollCount-=1
+            response_body = {
+                'id': 79,
+                'sizeTotal': 336179,
+                'sizeUploaded': int(336179*(1-cls.cosPollCount/2.)),
+                'status': 'finished' if cls.cosPollCount==0 else 'uploading',
+            }
+
+            return 200, headers, json.dumps(response_body)
 
         ## add endpoints
         ### query submit
@@ -618,6 +680,23 @@ class TestPollQuery(unittest.TestCase):
             responses.POST,
             WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
             callback=submit_query_endpoint,
+            content_type='application/json',
+        )
+        ### COS upload endpoints
+        cls.pairsServerMock.add_callback(
+            responses.POST,
+            re.compile(
+                r'{}://{}{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, COS_UPLOAD_ENDPOINT, PAIRS_QUERY_ID_REGEX)
+            ),
+            callback=cos_upload_init_endpoint,
+            content_type='application/json',
+        )
+        cls.pairsServerMock.add_callback(
+            responses.GET,
+            re.compile(
+                r'{}://{}{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, COS_UPLOAD_ENDPOINT, PAIRS_QUERY_ID_REGEX)
+            ),
+            callback=cos_upload_status_endpoint,
             content_type='application/json',
         )
         ### query downloads and query info
@@ -665,7 +744,7 @@ class TestPollQuery(unittest.TestCase):
         cls.pairsServerMock.add_callback(
             responses.GET,
             re.compile(
-                r'{}://{}{}{}[0-9]+_[0-9]+'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, STATUS_ENDPOINT)
+                r'{}://{}{}{}{}'.format(WEB_PROTOCOL, PAIRS_SERVER, PAIRS_BASE_URI, STATUS_ENDPOINT, PAIRS_QUERY_ID_REGEX)
             ),
             callback=poll_query_status_endpoint,
             content_type='application/json',
@@ -684,7 +763,14 @@ class TestPollQuery(unittest.TestCase):
 
 
     # fold: test ordinary raster queries#{{{
-    def raster_query(self, mode='query', inMemory=False, searchExist=False, wrongBaseURI=False,):
+    def raster_query(
+        self,
+        mode='query',
+        inMemory        = False,
+        searchExist     = False,
+        wrongBaseURI    = False,
+        cosUpload       = False,
+    ):
         """
         Query raster data in various ways.
 
@@ -699,6 +785,8 @@ class TestPollQuery(unittest.TestCase):
         :type searchExist:      bool
         :param wrongBaseURI:    remove trailing slash from PAIRS base URI to simulate user typo
         :type wrongBaseURI:     bool
+        :param cosUpload:       triggers query result upload to IBM Cloud Object Storage
+        :type cosUpload:        bool
         :raises Exception:      if function parameters are incorrectly set
         """
         # check function parameters
@@ -752,76 +840,86 @@ class TestPollQuery(unittest.TestCase):
         testRasterQuery.poll_till_finished(printStatus=True)
         if not mode=='cached' and not searchExist:
             self.assertTrue(testRasterQuery.queryStatus.ok)
-        # check that certain files exist
-        testRasterQuery.download()
-        # check that data acknowledgement was read-in
-        self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
-        testRasterQuery.print_data_acknowledgement()
-        # for real connect to PAIRS and not in-memory case, get info for other
-        # real-world query scenarios
-        if not inMemory:
-            fullZipFilePath = os.path.join(
-                testRasterQuery.downloadDir,
-                testRasterQuery.zipFilePath,
-            )
-            # in scenario with real PAIRS connect, store the PAIRS query ZIP path
-            # for later reuse on loading from cached data
-            if REAL_CONNECT and mode=='query':
-                pytest.realConnectQueryID = testRasterQuery.queryID
-                pytest.realConnectZIPPath = fullZipFilePath
-                logging.info(
-                    "Saved local raster file '{}' (query ID: '{}') for testing of loading data from cache.".format(
-                        pytest.realConnectZIPPath, pytest.realConnectQueryID
-                     )
+        # check data download
+        testRasterQuery.download(
+            cosInfoJSON = {
+                "bucket": COS_BUCKET_NAME,
+                "token": COS_BUCKET_KEY,
+                "provider": "ibm",
+                "endpoint": COS_ENDPOINT,
+            } if cosUpload else None,
+            printStatus = cosUpload,
+        )
+        # TODO: modify tests as soon as binding COS with fs is an option to read data
+        if not cosUpload:
+            # check that data acknowledgement was read-in
+            self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
+            testRasterQuery.print_data_acknowledgement()
+            # for real connect to PAIRS and not in-memory case, get info for other
+            # real-world query scenarios
+            if not inMemory:
+                fullZipFilePath = os.path.join(
+                    testRasterQuery.downloadDir,
+                    testRasterQuery.zipFilePath,
                 )
-            self.assertTrue(
-                os.path.exists(fullZipFilePath)
-            )
-            logging.info("TEST: Check files downloaded.")
-            with zipfile.ZipFile(fullZipFilePath) as zf:
-                # test the existence of the basic meta file
-                for fileName in ['output.info', ]:
-                    self.assertTrue(
-                            fileName in zf.namelist()
+                # in scenario with real PAIRS connect, store the PAIRS query ZIP path
+                # for later reuse on loading from cached data
+                if REAL_CONNECT and mode=='query':
+                    pytest.realConnectQueryID = testRasterQuery.queryID
+                    pytest.realConnectZIPPath = fullZipFilePath
+                    logging.info(
+                        "Saved local raster file '{}' (query ID: '{}') for testing of loading data from cache.".format(
+                            pytest.realConnectZIPPath, pytest.realConnectQueryID
+                         )
                     )
-                # check that for each GeoTiff file there exists a corresonding JSON meta file
-                for rasterFilePath in zf.namelist():
-                    # find all PAIRS GeoTiff files
-                    if rasterFilePath.endswith('.tiff'):
-                        # check a corresponding JSON file exists
-                        self.assertTrue(
-                            rasterFilePath+'.json' in zf.namelist()
-                        )
-                        # try to temporarily open the JSON file
-                        json.loads(zf.read(rasterFilePath+'.json', pwd=u'').decode('utf-8'))
-        # load raster meta data
-        logging.info("TEST: Load raster meta data.")
-        testRasterQuery.list_layers()
-        # check that 'details' of raster data have been successfully loaded by
-        # getting the spatial reference information
-        self.assertIsInstance(
-            list(testRasterQuery.metadata.values())[0]["details"]["spatialRef"],
-            string_type
-        )
-        # check that all data are listed as type raster or vector for CSV output
-        self.assertTrue(
-            all([
-                meta['layerType'] == 'raster'
-                for meta in testRasterQuery.metadata.values()
-            ])
-        )
-        logging.info("TEST: Create NumPy arrays from raster data.")
-        # load the raster data into a NumPy array
-        testRasterQuery.create_layers()
-        # access the numpy array
-        for name, meta in testRasterQuery.metadata.items():
-            if meta['layerType'] == 'raster':
-                self.assertIsInstance(
-                    testRasterQuery.data[name],
-                    numpy.ndarray
+                self.assertTrue(
+                    os.path.exists(fullZipFilePath)
                 )
-        # check that the data acknowledgement statement is not empty
-        self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
+                logging.info("TEST: Check files downloaded.")
+                with zipfile.ZipFile(fullZipFilePath) as zf:
+                    # test the existence of the basic meta file
+                    for fileName in ['output.info', ]:
+                        self.assertTrue(
+                                fileName in zf.namelist()
+                        )
+                    # check that for each GeoTiff file there exists a corresonding JSON meta file
+                    for rasterFilePath in zf.namelist():
+                        # find all PAIRS GeoTiff files
+                        if rasterFilePath.endswith('.tiff'):
+                            # check a corresponding JSON file exists
+                            self.assertTrue(
+                                rasterFilePath+'.json' in zf.namelist()
+                            )
+                            # try to temporarily open the JSON file
+                            json.loads(zf.read(rasterFilePath+'.json', pwd=u'').decode('utf-8'))
+            # load raster meta data
+            logging.info("TEST: Load raster meta data.")
+            testRasterQuery.list_layers()
+            # check that 'details' of raster data have been successfully loaded by
+            # getting the spatial reference information
+            self.assertIsInstance(
+                list(testRasterQuery.metadata.values())[0]["details"]["spatialRef"],
+                string_type
+            )
+            # check that all data are listed as type raster or vector for CSV output
+            self.assertTrue(
+                all([
+                    meta['layerType'] == 'raster'
+                    for meta in testRasterQuery.metadata.values()
+                ])
+            )
+            logging.info("TEST: Create NumPy arrays from raster data.")
+            # load the raster data into a NumPy array
+            testRasterQuery.create_layers()
+            # access the numpy array
+            for name, meta in testRasterQuery.metadata.items():
+                if meta['layerType'] == 'raster':
+                    self.assertIsInstance(
+                        testRasterQuery.data[name],
+                        numpy.ndarray
+                    )
+            # check that the data acknowledgement statement is not empty
+            self.assertIsNotNone(testRasterQuery.dataAcknowledgeText)
 
         # test deleting query object
         del testRasterQuery
@@ -833,6 +931,11 @@ class TestPollQuery(unittest.TestCase):
         """
         self.raster_query()
     @pytest.mark.run(order=1)
+    def test_raster_query_with_cos_upload(self):
+        """
+        Test querying raster data with upload into IBM Cloud Object Storage.
+        """
+        self.raster_query(cosUpload=True)
     def test_raster_query_standard_user_typo(self):
         """
         Test querying raster data (user typo in PAIRS base URI).
@@ -1215,6 +1318,8 @@ class TestPollQuery(unittest.TestCase):
         self.vector_query(queryType='spatAgg', mode='reload', inMemory=True)
     #}}}
 
+    # fold: test vector queries #{{{
+    # }}}
 
     # fold: test cached mock data to simulate PAIRS server against real service#{{{
     def compare_mock_vs_real_query(self, queryJSON):
@@ -1236,7 +1341,7 @@ class TestPollQuery(unittest.TestCase):
             '{protocol}://{server}{port}{base}{endpoint}'.format(
                 protocol    = WEB_PROTOCOL,
                 server      = PAIRS_SERVER,
-                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                 base        = PAIRS_BASE_URI,
                 endpoint    = QUERY_ENDPOINT,
             ),
@@ -1260,7 +1365,7 @@ class TestPollQuery(unittest.TestCase):
                 '{protocol}://{server}{port}{base}{endpoint}'.format(
                     protocol    = WEB_PROTOCOL,
                     server      = PAIRS_SERVER,
-                    port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                     base        = PAIRS_BASE_URI,
                     endpoint    = STATUS_ENDPOINT+subResp['id'],
                 ),
@@ -1282,7 +1387,7 @@ class TestPollQuery(unittest.TestCase):
             '{protocol}://{server}{port}{base}{endpoint}'.format(
                 protocol    = WEB_PROTOCOL,
                 server      = PAIRS_SERVER,
-                port        = ':'+str(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
                 base        = PAIRS_BASE_URI,
                 endpoint    = DOWNLOAD_ENDPOINT+subResp['id'],
             ),
@@ -1370,6 +1475,253 @@ class TestPollQuery(unittest.TestCase):
         self.compare_mock_vs_real_query('point-batch-data-sample-request-raster.json')
     #}}}
 # }}}
+
+# fold: test PAIRS timeseries queries{{{
+class TestTimeseriesQuery(unittest.TestCase):
+    """
+    Test cases for querying timeseries from PAIRS (conceptually quite similar to point queries).
+    """
+    # fold: setup mocked environment#{{{
+    @classmethod
+    def setUpClass(cls):
+        # define time series query for testing
+        cls.responseDataDir = os.path.join(TEST_DATA_DIR, 'timeseries')
+        cls.timeseriesRequestJSON = json.load(
+            open(os.path.join(cls.responseDataDir, 'timeseries-sample-request.json'))
+        )
+        # define and start PAIRS mock server
+        cls.pairsServerMock = responses.RequestsMock()
+        ## define endpoint processing
+        def timeseries_data_endpoint(request):
+            respCode        = 400
+            headers         = {}
+            response_body   = {}
+            payload         = request.params
+            logging.debug('The timeseries payload is: {}'.format(payload))
+            # perform some tests on payload sent
+            if {'lon', 'lat', 'start', 'end', 'layer'} <= set(payload.keys()):
+                # check if dimensions are given to correct layer information:
+                if 'dimension' in payload.keys():
+                    payload['layer'] += '&dimension='+payload['dimension'].replace('=', '%3D')
+                # generate response body
+                responseJSONFileName = TIMESERIES_RESPONSE_FILE_SCHEMA.format(
+                    lon         = payload['lon'],
+                    lat         = payload['lat'],
+                    layerID     = payload['layer'],
+                    t0          = int(payload['start']),
+                    t1          = payload['end'],
+                )
+                with open(os.path.join(cls.responseDataDir, responseJSONFileName)) as fp:
+                    response_body   = json.load(fp)
+                respCode    = 200
+
+            return respCode, headers, json.dumps(response_body)
+        ## add endpoint
+        cls.pairsServerMock.add_callback(
+            responses.GET,
+            '{protocol}://{server}{port}{base}{endpoint}'.format(
+                protocol    = WEB_PROTOCOL,
+                server      = PAIRS_SERVER,
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                base        = PAIRS_BASE_URI,
+                endpoint    = TIMESERIES_ENDPOINT,
+            ),
+            callback            = timeseries_data_endpoint,
+            # do not use given parameters for URL matching
+            match_querystring   = False,
+        )
+        if not REAL_CONNECT:
+            cls.pairsServerMock.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            cls.pairsServerMock.stop()
+        except:
+            pass
+    #}}}
+
+    def test_timeseries_query(self):
+        """
+        Test querying PAIRS for time series (conceptually to point queries).
+        """
+        # query mocked data
+        logging.info("TEST: Query {}timeseries data.".format('' if REAL_CONNECT else 'mocked '))
+
+        # instantiate PAIRS timeseries query
+        testTimeSeriesQuery = paw.PAIRSTimeSeries(self.timeseriesRequestJSON)
+        # get the time series data
+        df = testTimeSeriesQuery.get_dataframe(
+            pairsBaseURL        = '{protocol}://{server}{port}{baseURI}'.format(
+                protocol    = 'https' if USE_SSL else 'http',
+                server      = PAIRS_SERVER,
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                baseURI     = PAIRS_BASE_URI,
+            ),
+            auth                = PAIRS_CREDENTIALS,
+            verifySSL           = VERIFY_SSL,
+            spatioTemporalIndex = True,
+        )
+        # perform test on returned data
+        logging.debug("A sub-sample of the data returned is: \n{}".format(df.head()))
+        ## check that the returned object is a dataframe, and it has data at all
+        self.assertIsInstance(df, pandas.DataFrame)
+        self.assertLess(0,len(df))
+        # check that there is as many columns with correct names as specified by
+        # the user's request
+        self.assertEqual(
+            set([ layer['column-name'] for layer in self.timeseriesRequestJSON['layers']]),
+            set(df.columns),
+        )
+        # check that the Pandas dataframe is properly spatio-temporally indexed
+        self.assertEqual(
+            set(['longitude', 'latitude', 'timestamp']),
+            set(df.index.names),
+        )
+
+        # check vector data frame
+        del testTimeSeriesQuery
+
+
+    @unittest.skipIf(
+        not REAL_CONNECT,
+        "Skip checking mock against real service (point query)."
+    )
+    def test_mock_from_timeseries_query(self):
+        """
+        Checks the real PAIRS point query service against the mock used.
+        """
+        # get real data
+        try:
+            self.pairsServerMock.stop()
+        except Exception as e:
+            # catch not all requests called error
+            logging.warning(
+                'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
+            )
+        # construct URL to query PAIRS with associated files for testing
+        queryInfos = { 
+            TIMESERIES_RESPONSE_FILE_SCHEMA.format(
+                lon         = spatTemp['longitude'],
+                lat         = spatTemp['latitude'],
+                # mimic temporal shift by one second of start time interval boundary
+                # performed in _get_pairs_timeseries() to make overall interval
+                # with closed boundaries
+                t0          = -1000+int(1e3*(dateutil.parser.isoparse(temp['start'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                t1          = int(1e3*(dateutil.parser.isoparse(temp['end'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                layerID     = layer['pairs-layer-id']+(
+                    '&dimension='+','.join([
+                        "{}%3D{}".format(dimension['name'], dimension['value'])
+                        for dimension in layer['dimensions']
+                    ]) if 'dimensions' in layer.keys() else ''
+                ),
+            ): (
+                TIMESERIES_REQUEST_QUERY_SCHEMA.format(
+                    lon         = spatTemp['longitude'],
+                    lat         = spatTemp['latitude'],
+                    # mimic temporal shift by one second of start time interval boundary
+                    # performed in _get_pairs_timeseries() to make overall interval
+                    # with closed boundaries
+                    start       = -1000+int(1e3*(dateutil.parser.isoparse(temp['start'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                    end         = int(1e3*(dateutil.parser.isoparse(temp['end'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                    layer       = layer['pairs-layer-id']+(
+                        '&dimension='+','.join([
+                            "{}%3D{}".format(dimension['name'], dimension['value'])
+                            for dimension in layer['dimensions']
+                        ]) if 'dimensions' in layer.keys() else ''
+                    ),
+                ),
+                (
+                    spatTemp['longitude'],
+                    spatTemp['latitude'],
+                    int(1e3*(dateutil.parser.isoparse(temp['start'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                    int(1e3*(dateutil.parser.isoparse(temp['end'])-UNIX_EPOCH_ZERO_TIME).total_seconds()),
+                    layer['pairs-layer-id']+(
+                        '&dimension='+','.join([
+                            "{}%3D{}".format(dimension['name'], dimension['value'])
+                            for dimension in layer['dimensions']
+                        ]) if 'dimensions' in layer.keys() else ''
+                    ),
+                )
+            )
+            for layer in self.timeseriesRequestJSON['layers'] 
+            for spatTemp in self.timeseriesRequestJSON['spatio-temporal-queries']
+            for temp in spatTemp['temporal']
+        }
+
+        # get data locally saved as files and compare contents
+        dirPrefix = str(int(time.time()))
+        tempRealDir, tempMockDir = \
+            os.path.join(TEMP_DATA_DIR, dirPrefix+'-pairsTSReal'), \
+            os.path.join(TEMP_DATA_DIR, dirPrefix+'-pairsTSMock')
+        for dirName in (tempRealDir, tempMockDir):
+            if not os.path.exists(dirName): os.mkdir(dirName)
+        for fileName, (queryString, params) in queryInfos.items():
+            url='{protocol}://{server}{port}{base}{endpoint}{query}'.format(
+                protocol    = WEB_PROTOCOL,
+                server      = PAIRS_SERVER,
+                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                base        = PAIRS_BASE_URI,
+                endpoint    = TIMESERIES_ENDPOINT,
+                query       = queryString,
+            )
+            logging.debug("The URL to be queried is: '{}'".format(url))
+            testRealTimeseriesResponse = requests.get(
+                url,
+                auth    = PAIRS_CREDENTIALS,
+                verify  = VERIFY_SSL,
+            )
+            # make sure the return from the real server was successful
+            self.assertEqual(200, testRealTimeseriesResponse.status_code)
+            # dump JSON from real PAIRS to temporary directory
+            with open(os.path.join(tempRealDir, fileName), 'w') as fp:
+                json.dump(testRealTimeseriesResponse.json(), fp)
+            # get mock data
+            # note: This procedure is overkill to some extend, because it saves
+            #       the JSON files in the test data directory trough the mocked
+            #       PAIRS server. However, this way it is documented how these
+            #       files got generated, and it tests the writing capability of
+            #       the internal function `PAIRSTimeSeries._get_pairs_timeseries()`
+            #       when `rawDataDumpDir` is not `None`
+            self.pairsServerMock.start()
+            # initialized PAIRS time series object
+            testTimeSeriesQueryMock = paw.PAIRSTimeSeries(self.timeseriesRequestJSON)
+            # artificial query to set up server details     
+            testTimeSeriesQueryMock.get_dataframe(
+                pairsBaseURL= '{protocol}://{server}{port}{base}'.format(
+                    protocol    = WEB_PROTOCOL,
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    base        = PAIRS_BASE_URI,
+                ),
+                verifySSL   = VERIFY_SSL,
+                auth        = PAIRS_CREDENTIALS,
+            )
+            # query again to pull data into files in temporary directory
+            testTimeSeriesQueryMock._get_pairs_timeseries(
+                lon             = params[0],
+                lat             = params[1],
+                t0              = params[2],
+                t1              = params[3],
+                layerID         = params[4],
+                auth            = PAIRS_CREDENTIALS,       
+                rawDataDumpDir  = tempMockDir,
+            )
+            self.pairsServerMock.stop()
+            # compare data retrieved from PAIRS with cached version
+            self.assertTrue(
+                filecmp.cmp(
+                    os.path.join(tempRealDir,fileName), os.path.join(tempRealDir,fileName)
+                )
+            )
+        try:
+            self.pairsServerMock.stop()
+        except Exception as e:
+            # catch not all requests called error
+            logging.warning(
+                'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
+            )
+#}}}
 
 if __name__ == '__main__':
     unittest.main()
