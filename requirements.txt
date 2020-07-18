@@ -2,7 +2,9 @@ numpy
 Pillow>=1.6
 pandas
 future
+futures
 requests>=2.4
 shapely
 fs
 pytz
+jsonschema
