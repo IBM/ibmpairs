@@ -29,7 +29,7 @@ install:
 # install Python modules required for testing
 - pip install -Ur requirements-development.txt
 # get documentation generation tool
-- pip install sphinx sphinx_rtd_theme
+- pip install -U sphinx sphinx_rtd_theme
 
 before_script:
 # code linting for
