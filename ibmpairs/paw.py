@@ -2119,7 +2119,6 @@ class PAIRSTimeSeries(object):
     DATAFRAME_LATITUDE_NAME         = 'latitude'
     DATAFRAME_LONGITUDE_NAME        = 'longitude'
     DATAFRAME_TIMESTAMP_NAME        = 'timestamp'
-    DATAFRAME_TIMESTAMP_FORMAT      = '%Y-%m-%dT%H:%M:%S%z'
     # PAIRS related configuration settings
     PAIRS_TIMESERIES_ENDPOINT       = 'v2/timeseries'
     PAIRS_QUERY_RETRIES             = 10
