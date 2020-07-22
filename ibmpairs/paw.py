@@ -2297,10 +2297,9 @@ class PAIRSTimeSeries(object):
                 logger.warning("{} returned no data: {}".format(url,response.text))
                 return None, None
             # convert timestamp
-            #TODO: correctly localize timestamp compatible with Python 2 and 3
             df[self.PAIRS_JSON_TIMESTAMP_NAME]  = pandas.to_datetime(
-                df[self.PAIRS_JSON_TIMESTAMP_NAME], unit='ms',
-            )#.dt.tz_localize('UTC')
+                df[self.PAIRS_JSON_TIMESTAMP_NAME], unit='ms', utc=True,
+            )
             # add layer information column
             df['layerID']                       = layerID
             df[self.DATAFRAME_LONGITUDE_NAME]   = lon
