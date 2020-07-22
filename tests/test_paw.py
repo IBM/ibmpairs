@@ -1567,17 +1567,18 @@ class TestTimeseriesQuery(unittest.TestCase):
         ## check that the returned object is a dataframe, and it has data at all
         self.assertIsInstance(df, pandas.DataFrame)
         self.assertLess(0,len(df))
-        # check that there is as many columns with correct names as specified by
-        # the user's request
+        ## check that there is as many columns with correct names as specified by the user's request
         self.assertEqual(
             set([ layer['column-name'] for layer in self.timeseriesRequestJSON['layers']]),
             set(df.columns),
         )
-        # check that the Pandas dataframe is properly spatio-temporally indexed
+        ## check that the Pandas dataframe is properly spatio-temporally indexed
         self.assertEqual(
             set(['longitude', 'latitude', 'timestamp']),
             set(df.index.names),
         )
+        ## check the timestamp column format
+        self.assertEqual(df.index.get_level_values(2)[0].tzinfo, pytz.UTC)
 
         # check vector data frame
         del testTimeSeriesQuery
@@ -1600,7 +1601,7 @@ class TestTimeseriesQuery(unittest.TestCase):
                 'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
             )
         # construct URL to query PAIRS with associated files for testing
-        queryInfos = { 
+        queryInfos = {
             TIMESERIES_RESPONSE_FILE_SCHEMA.format(
                 lon         = spatTemp['longitude'],
                 lat         = spatTemp['latitude'],
