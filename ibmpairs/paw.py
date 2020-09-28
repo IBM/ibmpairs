@@ -464,7 +464,12 @@ class PAIRSQuery(object):
             if baseURI[-1]!='/':    baseURI = baseURI+'/'
             if baseURI[0]!='/':     baseURI = '/'+baseURI
         # add baseURI to full PAIRS host specs (if any)
-        self.pairsHost = urlparse(urljoin(self.pairsHost.geturl(), baseURI))
+        self.pairsHost = urlparse(
+            urljoin(
+                os.path.join(self.pairsHost.geturl(),''),
+                baseURI.lstrip('/')
+            )
+        )
         # check merge vs. naive merge and inform user about deviation
         if self.pairsHost.path != baseURIBeforeMerge+baseURI:
             logger.warning(
