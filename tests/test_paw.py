@@ -200,19 +200,45 @@ class TestPointQuery(unittest.TestCase):
             and len(payload['spatial']['coordinates']) > 1 \
             and len(payload['spatial']['coordinates']) % 2 == 0:
                 respCode    = 200
+            # check data output format from user-specified header
+            if 'Accept' in request.headers.keys() \
+            and request.headers['Accept'] == 'text/csv':
+                dataFormat  = 'csv'
+            else:
+                dataFormat  = 'json'
             # check whether a raster or vector point query is performed
             if re.match('^P', payload['layers'][0]['id']) is not None:
                 # so far, vector queries can take a single point only
                 if 2==len(payload['spatial']['coordinates']):
-                    with open(os.path.join(TEST_DATA_DIR, 'point-data-sample-response-vector.json')) as fp:
-                        response_body = json.load(fp)
+                    with open(
+                        os.path.join(
+                            TEST_DATA_DIR,
+                            'point-data-sample-response-vector.{}'.format(dataFormat),
+                        )
+                    ) as fp:
+                        if dataFormat=='json':
+                            response_body = json.load(fp)
+                        elif dataFormat=='csv':
+                            response_body = fp.read()
                 else:
                     respCode    = 400
             else:
                 # generate response body
-                with open(os.path.join(TEST_DATA_DIR,'point-data-sample-response-raster.json')) as fp:
-                    response_body   = json.load(fp)
+                with open(
+                    os.path.join(
+                        TEST_DATA_DIR,
+                        'point-data-sample-response-raster.{}'.format(dataFormat)
+                    )
+                ) as fp:
+                    if dataFormat=='json':
+                        response_body = json.load(fp)
+                    elif dataFormat=='csv':
+                        response_body = fp.read()
             headers         = {}
+            if dataFormat=='json':
+                headers['Content-Type'] = 'application/json'
+            elif dataFormat=='csv':
+                headers['Content-Type'] = 'text/csv'
             # check header (hard stopper if not correct)
             if not 'Content-Type' in request.headers.keys() \
             or request.headers['Content-Type'] != 'application/json':
@@ -220,13 +246,13 @@ class TestPointQuery(unittest.TestCase):
                 response_body   = {}
                 logging.error('Request header incompatible: {}'.format(request.headers))
 
-            return respCode, headers, json.dumps(response_body)
+            return respCode, headers, json.dumps(response_body) if dataFormat=='json' else response_body
         ## add endpoint
         cls.pairsServerMock.add_callback(
             responses.POST,
             WEB_PROTOCOL+'://'+PAIRS_SERVER+PAIRS_BASE_URI+QUERY_ENDPOINT,
             callback=point_data_endpoint,
-            content_type='application/json',
+            #content_type='application/json',
         )
         if not REAL_CONNECT:
             cls.pairsServerMock.start()
@@ -239,7 +265,7 @@ class TestPointQuery(unittest.TestCase):
             pass
     #}}}
 
-    def test_point_query_raster(self):
+    def point_query_raster(self, useJSONDataStream=True,):
         """
         Test querying raster point data.
         """
@@ -257,6 +283,8 @@ class TestPointQuery(unittest.TestCase):
                     if len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' else PAIRS_BASE_URI,
                 verifySSL   = VERIFY_SSL,
             )
+        if useJSONDataStream:
+            testPointQuery.PAIRS_POINT_QUERY_RESP_FORMAT = 'application/json'
         # submit point query
         testPointQuery.submit()
         # for complience with general PAW query scheme, perform fake poll and download
@@ -267,12 +295,14 @@ class TestPointQuery(unittest.TestCase):
         colsBeforeSplit     = len(testPointQuery.vdf.columns)
         testPointQuery.split_property_string_column()
         colsAfterSplit      = len(testPointQuery.vdf.columns)
-        self.assertEqual(colsBeforeSplit+3, colsAfterSplit)
+        if useJSONDataStream:
+            self.assertEqual(colsBeforeSplit+3, colsAfterSplit)
         # recalling column splitting function should be invariant now
         colsBeforeSplit     = len(testPointQuery.vdf.columns)
         testPointQuery.split_property_string_column()
         colsAfterSplit      = len(testPointQuery.vdf.columns)
-        self.assertEqual(colsBeforeSplit, colsAfterSplit)
+        if useJSONDataStream:
+            self.assertEqual(colsBeforeSplit, colsAfterSplit)
         # check vector data frame
         ## number of data points is correct
         logging.info("TEST: Perform vector data frame tests.")
@@ -280,13 +310,14 @@ class TestPointQuery(unittest.TestCase):
             5, len(testPointQuery.vdf)
         )
         ## column names agree with data response
-        self.assertListEqual(
-            sorted(
-                list(testPointQuery.querySubmit.json()['data'][0].keys()) \
-              + [paw.PAIRS_VECTOR_GEOMETRY_COLUMN_NAME, 'horizon', 'model', 'issuetime']
-            ),
-            sorted(testPointQuery.vdf.columns),
-        )
+        if useJSONDataStream:
+            self.assertListEqual(
+                sorted(
+                    list(testPointQuery.querySubmit.json()['data'][0].keys()) \
+                  + [paw.PAIRS_VECTOR_GEOMETRY_COLUMN_NAME, 'horizon', 'model', 'issuetime']
+                ),
+                sorted(testPointQuery.vdf.columns),
+            )
         ## check (some) data types from response
         self.assertIsInstance(
             testPointQuery.vdf.longitude[0],
@@ -306,12 +337,24 @@ class TestPointQuery(unittest.TestCase):
         )
         self.assertIsInstance(
             testPointQuery.vdf.value[0],
-            string_type,
+            string_type if useJSONDataStream else float,
         )
         # test deleting query object
         del testPointQuery
 
-    def test_point_query_vector(self):
+    def test_point_query_raster_json(self):
+        """
+        Test raster online point query with JSON.
+        """
+        self.point_query_raster()
+    def test_point_query_raster_csv(self):
+        """
+        Test raster online point query with CSV.
+        """
+        self.point_query_raster(useJSONDataStream=False,)
+
+
+    def point_query_vector(self, useJSONDataStream=True,):
         """
         Test querying vector point data.
         """
@@ -327,6 +370,8 @@ class TestPointQuery(unittest.TestCase):
                 baseURI     = PAIRS_BASE_URI,
                 verifySSL   = VERIFY_SSL,
             )
+        if useJSONDataStream:
+            testPointQuery.PAIRS_POINT_QUERY_RESP_FORMAT = 'application/json'
         # submit point query
         testPointQuery.submit()
         # for complience with general PAW query scheme, perform fake poll and download
@@ -340,12 +385,13 @@ class TestPointQuery(unittest.TestCase):
             2, len(testPointQuery.vdf)
         )
         ## column names agree with data response
-        self.assertListEqual(
-            sorted(
-                list(testPointQuery.querySubmit.json()['data'][0].keys())
-            ),
-            sorted(testPointQuery.vdf.columns),
-        )
+        if useJSONDataStream:
+            self.assertListEqual(
+                sorted(
+                    list(testPointQuery.querySubmit.json()['data'][0].keys())
+                ),
+                sorted(testPointQuery.vdf.columns),
+            )
         ## check (some) data types from response
         self.assertIsInstance(
             testPointQuery.vdf.timestamp[0],
@@ -357,23 +403,37 @@ class TestPointQuery(unittest.TestCase):
         )
         self.assertIsInstance(
             testPointQuery.vdf.value[0],
-            string_type,
+            string_type if useJSONDataStream else float
         )
         # check property string column splitting
         colsBeforeSplit     = len(testPointQuery.vdf.columns)
         testPointQuery.split_property_string_column()
         colsAfterSplit      = len(testPointQuery.vdf.columns)
-        if paw.PROPERTY_STRING_COL_NAME_POINT in testPointQuery.vdf.columns:
-            self.assertLess(colsBeforeSplit, colsAfterSplit)
-        else:
-            self.assertEqual(colsBeforeSplit, colsAfterSplit)
+        if useJSONDataStream:
+            if paw.PROPERTY_STRING_COL_NAME_POINT in testPointQuery.vdf.columns:
+                self.assertLess(colsBeforeSplit, colsAfterSplit)
+            else:
+                self.assertEqual(colsBeforeSplit, colsAfterSplit)
         # run twice to double-check it is not increasing the number of columns
         testPointQuery.split_property_string_column()
         colsAfter2ndSplit   = len(testPointQuery.vdf.columns)
-        self.assertEqual(colsAfterSplit, colsAfter2ndSplit)
+        if useJSONDataStream:
+            self.assertEqual(colsAfterSplit, colsAfter2ndSplit)
 
         # test deleting query object
         del testPointQuery
+
+    def test_point_query_vector_json(self):
+        """
+        Test vector online point query with JSON.
+        """
+        self.point_query_vector()
+    def test_point_query_vector_csv(self):
+        """
+        Test vector online point query with CSV.
+        """
+        self.point_query_vector(useJSONDataStream=False,)
+
 
     @unittest.skipIf(
         not REAL_CONNECT,
@@ -454,7 +514,7 @@ class TestPointQuery(unittest.TestCase):
         except Exception as e:
             # catch not all requests called error
             logging.warning(
-                'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
+                    'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
             )
 
     def test_dataframe_generation(self):
