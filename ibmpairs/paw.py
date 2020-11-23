@@ -1080,7 +1080,7 @@ class PAIRSQuery(object):
                     self.queryStatus = self.querySubmit
                     # convert data into (vector) dataframe
                     # catch empty return
-                    if self.queryStatus.json() is None:
+                    if self.queryStatus.text is None:
                         logger.warning('No point data available to load/returned.')
                     else:
                         try:
