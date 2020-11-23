@@ -1047,16 +1047,17 @@ class PAIRSQuery(object):
                         'Sorry, I have trouble to submit your query: {}.'.format(e)
                     )
                 # check that submission return is proper JSON
-                try:
-                    _ = self.querySubmit.json()
-                except Exception as e:
-                    logger.error(
-                        'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
-                    )
-                    logger.error(
-                        "Maybe your query definition is not right or PAIRS is temporarily unavailable? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
-                    )
-                    raise
+                if not self._isOnlineQuery:
+                    try:
+                        _ = self.querySubmit.json()
+                    except Exception as e:
+                        logger.error(
+                            'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
+                        )
+                        logger.error(
+                            "Maybe your query definition is not right or PAIRS is temporarily unavailable? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
+                        )
+                        raise
 
                 # obtain (and internally set) query ID, or ...
                 if not self._isOnlineQuery:
@@ -1130,7 +1131,11 @@ class PAIRSQuery(object):
                                     )
                                 )
                         except Exception as e:
-                            logger.error("Unable to load point data into dataframe: '{}'.".format(e))
+                            logger.error(
+                                "Unable to load point data into dataframe employing format '{}': '{}'.".format(
+                                    self.PAIRS_POINT_QUERY_RESP_FORMAT, e,
+                                )
+                            )
                             raise
         # case of PAIRS cached query (previously run)
         elif isinstance(self.querySubmit, MockSubmitResponse):
