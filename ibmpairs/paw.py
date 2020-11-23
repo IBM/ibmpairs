@@ -47,6 +47,7 @@ import pandas
 import errno
 from requests.compat import urlparse, urljoin
 import requests
+import io
 import json, jsonschema
 HAS_GEOJSON = False
 try:
@@ -404,6 +405,7 @@ class PAIRSQuery(object):
     PAIRS_FILES_SPLITTING_CHAR   = '-'
     RASTER_FILE_EXTENSION        = PAIRS_GEOTIFF_FILE_EXTENSION
     VECTOR_FILE_EXTENSION        = PAIRS_CSV_FILE_EXTENSION
+    PAIRS_POINT_QUERY_RESP_FORMAT= 'text/csv' # 'application/json' # as alternative for JSON return
 
     def __init__(
         self, query,
@@ -1025,13 +1027,18 @@ class PAIRSQuery(object):
                 # try to submit query to PAIRS
                 try:
                     if (self.querySubmit is None) or (self.querySubmit.status_code not in (200, 201)):
+                        # compose query header
+                        headers = {'Content-Type': 'application/json'}
+                        if self._isOnlineQuery:
+                            headers['Accept']   = self.PAIRS_POINT_QUERY_RESP_FORMAT
+                        # submit query
                         self.querySubmit = requests.post(
                             urljoin(
                                 self.pairsHost.geturl(),
                                 self.SUBMIT_API_STRING
                             ),
                             data    = json.dumps(self.query),
-                            headers = {'Content-Type': 'application/json'},
+                            headers = headers,
                             auth    = self.auth,
                             verify  = self.verifySSL,
                         )
@@ -1084,9 +1091,17 @@ class PAIRSQuery(object):
                                     )
                                 )
                             else:
-                                self.vdf = pandas.DataFrame(
-                                    self.queryStatus.json()['data']
-                                )
+                                if self.PAIRS_POINT_QUERY_RESP_FORMAT.lower()=='text/csv':
+                                    self.vdf = pandas.read_csv(
+                                        io.StringIO(self.queryStatus.text),
+                                        header      = 0,
+                                        index_col   = False,
+                                        quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
+                                    )
+                                else:
+                                    self.vdf = pandas.DataFrame(
+                                        self.queryStatus.json()['data']
+                                    )
                             logger.info('Point data successfully imported into self.vdf')
                             # check for (default) timestamp column
                             if PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in self.vdf.columns:
