@@ -1086,7 +1086,7 @@ class PAIRSQuery(object):
                         try:
                             if self.queryStatus.status_code != 200:
                                 raise Exception(
-                                        "Querying PAIRS resulted in HTML error code '{}': {}.".format(
+                                        "Querying PAIRS resulted in HTTP error code '{}': {}.".format(
                                         self.queryStatus.status_code,
                                         self.queryStatus.text,
                                     )
