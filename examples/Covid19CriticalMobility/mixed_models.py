@@ -5,6 +5,7 @@ from copy import copy, deepcopy
 
 import rpy2.robjects as ro
 from rpy2.robjects import r, pandas2ri, numpy2ri
+from rpy2.robjects.conversion import localconverter
 pandas2ri.activate()
 numpy2ri.activate()
 r.library("lme4")
@@ -73,7 +74,7 @@ class lmer(object):
         
         self.df_train = self.df_train[['year'] + self.fixed_effects + self.re_features + [self.target]]
         if verbose:
-            print self.df_train.tail()
+            print(self.df_train.tail())
    
     @staticmethod
     def pandas2R(r_df_name, df, verbose = False):
@@ -82,7 +83,8 @@ class lmer(object):
         :r_df_name:   Name of the DataFrame in R
         :df:          Pandas DataFrame
         """
-        ro.globalenv[r_df_name] = pandas2ri.py2ri(df)
+        with localconverter(ro.default_converter + pandas2ri.converter):
+            ro.globalenv[r_df_name] = ro.conversion.py2rpy(df)
     
     def prep_R_training(self,
                         prefix_df = 'r_df_train',
@@ -125,22 +127,20 @@ class lmer(object):
         # Compose the model string
         self.r_train_string = self.model_name + ' <- lmer("' + self.formula + '",data=' + self.r_df_train_name + ')'
         if verbose:
-            print self.r_df_train_name
-            print self.model_name
-            print self.formula
-            print self.r_train_string
+            print(self.r_df_train_name)
+            print(self.model_name)
+            print(self.formula)
+            print(self.r_train_string)
 
     @staticmethod
     def fe2df(model_name):
         """
         R Fixed effects parameters to Pandas DataFrame
         """
-        fe_coefficients = pandas2ri.ri2py_dataframe(r('summary(' + model_name + ')').rx2('coefficients'))
-        fe_coefficients.columns = r('summary(' + model_name + ')').rx2('coefficients').colnames
-        ind = r('summary(' + model_name + ')').rx2('coefficients').rownames
-        #ind = [i.strip('()') if i=='(Intercept)' else i for i in ind]
-        fe_coefficients.index = ind
-        fe_coefficients = fe_coefficients.T
+        fe_coefficients = pandas.DataFrame([r('fixef(' + model_name + ')')],
+                                           index=['Estimate'],
+                                           columns=r('names(fixef(' + model_name + '))')
+                                          )
         fe_params = fe_coefficients.loc[['Estimate']]
         return fe_coefficients, fe_params
 
@@ -152,9 +152,8 @@ class lmer(object):
         """
         re_params = {}
         for i, re_name in enumerate(r_ranef.names):
-            re_params[re_name] = pandas2ri.ri2py_dataframe(r_ranef[i])
-            ind = r_ranef[i].rownames
-            re_params[re_name].index = ind
+            with localconverter(ro.default_converter + pandas2ri.converter):
+                re_params[re_name] = ro.conversion.rpy2py(r_ranef[i])
             re_params[re_name] = re_params[re_name].reset_index()
             re_params[re_name] = re_params[re_name].rename(columns={'index': re_name})
         return re_params
@@ -164,7 +163,7 @@ class lmer(object):
         Fit the model using R lmer function
         """
         if verbose:
-            print r(self.r_train_string)
+            print(r(self.r_train_string))
         else:
             r(self.r_train_string)
 
