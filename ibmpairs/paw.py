@@ -91,6 +91,7 @@ except:
         PIL.Image.MAX_IMAGE_PIXELS = 10**12
     except Exception as e:
         raise ImportError('Neither GDAL nor PIL could be imported.')
+import ibmpairs.authentication as authentication
 #}}}
 # fold: global parameters{{{
 ## PAIRS query meta data information file
@@ -347,7 +348,7 @@ class PAIRSQuery(object):
                                 even the `baseURI` and `port` if contained in `pairsHost` already
     :type pairsHost:            str
     :param auth:                user name and password as tuple for access to pairsHost
-    :type auth:                 (str, str)
+    :type auth:                 (str, str) or authentication.OAuth2
     :param port:                port to use for pairsHost
     :type port:                 int
     :param overwriteExisting:   destroy locally cached data, if existing, otherwise grab the latest
@@ -379,6 +380,8 @@ class PAIRSQuery(object):
                                 PAIRS API password, note: the user is the same as for the PAIRS API
                                 (typically the user's e-mail address)
     :type guiPassword:          str
+    :param authType:            'password' or 'api-key'
+    :type port:                 str
     :raises Exception:          if an invalid URL was specified
                                 if the query defintion is not understood
                                 if a manually set PAIRS query ZIP directory does not exist
@@ -420,7 +423,10 @@ class PAIRSQuery(object):
         guiURL                  = None,
         publish2GUI             = None,
         guiPassword             = None,
+        authType                = 'password'
     ):
+        self.authType = authType 
+        
         # get default credentials
         # check and set port for IBM PAIRS core API server
         if port is not None:
@@ -480,14 +486,23 @@ class PAIRSQuery(object):
         # use SSL verification
         self.verifySSL                  = verifySSL
         # PAIRS API authentication
-        self.auth                       = (
-            PAIRS_DEFAULT_USER,
-            get_pairs_api_password(
-                server  = PAIRS_DEFAULT_SERVER,
-                user    = PAIRS_DEFAULT_USER,
-                passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
-            )
-        ) if auth is None else auth
+        if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+            if type(auth) is authentication.OAuth2:
+                self.auth = auth
+            else:
+                self.auth = authentication.OAuth2(host         = PAIRS_DEFAULT_SERVER,
+                                                  username     = PAIRS_DEFAULT_USER,
+                                                  api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
+                                                 )
+        else:    
+            self.auth                       = (
+                PAIRS_DEFAULT_USER,
+                get_pairs_api_password(
+                    server  = PAIRS_DEFAULT_SERVER,
+                    user    = PAIRS_DEFAULT_USER,
+                    passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
+                )
+            ) if auth is None else auth
 
         # set PAIRS GUI info for publishing query result
         self.guiURL         = guiURL if guiURL is not None else PAIRS_DEFAULT_GUI_URL
@@ -498,7 +513,12 @@ class PAIRSQuery(object):
         else:
             self.publish2GUI    = False
         # set GUI password (default to PAIRS API password)
-        self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
+        if type(auth) is authentication.OAuth2:
+            self.guiPassword        = self.auth.jwt_token
+            email                   = self.auth.username
+        else:
+            self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
+            email                   = self.auth[0]
         # get PAIRS GUI token (for publishing PAIRS query result)
         if self.publish2GUI:
             if PAIRS_DEFAULT_GUI_TOKEN is None:
@@ -506,7 +526,7 @@ class PAIRSQuery(object):
                     self.guiToken = requests.post(
                         urljoin(self.guiURL, self.LOGIN_2_GUI),
                         json    = {
-                            'email':    self.auth[0],
+                            'email':    email,
                             'password': self.guiPassword,
                         },
                         headers = {
@@ -816,11 +836,21 @@ class PAIRSQuery(object):
             )
             # query for information
             try:
-                resp = requests.get(
-                    queryInfoURL,
-                    auth    = self.auth,
-                    verify  = self.verifySSL,
-                )
+                if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                    headers = {}
+                    token = 'Bearer ' + self.auth.jwt_token
+                    headers['Authorization'] = token
+                    resp = requests.get(
+                        queryInfoURL,
+                        verify  = self.verifySSL,
+                        headers = headers,
+                    )
+                else:
+                    resp = requests.get(
+                        queryInfoURL,
+                        auth    = self.auth,
+                        verify  = self.verifySSL,
+                    )
                 if resp.status_code != 200:
                     raise Exception('Sorry, bad response with code: {}'.format(resp.status_code))
                 self.queryInfo = resp.json()
@@ -965,6 +995,7 @@ class PAIRSQuery(object):
                             if no local cache is available which is requested to use
                             if no PAIRS query ID can be identified from the return of the PAIRS server
         """
+        
         # get information for if-statement to follow from data source (if any)
         locallyCachedZIP = False
         try:
@@ -1020,15 +1051,29 @@ class PAIRSQuery(object):
                 # try to submit query to PAIRS
                 try:
                     if (self.querySubmit is None) or (self.querySubmit.status_code not in (200, 201)):
-                        self.querySubmit = requests.post(
-                            urljoin(
-                                self.pairsHost.geturl(),
-                                self.SUBMIT_API_STRING
-                            ),
-                            data    = json.dumps(self.query),
-                            headers = {'Content-Type': 'application/json'},
-                            auth    = self.auth,
-                            verify  = self.verifySSL,
+                        if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                            headers = {'Content-Type': 'application/json'}
+                            token = 'Bearer ' + self.auth.jwt_token
+                            headers['Authorization'] = token
+                            self.querySubmit = requests.post(
+                                urljoin(
+                                    self.pairsHost.geturl(),
+                                    self.SUBMIT_API_STRING
+                                ),
+                                data    = json.dumps(self.query),
+                                headers = headers,
+                                verify  = self.verifySSL,
+                            )
+                        else:
+                            self.querySubmit = requests.post(
+                                urljoin(
+                                    self.pairsHost.geturl(),
+                                    self.SUBMIT_API_STRING
+                                ),
+                                data    = json.dumps(self.query),
+                                headers = {'Content-Type': 'application/json'},
+                                auth    = self.auth,
+                                verify  = self.verifySSL,
                         )
                 except Exception as e:
                     raise Exception(
@@ -1158,11 +1203,22 @@ class PAIRSQuery(object):
                     ),
                     self.queryID
                 )
-                self.queryStatus = requests.get(
-                    pollURL,
-                    auth    = self.auth,
-                    verify  = self.verifySSL,
-                )
+                
+                if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                    headers = {}
+                    token = 'Bearer ' + self.auth.jwt_token
+                    headers['Authorization'] = token
+                    self.queryStatus = requests.get(
+                        pollURL,
+                        verify  = self.verifySSL,
+                        headers = headers,
+                    )
+                else:
+                    self.queryStatus = requests.get(
+                        pollURL,
+                        auth    = self.auth,
+                        verify  = self.verifySSL,
+                    )
             elif self.queryID is not None and \
                 (not self.querySubmit is None) and \
                 (self.querySubmit.status_code == 200) and \
@@ -1175,11 +1231,22 @@ class PAIRSQuery(object):
                     ),
                     self.queryID
                 )
-                self.queryStatus = requests.get(
-                    pollURL,
-                    auth    = self.auth,
-                    verify  = self.verifySSL,
-                )
+                
+                if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                    headers = {}
+                    token = 'Bearer ' + self.auth.jwt_token
+                    headers['Authorization'] = token
+                    self.queryStatus = requests.get(
+                        pollURL,
+                        verify  = self.verifySSL,
+                        headers = headers,
+                    )
+                else:
+                    self.queryStatus = requests.get(
+                        pollURL,
+                        auth    = self.auth,
+                        verify  = self.verifySSL,
+                    )
             elif self.queryID is None and self.query is None:
                 raise Exception(
                     'No query or query ID defined on record, so no submit possible, i.e. polling does not make sense. You are probably using PAIRS Jupyter notebook?'
@@ -1387,19 +1454,36 @@ class PAIRSQuery(object):
                            set(self.COS_INFO_KEYS) <= set(cosInfoJSON):
                             try:
                                 # initialize upload to COS
-                                resp = requests.post(
-                                    urljoin(
+                                if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                                    headers = {'Content-Type': 'application/json'}
+                                    token = 'Bearer ' + self.auth.jwt_token
+                                    headers['Authorization'] = token
+                                    resp = requests.post(
                                         urljoin(
-                                            self.pairsHost.geturl(),
-                                            self.COS_UPLOAD_API_STRING
+                                            urljoin(
+                                                self.pairsHost.geturl(),
+                                                self.COS_UPLOAD_API_STRING
+                                            ),
+                                            str(self.queryID)
                                         ),
-                                        str(self.queryID)
-                                    ),
-                                    json=cosInfoJSON,
-                                    headers = {'Content-Type': 'application/json'},
-                                    auth    = self.auth,
-                                    verify  = self.verifySSL,
-                                )
+                                        json=cosInfoJSON,
+                                        headers = headers,
+                                        verify  = self.verifySSL,
+                                    )
+                                else:
+                                    resp = requests.post(
+                                        urljoin(
+                                            urljoin(
+                                                self.pairsHost.geturl(),
+                                                self.COS_UPLOAD_API_STRING
+                                            ),
+                                            str(self.queryID)
+                                        ),
+                                        json=cosInfoJSON,
+                                        headers = {'Content-Type': 'application/json'},
+                                        auth    = self.auth,
+                                        verify  = self.verifySSL,
+                                    )
                                 if resp.status_code == 200:
                                     logger.info('Upload of query result to IBM COS initialized.')
                                 else:
@@ -1418,18 +1502,35 @@ class PAIRSQuery(object):
                                                 "User defined poll timeout for IBM COS reached."
                                             )
                                     # poll PAIRS API for status of upload to COS
-                                    resp = requests.get(
-                                        urljoin(
+                                    
+                                    if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                                        headers = {'Content-Type': 'application/json'}
+                                        token = 'Bearer ' + self.auth.jwt_token
+                                        headers['Authorization'] = token
+                                        resp = requests.get(
                                             urljoin(
-                                                self.pairsHost.geturl(),
-                                                self.COS_UPLOAD_API_STRING
+                                                urljoin(
+                                                    self.pairsHost.geturl(),
+                                                    self.COS_UPLOAD_API_STRING
+                                                ),
+                                                str(self.queryID)
                                             ),
-                                            str(self.queryID)
-                                        ),
-                                        headers = {'Content-Type': 'application/json'},
-                                        auth    = self.auth,
-                                        verify  = self.verifySSL,
-                                    )
+                                            headers = headers,
+                                            verify  = self.verifySSL,
+                                        )
+                                    else:
+                                        resp = requests.get(
+                                            urljoin(
+                                                urljoin(
+                                                    self.pairsHost.geturl(),
+                                                    self.COS_UPLOAD_API_STRING
+                                                ),
+                                                str(self.queryID)
+                                            ),
+                                            headers = {'Content-Type': 'application/json'},
+                                            auth    = self.auth,
+                                            verify  = self.verifySSL,
+                                        )
                                     load = resp.json()
                                     if resp.status_code == 200:
                                         if printStatus:
@@ -1478,13 +1579,24 @@ class PAIRSQuery(object):
                                         ),
                                         self.queryID
                                     )
-
-                                    downloadResponse = requests.get(
-                                        downloadURL,
-                                        auth    = self.auth,
-                                        stream  = True,
-                                        verify  = self.verifySSL,
-                                    )
+                                    
+                                    if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                                        headers = {}
+                                        token = 'Bearer ' + self.auth.jwt_token
+                                        headers['Authorization'] = token
+                                        downloadResponse = requests.get(
+                                            downloadURL,
+                                            stream  = True,
+                                            verify  = self.verifySSL,
+                                            headers = headers
+                                        )
+                                    else:
+                                        downloadResponse = requests.get(
+                                            downloadURL,
+                                            auth    = self.auth,
+                                            stream  = True,
+                                            verify  = self.verifySSL,
+                                        )
                                     if not downloadResponse.ok:
                                         self.BadDownloadFile = True
                                         raise Exception('Sorry, downloading file failed.')
@@ -1690,19 +1802,38 @@ class PAIRSQuery(object):
         try:
             if not HAS_GEOJSON:
                 raise Exception('Sorry, you have not installed the GeoJSON Python module (e.g. via `pip install geojson`)')
+            
+            if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                headers = {}
+                token = 'Bearer ' + self.auth.jwt_token
+                headers['Authorization'] = token
+                polygon = requests.get(
+                    urljoin(
+                        urljoin(
+                            self.pairsHost.geturl(),
+                            self.GET_GEOJSON_API_STRING
+                        ),
+                        str(polyID)
+                    ),
+                    verify = self.verifySSL,
+                    headers = headers,
+                ).json()
+            else:
+                polygon = requests.get(
+                    urljoin(
+                        urljoin(
+                            self.pairsHost.geturl(),
+                            self.GET_GEOJSON_API_STRING
+                        ),
+                        str(polyID)
+                    ),
+                    auth   = self.auth,
+                    verify = self.verifySSL,
+                ).json()    
+                
             return shape(
                 geojson.loads(
-                    requests.get(
-                        urljoin(
-                            urljoin(
-                                self.pairsHost.geturl(),
-                                self.GET_GEOJSON_API_STRING
-                            ),
-                            str(polyID)
-                        ),
-                        auth   = self.auth,
-                        verify = self.verifySSL,
-                    ).json()
+                    polygon
                 )
             )
         except Exception as e:
@@ -1719,17 +1850,34 @@ class PAIRSQuery(object):
                         if there is an error on retrieval, `None` is returned
         """
         try:
-            return requests.get(
-                urljoin(
-                    urljoin(
-                        self.pairsHost.geturl(),
-                        self.GET_AOI_INFO_API_STRING
-                    ),
-                    str(polyID)
-                ),
-                auth   = self.auth,
-                verify = self.verifySSL,
-            ).json()['name']
+            if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+                headers = {}
+                token = 'Bearer ' + self.auth.jwt_token
+                headers['Authorization'] = token
+                query = requests.get(
+                             urljoin(
+                                    urljoin(
+                                        self.pairsHost.geturl(),
+                                        self.GET_AOI_INFO_API_STRING
+                                    ),
+                                    str(polyID)
+                                ),
+                                verify = self.verifySSL,
+                                headers = headers,
+                            ).json()['name']
+            else:
+                query = requests.get(
+                             urljoin(
+                                    urljoin(
+                                        self.pairsHost.geturl(),
+                                        self.GET_AOI_INFO_API_STRING
+                                    ),
+                                    str(polyID)
+                                ),
+                                auth   = self.auth,
+                                verify = self.verifySSL,
+                            ).json()['name']
+            return query
         except Exception as e:
             logger.error(e)
             return None
@@ -2227,7 +2375,8 @@ class PAIRSTimeSeries(object):
     def _get_pairs_timeseries(
         self, lon, lat, t0, t1, layerID, auth,
         requestFunction     = requests.get,
-        rawDataDumpDir      = None
+        rawDataDumpDir      = None,
+        authType            = 'password'
     ):
         """
         Extracts time series of point location from PAIRS through time series API endpoint.
@@ -2245,12 +2394,14 @@ class PAIRSTimeSeries(object):
                                 `&dimension=<name1>%D3<value1>,<name1>%D3<value1>...`
         :type layerID:          str
         :param auth:            PAIRS credentials for authentication
-        :type auth:             (str, str)
+        :type auth:             (str, str) or authentication.OAuth2
         :param requestFunction: request function to be used for GET call to PAIRS
         :type requestFunction:  function
         :param rawDataDumpDir:  if set, the PAIRS query result is dumped as JSON
                                 file into the given directory
         :type rawDataDumpDir:   str
+        :param authType:        'password' or 'api-key'
+        :type authType:         str
         :returns:               time series data queried from PAIRS for layer `layerID`
                                 and dictionary of time series summary information
                                 - temporal interval: [`"first-timestamp"`, `"last-timestamp"`]
@@ -2259,6 +2410,7 @@ class PAIRSTimeSeries(object):
         :raises Exception:      if `t0` is smaller than `t1` or if the JSON data
                                 dump directory does not exist
         """
+        
         # make temporal interval inclusive
         t0 = copy.copy(t0)-1000
         # check inputs
@@ -2284,7 +2436,13 @@ class PAIRSTimeSeries(object):
             layerID             = layerID,
         )
         logger.debug(url)
-        response = requestFunction(url=url, auth=auth, verify=self.verifySSL,)
+        if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+            headers = {}
+            token = 'Bearer ' + self.auth.jwt_token
+            headers['Authorization'] = token
+            response = requestFunction(url=url, verify=self.verifySSL, headers=headers,)
+        else:    
+            response = requestFunction(url=url, auth=auth, verify=self.verifySSL,)
         # check that the response is valid
         if response.status_code not in self.PAIRS_QUERY_SUCCESS_CODES:
             raise requests.HTTPError(response.status_code)
@@ -2335,6 +2493,7 @@ class PAIRSTimeSeries(object):
         verifySSL           = True,
         auth                = None,
         spatioTemporalIndex = False,
+        authType            = 'password'
     ):
         """
         Function to query point data from PAIRS.
@@ -2349,11 +2508,16 @@ class PAIRSTimeSeries(object):
         :param spatioTemporalIndex:                whether or not to spatio-temorally index the Pandas dataframe to be returned,
                                                    *note*: temporal index comes last for time series optimization
         :type spatioTemporalIndex                  bool
+        :param authType:                           'password' or 'api-key'
+        :type port:                                str
         :returns:                                  table with PAIRS data
         :rtype:                                    pandas.DataFrame
         :raises urllib3.exceptions.MaxRetryError:  in case PAIRS is unreachable
         :raises requests.HTTPError:                in case the PAIRS HTTP response code is not 200
         """
+        
+        self.authType = authType
+        
         # set PAIRS connection details
         ## PAIRS URL (guarantee trailing slash)
         self.pairsBaseURL = '{}://{}{}'.format(
@@ -2364,14 +2528,25 @@ class PAIRSTimeSeries(object):
         if len(self.pairsBaseURL)>0 and self.pairsBaseURL[-1]!='/':
             self.pairsBaseURL += '/'
         ## authentication
-        auth = (
-            PAIRS_DEFAULT_USER,
-            get_pairs_api_password(
-                server  = PAIRS_DEFAULT_SERVER,
-                user    = PAIRS_DEFAULT_USER,
-                passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
-            )
-        ) if auth is None else auth
+        
+        if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+            if type(auth) is authentication.OAuth2:
+                    self.auth = auth
+            else:
+                    self.auth = authentication.OAuth2(host = PAIRS_DEFAULT_SERVER,
+                                                      username     = PAIRS_DEFAULT_USER,
+                                                      api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
+                                                     )
+        else:    
+            self.auth                       = (
+                PAIRS_DEFAULT_USER,
+                get_pairs_api_password(
+                    server  = PAIRS_DEFAULT_SERVER,
+                    user    = PAIRS_DEFAULT_USER,
+                    passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
+                )
+            ) if auth is None else auth
+        
         ## SSL verification
         self.verifySSL = verifySSL
 
@@ -2412,7 +2587,7 @@ class PAIRSTimeSeries(object):
             pairsQueryDataFrames = [
                 df
                 for df, _ in pool.map(
-                    lambda x: self._get_pairs_timeseries(auth=auth, **x),
+                    lambda x: self._get_pairs_timeseries(auth=auth, authType=authType, **x),
                     parallelExecuteList
                 )
                 if df is not None
