@@ -2,7 +2,7 @@
 IBM PAIRS RESTful API wrapper: A Python module to access PAIRS's core API to
 load data into Python compatible data formats.
 
-Copyright 2019-2020 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 """
@@ -12,11 +12,11 @@ from __future__ import unicode_literals
 from __future__ import absolute_import
 
 __maintainer__  = "Physical Analytics, TJ Watson Research Center"
-__copyright__   = "(c) 2017-2020, IBM Research"
-__authors__     = ['Conrad M Albrecht', 'Marcus Freitag']
+__copyright__   = "(c) 2017-2021, IBM Research"
+__authors__     = ['Conrad M Albrecht', 'Steffan Taylor', 'Marcus Freitag',]
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "July 2020"
+__date__        = "Feb 2021"
 
 # fold: imports{{{
 # basic imports
@@ -185,7 +185,7 @@ def load_environment_variables():
     starting your Python shell with:
 
     .. code-block:: bash
-    
+
        PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
     """
     # set global variables reading from environment variables
@@ -425,8 +425,8 @@ class PAIRSQuery(object):
         guiPassword             = None,
         authType                = 'password'
     ):
-        self.authType = authType 
-        
+        self.authType = authType
+
         # get default credentials
         # check and set port for IBM PAIRS core API server
         if port is not None:
@@ -995,7 +995,7 @@ class PAIRSQuery(object):
                             if no local cache is available which is requested to use
                             if no PAIRS query ID can be identified from the return of the PAIRS server
         """
-        
+
         # get information for if-statement to follow from data source (if any)
         locallyCachedZIP = False
         try:
@@ -1203,7 +1203,7 @@ class PAIRSQuery(object):
                     ),
                     self.queryID
                 )
-                
+
                 if self.authType.lower() in ['api-key', 'apikey', 'api key']:
                     headers = {}
                     token = 'Bearer ' + self.auth.jwt_token
@@ -1231,7 +1231,7 @@ class PAIRSQuery(object):
                     ),
                     self.queryID
                 )
-                
+
                 if self.authType.lower() in ['api-key', 'apikey', 'api key']:
                     headers = {}
                     token = 'Bearer ' + self.auth.jwt_token
@@ -1502,7 +1502,7 @@ class PAIRSQuery(object):
                                                 "User defined poll timeout for IBM COS reached."
                                             )
                                     # poll PAIRS API for status of upload to COS
-                                    
+
                                     if self.authType.lower() in ['api-key', 'apikey', 'api key']:
                                         headers = {'Content-Type': 'application/json'}
                                         token = 'Bearer ' + self.auth.jwt_token
@@ -1579,7 +1579,7 @@ class PAIRSQuery(object):
                                         ),
                                         self.queryID
                                     )
-                                    
+
                                     if self.authType.lower() in ['api-key', 'apikey', 'api key']:
                                         headers = {}
                                         token = 'Bearer ' + self.auth.jwt_token
@@ -1802,7 +1802,7 @@ class PAIRSQuery(object):
         try:
             if not HAS_GEOJSON:
                 raise Exception('Sorry, you have not installed the GeoJSON Python module (e.g. via `pip install geojson`)')
-            
+
             if self.authType.lower() in ['api-key', 'apikey', 'api key']:
                 headers = {}
                 token = 'Bearer ' + self.auth.jwt_token
@@ -1829,8 +1829,8 @@ class PAIRSQuery(object):
                     ),
                     auth   = self.auth,
                     verify = self.verifySSL,
-                ).json()    
-                
+                ).json()
+
             return shape(
                 geojson.loads(
                     polygon
@@ -2410,7 +2410,7 @@ class PAIRSTimeSeries(object):
         :raises Exception:      if `t0` is smaller than `t1` or if the JSON data
                                 dump directory does not exist
         """
-        
+
         # make temporal interval inclusive
         t0 = copy.copy(t0)-1000
         # check inputs
@@ -2441,7 +2441,7 @@ class PAIRSTimeSeries(object):
             token = 'Bearer ' + self.auth.jwt_token
             headers['Authorization'] = token
             response = requestFunction(url=url, verify=self.verifySSL, headers=headers,)
-        else:    
+        else:
             response = requestFunction(url=url, auth=auth, verify=self.verifySSL,)
         # check that the response is valid
         if response.status_code not in self.PAIRS_QUERY_SUCCESS_CODES:
@@ -2515,9 +2515,9 @@ class PAIRSTimeSeries(object):
         :raises urllib3.exceptions.MaxRetryError:  in case PAIRS is unreachable
         :raises requests.HTTPError:                in case the PAIRS HTTP response code is not 200
         """
-        
+
         self.authType = authType
-        
+
         # set PAIRS connection details
         ## PAIRS URL (guarantee trailing slash)
         self.pairsBaseURL = '{}://{}{}'.format(
@@ -2528,7 +2528,7 @@ class PAIRSTimeSeries(object):
         if len(self.pairsBaseURL)>0 and self.pairsBaseURL[-1]!='/':
             self.pairsBaseURL += '/'
         ## authentication
-        
+
         if self.authType.lower() in ['api-key', 'apikey', 'api key']:
             if type(auth) is authentication.OAuth2:
                     self.auth = auth
@@ -2537,7 +2537,7 @@ class PAIRSTimeSeries(object):
                                                       username     = PAIRS_DEFAULT_USER,
                                                       api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
                                                      )
-        else:    
+        else:
             self.auth                       = (
                 PAIRS_DEFAULT_USER,
                 get_pairs_api_password(
@@ -2546,7 +2546,7 @@ class PAIRSTimeSeries(object):
                     passFile= PAIRS_DEFAULT_PASSWORD_FILE_NAME,
                 )
             ) if auth is None else auth
-        
+
         ## SSL verification
         self.verifySSL = verifySSL
 
