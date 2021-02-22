@@ -513,12 +513,7 @@ class PAIRSQuery(object):
         else:
             self.publish2GUI    = False
         # set GUI password (default to PAIRS API password)
-        if type(self.auth) is authentication.OAuth2:
-            self.guiPassword        = self.auth.jwt_token
-            email                   = self.auth.username
-        else:
-            self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
-            email                   = self.auth[0]
+        self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
         # get PAIRS GUI token (for publishing PAIRS query result)
         if self.publish2GUI:
             if PAIRS_DEFAULT_GUI_TOKEN is None:
@@ -526,7 +521,7 @@ class PAIRSQuery(object):
                     self.guiToken = requests.post(
                         urljoin(self.guiURL, self.LOGIN_2_GUI),
                         json    = {
-                            'email':    email,
+                            'email':    self.auth[0],
                             'password': self.guiPassword,
                         },
                         headers = {
@@ -1502,7 +1497,6 @@ class PAIRSQuery(object):
                                                 "User defined poll timeout for IBM COS reached."
                                             )
                                     # poll PAIRS API for status of upload to COS
-
                                     if self.authType.lower() in ['api-key', 'apikey', 'api key']:
                                         headers = {'Content-Type': 'application/json'}
                                         token = 'Bearer ' + self.auth.jwt_token
@@ -1579,7 +1573,6 @@ class PAIRSQuery(object):
                                         ),
                                         self.queryID
                                     )
-
                                     if self.authType.lower() in ['api-key', 'apikey', 'api key']:
                                         headers = {}
                                         token = 'Bearer ' + self.auth.jwt_token
@@ -1840,6 +1833,7 @@ class PAIRSQuery(object):
             logger.error(str(e))
             return None
 
+
     def query_pairs_polygon_meta(self, polyID):
         """
         Uses PAIRS API to obtain polygon meta-information that corresponds to a given AoI ID.
@@ -1855,32 +1849,33 @@ class PAIRSQuery(object):
                 token = 'Bearer ' + self.auth.jwt_token
                 headers['Authorization'] = token
                 query = requests.get(
-                             urljoin(
-                                    urljoin(
-                                        self.pairsHost.geturl(),
-                                        self.GET_AOI_INFO_API_STRING
-                                    ),
-                                    str(polyID)
-                                ),
-                                verify = self.verifySSL,
-                                headers = headers,
-                            ).json()['name']
+                    urljoin(
+                        urljoin(
+                            self.pairsHost.geturl(),
+                            self.GET_AOI_INFO_API_STRING
+                        ),
+                        str(polyID)
+                    ),
+                    verify = self.verifySSL,
+                    headers = headers,
+                ).json()['name']
             else:
                 query = requests.get(
-                             urljoin(
-                                    urljoin(
-                                        self.pairsHost.geturl(),
-                                        self.GET_AOI_INFO_API_STRING
-                                    ),
-                                    str(polyID)
-                                ),
-                                auth   = self.auth,
-                                verify = self.verifySSL,
-                            ).json()['name']
+                    urljoin(
+                        urljoin(
+                            self.pairsHost.geturl(),
+                            self.GET_AOI_INFO_API_STRING
+                        ),
+                        str(polyID)
+                    ),
+                    auth   = self.auth,
+                    verify = self.verifySSL,
+                ).json()['name']
             return query
         except Exception as e:
             logger.error(e)
             return None
+
 
     def get_vector_polygon_table(self, includeGeometry=False):
         """
@@ -2528,17 +2523,17 @@ class PAIRSTimeSeries(object):
         if len(self.pairsBaseURL)>0 and self.pairsBaseURL[-1]!='/':
             self.pairsBaseURL += '/'
         ## authentication
-
         if self.authType.lower() in ['api-key', 'apikey', 'api key']:
             if type(auth) is authentication.OAuth2:
-                    self.auth = auth
+                self.auth = auth
             else:
-                    self.auth = authentication.OAuth2(host = PAIRS_DEFAULT_SERVER,
-                                                      username     = PAIRS_DEFAULT_USER,
-                                                      api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
-                                                     )
+                self.auth = authentication.OAuth2(
+                    host = PAIRS_DEFAULT_SERVER,
+                    username     = PAIRS_DEFAULT_USER,
+                    api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME,
+                )
         else:
-            self.auth                       = (
+            self.auth   = (
                 PAIRS_DEFAULT_USER,
                 get_pairs_api_password(
                     server  = PAIRS_DEFAULT_SERVER,
