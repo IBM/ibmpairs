@@ -494,7 +494,7 @@ class PAIRSQuery(object):
                                                   username     = PAIRS_DEFAULT_USER,
                                                   api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
                                                  )
-        else:    
+        else:
             self.auth                       = (
                 PAIRS_DEFAULT_USER,
                 get_pairs_api_password(
@@ -513,7 +513,7 @@ class PAIRSQuery(object):
         else:
             self.publish2GUI    = False
         # set GUI password (default to PAIRS API password)
-        if type(auth) is authentication.OAuth2:
+        if type(self.auth) is authentication.OAuth2:
             self.guiPassword        = self.auth.jwt_token
             email                   = self.auth.username
         else:
