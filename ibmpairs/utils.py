@@ -2,7 +2,7 @@
 IBM PAIRS Utilities: A collection of tools complementing the
 RESTful API wrapper.
 
-Copyright 2020 Physical Analytics, IBM Research. All Rights Reserved.
+Copyright 2021 Physical Analytics, IBM Research. All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 '''
