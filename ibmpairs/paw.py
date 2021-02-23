@@ -512,8 +512,6 @@ class PAIRSQuery(object):
             self.publish2GUI    = publish2GUI if publish2GUI is not None else PAIRS_DEFAULT_PUBLISH_2_GUI
         else:
             self.publish2GUI    = False
-        # set GUI password (default to PAIRS API password)
-        self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
         
         # get PAIRS GUI token (for publishing PAIRS query result)
         if self.authType.lower() in ['api-key', 'apikey', 'api key']:
