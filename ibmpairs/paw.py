@@ -514,29 +514,35 @@ class PAIRSQuery(object):
             self.publish2GUI    = False
         # set GUI password (default to PAIRS API password)
         self.guiPassword        = guiPassword if guiPassword is not None else self.auth[1]
+        
         # get PAIRS GUI token (for publishing PAIRS query result)
-        if self.publish2GUI:
-            if PAIRS_DEFAULT_GUI_TOKEN is None:
-                try:
-                    self.guiToken = requests.post(
-                        urljoin(self.guiURL, self.LOGIN_2_GUI),
-                        json    = {
-                            'email':    self.auth[0],
-                            'password': self.guiPassword,
-                        },
-                        headers = {
-                            'Content-Type': 'application/json',
-                            'Referer': 'http://localhost:80',
-                        },
-                        verify  = self.verifySSL,
-                    ).json()['token']
-                except Exception as e:
-                    self.publish2GUI = False
-                    logger.warning(
-                            "Ah, cannot get token for PAIRS GUI (publish query result disabled): {}".format(e)
-                    )
-            else:
-                self.guiToken = PAIRS_DEFAULT_GUI_TOKEN
+        if self.authType.lower() in ['api-key', 'apikey', 'api key']:
+            self.guiToken = self.auth.jwt_token
+        else:
+            self.guiPassword = guiPassword if guiPassword is not None else self.auth[1]
+            # get PAIRS GUI token (for publishing PAIRS query result)
+            if self.publish2GUI:
+                if PAIRS_DEFAULT_GUI_TOKEN is None:
+                    try:
+                        self.guiToken = requests.post(
+                            urljoin(self.guiURL, self.LOGIN_2_GUI),
+                            json    = {
+                                'email':    self.auth[0],
+                                'password': self.guiPassword,
+                            },
+                            headers = {
+                                'Content-Type': 'application/json',
+                                'Referer': 'http://localhost:80',
+                            },
+                            verify  = self.verifySSL,
+                        ).json()['token']
+                    except Exception as e:
+                        self.publish2GUI = False
+                        logger.warning(
+                                "Ah, cannot get token for PAIRS GUI (publish query result disabled): {}".format(e)
+                        )
+                else:
+                    self.guiToken = PAIRS_DEFAULT_GUI_TOKEN
 
         # set base URI
         self.baseURI                    = self.pairsHost.path
@@ -1334,7 +1340,7 @@ class PAIRSQuery(object):
                             self.guiURL,
                             self.PUBLISH_QUERY_RESULT_2_GUI.format(queryID=self.queryID),
                         ),
-                        headers = {'X-Access-Token': self.guiToken},
+                        headers = {'Authorization': 'Bearer ' + self.guiToken},
                         verify  = self.verifySSL,
                     )
                     if resp.status_code!=200:
