@@ -5,3 +5,6 @@ include LICENSE
 include MAINTAINERS.md
 include requirements.txt
 include requirements-development.txt
+recursive-exclude tests *
+recursive-exclude examples *
+recursive-exclude tutorials *
