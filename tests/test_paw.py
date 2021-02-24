@@ -62,6 +62,7 @@ if PYTHON_VERSION == 2:
     string_type = basestring
 else:
     string_type = str
+import ibmpairs.authentication as authentication
 #}}}
 # fold: parameter settings{{{
 # define global test parameters
@@ -91,6 +92,8 @@ pytest.realConnectQueryID       = None
 COS_BUCKET_NAME                 = 'test-paw'
 COS_BUCKET_KEY                  = 'faKeKEY4M0ckTest'
 COS_ENDPOINT                    = 'https://s3.us-east.cloud-object-storage.appdomain.cloud'
+AUTH_TYPE                       = 'password'
+PAIRS_JWT_TOKEN                 = None
 # read/overwrite parameters from environment
 for var in (
     'REAL_CONNECT',
@@ -104,6 +107,7 @@ for var in (
     'PAIRS_PASSWORD_FILE_NAME',
     'COS_BUCKET_NAME',
     'COS_BUCKET_KEY',
+    'AUTH_TYPE',
 ):
     if 'PAW_TESTS_'+var in os.environ:
         exec(
@@ -123,24 +127,33 @@ try:
 except:
     pass
 # set credentials
-if os.path.exists(os.path.expanduser(PAIRS_PASSWORD_FILE_NAME)):
-    try:
-        PAIRS_PASSWORD  = paw.get_pairs_api_password(
-            PAIRS_SERVER,
-            PAIRS_USER,
-            passFile=PAIRS_PASSWORD_FILE_NAME,
-        )
-    except Exception as e:
-        PAIRS_PASSWORD  = None
-PAIRS_CREDENTIALS       = (PAIRS_USER, PAIRS_PASSWORD,)
-if REAL_CONNECT:
-    logging.info(
-        "Using IBM PAIRS server base endpoint '{}{}' and login user '{}' with password file '{}'.".format(
-            PAIRS_SERVER, PAIRS_BASE_URI, PAIRS_USER, PAIRS_PASSWORD_FILE_NAME,
-        )
-    )
+if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+    OAUTH = authentication.OAuth2(host         = PAIRS_SERVER,
+                                  username     = PAIRS_USER,
+                                  api_key_file = PAIRS_PASSWORD_FILE_NAME
+                                 )
+    PAIRS_JWT_TOKEN = OAUTH.jwt_token
+    PAIRS_CREDENTIALS       = (PAIRS_USER, PAIRS_PASSWORD,)
 else:
-    logging.warning('Not testing against real PAIRS instance.')
+    if os.path.exists(os.path.expanduser(PAIRS_PASSWORD_FILE_NAME)):
+        try:
+            PAIRS_PASSWORD  = paw.get_pairs_api_password(
+                PAIRS_SERVER,
+                PAIRS_USER,
+                passFile=PAIRS_PASSWORD_FILE_NAME,
+            )
+        except Exception as e:
+            PAIRS_PASSWORD  = None
+    PAIRS_CREDENTIALS       = (PAIRS_USER, PAIRS_PASSWORD,)
+    if REAL_CONNECT:
+        logging.info(
+            "Using IBM PAIRS server base endpoint '{}{}' and login user '{}' with password file '{}'.".format(
+                PAIRS_SERVER, PAIRS_BASE_URI, PAIRS_USER, PAIRS_PASSWORD_FILE_NAME,
+            )
+        )
+    else:
+        logging.warning('Not testing against real PAIRS instance.')
+
 # }}}
 
 # fold: test password reading function #{{{
@@ -273,16 +286,29 @@ class TestPointQuery(unittest.TestCase):
         logging.info("TEST: Query {}point data (raster).".format('' if REAL_CONNECT else 'mocked '))
         # define point query
         # note: test automatic correction for trailing slash in PAIRS base URI
-        with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json')) as fp:
-            testPointQuery = paw.PAIRSQuery(
-                json.load(fp),
-                WEB_PROTOCOL+'://'+PAIRS_SERVER,
-                port        = PAIRS_PORT,
-                auth        = PAIRS_CREDENTIALS,
-                baseURI     = PAIRS_BASE_URI[:-1] \
-                    if len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' else PAIRS_BASE_URI,
-                verifySSL   = VERIFY_SSL,
-            )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json')) as fp:
+                testPointQuery = paw.PAIRSQuery(
+                    json.load(fp),
+                    WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                    port        = PAIRS_PORT,
+                    auth        = OAUTH,
+                    baseURI     = PAIRS_BASE_URI[:-1] \
+                        if len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' else PAIRS_BASE_URI,
+                    verifySSL   = VERIFY_SSL,
+                    authType    = 'api-key'
+                )
+        else:
+            with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json')) as fp:
+                testPointQuery = paw.PAIRSQuery(
+                    json.load(fp),
+                    WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                    port        = PAIRS_PORT,
+                    auth        = PAIRS_CREDENTIALS,
+                    baseURI     = PAIRS_BASE_URI[:-1] \
+                        if len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' else PAIRS_BASE_URI,
+                    verifySSL   = VERIFY_SSL,
+                )
         if useJSONDataStream:
             testPointQuery.PAIRS_POINT_QUERY_RESP_FORMAT = 'application/json'
         # submit point query
@@ -361,15 +387,27 @@ class TestPointQuery(unittest.TestCase):
         # query mocked data
         logging.info("TEST: Query {}point data (vector).".format('' if REAL_CONNECT else 'mocked '))
         # define point query
-        with open(os.path.join(TEST_DATA_DIR, 'point-data-sample-request-vector.json'), 'r') as fp:
-            testPointQuery = paw.PAIRSQuery(
-                json.load(fp),
-                WEB_PROTOCOL+'://'+PAIRS_SERVER,
-                port        = PAIRS_PORT,
-                auth        = PAIRS_CREDENTIALS,
-                baseURI     = PAIRS_BASE_URI,
-                verifySSL   = VERIFY_SSL,
-            )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            with open(os.path.join(TEST_DATA_DIR, 'point-data-sample-request-vector.json'), 'r') as fp:
+                testPointQuery = paw.PAIRSQuery(
+                    json.load(fp),
+                    WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                    port        = PAIRS_PORT,
+                    auth        = OAUTH,
+                    baseURI     = PAIRS_BASE_URI,
+                    verifySSL   = VERIFY_SSL,
+                    authType    = 'api-key'
+                )
+        else:
+            with open(os.path.join(TEST_DATA_DIR, 'point-data-sample-request-vector.json'), 'r') as fp:
+                testPointQuery = paw.PAIRSQuery(
+                    json.load(fp),
+                    WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                    port        = PAIRS_PORT,
+                    auth        = PAIRS_CREDENTIALS,
+                    baseURI     = PAIRS_BASE_URI,
+                    verifySSL   = VERIFY_SSL,
+                )
         if useJSONDataStream:
             testPointQuery.PAIRS_POINT_QUERY_RESP_FORMAT = 'application/json'
         # submit point query
@@ -451,32 +489,68 @@ class TestPointQuery(unittest.TestCase):
             logging.warning(
                 'Stopping the mocked PAIRS server caused (potentially irrelevant) trouble: {}'.format(e)
             )
-        with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'r') as fp:
-            testRealRasterResponse = requests.post(
-                '{protocol}://{server}{port}{base}{endpoint}'.format(
-                    protocol    = WEB_PROTOCOL,
-                    server      = PAIRS_SERVER,
-                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
-                    base        = PAIRS_BASE_URI,
-                    endpoint    = QUERY_ENDPOINT,
-                ),
-                json    = json.load(fp),
-                auth    = PAIRS_CREDENTIALS,
-                verify  = VERIFY_SSL,
-            )
-        with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'), 'r') as fp:
-            testRealVectorResponse = requests.post(
-                '{protocol}://{server}{port}{base}{endpoint}'.format(
-                    protocol    = WEB_PROTOCOL,
-                    server      = PAIRS_SERVER,
-                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
-                    base        = PAIRS_BASE_URI,
-                    endpoint    = QUERY_ENDPOINT,
-                ),
-                json    = json.load(fp),
-                auth    = PAIRS_CREDENTIALS,
-                verify  = VERIFY_SSL,
-            )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            headers = {}
+            token = 'Bearer ' + OAUTH.jwt_token
+            headers['Authorization'] = token
+            with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'r') as fp:
+                testRealRasterResponse = requests.post(
+                    '{protocol}://{server}{port}{base}{endpoint}'.format(
+                        protocol    = WEB_PROTOCOL,
+                        server      = PAIRS_SERVER,
+                        port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                        base        = PAIRS_BASE_URI,
+                        endpoint    = QUERY_ENDPOINT,
+                    ),
+                    json    = json.load(fp),
+                    headers = headers,
+                    verify  = VERIFY_SSL,
+                )
+        else:
+            with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'), 'r') as fp:
+                testRealRasterResponse = requests.post(
+                    '{protocol}://{server}{port}{base}{endpoint}'.format(
+                        protocol    = WEB_PROTOCOL,
+                        server      = PAIRS_SERVER,
+                        port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                        base        = PAIRS_BASE_URI,
+                        endpoint    = QUERY_ENDPOINT,
+                    ),
+                    json    = json.load(fp),
+                    auth    = PAIRS_CREDENTIALS,
+                    verify  = VERIFY_SSL,
+                )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            headers = {}
+            token = 'Bearer ' + OAUTH.jwt_token
+            headers['Authorization'] = token
+            with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'), 'r') as fp:
+                testRealVectorResponse = requests.post(
+                    '{protocol}://{server}{port}{base}{endpoint}'.format(
+                        protocol    = WEB_PROTOCOL,
+                        server      = PAIRS_SERVER,
+                        port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                        base        = PAIRS_BASE_URI,
+                        endpoint    = QUERY_ENDPOINT,
+                    ),
+                    json    = json.load(fp),
+                    headers = headers,
+                    verify  = VERIFY_SSL,
+                )
+        else:
+            with open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-vector.json'), 'r') as fp:
+                testRealVectorResponse = requests.post(
+                    '{protocol}://{server}{port}{base}{endpoint}'.format(
+                        protocol    = WEB_PROTOCOL,
+                        server      = PAIRS_SERVER,
+                        port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                        base        = PAIRS_BASE_URI,
+                        endpoint    = QUERY_ENDPOINT,
+                    ),
+                    json    = json.load(fp),
+                    auth    = PAIRS_CREDENTIALS,
+                    verify  = VERIFY_SSL,
+                )
         # make sure the return from the real server was successful
         self.assertEqual(200, testRealRasterResponse.status_code)
         self.assertEqual(200, testRealVectorResponse.status_code)
@@ -523,14 +597,25 @@ class TestPointQuery(unittest.TestCase):
         """
         # query mocked data
         logging.info("TEST: Generation of unified PAW dataframe for point data.")
-        testPointQuery = paw.PAIRSQuery(
-            json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
-            WEB_PROTOCOL+'://'+PAIRS_SERVER,
-            port        = PAIRS_PORT,
-            auth        = PAIRS_CREDENTIALS,
-            baseURI     = PAIRS_BASE_URI,
-            verifySSL   = VERIFY_SSL,
-        )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            testPointQuery = paw.PAIRSQuery(
+                json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
+                WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                port        = PAIRS_PORT,
+                auth        = OAUTH,
+                baseURI     = PAIRS_BASE_URI,
+                verifySSL   = VERIFY_SSL,
+                authType    = 'api-key',
+            )
+        else:
+            testPointQuery = paw.PAIRSQuery(
+                json.load(open(os.path.join(TEST_DATA_DIR,'point-data-sample-request-raster.json'))),
+                WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                port        = PAIRS_PORT,
+                auth        = PAIRS_CREDENTIALS,
+                baseURI     = PAIRS_BASE_URI,
+                verifySSL   = VERIFY_SSL,
+            )
         # submit query
         testPointQuery.submit()
         # set timestamp column
@@ -880,18 +965,33 @@ class TestPollQuery(unittest.TestCase):
             raise Exception("PAIRS raster query mode '{}' not defined.".format(mode))
 
         # note: test automatic correction for trailing slash in PAIRS base URI
-        testRasterQuery = paw.PAIRSQuery(
-            queryDef,
-            WEB_PROTOCOL+'://'+PAIRS_SERVER,
-            port                = PAIRS_PORT,
-            auth                = PAIRS_CREDENTIALS,
-            baseURI             = PAIRS_BASE_URI[:-1] \
-                if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
-                    else PAIRS_BASE_URI,
-            inMemory            = inMemory,
-            overwriteExisting   = not searchExist,
-            verifySSL           = VERIFY_SSL,
-        )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            testRasterQuery = paw.PAIRSQuery(
+                queryDef,
+                WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                port                = PAIRS_PORT,
+                auth                = OAUTH,
+                baseURI             = PAIRS_BASE_URI[:-1] \
+                    if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
+                        else PAIRS_BASE_URI,
+                inMemory            = inMemory,
+                overwriteExisting   = not searchExist,
+                verifySSL           = VERIFY_SSL,
+                authType            = 'api-key',
+            )
+        else:
+            testRasterQuery = paw.PAIRSQuery(
+                queryDef,
+                WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                port                = PAIRS_PORT,
+                auth                = PAIRS_CREDENTIALS,
+                baseURI             = PAIRS_BASE_URI[:-1] \
+                    if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
+                        else PAIRS_BASE_URI,
+                inMemory            = inMemory,
+                overwriteExisting   = not searchExist,
+                verifySSL           = VERIFY_SSL,
+            )
         # check that query got submitted
         testRasterQuery.submit()
         if not mode=='cached' and not searchExist:
@@ -1114,18 +1214,33 @@ class TestPollQuery(unittest.TestCase):
         else:
             raise Exception("PAIRS vector query mode '{}' not defined.".format(mode))
         # query mocked data
-        testVectorQuery = paw.PAIRSQuery(
-            queryDef,
-            WEB_PROTOCOL+'://'+PAIRS_SERVER,
-            port                = PAIRS_PORT,
-            auth                = PAIRS_CREDENTIALS,
-            baseURI             = PAIRS_BASE_URI[:-1] \
-                if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
-                    else PAIRS_BASE_URI,
-            inMemory            = inMemory,
-            overwriteExisting   = not searchExist,
-            verifySSL           = VERIFY_SSL,
-        )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            testVectorQuery = paw.PAIRSQuery(
+                queryDef,
+                WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                port                = PAIRS_PORT,
+                auth                = OAUTH,
+                baseURI             = PAIRS_BASE_URI[:-1] \
+                    if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
+                        else PAIRS_BASE_URI,
+                inMemory            = inMemory,
+                overwriteExisting   = not searchExist,
+                verifySSL           = VERIFY_SSL,
+                authType            = 'api-key',
+            )
+        else:
+            testVectorQuery = paw.PAIRSQuery(
+                queryDef,
+                WEB_PROTOCOL+'://'+PAIRS_SERVER,
+                port                = PAIRS_PORT,
+                auth                = PAIRS_CREDENTIALS,
+                baseURI             = PAIRS_BASE_URI[:-1] \
+                    if wrongBaseURI and len(PAIRS_BASE_URI)>0 and PAIRS_BASE_URI[-1]=='/' \
+                        else PAIRS_BASE_URI,
+                inMemory            = inMemory,
+                overwriteExisting   = not searchExist,
+                verifySSL           = VERIFY_SSL,
+            )
         # check that query got submitted
         testVectorQuery.submit()
         if not mode=='cached' and not searchExist:
@@ -1397,18 +1512,35 @@ class TestPollQuery(unittest.TestCase):
             )
         # check query submit
         logging.info("TEST: Perform query to real PAIRS server.")
-        subResp = requests.post(
-            '{protocol}://{server}{port}{base}{endpoint}'.format(
-                protocol    = WEB_PROTOCOL,
-                server      = PAIRS_SERVER,
-                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
-                base        = PAIRS_BASE_URI,
-                endpoint    = QUERY_ENDPOINT,
-            ),
-            json    = json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
-            auth    = PAIRS_CREDENTIALS,
-            verify  = VERIFY_SSL,
-        )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            headers = {}
+            token = 'Bearer ' + OAUTH.jwt_token
+            headers['Authorization'] = token
+            subResp = requests.post(
+                '{protocol}://{server}{port}{base}{endpoint}'.format(
+                    protocol    = WEB_PROTOCOL,
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    base        = PAIRS_BASE_URI,
+                    endpoint    = QUERY_ENDPOINT,
+                ),
+                json    = json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
+                headers = headers,
+                verify  = VERIFY_SSL,
+            )
+        else:
+            subResp = requests.post(
+                '{protocol}://{server}{port}{base}{endpoint}'.format(
+                    protocol    = WEB_PROTOCOL,
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    base        = PAIRS_BASE_URI,
+                    endpoint    = QUERY_ENDPOINT,
+                ),
+                json    = json.load(open(os.path.join(TEST_DATA_DIR, queryJSON))),
+                auth    = PAIRS_CREDENTIALS,
+                verify  = VERIFY_SSL,
+            )
         self.assertEqual(200, subResp.status_code)
         subResp = subResp.json()
         self.assertIn(
@@ -1421,17 +1553,33 @@ class TestPollQuery(unittest.TestCase):
         )
         # check query poll
         while True:
-            statResp = requests.get(
-                '{protocol}://{server}{port}{base}{endpoint}'.format(
-                    protocol    = WEB_PROTOCOL,
-                    server      = PAIRS_SERVER,
-                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
-                    base        = PAIRS_BASE_URI,
-                    endpoint    = STATUS_ENDPOINT+subResp['id'],
-                ),
-                auth    = PAIRS_CREDENTIALS,
-                verify  = VERIFY_SSL,
-            )
+            if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+                headers = {}
+                token = 'Bearer ' + OAUTH.jwt_token
+                headers['Authorization'] = token
+                statResp = requests.get(
+                    '{protocol}://{server}{port}{base}{endpoint}'.format(
+                        protocol    = WEB_PROTOCOL,
+                        server      = PAIRS_SERVER,
+                        port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                        base        = PAIRS_BASE_URI,
+                        endpoint    = STATUS_ENDPOINT+subResp['id'],
+                    ),
+                    headers = headers,
+                    verify  = VERIFY_SSL,
+                )
+            else:
+                statResp = requests.get(
+                    '{protocol}://{server}{port}{base}{endpoint}'.format(
+                        protocol    = WEB_PROTOCOL,
+                        server      = PAIRS_SERVER,
+                        port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                        base        = PAIRS_BASE_URI,
+                        endpoint    = STATUS_ENDPOINT+subResp['id'],
+                    ),
+                    auth    = PAIRS_CREDENTIALS,
+                    verify  = VERIFY_SSL,
+                )
             self.assertEqual(200, statResp.status_code)
             statResp = statResp.json()
             # check returned stati to exist and be of correct format
@@ -1443,18 +1591,35 @@ class TestPollQuery(unittest.TestCase):
             if statResp['statusCode'] >= 20:
                 break
         # check query result
-        downloadResp = requests.get(
-            '{protocol}://{server}{port}{base}{endpoint}'.format(
-                protocol    = WEB_PROTOCOL,
-                server      = PAIRS_SERVER,
-                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
-                base        = PAIRS_BASE_URI,
-                endpoint    = DOWNLOAD_ENDPOINT+subResp['id'],
-            ),
-            auth    = PAIRS_CREDENTIALS,
-            stream  = True,
-            verify  = VERIFY_SSL,
-        )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            headers = {}
+            token = 'Bearer ' + OAUTH.jwt_token
+            headers['Authorization'] = token
+            downloadResp = requests.get(
+                '{protocol}://{server}{port}{base}{endpoint}'.format(
+                    protocol    = WEB_PROTOCOL,
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    base        = PAIRS_BASE_URI,
+                    endpoint    = DOWNLOAD_ENDPOINT+subResp['id'],
+                ),
+                headers = headers,
+                stream  = True,
+                verify  = VERIFY_SSL,
+            )
+        else:
+            downloadResp = requests.get(
+                '{protocol}://{server}{port}{base}{endpoint}'.format(
+                    protocol    = WEB_PROTOCOL,
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    base        = PAIRS_BASE_URI,
+                    endpoint    = DOWNLOAD_ENDPOINT+subResp['id'],
+                ),
+                auth    = PAIRS_CREDENTIALS,
+                stream  = True,
+                verify  = VERIFY_SSL,
+            )
         self.assertEqual(200, downloadResp.status_code)
         pairsDataZip = '/tmp/pairs-test-download-{}.zip'.format(subResp['id'])
         with open(pairsDataZip, 'wb') as f:
@@ -1611,17 +1776,34 @@ class TestTimeseriesQuery(unittest.TestCase):
         # instantiate PAIRS timeseries query
         testTimeSeriesQuery = paw.PAIRSTimeSeries(self.timeseriesRequestJSON)
         # get the time series data
-        df = testTimeSeriesQuery.get_dataframe(
-            pairsBaseURL        = '{protocol}://{server}{port}{baseURI}'.format(
-                protocol    = 'https' if USE_SSL else 'http',
-                server      = PAIRS_SERVER,
-                port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
-                baseURI     = PAIRS_BASE_URI,
-            ),
-            auth                = PAIRS_CREDENTIALS,
-            verifySSL           = VERIFY_SSL,
-            spatioTemporalIndex = True,
-        )
+        if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+            headers = {}
+            token = 'Bearer ' + OAUTH.jwt_token
+            headers['Authorization'] = token
+            df = testTimeSeriesQuery.get_dataframe(
+                pairsBaseURL        = '{protocol}://{server}{port}{baseURI}'.format(
+                    protocol    = 'https' if USE_SSL else 'http',
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    baseURI     = PAIRS_BASE_URI,
+                ),
+                auth                = OAUTH,
+                verifySSL           = VERIFY_SSL,
+                spatioTemporalIndex = True,
+                authType            = 'api-key',
+            )
+        else:
+            df = testTimeSeriesQuery.get_dataframe(
+                pairsBaseURL        = '{protocol}://{server}{port}{baseURI}'.format(
+                    protocol    = 'https' if USE_SSL else 'http',
+                    server      = PAIRS_SERVER,
+                    port        = ':{}'.format(PAIRS_PORT) if PAIRS_PORT is not None else '',
+                    baseURI     = PAIRS_BASE_URI,
+                ),
+                auth                = PAIRS_CREDENTIALS,
+                verifySSL           = VERIFY_SSL,
+                spatioTemporalIndex = True,
+            )
         # perform test on returned data
         logging.debug("A sub-sample of the data returned is: \n{}".format(df.head()))
         ## check that the returned object is a dataframe, and it has data at all
@@ -1727,11 +1909,21 @@ class TestTimeseriesQuery(unittest.TestCase):
                 query       = queryString,
             )
             logging.debug("The URL to be queried is: '{}'".format(url))
-            testRealTimeseriesResponse = requests.get(
-                url,
-                auth    = PAIRS_CREDENTIALS,
-                verify  = VERIFY_SSL,
-            )
+            if AUTH_TYPE.lower() in ['api-key', 'apikey', 'api key']:
+                headers = {}
+                token = 'Bearer ' + OAUTH.jwt_token
+                headers['Authorization'] = token
+                testRealTimeseriesResponse = requests.get(
+                    url,
+                    headers = headers,
+                    verify  = VERIFY_SSL,
+                )
+            else:
+                testRealTimeseriesResponse = requests.get(
+                    url,
+                    auth    = PAIRS_CREDENTIALS,
+                    verify  = VERIFY_SSL,
+                )
             # make sure the return from the real server was successful
             self.assertEqual(200, testRealTimeseriesResponse.status_code)
             # dump JSON from real PAIRS to temporary directory

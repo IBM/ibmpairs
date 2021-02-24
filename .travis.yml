@@ -8,7 +8,6 @@
 # programming language used
 language: python
 python:
-    - '2.7'
     - '3.6'
 
 # Ubuntu docker container base to use
