@@ -201,7 +201,9 @@ class PAIRSProject(object):
                     break
                 else:
                     q.poll()
-                    sleep(1)
+                    # when utilizing cached data, do not wait
+                    if q.overwriteExisting:
+                        sleep(1)
                     if q.queryStatus.json()['statusCode'] < 20:
                         self.queries['running'].append(q)
                     elif q.queryStatus.json()['statusCode'] == 20:
@@ -213,6 +215,18 @@ class PAIRSProject(object):
                         else:
                             self.queries['completed'].append(q)
                             logger.debug('Completed download.')
+                        finally:
+                            self._submitOneQuery()
+                    # ignore deleted PAIRS queries when cached
+                    elif q.queryStatus.json()['statusCode']==31 and not q.overwriteExisting:
+                        try:
+                            q.download(cosInfoJSON=cosInfoJSON, printStatus=printStatus)
+                        except Exception as e:
+                            print('Encountered exception {} while (down)loading cached data deleted in PAIRS.'.format(e))
+                            self.queries['failed'].append(q)
+                        else:
+                            self.queries['completed'].append(q)
+                            logger.debug('Cached data locally loaded.')
                         finally:
                             self._submitOneQuery()
                     else:
