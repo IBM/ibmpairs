@@ -47,6 +47,7 @@ import pandas
 import errno
 from requests.compat import urlparse, urljoin
 import requests
+import io
 import json, jsonschema
 HAS_GEOJSON = False
 try:
@@ -407,6 +408,7 @@ class PAIRSQuery(object):
     PAIRS_FILES_SPLITTING_CHAR   = '-'
     RASTER_FILE_EXTENSION        = PAIRS_GEOTIFF_FILE_EXTENSION
     VECTOR_FILE_EXTENSION        = PAIRS_CSV_FILE_EXTENSION
+    PAIRS_POINT_QUERY_RESP_FORMAT= 'text/csv' # 'application/json' # as alternative for JSON return
 
     def __init__(
         self, query,
@@ -470,7 +472,12 @@ class PAIRSQuery(object):
             if baseURI[-1]!='/':    baseURI = baseURI+'/'
             if baseURI[0]!='/':     baseURI = '/'+baseURI
         # add baseURI to full PAIRS host specs (if any)
-        self.pairsHost = urlparse(urljoin(self.pairsHost.geturl(), baseURI))
+        self.pairsHost = urlparse(
+            urljoin(
+                os.path.join(self.pairsHost.geturl(),''),
+                baseURI.lstrip('/')
+            )
+        )
         # check merge vs. naive merge and inform user about deviation
         if self.pairsHost.path != baseURIBeforeMerge+baseURI:
             logger.warning(
@@ -1050,8 +1057,12 @@ class PAIRSQuery(object):
                 # try to submit query to PAIRS
                 try:
                     if (self.querySubmit is None) or (self.querySubmit.status_code not in (200, 201)):
+                        # compose query header
+                        headers = {'Content-Type': 'application/json'}
+                        if self._isOnlineQuery:
+                            headers['Accept']   = self.PAIRS_POINT_QUERY_RESP_FORMAT
+                        # submit query
                         if self.authType.lower() in ['api-key', 'apikey', 'api key']:
-                            headers = {'Content-Type': 'application/json'}
                             token = 'Bearer ' + self.auth.jwt_token
                             headers['Authorization'] = token
                             self.querySubmit = requests.post(
@@ -1070,25 +1081,26 @@ class PAIRSQuery(object):
                                     self.SUBMIT_API_STRING
                                 ),
                                 data    = json.dumps(self.query),
-                                headers = {'Content-Type': 'application/json'},
+                                headers = headers,
                                 auth    = self.auth,
                                 verify  = self.verifySSL,
-                        )
+                            )
                 except Exception as e:
                     raise Exception(
                         'Sorry, I have trouble to submit your query: {}.'.format(e)
                     )
                 # check that submission return is proper JSON
-                try:
-                    _ = self.querySubmit.json()
-                except Exception as e:
-                    logger.error(
-                        'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
-                    )
-                    logger.error(
-                        "Maybe your query definition is not right or PAIRS is temporarily unavailable? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
-                    )
-                    raise
+                if not self._isOnlineQuery:
+                    try:
+                        _ = self.querySubmit.json()
+                    except Exception as e:
+                        logger.error(
+                            'Unable to extract query ID from submit JSON return - are you using the correct base URI ({})?'.format(self.baseURI)
+                        )
+                        logger.error(
+                            "Maybe your query definition is not right or PAIRS is temporarily unavailable? Here is the PAIRS server response:\n{}".format(self.querySubmit.text)
+                        )
+                        raise
 
                 # obtain (and internally set) query ID, or ...
                 if not self._isOnlineQuery:
@@ -1111,21 +1123,29 @@ class PAIRSQuery(object):
                     self.queryStatus = self.querySubmit
                     # convert data into (vector) dataframe
                     # catch empty return
-                    if self.queryStatus.json() is None:
+                    if self.queryStatus.text is None:
                         logger.warning('No point data available to load/returned.')
                     else:
                         try:
                             if self.queryStatus.status_code != 200:
                                 raise Exception(
-                                        "Querying PAIRS resulted in HTML error code '{}': {}.".format(
+                                        "Querying PAIRS resulted in HTTP error code '{}': {}.".format(
                                         self.queryStatus.status_code,
                                         self.queryStatus.text,
                                     )
                                 )
                             else:
-                                self.vdf = pandas.DataFrame(
-                                    self.queryStatus.json()['data']
-                                )
+                                if self.PAIRS_POINT_QUERY_RESP_FORMAT.lower()=='text/csv':
+                                    self.vdf = pandas.read_csv(
+                                        io.StringIO(self.queryStatus.text),
+                                        header      = 0,
+                                        index_col   = False,
+                                        quotechar   = PAIRS_VECTOR_CSV_QUOTE_CHAR,
+                                    )
+                                else:
+                                    self.vdf = pandas.DataFrame(
+                                        self.queryStatus.json()['data']
+                                    )
                             logger.info('Point data successfully imported into self.vdf')
                             # check for (default) timestamp column
                             if PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME in self.vdf.columns:
@@ -1154,7 +1174,11 @@ class PAIRSQuery(object):
                                     )
                                 )
                         except Exception as e:
-                            logger.error("Unable to load point data into dataframe: '{}'.".format(e))
+                            logger.error(
+                                "Unable to load point data into dataframe employing format '{}': '{}'.".format(
+                                    self.PAIRS_POINT_QUERY_RESP_FORMAT, e,
+                                )
+                            )
                             raise
         # case of PAIRS cached query (previously run)
         elif isinstance(self.querySubmit, MockSubmitResponse):
@@ -2266,7 +2290,6 @@ class PAIRSTimeSeries(object):
     DATAFRAME_LATITUDE_NAME         = 'latitude'
     DATAFRAME_LONGITUDE_NAME        = 'longitude'
     DATAFRAME_TIMESTAMP_NAME        = 'timestamp'
-    DATAFRAME_TIMESTAMP_FORMAT      = '%Y-%m-%dT%H:%M:%S%z'
     # PAIRS related configuration settings
     PAIRS_TIMESERIES_ENDPOINT       = 'v2/timeseries'
     PAIRS_QUERY_RETRIES             = 10
@@ -2455,7 +2478,9 @@ class PAIRSTimeSeries(object):
                 logger.warning("{} returned no data: {}".format(url,response.text))
                 return None, None
             # convert timestamp
-            df[self.PAIRS_JSON_TIMESTAMP_NAME]  = pandas.to_datetime(df[self.PAIRS_JSON_TIMESTAMP_NAME], unit='ms',)
+            df[self.PAIRS_JSON_TIMESTAMP_NAME]  = pandas.to_datetime(
+                df[self.PAIRS_JSON_TIMESTAMP_NAME], unit='ms', utc=True,
+            )
             # add layer information column
             df['layerID']                       = layerID
             df[self.DATAFRAME_LONGITUDE_NAME]   = lon
