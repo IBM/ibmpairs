@@ -8,7 +8,6 @@ Example | Ag | E&U | Finance | Government | Insurance
 [Crop ID with a neural network](Agribusiness/CropID) | :heavy_check_mark: | | | :heavy_check_mark: | :heavy_check_mark:
 [Drought conditions](DisastersAndExtremeEvents/DroughtConditions) | :heavy_check_mark: |  |  | :heavy_check_mark: | :heavy_check_mark: 
 [Energy trading*](EnergyAndUtilities/EnergyTrading) |  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  
-[Extreme weather events](ClimateChange/ExtremeWeatherEvents) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 [Storm response*](DisastersAndExtremeEvents/TornadoPathIdentification) |  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
 [Water and moisture detection](Agribusiness/WaterAndMoistureDetection) | :heavy_check_mark: |  |  | :heavy_check_mark: |  
 
