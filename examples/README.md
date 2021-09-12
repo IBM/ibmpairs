@@ -4,11 +4,12 @@ The following table of contents lists a number of sample applications by industr
 
 Example | Ag | E&U | Finance | Government | Insurance 
 --------|----|-----|---------|------------|-----------
-[Customizing weather forecasts*](WeatherForecasting/CustomizingWeatherForecasts) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | :heavy_check_mark: 
+[Characterizing climate change*](ClimateChange/CharacterizingClimateChange) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:
+[Customizing weather forecasts*](WeatherForecasting/CustomizingWeatherForecasts) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | :heavy_check_mark:
 [Crop ID with a neural network](Agribusiness/CropID) | :heavy_check_mark: | | | :heavy_check_mark: | :heavy_check_mark:
-[Drought conditions](DisastersAndExtremeEvents/DroughtConditions) | :heavy_check_mark: |  |  | :heavy_check_mark: | :heavy_check_mark: 
+[Drought conditions](DisastersAndExtremeEvents/DroughtConditions) | :heavy_check_mark: |  |  | :heavy_check_mark: | :heavy_check_mark:
 [Energy trading*](EnergyAndUtilities/EnergyTrading) |  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |  
-[Storm response*](DisastersAndExtremeEvents/TornadoPathIdentification) |  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: 
+[Storm response*](DisastersAndExtremeEvents/TornadoPathIdentification) |  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:
 [Water and moisture detection](Agribusiness/WaterAndMoistureDetection) | :heavy_check_mark: |  |  | :heavy_check_mark: |  
 
 \*Highlighted examples.
