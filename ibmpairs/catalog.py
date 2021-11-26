@@ -2122,7 +2122,7 @@ class DataSet:
             if data_set_dict.get("license_information") is not None:
                 license_information = common.check_str(data_set_dict.get("license_information")) 
         if "data_set_response" in data_set_dict:
-            if query_dict.get("data_set_response") is not None:
+            if data_set_dict.get("data_set_response") is not None:
                 data_set_response = DataSetReturn.from_dict(data_set_dict.get("data_set_response"))
         return DataSet(name                            = name,
                        category                        = category,
@@ -3986,7 +3986,7 @@ class DataLayerDimension:
             if data_layer_dimension_dict.get("unit") is not None:
                 unit = common.check_str(data_layer_dimension_dict.get("unit"))
         if "data_layer_dimension_response" in data_layer_dimension_dict:
-            if query_dict.get("data_layer_dimension_response") is not None:
+            if data_layer_dimension_dict.get("data_layer_dimension_response") is not None:
                 data_layer_dimension_response = DataLayerDimensionReturn.from_dict(data_layer_dimension_dict.get("data_layer_dimension_response"))
         return DataLayerDimension(data_layer_id                 = data_layer_id,
                                   id                            = id,
@@ -4453,7 +4453,7 @@ class DataLayerDimensions:
         """
         
         if isinstance(data_layer_dimensions_json, dict):
-            data_layer_dimensions = DataLayerDimensions.from_dict(data_layer_dimensions_dict)
+            data_layer_dimensions = DataLayerDimensions.from_dict(data_layer_dimensions_json)
         elif isinstance(data_layer_dimensions_json, str):
             data_layer_dimensions_dict = json.loads(data_layer_dimensions_json)
             data_layer_dimensions = DataLayerDimensions.from_dict(data_layer_dimensions_dict)
@@ -5058,7 +5058,7 @@ class DataLayerProperty:
             if data_layer_property_dict.get("unit") is not None:
                 unit = common.check_str(data_layer_property_dict.get("unit"))
         if "data_layer_property_response" in data_layer_property_dict:
-            if query_dict.get("data_layer_property_response") is not None:
+            if data_layer_property_dict.get("data_layer_property_response") is not None:
                 data_layer_property_response = DataLayerPropertyReturn.from_dict(data_layer_property_dict.get("data_layer_property_response"))
         return DataLayerProperty(data_layer_id                = data_layer_id,
                                  id                           = id,

@@ -114,7 +114,7 @@ class IBMCOSHMACKeys(object):
         return self._secret_access_key
 
     #
-    def set_secret_access_key(self, url):
+    def set_secret_access_key(self, secret_access_key):
         self._secret_access_key = common.check_str(secret_access_key)
         
     #    
