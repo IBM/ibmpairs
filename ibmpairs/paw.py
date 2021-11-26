@@ -960,7 +960,7 @@ class PAIRSQuery(object):
             if self.dataAcknowledgeText is None and self.queryFS is not None:
                 # check that there exists a file with the acknowledgement
                 if self.fs.exists(self.zipFilePath) and \
-                  PAIRS_DATA_ACK_FILE_NAME in self.queryFS.listdir(u''):
+                   PAIRS_DATA_ACK_FILE_NAME in self.queryFS.listdir(u''):
                     # extract data acknowledgement from PAIRS query ZIP file
                     try:
                         with self.queryFS.open(PAIRS_DATA_ACK_FILE_NAME, 'rb') as f:
@@ -1474,7 +1474,7 @@ class PAIRSQuery(object):
                     if self.inIBMCOS:
                         # publish query result to COS
                         if isinstance(cosInfoJSON, dict) and \
-                          set(self.COS_INFO_KEYS) <= set(cosInfoJSON):
+                           set(self.COS_INFO_KEYS) <= set(cosInfoJSON):
                             try:
                                 # initialize upload to COS
                                 if self.authType.lower() in ['api-key', 'apikey', 'api key']:
@@ -2102,7 +2102,7 @@ class PAIRSQuery(object):
         # get raster data
         # ATTENTION: temporary hack in order to circumvent issue
         if layerMeta['layerType'] == PAIRS_RASTER_QUERY_NAME \
-          and not PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
+           and not PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
             if HAS_GDAL:
                 # note: Unforetunately GDAL does not allow to directly take Python
                 # binary file streams, thus one needs to inefficiently write back
