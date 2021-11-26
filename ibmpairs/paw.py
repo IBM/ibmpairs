@@ -187,7 +187,7 @@ def load_environment_variables():
 
     .. code-block:: bash
 
-         PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
+    PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
     """
     # set global variables reading from environment variables
     for var in ENVIRONMENT_VARIABLES:
@@ -498,8 +498,8 @@ class PAIRSQuery(object):
                 self.auth = auth
             else:
                 self.auth = authentication.OAuth2(host         = PAIRS_DEFAULT_SERVER,
-                                                    username     = PAIRS_DEFAULT_USER,
-                                                    api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
+                                                  username     = PAIRS_DEFAULT_USER,
+                                                  api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
                                                  )
         else:
             self.auth                       = (
@@ -701,9 +701,9 @@ class PAIRSQuery(object):
 
         *notes*:
             - Designed to be immutable. Use `self._closeDataSource()` to open the
-                data source from scratch.
+              data source from scratch.
             - `KEEP_QUERY_SOURCE_DIR_OPEN` lets the function skip any operation
-                except for when it is forced.
+              except for when it is forced.
 
         :param force:   enforce to open data source, independent of global settings
         :type force:    bool
@@ -1474,7 +1474,7 @@ class PAIRSQuery(object):
                     if self.inIBMCOS:
                         # publish query result to COS
                         if isinstance(cosInfoJSON, dict) and \
-                             set(self.COS_INFO_KEYS) <= set(cosInfoJSON):
+                            set(self.COS_INFO_KEYS) <= set(cosInfoJSON):
                             try:
                                 # initialize upload to COS
                                 if self.authType.lower() in ['api-key', 'apikey', 'api key']:
@@ -1566,7 +1566,7 @@ class PAIRSQuery(object):
                                         raise Exception("Unsuccessful upload status request for COS.")
                                     # check if upload is complete
                                     if load['sizeUploaded']==load['sizeTotal'] \
-                                        or load['status'] not in ('initializing', 'uploading'):
+                                      or load['status'] not in ('initializing', 'uploading'):
                                         break
                                     # idle before polling again
                                     time.sleep(
@@ -2523,14 +2523,14 @@ class PAIRSTimeSeries(object):
         Function to query point data from PAIRS.
 
         :param pairsBaseURL:                       PAIRS base URL to be used for API endpoint,
-                                                     example: `https://pairs.res.ibm.com:443`
+                                                   example: `https://pairs.res.ibm.com:443`
         :type pairsBaseURL:                        str
         :param verifySSL:                          if SSL connections get verified
         :type verifySSL:                           bool
         :param auth:                               PAIRS API credentials in (user, password) format
         :type auth:                                (str, str)
         :param spatioTemporalIndex:                whether or not to spatio-temorally index the Pandas dataframe to be returned,
-                                                     *note*: temporal index comes last for time series optimization
+                                                   *note*: temporal index comes last for time series optimization
         :type spatioTemporalIndex                  bool
         :param authType:                           'password' or 'api-key'
         :type port:                                str
