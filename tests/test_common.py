@@ -1,7 +1,7 @@
 """
 Tests the IBM PAIRS API wrapper features.
 
-Copyright 2019-2020 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 """
