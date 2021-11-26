@@ -1,10 +1,19 @@
-numpy
+numpy>=1.18.1
 Pillow>=1.6
-pandas
+pandas>=1.0.1
 future
-futures
+futures; python_version < '3.0'
 requests>=2.4
 shapely
 fs
 pytz
 jsonschema
+asyncio
+aiodns
+brotlipy
+tableschema
+ibm-cos-sdk
+rasterio
+geopandas
+polling
+aiohttp
