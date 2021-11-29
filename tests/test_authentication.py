@@ -14,6 +14,7 @@ import os
 #}}}
 # fold: Import ibmpairs Modules {{{
 # ibmpairs Modules:
+import ibmpairs.logger
 from ibmpairs.logger import logger
 import ibmpairs.authentication as authentication
 #}}}
