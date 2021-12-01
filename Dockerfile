@@ -13,6 +13,8 @@ ENV PYTHONUNBUFFERED 1
 
 # install required Alpine software
 RUN apk add \
+    libffi \
+    libffi-dev \
     python3-dev \
     zlib-dev \
     jpeg-dev \
