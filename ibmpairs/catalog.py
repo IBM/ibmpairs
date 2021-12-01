@@ -25,7 +25,11 @@ import ibmpairs.messages as messages
 # fold: Import Third Party Libraries {{{
 # Third Party Libraries:
 import pandas as pd
-import rasterio
+try:
+    import rasterio
+    HAS_RASTERIO=True
+except:
+    HAS_RASTERIO=False
 from tableschema import Table
 #}}}
 
@@ -7797,57 +7801,60 @@ class DataLayer:
                                           data_layer_name,
                                           filename
                                          ):
-        #TODO: Check file exists first
-        with rasterio.open(filename) as src:
-            level = -1
-            datatype = 'xx'
-            epsg_number = common.check_str(src.crs.to_epsg())
-            # print (src.crs.to_epsg())
-            # print (src.dtypes[0])
-            if (src.dtypes[0] == 'uint8'):
-                datatype = 'bt'
-            if (src.dtypes[0] == 'uint16'):
-                #            arr = src.read(1)
-                #            print("min:", arr.min())
-                #            print("max:", arr.max())
-                #            if (arr.max() - arr.min() < 256 )
-                #TODO: log
-                print(
-                    "Depending on the range of data in your dataset, you might be able to convert the tif to a byte datatype to save space and increase query speed?")
-                datatype = 'in'
-            if (src.dtypes[0]== 'float16' or src.dtypes[0] == 'float32') :
-                datatype = 'fl'
-            resolution = src.res[0]
-            # print (resolution)
-            x = re.findall("(?<=UNIT\[\").*?\"", src.crs.wkt)
-            if "metre\"" in x:
-                for idx, d in enumerate(constants.RASTER_METRE_STEPS):
-                    if d < resolution:
-                        break
-            else:
-                for idx, d in enumerate(constants.RASTER_DEGREE_STEPS):
-                    if d < resolution:
-                        break
-            level = common.check_str(idx + 1)
+        if HAS_RASTERIO:
+            with rasterio.open(filename) as src:
+                level = -1
+                datatype = 'xx'
+                epsg_number = common.check_str(src.crs.to_epsg())
+                # print (src.crs.to_epsg())
+                # print (src.dtypes[0])
+                if (src.dtypes[0] == 'uint8'):
+                    datatype = 'bt'
+                if (src.dtypes[0] == 'uint16'):
+                    #            arr = src.read(1)
+                    #            print("min:", arr.min())
+                    #            print("max:", arr.max())
+                    #            if (arr.max() - arr.min() < 256 )
+                    print(
+                        "Depending on the range of data in your dataset, you might be able to convert the tif to a byte datatype to save space and increase query speed?")
+                    datatype = 'in'
+                if (src.dtypes[0]== 'float16' or src.dtypes[0] == 'float32') :
+                    datatype = 'fl'
+                resolution = src.res[0]
+                # print (resolution)
+                x = re.findall("(?<=UNIT\[\").*?\"", src.crs.wkt)
+                if "metre\"" in x:
+                    for idx, d in enumerate(constants.RASTER_METRE_STEPS):
+                        if d < resolution:
+                            break
+                else:
+                    for idx, d in enumerate(constants.RASTER_DEGREE_STEPS):
+                        if d < resolution:
+                            break
+                level = common.check_str(idx + 1)
         
-        definition = {
-            "layerType": "Raster",
-            "layers": [
-                {
-                    "name": data_layer_name,
-                    "colorTable": {
-                        "id": "58"
-                    },
-                    "crs": "EPSG:" + epsg_number,
-                    "level": level,
-                    "datatype": datatype
-                }
-            ]
-        }
+            definition = {
+                "layerType": "Raster",
+                "layers": [
+                    {
+                        "name": data_layer_name,
+                        "colorTable": {
+                            "id": "58"
+                        },
+                        "crs": "EPSG:" + epsg_number,
+                        "level": level,
+                        "datatype": datatype
+                    }
+                ]
+            }
         
-        layers = data_layers_from_dict(definition)
+            layers = data_layers_from_dict(definition)
 
-        return layers
+            return layers
+        else:
+            msg = messages.ERROR_NO_RASTERIO
+            logger.error(msg)
+            raise common.PAWException(msg)
 
 #
 class DataLayers:

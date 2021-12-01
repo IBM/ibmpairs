@@ -9,6 +9,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 # general messages
 ERROR_FROM_JSON_TYPE_NOT_RECOGNIZED = 'The json input type \'{}\' for {} is not recognized, the type must be in [\'str\', \'dict\'].'
+ERROR_NO_RASTERIO = 'rasterio is not available on your system, please install rasterio to use this method.'
 
 # authentication messages
 INFO_AUTHENTICATION_API_KEY_NOT_FOUND_IN_FILE = 'The api key for the user \'{}\' in file \'{}\' could not be found or set for the host \'{}\'.'
