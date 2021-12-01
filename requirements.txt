@@ -13,7 +13,5 @@ aiodns
 brotlipy
 tableschema
 ibm-cos-sdk
-rasterio
-geopandas
 polling
 aiohttp
