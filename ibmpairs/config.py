@@ -6,6 +6,7 @@ Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 """
+import ibmpairs.constants as constants
 import os
 
 # Dict corresponding to https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
@@ -20,7 +21,7 @@ LOGGING = {
     },
     'handlers': {
         'default': {
-            'level': os.getenv('PAW_LOG_LEVEL', 'DEBUG'),
+            'level': constants.PAW_LOG_LEVEL,
             'formatter': 'standard',
             'class': 'logging.StreamHandler',
             "stream": "ext://sys.stdout"
@@ -30,7 +31,7 @@ LOGGING = {
     'loggers': {
         'paw': {
             'handlers': ['default'],
-            'level': os.getenv('PAW_LOG_LEVEL', 'DEBUG'),
+            'level': constants.PAW_LOG_LEVEL,
             'propagate': False
         }
     }

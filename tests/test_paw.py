@@ -2,7 +2,7 @@
 """
 Tests the IBM PAIRS API wrapper features.
 
-Copyright 2019-2020 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 
@@ -66,7 +66,7 @@ import ibmpairs.authentication as authentication
 #}}}
 # fold: parameter settings{{{
 # define global test parameters
-TEST_DATA_DIR                   = 'tests/data'
+TEST_DATA_DIR                   = 'tests/data/v1'
 TEMP_DATA_DIR                   = '/tmp'
 PAIRS_SERVER                    = 'pairs.res.ibm.com'
 PAIRS_PORT                      = None
