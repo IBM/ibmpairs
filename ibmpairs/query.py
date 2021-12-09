@@ -32,7 +32,6 @@ import numpy as np
 #try:
 #    from osgeo import gdal
 import pandas
-import geopandas
 import polling
 import zipfile
 #}}}
