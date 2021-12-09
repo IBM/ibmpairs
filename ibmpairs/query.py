@@ -383,14 +383,17 @@ class Dimension:
 class Filter:
     #_value: str
     #_operator: str
+    #_expression: str
     
     """
     A representation of a Query Filter.
     
-    :param value:    A filter value.
-    :type value:     str
-    :param operator: A filter operator.
-    :type operator:  str
+    :param value:      A filter value.
+    :type value:       str
+    :param operator:   A filter operator.
+    :type operator:    str
+    :param expression: An expression, used instead of value, operator.
+    :type expression:  str
     """
 
     #
@@ -423,11 +426,13 @@ class Filter:
 
     #
     def __init__(self, 
-                 value: str    = None, 
-                 operator: str = None
+                 value: str      = None, 
+                 operator: str   = None,
+                 expression: str = None
                 ):
-        self._value    = value
-        self._operator = operator
+        self._value      = value
+        self._operator   = operator
+        self._expression = expression
 
     #        
     def get_value(self):
@@ -460,6 +465,21 @@ class Filter:
     operator = property(get_operator, set_operator, del_operator)
     
     #
+    def get_expression(self):
+      return self._expression
+
+    #
+    def set_expression(self, expression):
+      self._expression = common.check_str(expression)
+      
+    #
+    def del_expression(self): 
+      del self._expression
+
+    #
+    expression = property(get_expression, set_expression, del_expression)
+    
+    #
     def from_dict(filter_dict: Any):
       
         """
@@ -471,8 +491,9 @@ class Filter:
         :raises Exception:     if not a dictionary.
         """
         
-        value    = None
-        operator = None
+        value      = None
+        operator   = None
+        expression = None
         
         common.check_dict(filter_dict)
         if "value" in filter_dict:
@@ -481,8 +502,12 @@ class Filter:
         if "operator" in filter_dict:
             if filter_dict.get("operator") is not None:
                 operator = common.check_str(filter_dict.get("operator"))
-        return Filter(value    = value, 
-                      operator = operator
+        if "expression" in filter_dict:
+            if filter_dict.get("expression") is not None:
+                expression = common.check_str(filter_dict.get("expression"))
+        return Filter(value      = value, 
+                      operator   = operator,
+                      expression = expression
                      )
     
     #
@@ -499,6 +524,8 @@ class Filter:
             filter_dict["value"] = self._value
         if self._operator is not None:
             filter_dict["operator"] = self._operator
+        if self._expression is not None:
+            filter_dict["expression"] = self._expression
         return filter_dict
     
     #
@@ -2034,6 +2061,7 @@ class QueryResponseData:
     #_unit: str
     #_pty: str
     #_aggregation: str
+    #_alias: str
     
     """
     A representation of a the data returned by a response to a Query request.
@@ -2060,6 +2088,8 @@ class QueryResponseData:
     :type pty:          str
     :param aggregation: Aggregation.
     :type aggregation:  str
+    :param alias:       Alias.
+    :type alias:        str
     """
 
     #
@@ -2102,7 +2132,8 @@ class QueryResponseData:
                  value: str       = None, 
                  unit: str        = None, 
                  pty: str         = None, 
-                 aggregation: str = None
+                 aggregation: str = None,
+                 alias: str       = None
                 ):
         self._layer_id    = layer_id
         self._layer_name  = layer_name
@@ -2115,6 +2146,7 @@ class QueryResponseData:
         self._unit        = unit
         self._pty         = pty
         self._aggregation = aggregation
+        self._alias       = alias
     
     #
     def get_layer_id(self):
@@ -2280,6 +2312,21 @@ class QueryResponseData:
 
     #
     aggregation = property(get_aggregation, set_aggregation, del_aggregation)
+    
+    #
+    def get_alias(self):
+      return self._alias
+
+    #
+    def set_alias(self, alias):
+      self._alias = common.check_str(alias)
+
+    #    
+    def del_alias(self): 
+      del self._alias
+
+    #
+    alias = property(get_alias, set_alias, del_alias)
 
     # 
     def from_dict(query_response_data_dict: Any):
@@ -2304,6 +2351,7 @@ class QueryResponseData:
         unit        = None
         pty         = None
         aggregation = None
+        alias       = None
         
         common.check_dict(query_response_data_dict)
         if "layerId" in query_response_data_dict:
@@ -2345,6 +2393,9 @@ class QueryResponseData:
         if "aggregation" in query_response_data_dict:
             if query_response_data_dict.get("aggregation") is not None:
                 aggregation = common.check_str(query_response_data_dict.get("aggregation"))
+        if "alias" in query_response_data_dict:
+            if query_response_data_dict.get("alias") is not None:
+                alias = common.check_str(query_response_data_dict.get("alias"))
         return QueryResponseData(layer_id    = layer_id,
                                  layer_name  = layer_name,
                                  dataset     = dataset,
@@ -2355,7 +2406,8 @@ class QueryResponseData:
                                  value       = value,
                                  unit        = unit,
                                  pty         = pty,
-                                 aggregation = aggregation
+                                 aggregation = aggregation,
+                                 alias       = alias
                                 )
     #
     def to_dict(self):
@@ -2389,6 +2441,8 @@ class QueryResponseData:
             query_response_data_dict["property"] = self._pty
         if self._aggregation is not None:
             query_response_data_dict["aggregation"] = self._aggregation
+        if self._alias is not None:
+            query_response_data_dict["alias"] = self._alias
         return query_response_data_dict
         
     #
