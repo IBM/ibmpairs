@@ -870,12 +870,14 @@ class DimensionUnitTest(unittest.TestCase):
 
 filter_dict = {
     "value": "string",
-    "operator": "EQ"
+    "operator": "EQ",
+    "expression": "EQ string"
 }
 
 filter_json = r'''{
     "value": "string",
-    "operator": "EQ"
+    "operator": "EQ",
+    "expression": "EQ string"
 }'''
 
 #
@@ -899,14 +901,16 @@ class FilterUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            filter.value    = "string"
-            filter.operator = "EQ"
+            filter.value      = "string"
+            filter.operator   = "EQ"
+            filter.expression = "EQ string"
         except Exception as ex:
             got_exception = True
         
         self.assertFalse(got_exception)
         self.assertEqual(filter.value, "string")
         self.assertEqual(filter.operator, "EQ")
+        self.assertEqual(filter.expression, "EQ string")
 
     #    
     def test_filter_from_dict(self):
@@ -926,6 +930,7 @@ class FilterUnitTest(unittest.TestCase):
         self.assertFalse(got_exception)
         self.assertEqual(filter_from_dict.value, "string")
         self.assertEqual(filter_from_dict.operator, "EQ")
+        self.assertEqual(filter_from_dict.expression, "EQ string")
         
     #    
     def test_filter_to_dict(self):
@@ -948,6 +953,7 @@ class FilterUnitTest(unittest.TestCase):
         self.assertIsInstance(filter_to_dict, dict)
         self.assertEqual(filter_to_dict["value"], "string")
         self.assertEqual(filter_to_dict["operator"], "EQ")
+        self.assertEqual(filter_to_dict["expression"], "EQ string")
 
     #
     def test_filter_from_json(self):
@@ -968,6 +974,7 @@ class FilterUnitTest(unittest.TestCase):
         self.assertFalse(got_exception)
         self.assertEqual(filter_from_json.value, "string")
         self.assertEqual(filter_from_json.operator, "EQ")
+        self.assertEqual(filter_from_json.expression, "EQ string")
     
     #
     def test_filter_to_json(self):
@@ -1985,7 +1992,8 @@ query_response_data_dict = {
     "value": "string",
     "unit": "string",
     "property": "string",
-    "aggregation": "string"
+    "aggregation": "string",
+    "alias": "string"
 }
 
 query_response_data_json = r'''{
@@ -1999,7 +2007,8 @@ query_response_data_json = r'''{
     "value": "string",
     "unit": "string",
     "property": "string",
-    "aggregation": "string"
+    "aggregation": "string",
+    "alias": "string"
 }'''
 
 #
@@ -2034,6 +2043,7 @@ class QueryResponseDataUnitTest(unittest.TestCase):
             query_response_data.unit        = "string"
             query_response_data.pty         = "string"
             query_response_data.aggregation = "string"
+            query_response_data.alias       = "string"
         except Exception as ex:
             got_exception = True
         
@@ -2049,6 +2059,7 @@ class QueryResponseDataUnitTest(unittest.TestCase):
         self.assertEqual(query_response_data.unit, "string")
         self.assertEqual(query_response_data.pty, "string")
         self.assertEqual(query_response_data.aggregation, "string")
+        self.assertEqual(query_response_data.alias, "string")
 
     #    
     def test_query_response_data_from_dict(self):
@@ -2077,6 +2088,7 @@ class QueryResponseDataUnitTest(unittest.TestCase):
         self.assertEqual(query_response_data_from_dict.unit, "string")
         self.assertEqual(query_response_data_from_dict.pty, "string")
         self.assertEqual(query_response_data_from_dict.aggregation, "string")
+        self.assertEqual(query_response_data_from_dict.alias, "string")
         
     #    
     def test_query_response_data_to_dict(self):
@@ -2108,6 +2120,7 @@ class QueryResponseDataUnitTest(unittest.TestCase):
         self.assertEqual(query_response_data_to_dict["unit"], "string")
         self.assertEqual(query_response_data_to_dict["property"], "string")
         self.assertEqual(query_response_data_to_dict["aggregation"], "string")
+        self.assertEqual(query_response_data_to_dict["alias"], "string")
 
     #
     def test_query_response_data_from_json(self):
@@ -2137,6 +2150,7 @@ class QueryResponseDataUnitTest(unittest.TestCase):
         self.assertEqual(query_response_data_from_json.unit, "string")
         self.assertEqual(query_response_data_from_json.pty, "string")
         self.assertEqual(query_response_data_from_json.aggregation, "string")
+        self.assertEqual(query_response_data_from_json.alias, "string")
     
     #
     def test_query_response_data_to_json(self):
