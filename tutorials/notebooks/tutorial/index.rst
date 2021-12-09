@@ -1,7 +1,10 @@
-Tutorial
-=========
+API
+===
 
 .. toctree::
    :maxdepth: 2
 
-   api/index
+   pythonapiwrapper
+   workingwithoutpythonapiwrapper
+   aggregationandfiltering
+   userdefinedfunctions
