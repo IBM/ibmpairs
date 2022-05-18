@@ -117,31 +117,31 @@ class ClientResponse:
     
     #
     def from_dict(client_response_dict: Any):
-      status = None
-      body   = None
-      
-      common.check_dict(client_response_dict)
-      if "status" in client_response_dict:
-        if client_response_dict.get("status") is not None:
-          status = common.check_int(client_response_dict.get("status"))
-      if "body" in client_response_dict:
-        if client_response_dict.get("body") is not None:
-          if isinstance(body, str):
-            body = common.check_str(client_response_dict.get("body"))
-          elif isinstance(body, bytes):
-            body = client_response_dict.get("body")
-      return ClientResponse(status = status,
-                  body   = body
-                 )
+        status = None
+        body   = None
+        
+        common.check_dict(client_response_dict)
+        if "status" in client_response_dict:
+            if client_response_dict.get("status") is not None:
+                status = common.check_int(client_response_dict.get("status"))
+        if "body" in client_response_dict:
+            if client_response_dict.get("body") is not None:
+                if isinstance(body, str):
+                    body = common.check_str(client_response_dict.get("body"))
+                elif isinstance(body, bytes):
+                    body = client_response_dict.get("body")
+        return ClientResponse(status = status,
+                              body   = body
+                             )
 
     #
     def to_dict(self):
-      client_response_dict: dict = {}
-      if self._status is not None:
-        client_response_dict["status"] = self._status
-      if self._body is not None:
-        client_response_dict["body"] = self._body
-      return client_response_dict
+        client_response_dict: dict = {}
+        if self._status is not None:
+            client_response_dict["status"] = self._status
+        if self._body is not None:
+            client_response_dict["body"] = self._body
+        return client_response_dict
  
 #
 class Client:
@@ -412,7 +412,7 @@ class Client:
 
             await session.close() 
 
-        if client_response.status == 403:
+        if client_response.status in (401,403):
             token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
             if client_response.body is not None:
                 response_string = client_response.body
@@ -483,7 +483,7 @@ class Client:
                                     verify  = verify
                                    )                
             
-            if response.status_code == 403:
+            if response.status_code in (401,403):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
@@ -551,7 +551,7 @@ class Client:
                                     data    = body,
                                     verify  = verify
                                    )
-            if response.status_code == 403:
+            if response.status_code in (401,403):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
@@ -622,7 +622,7 @@ class Client:
 
             await session.close()
         
-        if client_response.status == 403:
+        if client_response.status in (401,403):
             token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
             if client_response.body is not None:
                 response_string = client_response.body
@@ -700,7 +700,7 @@ class Client:
                                      data    = body,
                                      verify  = verify
                                     )
-            if response.status_code == 403:
+            if response.status_code in (401,403):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
@@ -770,7 +770,7 @@ class Client:
                                        verify  = verify
                                       )
           
-            if response.status_code == 403:
+            if response.status_code in (401,403):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
