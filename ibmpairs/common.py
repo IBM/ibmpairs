@@ -427,12 +427,18 @@ def strip_protocol(host: str):
 def ensure_protocol(host: str):
     
     """
-    Ensures https:// is prepended to a string.
+    Ensures https:// or https:// is prepended to a string.
 
     :param host:   The host string.
     :type host:    str
     :returns:      The host string with the protocol added.
     :rtype:        str
     """ 
-
-    return "https://" + strip_protocol(host)
+    
+    if host.startswith('pairs.res') or host.startswith('http://pairs.res'):
+        return "https://" + strip_protocol(host)
+    else:
+        if host.startswith('http://'):
+            return "http://" + strip_protocol(host)
+        else:
+            return "https://" + strip_protocol(host)

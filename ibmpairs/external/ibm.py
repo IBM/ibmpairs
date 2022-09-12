@@ -1105,7 +1105,8 @@ class IBMCOSResource:
 
 class IBMCOSClient:
     #_client: ibm_boto3.client
-
+    
+    #_api_key: str
     #_access_key_id: str
     #_secret_access_key: str
     #_resource_instance_id: str
@@ -1115,6 +1116,8 @@ class IBMCOSClient:
     """
     An object to wrap the creation of an ibm_boto3.client.
 
+    :param api_key:              API Key.
+    :type api_key:               str
     :param access_key_id:        Access Key ID.
     :type access_key_id:         str
     :param secret_access_key:    Secret Access Key.
@@ -1172,6 +1175,7 @@ class IBMCOSClient:
                           sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
     
     def __init__(self, 
+                 api_key: str                = None,
                  access_key_id: str          = None,
                  secret_access_key: str      = None,
                  resource_instance_id: str   = None,
@@ -1179,19 +1183,36 @@ class IBMCOSClient:
                  endpoint: str               = None
                 ):
 
+        self._api_key              = api_key
         self._access_key_id        = access_key_id
         self._secret_access_key    = secret_access_key
         self._resource_instance_id = resource_instance_id
         self._ibm_auth_endpoint    = ibm_auth_endpoint
         self._endpoint             = endpoint
         
-        self.set_client(self._access_key_id,
+        self.set_client(self._api_key,
+                        self._access_key_id,
                         self._secret_access_key,
                         self._resource_instance_id, 
                         self._ibm_auth_endpoint, 
                         self._endpoint
                        )
-        
+    
+    #
+    def get_api_key(self):
+      return self._api_key
+
+    #
+    def set_api_key(self, api_key):
+      self._api_key = common.check_str(api_key)
+
+    #
+    def del_api_key(self):
+      del self._api_key
+
+    #
+    api_key = property(get_api_key, set_api_key, del_api_key)
+    
     #
     def get_access_key_id(self):
         return self._access_key_id
@@ -1279,6 +1300,7 @@ class IBMCOSClient:
         :raises Exception:         If not a dictionary.
         """
         
+        api_key              = None
         access_key_id        = None
         secret_access_key    = None
         resource_instance_id = None
@@ -1286,6 +1308,9 @@ class IBMCOSClient:
         endpoint             = None
         
         common.check_dict(cos_client_dict)
+        if "api_key" in cos_client_dict:
+          if cos_client_dict.get("api_key") is not None:
+            api_key = common.check_str(cos_client_dict.get("api_key"))
         if "access_key_id" in cos_client_dict:
             if cos_client_dict.get("access_key_id") is not None:
                 access_key_id = common.check_str(cos_client_dict.get("access_key_id"))
@@ -1301,7 +1326,8 @@ class IBMCOSClient:
         if "endpoint" in cos_client_dict:
             if cos_client_dict.get("endpoint") is not None:
                 endpoint = common.check_str(cos_client_dict.get("endpoint"))
-        return IBMCOSClient(access_key_id        = access_key_id,
+        return IBMCOSClient(api_key              = api_key,
+                            access_key_id        = access_key_id,
                             secret_access_key    = secret_access_key,
                             resource_instance_id = resource_instance_id,
                             ibm_auth_endpoint    = ibm_auth_endpoint,
@@ -1318,6 +1344,8 @@ class IBMCOSClient:
         """
         
         cos_client_dict: dict = {}
+        if self._api_key is not None:
+            cos_client_dict["api_key"] = self._api_key
         if self._access_key_id is not None:
             cos_client_dict["access_key_id"] = self._access_key_id
         if self._secret_access_key is not None:
@@ -1365,6 +1393,7 @@ class IBMCOSClient:
         return json.dumps(self.to_dict())
       
     def set_client(self,
+                   api_key              = None,
                    access_key_id        = None, 
                    secret_access_key    = None, 
                    resource_instance_id = None,
@@ -1375,6 +1404,8 @@ class IBMCOSClient:
         """
         Creates an ibm_boto3.client from attributes in the object.
         
+        :param api_key:               API Key.
+        :type api_key:                str
         :param access_key_id:         Access Key ID.
         :type access_key_id:          str      
         :param secret_access_key:     Secret Access Key.
@@ -1387,6 +1418,9 @@ class IBMCOSClient:
         :type endpoint:               str            
         :raises Exception:            if ibm_boto3.client could not be created.
         """
+        
+        if api_key is None:
+            api_key = self._api_key
 
         if access_key_id is None:
             access_key_id = self._access_key_id
@@ -1401,15 +1435,23 @@ class IBMCOSClient:
             ibm_auth_endpoint = self._ibm_auth_endpoint
 
         if endpoint is None:
-            endpoint = self._endpoint     
+            endpoint = self._endpoint  
+            
+        connection_type = None
+        
+        if ((self._access_key_id is not None) and (self._secret_access_key is not None)):
+            connection_type = "s3v4"
+        else:
+            connection_type = "oauth"
 
         try:
             cos_client = ibm_boto3.client("s3", 
+                                          ibm_api_key_id          = api_key,
                                           aws_access_key_id       = access_key_id,
                                           aws_secret_access_key   = secret_access_key,
                                           ibm_service_instance_id = resource_instance_id,
                                           ibm_auth_endpoint       = ibm_auth_endpoint,
-                                          config                  = IBMConfig(signature_version="s3v4"), 
+                                          config                  = IBMConfig(signature_version = connection_type), 
                                           endpoint_url            = endpoint
                                          )
         except:
@@ -1595,6 +1637,12 @@ class IBMCOSBucket(object):
                                                 ibm_auth_endpoint    = self._ibm_auth_endpoint,
                                                 endpoint             = self._endpoint
                                                )
+            
+            self._cos_client = IBMCOSClient(api_key              = self._api_key,
+                                            resource_instance_id = self._resource_instance_id,
+                                            ibm_auth_endpoint    = self._ibm_auth_endpoint,
+                                            endpoint             = self._endpoint
+                                           )
         
         if ((self._access_key_id is not None) and (self._secret_access_key is not None) and (self._resource_instance_id is not None) and (self._ibm_auth_endpoint is not None) and (self._endpoint is not None)):
 
