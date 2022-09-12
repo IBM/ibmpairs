@@ -275,6 +275,30 @@ class CommonUnitTest(unittest.TestCase):
             got_exception = True
         
         self.assertTrue(got_exception)
+    
+    def test_strip_protocol(self):
+        
+        self.logger.info('test_strip_protocol')
+        
+        self.assertEqual(common.strip_protocol('https://pairs.res.ibm.com'), 'pairs.res.ibm.com')
+        
+        self.assertEqual(common.strip_protocol('http://pairs.res.ibm.com'), 'pairs.res.ibm.com')
+
+        self.assertEqual(common.strip_protocol('pairs.res.ibm.com'), 'pairs.res.ibm.com')
+    
+    def test_ensure_protocol(self):
+        
+        self.logger.info('test_ensure_protocol')
+        
+        self.assertEqual(common.ensure_protocol('http://pairs.res.ibm.com'), 'https://pairs.res.ibm.com')
+        
+        self.assertEqual(common.ensure_protocol('pairs.res.ibm.com'), 'https://pairs.res.ibm.com')
+
+        self.assertEqual(common.ensure_protocol('https://pairs.res.ibm.com'), 'https://pairs.res.ibm.com')
+        
+        self.assertEqual(common.ensure_protocol('http://web-machine1.ibm.com:9999'), 'http://web-machine1.ibm.com:9999')
+        
+        self.assertEqual(common.ensure_protocol('abc.123'), 'https://abc.123')
 
 
 class TestClass:

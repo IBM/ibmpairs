@@ -2192,6 +2192,13 @@ query_response_dict = {
     "message": "string"
 }
 
+query_response_csv_dict = {
+    "id": "string",
+    "url": "string",
+    "data": "layerId,timestamp,longitude,latitude,value,region,property,alias\n16100,1421528400000,139.7,35.7,273.918212890625,,,",
+    "message": "string"
+}
+
 query_response_json = r'''{
     "id": "string",
     "url": "string",
@@ -2210,6 +2217,13 @@ query_response_json = r'''{
             "aggregation": "string"
         }
     ],
+    "message": "string"
+}'''
+
+query_response_csv_json = r'''{
+    "id": "string",
+    "url": "string",
+    "data": "layerId,timestamp,longitude,latitude,value,region,property,alias\n16100,1421528400000,139.7,35.7,273.918212890625,,,",
     "message": "string"
 }'''
 
@@ -2299,6 +2313,27 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_from_dict.data[0].pty, "string")
         self.assertEqual(query_response_from_dict.data[0].aggregation, "string")
         self.assertEqual(query_response_from_dict.message, "string")
+    
+    #    
+    def test_query_response_csv_from_dict(self):
+        self.logger.info('test_query_response_csv_from_dict')
+        
+        query_response_csv = query_module.QueryResponse
+
+        query_response_csv_from_dict = None
+            
+        got_exception = False
+
+        try:
+            query_response_csv_from_dict = query_response_csv.from_dict(query_response_csv_dict)
+        except Exception as ex:
+            got_exception = True
+
+        self.assertFalse(got_exception)
+        self.assertEqual(query_response_csv_from_dict.id, "string")
+        self.assertEqual(query_response_csv_from_dict.url, "string")
+        self.assertEqual(query_response_csv_from_dict.data, "layerId,timestamp,longitude,latitude,value,region,property,alias\n16100,1421528400000,139.7,35.7,273.918212890625,,,")
+        self.assertEqual(query_response_csv_from_dict.message, "string")
         
     #    
     def test_query_response_to_dict(self):
@@ -2334,6 +2369,31 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_to_dict["data"][0]["property"], "string")
         self.assertEqual(query_response_to_dict["data"][0]["aggregation"], "string")
         self.assertEqual(query_response_to_dict["message"], "string")
+    
+    #    
+    def test_query_response_csv_to_dict(self):
+        self.logger.info('test_query_response_csv_from_dict')
+        
+        query_response_csv = query_module.QueryResponse
+
+        query_response_csv_from_dict = None
+        query_response_csv_to_dict   = None
+                
+        got_exception = False
+
+        try:
+            query_response_csv_from_dict = query_response_csv.from_dict(query_response_csv_dict)
+            query_response_csv_to_dict   = query_response_csv_from_dict.to_dict()
+        except Exception as ex:
+            got_exception = True
+
+        self.assertFalse(got_exception)
+        self.assertIsInstance(query_response_csv_to_dict, dict)
+        
+        self.assertEqual(query_response_csv_to_dict["id"], "string")
+        self.assertEqual(query_response_csv_to_dict["url"], "string")
+        self.assertEqual(query_response_csv_to_dict["data"], "layerId,timestamp,longitude,latitude,value,region,property,alias\n16100,1421528400000,139.7,35.7,273.918212890625,,,")
+        self.assertEqual(query_response_csv_to_dict["message"], "string")
 
     #
     def test_query_response_from_json(self):
@@ -2366,6 +2426,28 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_from_json.data[0].pty, "string")
         self.assertEqual(query_response_from_json.data[0].aggregation, "string")
         self.assertEqual(query_response_from_json.message, "string")
+    
+    #
+    def test_query_response_csv_from_json(self):
+        self.logger.info('test_query_response_csv_from_json')
+
+        query_response_csv = query_module.QueryResponse
+        
+        query_response_csv_from_json = None
+
+        got_exception = False
+
+        try:
+            query_response_csv_from_json = query_response_csv.from_json(query_response_csv_json)
+        except Exception as ex:
+            self.logger.info(ex)
+            got_exception = True
+
+        self.assertFalse(got_exception)
+        self.assertEqual(query_response_csv_from_json.id, "string")
+        self.assertEqual(query_response_csv_from_json.url, "string")
+        self.assertEqual(query_response_csv_from_json.data, "layerId,timestamp,longitude,latitude,value,region,property,alias\n16100,1421528400000,139.7,35.7,273.918212890625,,,")
+        self.assertEqual(query_response_csv_from_json.message, "string")
     
     #
     def test_query_response_to_json(self):
@@ -5577,6 +5659,30 @@ class QueryUnitTest(unittest.TestCase):
         self.assertFalse(got_exception)
         self.assertEqual(query_merge_success.merge_status, "SUCCEEDED")
     
+    #    
+    def test_point_data_as_dataframe_csv(self):
+        self.logger.info('test_point_data_as_dataframe_csv')
+        
+        query_df_csv = query_module.Query
+
+        query_from_dict_df_csv = None
+        query_as_df_csv = None
+            
+        got_exception = False
+
+        try:
+            query_from_dict_df_csv = query_df_csv.from_dict(query_dict)
+            query_from_dict_df_csv.submit_response.data = "layerId,timestamp,longitude,latitude,value,region,property,alias\n16100,1421528400000,139.7,35.7,273.918212890625,,,"
+            query_as_df_csv = query_from_dict_df_csv.point_data_as_dataframe()
+        except Exception as ex:
+            got_exception = True
+
+        self.assertFalse(got_exception)
+        self.assertEqual(int(query_as_df_csv.head(1)["layerId"]), 16100)
+        self.assertEqual(int(query_as_df_csv.head(1)["timestamp"]), 1421528400000)
+        self.assertEqual(float(query_as_df_csv.head(1)["longitude"]), 139.7)
+        self.assertEqual(float(query_as_df_csv.head(1)["latitude"]), 35.7)
+        self.assertEqual(float(query_as_df_csv.head(1)["value"]), 273.918212890625)
     
 #
 #class BatchQueryUnitTest(unittest.TestCase):
