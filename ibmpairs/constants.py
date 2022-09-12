@@ -33,6 +33,7 @@ CATALOG_DATA_LAYER_PROPERTIES_API       = '/v2/datalayer_properties/'
 CLIENT_PAIRS_URL                 = os.environ.get('CLIENT_PAIRS_URL', 'https://pairs.res.ibm.com')
 CLIENT_JSON_HEADER               = {"Content-Type": "application/json"}
 CLIENT_PUT_AND_POST_HEADER       = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+CLIENT_PUT_AND_POST_HEADER_CSV   = {'Accept': 'text/csv'}
 CLIENT_GET_DEFAULT_RESPONSE_TYPE = 'json'
 CLIENT_TOKEN_REFRESH_MESSAGE     = 'claim expired'
 
