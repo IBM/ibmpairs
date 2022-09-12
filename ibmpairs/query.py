@@ -15,6 +15,7 @@ import os
 import warnings
 import re
 from typing import List, Any
+from io import StringIO 
 #}}}
 # fold: Import ibmpairs Modules {{{
 # ibmpairs Modules:
@@ -2483,7 +2484,8 @@ class QueryResponseData:
 class QueryResponse:
     #_id: str
     #_url: str
-    #_data: List[QueryResponseData]
+    ##_data: List[QueryResponseData]
+    #_data: Any
     #_message: str
     
     """
@@ -2494,7 +2496,7 @@ class QueryResponse:
     :param url:      URL.
     :type url:       str
     :param data:     The data provided by a query response.
-    :type data:      List[ibmpairs.query.QueryResponseData]
+    :type data:      List[ibmpairs.query.QueryResponseData] or str
     :param message:  A response message.
     :type message:   str
     """
@@ -2529,10 +2531,11 @@ class QueryResponse:
 
     #
     def __init__(self, 
-                 id: str                       = None, 
-                 url: str                      = None, 
-                 data: List[QueryResponseData] = None, 
-                 message: str                  = None
+                 id: str      = None, 
+                 url: str     = None, 
+                 #data: List[QueryResponseData] = None,
+                 data: Any    = None,
+                 message: str = None
                 ):
         self._id      = id
         self._url     = url
@@ -2575,7 +2578,10 @@ class QueryResponse:
 
     #
     def set_data(self, data):
-        self._data = common.check_list(data)
+        if isinstance(data, str):
+            self._data = data
+        else:
+            self._data = common.check_list(data)
 
     #    
     def del_data(self): 
@@ -2625,7 +2631,10 @@ class QueryResponse:
                 url = common.check_str(query_response_dict.get("url"))
         if "data" in query_response_dict:
             if query_response_dict.get("data") is not None:
-                data = common.from_list(query_response_dict.get("data"), QueryResponseData.from_dict)
+                if isinstance(query_response_dict.get("data"), str):
+                    data = query_response_dict.get("data")
+                else:
+                    data = common.from_list(query_response_dict.get("data"), QueryResponseData.from_dict)
         if "message" in query_response_dict:
             if query_response_dict.get("message") is not None:
                 message = common.check_str(query_response_dict.get("message"))
@@ -2650,27 +2659,36 @@ class QueryResponse:
         if self._url is not None:
             query_response_dict["url"] = self._url
         if self._data is not None:
-            query_response_dict["data"] = common.from_list(self._data, lambda item: common.class_to_dict(item, QueryResponseData))
+            if isinstance(self._data, str):
+                query_response_dict["data"] = self._data
+            else:
+                query_response_dict["data"] = common.from_list(self._data, lambda item: common.class_to_dict(item, QueryResponseData))
         if self._message is not None:
             query_response_dict["message"] = self._message
         return query_response_dict
         
     #
-    def from_json(query_response_json: Any):
+    def from_json(query_response_json: Any, 
+                  compact_csv: bool = False
+                 ):
         """
         Create a QueryResponse object from json (dictonary or str).
         
         :param query_response_dict:        A json dictionary that contains the keys of a QueryResponse or a string representation of a json dictionary.
-        :type query_response_dict:         Any             
+        :type query_response_dict:         Any    
+        :param compact_csv:                A flag to indicate the return of a compact csv format.
+        :type compact_csv:                 bool         
         :rtype:                            ibmpairs.query.QueryResponse
         :raises Exception:                 if not a dictionary or a string.
         """
-
         if isinstance(query_response_json, dict):
             query_response = QueryResponse.from_dict(query_response_json)
         elif isinstance(query_response_json, str):
-            query_response_dict = json.loads(query_response_json)
-            query_response = QueryResponse.from_dict(query_response_dict)
+            if compact_csv:
+                query_response = QueryResponse(data = query_response_json)
+            else:
+                query_response_dict = json.loads(query_response_json)
+                query_response = QueryResponse.from_dict(query_response_dict)
         else:
             msg = messages.ERROR_FROM_JSON_TYPE_NOT_RECOGNIZED.format(type(query_response_json), "query_response_json")
             logger.error(msg)
@@ -5403,8 +5421,11 @@ class Query:
             logger.error(msg)
             raise common.PAWException(msg)
         else:
-            try:                            
-                return pandas.DataFrame(self.submit_response.to_dict()["data"])
+            try:
+                if isinstance(self.submit_response.to_dict()["data"], str):
+                    return pandas.read_csv(StringIO(str(self.submit_response.to_dict()["data"])))
+                else:
+                    return pandas.DataFrame(self.submit_response.to_dict()["data"])
             except Exception as e:
                 msg = messages.ERROR_QUERY_COULD_NOT_LOAD_POINT_QUERY.format(e)
                 logger.error(msg)
@@ -5413,7 +5434,8 @@ class Query:
     #
     def submit(self,
                client: cl.Client = None,
-               verify: bool      = constants.GLOBAL_SSL_VERIFY
+               verify: bool      = constants.GLOBAL_SSL_VERIFY,
+               compact_csv: bool = False
               ):
                 
         """
@@ -5423,6 +5445,8 @@ class Query:
         :type client:         ibmpairs.client.Client
         :param verify:        SSL verification
         :type verify:         bool
+        :param compact_csv:   A flag to indicate the return of a compact csv format.
+        :type compact_csv:    bool
         :raises Exception:    A ibmpairs.client.Client is not found, 
                               error making request to server, 
                               the status of the request is not 200.
@@ -5445,18 +5469,20 @@ class Query:
             logger.info(msg)
             
             common.run_async_in_thread(self.async_submit, 
-                                       query  = self, 
-                                       client = cli,
-                                       verify = verify)
+                                       query       = self, 
+                                       client      = cli,
+                                       verify      = verify,
+                                       compact_csv = compact_csv)
             
             msg = messages.INFO_FOUND_EVENT_LOOP_COMPLETED_TASK.format("submit")
             logger.info(msg)
         else:
             msg = messages.INFO_STARTING_EVENT_LOOP
             logger.info(msg)
-            asyncio.run(self.async_submit(query  = self, 
-                                          client = cli,
-                                          verify = verify
+            asyncio.run(self.async_submit(query       = self, 
+                                          client      = cli,
+                                          verify      = verify,
+                                          compact_csv = compact_csv
                                          )
                        )
         
@@ -5610,7 +5636,8 @@ class Query:
                                 client: cl.Client    = None,
                                 poll: bool           = True,
                                 status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
-                                verify: bool         = constants.GLOBAL_SSL_VERIFY
+                                verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                                compact_csv: bool    = False
                                ):
                                 
         """
@@ -5624,6 +5651,8 @@ class Query:
         :type status_interval:  int
         :param verify:          SSL verification
         :type verify:           bool
+        :param compact_csv:     A flag to indicate the return of a compact csv format.
+        :type compact_csv:      bool
         :raises Exception:      A ibmpairs.client.Client is not found, 
                                 the Query failed, 
                                 error making request to server, 
@@ -5650,7 +5679,8 @@ class Query:
                                                                            client             = cli,
                                                                            poll               = poll,
                                                                            status_interval    = status_interval,
-                                                                           verify             = verify)
+                                                                           verify             = verify,
+                                                                           compact_csv        = compact_csv)
             
             msg = messages.INFO_FOUND_EVENT_LOOP_COMPLETED_TASK.format("submit_and_check_status")
             logger.info(msg)
@@ -5661,7 +5691,8 @@ class Query:
                                                            client             = cli,
                                                            poll               = poll,
                                                            status_interval    = status_interval,
-                                                           verify             = verify
+                                                           verify             = verify,
+                                                           compact_csv        = compact_csv
                                                           )
                        )
         
@@ -5695,6 +5726,8 @@ class Query:
         :type download_file_name:  str
         :param verify:             SSL verification
         :type verify:              bool
+        :param compact_csv:        A flag to indicate the return of a compact csv format.
+        :type compact_csv:         bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
                                    the Query status failed, 
                                    the download folder could not be made or identified, 
@@ -5752,7 +5785,8 @@ class Query:
                                          status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
                                          download_folder      = None,
                                          download_file_name   = None,
-                                         verify: bool         = constants.GLOBAL_SSL_VERIFY
+                                         verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                                         compact_csv: bool    = False
                                         ):
                                           
         """
@@ -5770,6 +5804,8 @@ class Query:
         :type download_file_name:  str
         :param verify:             SSL verification
         :type verify:              bool
+        :param compact_csv:        A flag to indicate the return of a compact csv format.
+        :type compact_csv:         bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
                                    the Query status failed, 
                                    the download folder could not be made or identified, 
@@ -5800,7 +5836,8 @@ class Query:
                                                                                     status_interval    = status_interval,
                                                                                     download_folder    = download_folder,
                                                                                     download_file_name = download_file_name,
-                                                                                    verify             = verify)
+                                                                                    verify             = verify,
+                                                                                    compact_csv        = compact_csv)
             
             msg = messages.INFO_FOUND_EVENT_LOOP_COMPLETED_TASK.format("submit_check_status_and_download")
             logger.info(msg)
@@ -5814,7 +5851,8 @@ class Query:
                                                                     status_interval    = status_interval,
                                                                     download_folder    = download_folder,
                                                                     download_file_name = download_file_name,
-                                                                    verify             = verify))
+                                                                    verify             = verify,
+                                                                    compact_csv        = compact_csv))
         
         return self
 
@@ -5919,7 +5957,8 @@ class Query:
     async def async_submit(self,
                            query,
                            client: cl.Client = None,
-                           verify: bool      = constants.GLOBAL_SSL_VERIFY
+                           verify: bool      = constants.GLOBAL_SSL_VERIFY,
+                           compact_csv: bool = False
                           ):
                             
         """
@@ -5931,6 +5970,8 @@ class Query:
         :type client:         ibmpairs.client.Client
         :param verify:        SSL verification
         :type verify:         bool
+        :param compact_csv:   A flag to indicate the return of a compact csv format.
+        :type compact_csv:    bool
         :raises Exception:    A ibmpairs.client.Client is not found, 
                               query is not present, 
                               error making request to server, 
@@ -5944,12 +5985,18 @@ class Query:
         query_json = query.to_dict_query_post()
 
         try:
+            if compact_csv:
+                headers = constants.CLIENT_PUT_AND_POST_HEADER_CSV
+            else:
+                headers = constants.CLIENT_PUT_AND_POST_HEADER
+                
             response = await cli.async_post(url = cli.get_host() + 
                                             constants.QUERY_API,
-                                            headers = constants.CLIENT_PUT_AND_POST_HEADER,
+                                            headers = headers,
                                             body    = query_json,
                                             verify  = verify
                                            )
+
         except Exception as e:
             msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('POST', 'request', cli.get_host() + constants.QUERY_API, e)
             logger.error(msg)
@@ -5960,7 +6007,8 @@ class Query:
             
             if response.body is not None:
                 try:
-                    query_response = query_response_from_json(response.body)
+                    query_response = query_response_from_json(response.body, 
+                                                              compact_csv = compact_csv)
                     error_message = query_response.message
                     query.submit_response = query_response
                 except:
@@ -5976,7 +6024,8 @@ class Query:
             logger.error(msg)
             raise common.PAWException(msg)
         else:
-            query_response = query_response_from_json(response.body)
+            query_response = query_response_from_json(response.body,
+                                                      compact_csv = compact_csv)
             
             query.submit_response = query_response
             
@@ -6376,7 +6425,8 @@ class Query:
                                             client: cl.Client    = None,
                                             poll: bool           = True,
                                             status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
-                                            verify: bool         = constants.GLOBAL_SSL_VERIFY
+                                            verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                                            compact_csv: bool    = False
                                            ):
                                             
         """
@@ -6392,6 +6442,8 @@ class Query:
         :type status_interval:  int
         :param verify:          SSL verification
         :type verify:           bool
+        :param compact_csv:     A flag to indicate the return of a compact csv format.
+        :type compact_csv:      bool
         :raises Exception:      A ibmpairs.client.Client is not found, 
                                 query is not present, 
                                 the Query failed, 
@@ -6403,9 +6455,10 @@ class Query:
                                 global_client = cl.GLOBAL_PAIRS_CLIENT,
                                 self_client   = self._client)
 
-        await self.async_submit(query  = query, 
-                                client = cli,
-                                verify = verify
+        await self.async_submit(query       = query, 
+                                client      = cli,
+                                verify      = verify,
+                                compact_csv = compact_csv
                                )
 
         await self.async_status(query           = query, 
@@ -6479,7 +6532,8 @@ class Query:
                                                      status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
                                                      download_folder      = None,
                                                      download_file_name   = None,
-                                                     verify: bool         = constants.GLOBAL_SSL_VERIFY
+                                                     verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                                                     compact_csv: bool    = False
                                                     ):
 
         """
@@ -6499,6 +6553,8 @@ class Query:
         :type download_file_name:  str
         :param verify:             SSL verification
         :type verify:              bool
+        :param compact_csv:        A flag to indicate the return of a compact csv format.
+        :type compact_csv:         bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
                                    query is not present, 
                                    the Query status failed, 
@@ -6512,9 +6568,10 @@ class Query:
                                 global_client = cl.GLOBAL_PAIRS_CLIENT,
                                 self_client   = self._client)
         
-        await self.async_submit(query  = query, 
-                                client = cli,
-                                verify = verify
+        await self.async_submit(query       = query, 
+                                client      = cli,
+                                verify      = verify,
+                                compact_csv = compact_csv
                                )
 
         await self.async_status(query           = query, 
@@ -6540,7 +6597,8 @@ async def query_worker(queries: List[Query],
                        submit: bool         = True,
                        status: bool         = True,
                        download: bool       = True,
-                       verify: bool         = constants.GLOBAL_SSL_VERIFY
+                       verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                       compact_csv: bool    = False
                       ):
                         
     """
@@ -6562,6 +6620,8 @@ async def query_worker(queries: List[Query],
     :type download:         bool
     :param verify:          SSL verification
     :type verify:           bool
+    :param compact_csv:     A flag to indicate the return of a compact csv format.
+    :type compact_csv:      bool
     :returns:               A list of queries.
     :rtype:                 List[ibmpairs.query.Query]
     """
@@ -6584,13 +6644,15 @@ async def query_worker(queries: List[Query],
             tasks.add(asyncio.create_task(query.async_submit_check_status_and_download(query = query, 
                                                                                        client = cli,
                                                                                        status_interval = status_interval,
-                                                                                       verify = verify
+                                                                                       verify = verify,
+                                                                                       compact_csv = compact_csv
                                                                                       )))
         elif (status and download) and not (submit):
             tasks.add(asyncio.create_task(query.async_submit_and_check_status(query = query, 
                                                                               client = cli,
                                                                               status_interval = status_interval,
-                                                                              verify = verify
+                                                                              verify = verify,
+                                                                              compact_csv = compact_csv
                                                                              )))
         elif (submit and status) and not (download):
             tasks.add(asyncio.create_task(query.async_check_status_and_download(query = query, 
@@ -6629,7 +6691,8 @@ def batch_query(queries: List[Query],
                 submit: bool         = True,
                 status: bool         = True,
                 download: bool       = True,
-                verify: bool         = constants.GLOBAL_SSL_VERIFY
+                verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                compact_csv: bool    = False
                ):
                 
     """
@@ -6651,6 +6714,8 @@ def batch_query(queries: List[Query],
     :type download:         bool
     :param verify:          SSL verification
     :type verify:           bool
+    :param compact_csv:     A flag to indicate the return of a compact csv format.
+    :type compact_csv:      bool
     :returns:               A list of queries.
     :rtype:                 List[ibmpairs.query.Query]
     """
@@ -6689,7 +6754,8 @@ def batch_query(queries: List[Query],
                                                           submit          = submit,
                                                           status          = status,
                                                           download        = download,
-                                                          verify          = verify
+                                                          verify          = verify,
+                                                          compact_csv     = compact_csv
                                             )
       
         msg = messages.INFO_FOUND_EVENT_LOOP_COMPLETED_TASK.format("batch_query")
@@ -6704,7 +6770,8 @@ def batch_query(queries: List[Query],
                                           submit          = submit,
                                           status          = status,
                                           download        = download,
-                                          verify          = verify
+                                          verify          = verify,
+                                          compact_csv     = compact_csv
                                          ),
                              debug = constants.QUERY_WORKER_DEBUG
                             )
@@ -8351,7 +8418,8 @@ class QueryOutputInfoFile:
 
 def submit(query: Any,
            client: cl.Client = None,
-           verify: bool      = constants.GLOBAL_SSL_VERIFY
+           verify: bool      = constants.GLOBAL_SSL_VERIFY,
+           compact_csv: bool = False
           ):
             
     """
@@ -8363,6 +8431,8 @@ def submit(query: Any,
     :type client:         ibmpairs.client.Client
     :param verify:        SSL verification
     :type verify:         bool
+    :param compact_csv:   A flag to indicate the return of a compact csv format.
+    :type compact_csv:    bool
     :returns:             A query object.
     :rtype:               ibmpairs.query.Query
     :raises Exception:    A ibmpairs.client.Client is not found, 
@@ -8385,8 +8455,9 @@ def submit(query: Any,
         logger.error(msg)
         raise common.PAWException(msg)
         
-    query.submit(client = cli,
-                 verify = verify
+    query.submit(client      = cli,
+                 verify      = verify,
+                 compact_csv = compact_csv
                 )
     
     return query
@@ -8508,7 +8579,8 @@ def submit_and_check_status(query: Any,
                             client: cl.Client    = None,
                             poll: bool           = True,
                             status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
-                            verify: bool         = constants.GLOBAL_SSL_VERIFY
+                            verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                            compact_csv: bool    = False
                            ):
                             
     """
@@ -8524,6 +8596,8 @@ def submit_and_check_status(query: Any,
     :type status_interval:  int
     :param verify:          SSL verification
     :type verify:           bool
+    :param compact_csv:     A flag to indicate the return of a compact csv format.
+    :type compact_csv:      bool
     :returns:               A query object.
     :rtype:                 ibmpairs.query.Query
     :raises Exception:      A ibmpairs.client.Client is not found, 
@@ -8550,7 +8624,8 @@ def submit_and_check_status(query: Any,
     query.submit_and_check_status(client          = cli,
                                   poll            = poll,
                                   status_interval = status_interval,
-                                  verify          = verify
+                                  verify          = verify,
+                                  compact_csv     = compact_csv
                                  )
     
     return query
@@ -8624,7 +8699,8 @@ def submit_check_status_and_download(query: Any,
                                      status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
                                      download_folder      = None,
                                      download_file_name   = None,
-                                     verify: bool         = constants.GLOBAL_SSL_VERIFY
+                                     verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                                     compact_csv: bool    = False
                                     ):
 
     """
@@ -8644,6 +8720,8 @@ def submit_check_status_and_download(query: Any,
     :type download_file_name:  str
     :param verify:             SSL verification
     :type verify:              bool
+    :param compact_csv:        A flag to indicate the return of a compact csv format.
+    :type compact_csv:         bool
     :returns:                  A query object.
     :rtype:                    ibmpairs.query.Query
     :raises Exception:         A ibmpairs.client.Client is not found, 
@@ -8674,7 +8752,8 @@ def submit_check_status_and_download(query: Any,
                                            status_interval    = status_interval,
                                            download_folder    = download_folder,
                                            download_file_name = download_file_name,
-                                           verify             = verify
+                                           verify             = verify,
+                                           compact_csv        = compact_csv
                                           )
     
     return query
@@ -9428,16 +9507,21 @@ def query_response_to_dict(query_response: QueryResponse):
     return QueryResponse.to_dict(query_response)
 
 #
-def query_response_from_json(query_response_json: Any):
+def query_response_from_json(query_response_json: Any,
+                             compact_csv: bool = False
+                            ):
     """
     The function converts a dictionary or json string of QueryResponse to a QueryResponse object.
     
     :param query_response_json:    A dictionary or json string that contains the keys of a QueryResponse.
-    :type query_response_json:     Any             
+    :type query_response_json:     Any     
+    :param compact_csv:            A flag to indicate the return of a compact csv format.
+    :type compact_csv:             bool        
     :rtype:                        ibmpairs.query.QueryResponse
     :raises Exception:             if not a dict or a str.
     """
-    return QueryResponse.from_json(query_response_json)
+    return QueryResponse.from_json(query_response_json,
+                                   compact_csv = compact_csv)
 
 #
 def query_response_to_json(query_response: QueryResponse):
