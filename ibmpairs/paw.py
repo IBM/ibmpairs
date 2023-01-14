@@ -1693,7 +1693,7 @@ class PAIRSQuery(object):
         if self._isOnlineQuery:
             try:
                 if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
-                and self.vdf[timeName].dtype in (numpy.float, numpy.int):
+                and self.vdf[timeName].dtype in (numpy.float64, numpy.int64):
                     self.vdf[timeName] = self.vdf[timeName].apply(
                         lambda t: t if numpy.isnan(t) else datetime.datetime.fromtimestamp(
                             t/1e3, tz=pytz.UTC
