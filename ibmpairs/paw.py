@@ -1720,7 +1720,7 @@ class PAIRSQuery(object):
                 # convert timestamp column
                 try:
                     if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
-                    and self.vdf[timeName].dtype in (numpy.float, numpy.int):
+                    and self.vdf[timeName].dtype in (numpy.float64, numpy.int64):
                         self.vdf[timeName] = self.vdf[timeName].apply(
                             lambda t: datetime.datetime.fromtimestamp(t, tz=pytz.UTC)
                         )
@@ -2123,7 +2123,7 @@ class PAIRSQuery(object):
                         tempFilePath = tf.name
                         # directly read from data path
                         ds = gdal.Open(tf.name)
-                        a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float)
+                        a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float64)
                         ds = None
                     # try to expliticly remove the temporary file used to load the data
                     if tempFilePath is not None:
@@ -2167,7 +2167,7 @@ class PAIRSQuery(object):
                                     "No pixel data type identified from query meta data, default to 4 bytes floating point numbers."
                                 )
                                 im.mode=u'F'
-                            a = numpy.array(im).astype(numpy.float)
+                            a = numpy.array(im).astype(numpy.float64)
                     # try to expliticly remove the temporary file used to load the data
                     if tempFilePath is not None:
                         try:
@@ -2182,12 +2182,12 @@ class PAIRSQuery(object):
                     self._closeDataSource()
             # mask no-data value
             if 'details' in layerMeta and 'pixelNoDataVal' in layerMeta['details']:
-                a[a==numpy.float(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
+                a[a==numpy.float64(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
             else:
                 logger.warning(
                         "Unable to identify pixel no-data value, using default '{}'.".format(PAIRS_DEFAULT_NODATA_VALUE)
                 )
-                a[a==numpy.float(PAIRS_DEFAULT_NODATA_VALUE)] = numpy.nan
+                a[a==numpy.float64(PAIRS_DEFAULT_NODATA_VALUE)] = numpy.nan
             # assign loaded data to object's data dictionary
             self.data[fileName] = a
         # load vector data (note: CSV file format assumed)
