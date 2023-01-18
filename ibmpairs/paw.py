@@ -16,7 +16,7 @@ __copyright__   = "(c) 2017-2021, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Steffan Taylor', 'Marcus Freitag',]
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__        = "Feb 2021"
+__date__    = "Feb 2021"
 
 # fold: imports{{{
 # basic imports
@@ -98,74 +98,74 @@ import ibmpairs.authentication as authentication
 ## PAIRS query meta data information file
 PAIRS_QUERY_METADATA_FILE_NAME      = u'output.info'
 ## PAIRS vector JSON file name
-PAIRS_VECTOR_CSV_FILE_NAME          = u'Vector_Data_Output.csv'
+PAIRS_VECTOR_CSV_FILE_NAME      = u'Vector_Data_Output.csv'
 ## PAIRS data acknowledgement file name
-PAIRS_DATA_ACK_FILE_NAME            = u'data_acknowledgement.txt'
+PAIRS_DATA_ACK_FILE_NAME        = u'data_acknowledgement.txt'
 ## some defaults for PAIRS access
 PAIRS_DEFAULT_PASSWORD_FILE_NAME    = u'ibmpairspass.txt'
-PAIRS_DEFAULT_SERVER                = u'pairs.res.ibm.com'
-PAIRS_DEFAULT_PROTOCOL              = u'https'
-PAIRS_DEFAULT_BASE_URI              = u'/'
-PAIRS_DEFAULT_USER                  = None
-PAIRS_DEFAULT_PUBLISH_2_GUI         = False
-PAIRS_DEFAULT_GUI_URL               = u'https://ibmpairs-mvp2-api.mybluemix.net/'
-PAIRS_DEFAULT_GUI_TOKEN             = None
+PAIRS_DEFAULT_SERVER        = u'pairs.res.ibm.com'
+PAIRS_DEFAULT_PROTOCOL          = u'https'
+PAIRS_DEFAULT_BASE_URI          = u'/'
+PAIRS_DEFAULT_USER          = None
+PAIRS_DEFAULT_PUBLISH_2_GUI     = False
+PAIRS_DEFAULT_GUI_URL           = u'https://ibmpairs-mvp2-api.mybluemix.net/'
+PAIRS_DEFAULT_GUI_TOKEN         = None
 ## PAIRS vector query (Geo)JSON output format names
-PAIRS_VECTOR_JSON_TYPE_NAME         = u'json'
+PAIRS_VECTOR_JSON_TYPE_NAME     = u'json'
 PAIRS_VECTOR_GEOJSON_TYPE_NAME      = u'geojson'
-PAIRS_VECTOR_CSV_TYPE_NAME          = u'csv'
-PAIRS_VECTOR_CSV_QUOTE_CHAR         = u"'"
+PAIRS_VECTOR_CSV_TYPE_NAME      = u'csv'
+PAIRS_VECTOR_CSV_QUOTE_CHAR     = u"'"
 PAIRS_VECTOR_TIMESTAMP_COLUMN_NAME  = u'timestamp'
 PAIRS_VECTOR_LONGITUDE_COLUMN_NAME  = u'longitude'
 PAIRS_VECTOR_LATITUDE_COLUMN_NAME   = u'latitude'
 PAIRS_VECTOR_GEOMETRY_COLUMN_NAME   = u'geometry'
 PAIRS_VECTOR_CSV_TIMESTAMP_COL_NUM  = 2
 ## PAIRS meta data constants
-PAIRS_META_TIMESTAMP_NAME           = u'timestamp'
+PAIRS_META_TIMESTAMP_NAME       = u'timestamp'
 ## PAIRS query type names
-PAIRS_POINT_QUERY_NAME              = u'point'
-PAIRS_VECTOR_QUERY_NAME             = u'vector'
-PAIRS_RASTER_QUERY_NAME             = u'raster'
+PAIRS_POINT_QUERY_NAME          = u'point'
+PAIRS_VECTOR_QUERY_NAME         = u'vector'
+PAIRS_RASTER_QUERY_NAME         = u'raster'
 ## PAIRS file name extensions
-PAIRS_GEOTIFF_FILE_EXTENSION        = u'.tiff'
-PAIRS_CSV_FILE_EXTENSION            = u'.csv'
-PAIRS_JSON_FILE_EXTENSION           = u'.json'
-PAIRS_ZIP_FILE_EXTENSION            = u'.zip'
+PAIRS_GEOTIFF_FILE_EXTENSION    = u'.tiff'
+PAIRS_CSV_FILE_EXTENSION        = u'.csv'
+PAIRS_JSON_FILE_EXTENSION       = u'.json'
+PAIRS_ZIP_FILE_EXTENSION        = u'.zip'
 ## PAIRS JSON relevant constants
-PAIRS_JSON_SPAT_AGG_KEY             = u'spatialAggregation'
+PAIRS_JSON_SPAT_AGG_KEY         = u'spatialAggregation'
 ## define PAIRS's georeference system
 PAIRS_GEOREFERENCE_SYSTEM_NAME      = u'EPSG:4326'
 ## default PAIRS no-data value
-PAIRS_DEFAULT_NODATA_VALUE          = -9999.
+PAIRS_DEFAULT_NODATA_VALUE      = -9999.
 # characters that split the property string of PAIRS vector data
-PROPERTY_STRING_SPLIT_CHAR1         = u';'
-PROPERTY_STRING_SPLIT_CHAR2         = u':'
-PROPERTY_STRING_COL_NAME            = u'PropertyString'
+PROPERTY_STRING_SPLIT_CHAR1     = u';'
+PROPERTY_STRING_SPLIT_CHAR2     = u':'
+PROPERTY_STRING_COL_NAME        = u'PropertyString'
 PROPERTY_STRING_COL_NAME_POINT      = u'property'
 ## basic PAIRS query stati classes
-PAIRS_QUERY_RUN_STAT_REG_EX         = re.compile(r'^(0|1)')
+PAIRS_QUERY_RUN_STAT_REG_EX     = re.compile(r'^(0|1)')
 PAIRS_QUERY_FINISH_STAT_REG_EX      = re.compile(r'^2')
-PAIRS_QUERY_ERR_STAT_REG_EX         = re.compile(r'^(3|4)')
+PAIRS_QUERY_ERR_STAT_REG_EX     = re.compile(r'^(3|4)')
 PAIRS_PASSWORD_FILE_COMMENT_REG_EX  = re.compile(r'^\s*#')
 PAIRS_QUERY_DOWNLOADABLE_STAT       = 20
 ## define default download directory for PAIRS query object if needed
-DEFAULT_DOWNLOAD_DIR	            = u'./downloads'
+DEFAULT_DOWNLOAD_DIR	        = u'./downloads'
 ## PAIRS raster file extension
-PAIRS_RASTER_FILE_EXT               = re.compile(r'.*\.tiff$')
+PAIRS_RASTER_FILE_EXT           = re.compile(r'.*\.tiff$')
 # PAIRS raster file pixel data type classes
 PAIRS_RASTER_INT_PIX_TYPE_CLASS     = (u'bt', u'sh', u'in')
 PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS   = (u'fl', u'db')
 # PAIRS API wrapper specific setttings
-PAW_QUERY_NAME_SEPARATOR            = '_'
-KEEP_QUERY_SOURCE_DIR_OPEN          = False
-CONFIGURE_LOGGING                   = False
+PAW_QUERY_NAME_SEPARATOR        = '_'
+KEEP_QUERY_SOURCE_DIR_OPEN      = False
+CONFIGURE_LOGGING           = False
 # PAIRS time series parameters
 TIMESERIES_RESPONSE_FILE_SCHEMA     = '{layerID}_{lon}~{lat}_{t0}-{t1}.json'
 # load parameters from the command line
-PAW_LOG_LEVEL                       = logging.DEBUG #logging.INFO
-LOG_LEVEL_ENV                       = u''
-PAW_ENV_BASE_NAME                   = u'PAW'
-ENVIRONMENT_VARIABLES               = (
+PAW_LOG_LEVEL               = logging.DEBUG #logging.INFO
+LOG_LEVEL_ENV               = u''
+PAW_ENV_BASE_NAME           = u'PAW'
+ENVIRONMENT_VARIABLES           = (
     u'LOG_LEVEL_ENV',
     u'CONFIGURE_LOGGING',
     u'PAIRS_DEFAULT_SERVER',
@@ -187,7 +187,7 @@ def load_environment_variables():
 
     .. code-block:: bash
 
-       PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
+         PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
     """
     # set global variables reading from environment variables
     for var in ENVIRONMENT_VARIABLES:
@@ -255,15 +255,15 @@ def get_pairs_api_password(
 
     :param server:      PAIRS API server name, e.g. 'pairs.res.ibm.com'
     :type server:       str
-    :param user:        user name for which to obtain the corresponding password
-    :type user:         str
+    :param user:    user name for which to obtain the corresponding password
+    :type user:     str
     :param passFile:    path to file with password, it is expected to have the format
                         `<server>:<user>:<password>`, colons in passwords need to be escaped
     :type passFile:     str
-    :returns:           corresponding password if available, `None` otherwise
+    :returns:       corresponding password if available, `None` otherwise
                         *note*: if either user or server is `None`, no password searched
                         for, and `None` is returned
-    :rtype:             str
+    :rtype:         str
     :raises Exception:  if password file does not exist
                         if password was not found
     '''
@@ -330,7 +330,7 @@ class MockSubmitResponse():
     def __init__(self, queryID, status_code=200):
         self.status_code = status_code
         self.queryID     = queryID
-        self.ok          = True
+        self.ok      = True
     def json(self):
         return {u'id': str(self.queryID)}
 
@@ -338,20 +338,20 @@ class PAIRSQuery(object):
     """
     Representation of a PAIRS query.
 
-    :param query:               dictionary equivalent to PAIRS JSON load that defines a query or
+    :param query:           dictionary equivalent to PAIRS JSON load that defines a query or
                                 path that references a ZIP file identified with a PAIRS query or
                                 ID of existing (submitted) query
-    :type query:                dict or
+    :type query:        dict or
                                 str
-    :param pairsHost:           base URL + scheme of PAIRS host to connect to,
+    :param pairsHost:       base URL + scheme of PAIRS host to connect to,
                                 e.g. 'https://pairs.res.ibm.com'
                                 *note*: the initialization tries its best to autodetect
                                 even the `baseURI` and `port` if contained in `pairsHost` already
-    :type pairsHost:            str
-    :param auth:                user name and password as tuple for access to pairsHost
-    :type auth:                 (str, str) or authentication.OAuth2
-    :param port:                port to use for pairsHost
-    :type port:                 int
+    :type pairsHost:        str
+    :param auth:        user name and password as tuple for access to pairsHost
+    :type auth:         (str, str) or authentication.OAuth2
+    :param port:        port to use for pairsHost
+    :type port:         int
     :param overwriteExisting:   destroy locally cached data, if existing, otherwise grab the latest
                                 locally cached data, `latest` is defined by alphanumerical ordering
                                 of the PAIRS query ID
@@ -359,73 +359,73 @@ class PAIRSQuery(object):
     :type overwriteExisting:    bool
     :param deleteDownload:      destroy downloaded data with destruction of class instance
     :type deleteDownload:       bool
-    :param downloadDir:         directory where to store downloaded data
+    :param downloadDir:     directory where to store downloaded data
                                 note: ignored if the `query` is a string representing the
                                 PAIRS query ZIP directory
-    :type downloadDir:          str
-    :param baseURI:             PAIRS API base URI to append to the base URL (cf. `pairsHost`)
-    :type baseURI:              str
-    :param verifySSL:                          if SSL connections get verified
-    :type verifySSL:            bool
-    :param vectorFormat:        data format of the vector data
-    :type vectorFormat:         str
-    :param inMemory:            triggers storing files directly in memory
+    :type downloadDir:      str
+    :param baseURI:         PAIRS API base URI to append to the base URL (cf. `pairsHost`)
+    :type baseURI:          str
+    :param verifySSL:              if SSL connections get verified
+    :type verifySSL:        bool
+    :param vectorFormat:    data format of the vector data
+    :type vectorFormat:     str
+    :param inMemory:        triggers storing files directly in memory
                                 note: ignored if query is loaded from existing ZIP file
-    :type inMemory:             bool
-    :param guiURL:              URL of PAIRS GUI to be used for publishing query result (if any)
-    :type guiURL:               str
-    :param publish2GUI:         determines whether or not the query result is automatically published
+    :type inMemory:         bool
+    :param guiURL:          URL of PAIRS GUI to be used for publishing query result (if any)
+    :type guiURL:           str
+    :param publish2GUI:     determines whether or not the query result is automatically published
                                 to the PAIRS GUI
-    :type publish2GUI:          bool
-    :param guiPassword:         password to be used when PAIRS GUI password is different from
+    :type publish2GUI:      bool
+    :param guiPassword:     password to be used when PAIRS GUI password is different from
                                 PAIRS API password, note: the user is the same as for the PAIRS API
                                 (typically the user's e-mail address)
-    :type guiPassword:          str
-    :param authType:            'password' or 'api-key'
-    :type port:                 str
-    :raises Exception:          if an invalid URL was specified
+    :type guiPassword:      str
+    :param authType:        'password' or 'api-key'
+    :type port:         str
+    :raises Exception:      if an invalid URL was specified
                                 if the query defintion is not understood
                                 if a manually set PAIRS query ZIP directory does not exist
     """
     # class-wide constants/parameters
-    SUBMIT_API_STRING            = u'v2/query'
-    STATUS_API_STRING            = u'v2/queryjobs/'
-    DOWNLOAD_API_STRING          = u'v2/queryjobs/download/'
-    COS_UPLOAD_API_STRING        = u'v2/queryjobs/upload/'
-    COS_API_ENDPOINT             = u'https://s3.us.cloud-object-storage.appdomain.cloud'
-    COS_INFO_KEYS                = ('provider', 'endpoint', 'bucket', 'token')
+    SUBMIT_API_STRING        = u'v2/query'
+    STATUS_API_STRING        = u'v2/queryjobs/'
+    DOWNLOAD_API_STRING      = u'v2/queryjobs/download/'
+    COS_UPLOAD_API_STRING    = u'v2/queryjobs/upload/'
+    COS_API_ENDPOINT         = u'https://s3.us.cloud-object-storage.appdomain.cloud'
+    COS_INFO_KEYS        = ('provider', 'endpoint', 'bucket', 'token')
     GET_GEOJSON_API_STRING       = u'ws/queryaois/geojson/'
     GET_AOI_INFO_API_STRING      = u'ws/queryaois/aoi/'
-    GET_QUERY_INFO               = u'v2/queryhistories/full/queryjob/'
-    LOGIN_2_GUI                  = u'users/login'
+    GET_QUERY_INFO           = u'v2/queryhistories/full/queryjob/'
+    LOGIN_2_GUI          = u'users/login'
     PUBLISH_QUERY_RESULT_2_GUI   = u'queryjobs/{queryID}/mapcorejob'
     VECTOR_GEOJSON_DIR_IN_ZIP    = u''
-    DOWNLOAD_DIR                 = u'./downloads'
+    DOWNLOAD_DIR         = u'./downloads'
     PAIRS_JUPYTER_QUERY_BASE_DIR = u'.'
     STATUS_POLL_INTERVAL_SEC     = 10
     PAIRS_FILES_TIMESTAMP_SCHEMA2= '%m_%d_%YT%H:%M:%S'
     PAIRS_FILES_TIMESTAMP_SCHEMA = '%m_%d_%YT%H_%M_%S'
     PAIRS_FILES_SPLITTING_CHAR   = '-'
-    RASTER_FILE_EXTENSION        = PAIRS_GEOTIFF_FILE_EXTENSION
-    VECTOR_FILE_EXTENSION        = PAIRS_CSV_FILE_EXTENSION
+    RASTER_FILE_EXTENSION    = PAIRS_GEOTIFF_FILE_EXTENSION
+    VECTOR_FILE_EXTENSION    = PAIRS_CSV_FILE_EXTENSION
     PAIRS_POINT_QUERY_RESP_FORMAT= 'text/csv' # 'application/json' # as alternative for JSON return
 
     def __init__(
         self, query,
-        pairsHost               = None,
-        auth                    = None,
-        port                    = None,
+        pairsHost           = None,
+        auth            = None,
+        port            = None,
         overwriteExisting       = True,
-        deleteDownload          = False,
-        downloadDir             = DOWNLOAD_DIR,
-        baseURI                 = None,
-        verifySSL               = True,
-        vectorFormat            = None,
-        inMemory                = False,
-        guiURL                  = None,
-        publish2GUI             = None,
-        guiPassword             = None,
-        authType                = 'password'
+        deleteDownload      = False,
+        downloadDir         = DOWNLOAD_DIR,
+        baseURI         = None,
+        verifySSL           = True,
+        vectorFormat        = None,
+        inMemory        = False,
+        guiURL          = None,
+        publish2GUI         = None,
+        guiPassword         = None,
+        authType        = 'password'
     ):
         self.authType = authType
 
@@ -438,13 +438,13 @@ class PAIRSQuery(object):
                 logger.warning("Incorrect port number provided: {}, defaulting to port 80".format(port))
                 self.pairsPort  = 80
         else:
-            self.pairsPort                  = None
+            self.pairsPort          = None
         # parse host URL serving PAIRS API to connect to
         if pairsHost is None: pairsHost = '{}://{}'.format(
             PAIRS_DEFAULT_PROTOCOL,
             PAIRS_DEFAULT_SERVER,
         )
-        self.pairsHost                  = urlparse(
+        self.pairsHost          = urlparse(
             u'' if pairsHost is None else pairsHost
         )
         if pairsHost is not None and self.pairsHost.scheme not in ['http', 'https']:
@@ -453,7 +453,7 @@ class PAIRSQuery(object):
             )
         if self.pairsPort is not None:
             if self.pairsHost.port is None:
-                self.pairsHost              = urlparse(
+                self.pairsHost          = urlparse(
                     '{}://{}:{}{}'.format(
                         self.pairsHost.scheme, self.pairsHost.netloc, self.pairsPort, self.pairsHost.path
                     )
@@ -491,18 +491,18 @@ class PAIRSQuery(object):
             )
 
         # use SSL verification
-        self.verifySSL                  = verifySSL
+        self.verifySSL          = verifySSL
         # PAIRS API authentication
         if self.authType.lower() in ['api-key', 'apikey', 'api key']:
             if type(auth) is authentication.OAuth2:
                 self.auth = auth
             else:
-                self.auth = authentication.OAuth2(host         = PAIRS_DEFAULT_SERVER,
-                                                  username     = PAIRS_DEFAULT_USER,
-                                                  api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
+                self.auth = authentication.OAuth2(host     = PAIRS_DEFAULT_SERVER,
+                                                    username     = PAIRS_DEFAULT_USER,
+                                                    api_key_file = PAIRS_DEFAULT_PASSWORD_FILE_NAME
                                                  )
         else:
-            self.auth                       = (
+            self.auth               = (
                 PAIRS_DEFAULT_USER,
                 get_pairs_api_password(
                     server  = PAIRS_DEFAULT_SERVER,
@@ -512,7 +512,7 @@ class PAIRSQuery(object):
             ) if auth is None else auth
 
         # set PAIRS GUI info for publishing query result
-        self.guiURL         = guiURL if guiURL is not None else PAIRS_DEFAULT_GUI_URL
+        self.guiURL     = guiURL if guiURL is not None else PAIRS_DEFAULT_GUI_URL
         if self.guiURL is not None and len(self.guiURL)>0:
             if self.guiURL[-1]!='/': self.guiURL = self.guiURL+'/'
         if self.guiURL is not None:
@@ -550,37 +550,37 @@ class PAIRSQuery(object):
                     self.guiToken = PAIRS_DEFAULT_GUI_TOKEN
 
         # set base URI
-        self.baseURI                    = self.pairsHost.path
+        self.baseURI            = self.pairsHost.path
 
         # query information retrieved via PAIRS API
-        self.queryInfo                  = None
+        self.queryInfo          = None
         # associated PAIRS query ID (found in the JSON load)
-        self.queryID                    = None
+        self.queryID            = None
 
         # variable for file system object
-        self.fs                         = None
+        self.fs             = None
         # variable for file system of query result
-        self.queryFS                    = None
+        self.queryFS            = None
         # variable for query result data stream
-        self._queryStream               = None
+        self._queryStream           = None
         # define whether or not to use virtual disk in memory for query result
-        self.inMemory                   = inMemory
+        self.inMemory           = inMemory
 
         # define query (depending on what information is provided)
         ## assumption on whether or not the query immediately returns
         ## (e.g. for point query without batch processing)
-        self._isOnlineQuery             = False
+        self._isOnlineQuery         = False
         ## submit of query
-        self.querySubmit                = None
+        self.querySubmit        = None
         # flag for how to handle downloaded data on object delete
-        self.deleteDownload             = deleteDownload
+        self.deleteDownload         = deleteDownload
         ## JSON load defining the query
         if isinstance(query, dict):
             # assign query JSON definition
-            self.query                  = query
-            self.zipFilePath            = None
+            self.query          = query
+            self.zipFilePath        = None
             # determine the query whether or not the query immediately returns (e.g. for point query)
-            self._isOnlineQuery         =  self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME \
+            self._isOnlineQuery     =  self.query['spatial']['type'] == PAIRS_POINT_QUERY_NAME \
                 and (not self.query['batch'] if 'batch' in self.query else True)
             logger.info(
                 'PAIRS query JSON initialized{}.'.format(' as online query' if self._isOnlineQuery else '')
@@ -591,23 +591,23 @@ class PAIRSQuery(object):
             #       to be abstracted by pyfilesystem2, i.e. split apart COS part
             #       from zipFilePath
             if os.path.exists(query):
-                self.zipFilePath        = str(query)
-                self.query              = None
+                self.zipFilePath    = str(query)
+                self.query          = None
                 # reset in memory user option, since contradicting
-                self.inMemory           = False
+                self.inMemory       = False
                 logger.info("Will load PAIRS query data from '{}'.".format(query))
             else:
                 ## PAIRS query ID defining the query result
                 try:
-                    self.query          = self.get_query_JSON(query)
+                    self.query      = self.get_query_JSON(query)
                 except Exception as e:
-                    self.query          = None
+                    self.query      = None
                     logger.warning(
                         "Unable to fetch query definition from PAIRS for query ID '{}': {}".format(query, e)
                     )
-                self.queryID            = query
-                self.zipFilePath        = None
-                self.querySubmit        = MockSubmitResponse(self.queryID)
+                self.queryID        = query
+                self.zipFilePath    = None
+                self.querySubmit    = MockSubmitResponse(self.queryID)
                 logger.info("Will load PAIRS query data from '{}'.".format(query))
         else:
             raise Exception(
@@ -615,7 +615,7 @@ class PAIRSQuery(object):
             )
 
         # folder to save query result
-        self.downloadDir         = str(
+        self.downloadDir     = str(
             os.path.dirname(self.zipFilePath) if self.zipFilePath is not None else downloadDir
         )
         # separate ZIP file name from directory (if any)
@@ -631,26 +631,26 @@ class PAIRSQuery(object):
         self._openDataSource(force=True)
         # hash of the JSON query
         # (used as subfolder for saving files and to see if corresponding Tiff already exists)
-        self.qHash               = getQueryHash(query if isinstance(self.query, dict) else {})
+        self.qHash           = getQueryHash(query if isinstance(self.query, dict) else {})
         # overwrite existing files
         self.overwriteExisting   = overwriteExisting if (
             isinstance(self.query, dict) or isinstance(self.querySubmit, MockSubmitResponse)
         ) else False
         # Query directory
-        self.queryDir            = None
+        self.queryDir        = None
         # status of query
-        self.queryStatus         = None
+        self.queryStatus     = None
         # flag to indicate a failed Zip or GeoTiff generation. Used to re-issue the query
         self.BadDownloadFile     = None
         # general query metadata (based on `output.info`)
-        self.metadata            = None
+        self.metadata        = None
         # dict of in-memory data of the query result indexed by the file's name
-        self.data                = dict()
-        self.vectorFormat        = vectorFormat
+        self.data        = dict()
+        self.vectorFormat    = vectorFormat
         # data frame of the vector data
-        self.vdf                 = None
+        self.vdf         = None
         # geo data frame with query polygon information
-        self.pdf                 = None
+        self.pdf         = None
         # keyword to indicate translation of timestamp column in the dataframe.
         # data acknowledgement information
         self.dataAcknowledgeText = None
@@ -663,7 +663,7 @@ class PAIRSQuery(object):
         if isinstance(self.fs, fs.memoryfs.MemoryFS):
             logger.info('Just FYI: Local file system is in memory - no data saved on local disk.')
         # add flag for IBM cloud object storage result specification
-        self.inIBMCOS            = False
+        self.inIBMCOS        = False
 
     def __del__(self):
         # Delete the file and folder
@@ -701,14 +701,14 @@ class PAIRSQuery(object):
 
         *notes*:
             - Designed to be immutable. Use `self._closeDataSource()` to open the
-              data source from scratch.
+                data source from scratch.
             - `KEEP_QUERY_SOURCE_DIR_OPEN` lets the function skip any operation
-              except for when it is forced.
+                except for when it is forced.
 
         :param force:   enforce to open data source, independent of global settings
         :type force:    bool
         :returns:       function actually attached and/or opened the data source
-        :rtype:         bool
+        :rtype:     bool
         """
         if not KEEP_QUERY_SOURCE_DIR_OPEN or force:
             if force: logger.debug("Enforcing data source to open.")
@@ -747,7 +747,7 @@ class PAIRSQuery(object):
                             except:
                                 pass
                         # open file system
-                        self.queryFS        = zipfs.ZipFS(self._queryStream, write=False)
+                        self.queryFS    = zipfs.ZipFS(self._queryStream, write=False)
                         logger.debug("Opened data source '{}'".format(self.zipFilePath))
                     # test file system by listing contents
                     self.queryFS.listdir(u'')
@@ -780,7 +780,7 @@ class PAIRSQuery(object):
         :param force:   enforce to close data source, independent of global settings
         :type force:    bool
         :returns:       function performed closing
-        :rtype:         bool
+        :rtype:     bool
         """
         if not (KEEP_QUERY_SOURCE_DIR_OPEN or self.inMemory) or force:
             try:
@@ -812,12 +812,12 @@ class PAIRSQuery(object):
         """
         Obtain JSON load that defines a PAIRS query assigned a given ID.
 
-        :param queryID:         PAIRS query ID for which to obtain the defining query JSON load
-        :type queryID:          str
+        :param queryID:     PAIRS query ID for which to obtain the defining query JSON load
+        :type queryID:      str
         :param reloadData:      triggers usage of already retrieved/cached data
         :type reloadData:       bool
-        :returns:               PAIRS query defining JSON load
-        :rtype:                 dict
+        :returns:           PAIRS query defining JSON load
+        :rtype:         dict
         :raises Exception:      if the data cannot be obtained from PAIRS through an API call
                                 if cached data do not contain valid JSON load information
         """
@@ -887,24 +887,24 @@ class PAIRSQuery(object):
 
         *Note*: Used for PAIRS query Jupyter notebook service.
 
-        :param queryDir:        query directory from which to load raster and vector data
-        :type queryDir:         str
+        :param queryDir:    query directory from which to load raster and vector data
+        :type queryDir:     str
         :param pairsHost:       PAIRS host to be used for PAIRS API calls
-        :type pairsHost:        str
-        :param queryID:         PAIRS query ID associated with the data folder queryDir
-        :type queryID:          str
-        :param baseURI:         base URI to use for PAIRS API calls
-        :type baseURI:          str
-        :returns:               PAIRS API wrapper query object
-        :rtype:                 api_wrapper.PAIRSQuery
+        :type pairsHost:    str
+        :param queryID:     PAIRS query ID associated with the data folder queryDir
+        :type queryID:      str
+        :param baseURI:     base URI to use for PAIRS API calls
+        :type baseURI:      str
+        :returns:           PAIRS API wrapper query object
+        :rtype:         api_wrapper.PAIRSQuery
         """
         if baseURI is None: baseURI = PAIRS_DEFAULT_BASE_URI
         clsInstance = cls(
-            query               = None,
-            pairsHost           = pairsHost,
-            baseURI             = baseURI,
-            auth                = None,
-            downloadDir         = None,
+            query           = None,
+            pairsHost       = pairsHost,
+            baseURI         = baseURI,
+            auth        = None,
+            downloadDir     = None,
             overwriteExisting   = False,
         )
         # indicate that the data does not need to be downloaded
@@ -960,7 +960,7 @@ class PAIRSQuery(object):
             if self.dataAcknowledgeText is None and self.queryFS is not None:
                 # check that there exists a file with the acknowledgement
                 if self.fs.exists(self.zipFilePath) and \
-                   PAIRS_DATA_ACK_FILE_NAME in self.queryFS.listdir(u''):
+                     PAIRS_DATA_ACK_FILE_NAME in self.queryFS.listdir(u''):
                     # extract data acknowledgement from PAIRS query ZIP file
                     try:
                         with self.queryFS.open(PAIRS_DATA_ACK_FILE_NAME, 'rb') as f:
@@ -1295,9 +1295,9 @@ class PAIRSQuery(object):
         :type pollIntSec:       float
         :param printStatus:     triggers printing the poll status information
         :type printStatus:      bool
-        :param timeout:         maximum (positive) time in seconds allowed to poll
+        :param timeout:     maximum (positive) time in seconds allowed to poll
                                 till finished, the default is infinitely polling
-        :type timeout:          int
+        :type timeout:      int
         :raises Exception:      if query submit response is unsuccessful or not existing,
                                 if no query or query ID is defined
                                 if a user set timeout has been reached
@@ -1474,7 +1474,7 @@ class PAIRSQuery(object):
                     if self.inIBMCOS:
                         # publish query result to COS
                         if isinstance(cosInfoJSON, dict) and \
-                           set(self.COS_INFO_KEYS) <= set(cosInfoJSON):
+                             set(self.COS_INFO_KEYS) <= set(cosInfoJSON):
                             try:
                                 # initialize upload to COS
                                 if self.authType.lower() in ['api-key', 'apikey', 'api key']:
@@ -1566,7 +1566,7 @@ class PAIRSQuery(object):
                                         raise Exception("Unsuccessful upload status request for COS.")
                                     # check if upload is complete
                                     if load['sizeUploaded']==load['sizeTotal'] \
-                                      or load['status'] not in ('initializing', 'uploading'):
+                                        or load['status'] not in ('initializing', 'uploading'):
                                         break
                                     # idle before polling again
                                     time.sleep(
@@ -1693,7 +1693,7 @@ class PAIRSQuery(object):
         if self._isOnlineQuery:
             try:
                 if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
-                and self.vdf[timeName].dtype in (numpy.float, numpy.int):
+                and self.vdf[timeName].dtype in (numpy.float64, numpy.int64):
                     self.vdf[timeName] = self.vdf[timeName].apply(
                         lambda t: t if numpy.isnan(t) else datetime.datetime.fromtimestamp(
                             t/1e3, tz=pytz.UTC
@@ -1720,7 +1720,7 @@ class PAIRSQuery(object):
                 # convert timestamp column
                 try:
                     if self.vdf is not None and isinstance(self.vdf, pandas.DataFrame) \
-                    and self.vdf[timeName].dtype in (numpy.float, numpy.int):
+                    and self.vdf[timeName].dtype in (numpy.float64, numpy.int64):
                         self.vdf[timeName] = self.vdf[timeName].apply(
                             lambda t: datetime.datetime.fromtimestamp(t, tz=pytz.UTC)
                         )
@@ -1756,7 +1756,7 @@ class PAIRSQuery(object):
             if HAS_GEOPANDAS:
                 self.vdf = geopandas.GeoDataFrame(
                     self.vdf,
-                    crs         = PAIRS_GEOREFERENCE_SYSTEM_NAME,
+                    crs     = PAIRS_GEOREFERENCE_SYSTEM_NAME,
                     geometry    = geomColName,
                 )
             else:
@@ -1911,7 +1911,7 @@ class PAIRSQuery(object):
 
         :param includeGeometry:     triggers whether to include the geometrys of the polygons or not
         :type includeGeometry:      bool
-        :raises Exception:          if there is no polygon geometry specified,
+        :raises Exception:      if there is no polygon geometry specified,
                                     if it fails to retrieve vector geometries or info from PAIRS
         """
         # define vector polygon information dataframe
@@ -1994,9 +1994,9 @@ class PAIRSQuery(object):
 
         :param defaultExtension:    sets default extension for data layer types not specified
         :type defaultExtension:     str
-        :param refresh:             triggers the reload of the meta data from scratch
-        :type refresh:              bool
-        :raises Exception:          if no PAIRS meta data can be found to list layer information
+        :param refresh:         triggers the reload of the meta data from scratch
+        :type refresh:          bool
+        :raises Exception:      if no PAIRS meta data can be found to list layer information
                                     if there is an issue reading the meta data information
         """
         # define path of main PAIRS query meta file
@@ -2074,14 +2074,14 @@ class PAIRSQuery(object):
         """
         Load layer data such as raster or vector data.
 
-        :param fileName:            the key to identify a data layer, associated with the
+        :param fileName:        the key to identify a data layer, associated with the
                                     corresponding file's name
-        :type fileName:             str
-        :param layerMeta:           meta information of layer to load
-        :type layerMeta:            dict
+        :type fileName:         str
+        :param layerMeta:       meta information of layer to load
+        :type layerMeta:        dict
         :param defaultExtension:    sets default extension for data layer types not specified
         :type defaultExtension:     str
-        :raises Exception:          if layer data cannot be loaded from query ZIP file
+        :raises Exception:      if layer data cannot be loaded from query ZIP file
         """
         # convert timestamp information (if any)
         if PAIRS_META_TIMESTAMP_NAME in layerMeta.keys() \
@@ -2102,7 +2102,7 @@ class PAIRSQuery(object):
         # get raster data
         # ATTENTION: temporary hack in order to circumvent issue
         if layerMeta['layerType'] == PAIRS_RASTER_QUERY_NAME \
-           and not PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
+             and not PAIRS_JSON_SPAT_AGG_KEY in layerMeta:
             if HAS_GDAL:
                 # note: Unforetunately GDAL does not allow to directly take Python
                 # binary file streams, thus one needs to inefficiently write back
@@ -2123,7 +2123,7 @@ class PAIRSQuery(object):
                         tempFilePath = tf.name
                         # directly read from data path
                         ds = gdal.Open(tf.name)
-                        a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float)
+                        a  = numpy.array(ds.GetRasterBand(1).ReadAsArray(), dtype=numpy.float64)
                         ds = None
                     # try to expliticly remove the temporary file used to load the data
                     if tempFilePath is not None:
@@ -2167,7 +2167,7 @@ class PAIRSQuery(object):
                                     "No pixel data type identified from query meta data, default to 4 bytes floating point numbers."
                                 )
                                 im.mode=u'F'
-                            a = numpy.array(im).astype(numpy.float)
+                            a = numpy.array(im).astype(numpy.float64)
                     # try to expliticly remove the temporary file used to load the data
                     if tempFilePath is not None:
                         try:
@@ -2182,12 +2182,12 @@ class PAIRSQuery(object):
                     self._closeDataSource()
             # mask no-data value
             if 'details' in layerMeta and 'pixelNoDataVal' in layerMeta['details']:
-                a[a==numpy.float(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
+                a[a==numpy.float64(layerMeta['details']['pixelNoDataVal'])] = numpy.nan
             else:
                 logger.warning(
                         "Unable to identify pixel no-data value, using default '{}'.".format(PAIRS_DEFAULT_NODATA_VALUE)
                 )
-                a[a==numpy.float(PAIRS_DEFAULT_NODATA_VALUE)] = numpy.nan
+                a[a==numpy.float64(PAIRS_DEFAULT_NODATA_VALUE)] = numpy.nan
             # assign loaded data to object's data dictionary
             self.data[fileName] = a
         # load vector data (note: CSV file format assumed)
@@ -2279,20 +2279,20 @@ class PAIRSTimeSeries(object):
     """
     Assemble time series data from PAIRS data layers.
 
-    :param querySpecs:                              defines layers and spatio-temporal intervals to pull from PAIRS,
+    :param querySpecs:                  defines layers and spatio-temporal intervals to pull from PAIRS,
                                                     the JSON schema is defined by PAIRSTimeSeries.QUERY_INPUT_JSON_SCHEMA
-    :type querySpecs:                               dict
+    :type querySpecs:                   dict
     :raises jsonschema.exceptions.ValidationError:  in case the input `querySpecs` does not conform to the required format
     """
     # general settings
-    UNIX_EPOCH_ZERO_TIME            = datetime.datetime(1970,1,1,0,0,0, tzinfo=pytz.UTC)
+    UNIX_EPOCH_ZERO_TIME        = datetime.datetime(1970,1,1,0,0,0, tzinfo=pytz.UTC)
     # time series dataframe related settings
-    DATAFRAME_LATITUDE_NAME         = 'latitude'
-    DATAFRAME_LONGITUDE_NAME        = 'longitude'
-    DATAFRAME_TIMESTAMP_NAME        = 'timestamp'
+    DATAFRAME_LATITUDE_NAME     = 'latitude'
+    DATAFRAME_LONGITUDE_NAME    = 'longitude'
+    DATAFRAME_TIMESTAMP_NAME    = 'timestamp'
     # PAIRS related configuration settings
     PAIRS_TIMESERIES_ENDPOINT       = 'v2/timeseries'
-    PAIRS_QUERY_RETRIES             = 10
+    PAIRS_QUERY_RETRIES         = 10
     PAIRS_QUERY_RETRY_BACKOFF_FACTOR= 3
     PAIRS_JSON_VALUE_KEY_NAME       = 'value'
     PAIRS_JSON_TIMESTAMP_NAME       = 'timestamp'
@@ -2366,7 +2366,7 @@ class PAIRSTimeSeries(object):
         ## transform input (simplify layer information in preparation for query string)
         self.querySpecs['layers'] = {
             layer["column-name"]: '{layerID}{dimensionList}'.format(
-                layerID         = layer["pairs-layer-id"],
+                layerID     = layer["pairs-layer-id"],
                 dimensionList   = '&dimension='+','.join(
                     [
                         '{name}%3D{value}'.format(name=dimension['name'], value=dimension['value'])
@@ -2398,37 +2398,37 @@ class PAIRSTimeSeries(object):
         self, lon, lat, t0, t1, layerID, auth,
         requestFunction     = requests.get,
         rawDataDumpDir      = None,
-        authType            = 'password'
+        authType        = 'password'
     ):
         """
         Extracts time series of point location from PAIRS through time series API endpoint.
 
-        :param lon:             longitude of point of interest
-        :type lon:              float
-        :param lat:             latitude of point of interest
-        :type lat:              float
-        :param t0:              UNIX epoch time in milliseconds to start time series
-        :type t0:               int
-        :param t1:              UNIX epoch time in milliseconds to end time series
-        :type t1:               int
-        :param layerID:         PAIRS layer ID to query, potentially with URL-compatible
+        :param lon:         longitude of point of interest
+        :type lon:          float
+        :param lat:         latitude of point of interest
+        :type lat:          float
+        :param t0:          UNIX epoch time in milliseconds to start time series
+        :type t0:           int
+        :param t1:          UNIX epoch time in milliseconds to end time series
+        :type t1:           int
+        :param layerID:     PAIRS layer ID to query, potentially with URL-compatible
                                 dimension specification in format:
                                 `&dimension=<name1>%D3<value1>,<name1>%D3<value1>...`
-        :type layerID:          str
-        :param auth:            PAIRS credentials for authentication
-        :type auth:             (str, str) or authentication.OAuth2
+        :type layerID:      str
+        :param auth:        PAIRS credentials for authentication
+        :type auth:         (str, str) or authentication.OAuth2
         :param requestFunction: request function to be used for GET call to PAIRS
         :type requestFunction:  function
         :param rawDataDumpDir:  if set, the PAIRS query result is dumped as JSON
                                 file into the given directory
         :type rawDataDumpDir:   str
-        :param authType:        'password' or 'api-key'
-        :type authType:         str
-        :returns:               time series data queried from PAIRS for layer `layerID`
+        :param authType:    'password' or 'api-key'
+        :type authType:     str
+        :returns:           time series data queried from PAIRS for layer `layerID`
                                 and dictionary of time series summary information
                                 - temporal interval: [`"first-timestamp"`, `"last-timestamp"`]
                                 - number of timestamps in `"number-data-points"`
-        :rtype:                 pandas.DataFrame, dict
+        :rtype:         pandas.DataFrame, dict
         :raises Exception:      if `t0` is smaller than `t1` or if the JSON data
                                 dump directory does not exist
         """
@@ -2447,15 +2447,15 @@ class PAIRSTimeSeries(object):
 
         # compose PAIRS query URL
         url="{baseURL}{timeseriesEndpoint}?start={startUNIXEpochMS}&end={endUNIXEpochMS}&lon={longitude}&lat={latitude}&layer={layerID}".format(
-            baseURL             = self.pairsBaseURL,
+            baseURL         = self.pairsBaseURL,
             timeseriesEndpoint  = self.PAIRS_TIMESERIES_ENDPOINT,
             # adjust for the fact that the starting timestamp (in milliseconds)
             # is exlusive, i.e. a timestamp in PAIRS with exactly t0 would not get returned
             startUNIXEpochMS    = t0,
             endUNIXEpochMS      = t1,
-            longitude           = lon,
-            latitude            = lat,
-            layerID             = layerID,
+            longitude       = lon,
+            latitude        = lat,
+            layerID         = layerID,
         )
         logger.debug(url)
         if self.authType.lower() in ['api-key', 'apikey', 'api key']:
@@ -2482,7 +2482,7 @@ class PAIRSTimeSeries(object):
                 df[self.PAIRS_JSON_TIMESTAMP_NAME], unit='ms', utc=True,
             )
             # add layer information column
-            df['layerID']                       = layerID
+            df['layerID']               = layerID
             df[self.DATAFRAME_LONGITUDE_NAME]   = lon
             df[self.DATAFRAME_LATITUDE_NAME]    = lat
         except Exception as e:
@@ -2513,31 +2513,31 @@ class PAIRSTimeSeries(object):
 
     def get_dataframe(
         self,
-        pairsBaseURL        = None,
-        verifySSL           = True,
-        auth                = None,
+        pairsBaseURL    = None,
+        verifySSL       = True,
+        auth        = None,
         spatioTemporalIndex = False,
-        authType            = 'password'
+        authType        = 'password'
     ):
         """
         Function to query point data from PAIRS.
 
-        :param pairsBaseURL:                       PAIRS base URL to be used for API endpoint,
-                                                   example: `https://pairs.res.ibm.com:443`
-        :type pairsBaseURL:                        str
-        :param verifySSL:                          if SSL connections get verified
-        :type verifySSL:                           bool
-        :param auth:                               PAIRS API credentials in (user, password) format
-        :type auth:                                (str, str)
-        :param spatioTemporalIndex:                whether or not to spatio-temorally index the Pandas dataframe to be returned,
-                                                   *note*: temporal index comes last for time series optimization
-        :type spatioTemporalIndex                  bool
-        :param authType:                           'password' or 'api-key'
-        :type port:                                str
-        :returns:                                  table with PAIRS data
-        :rtype:                                    pandas.DataFrame
+        :param pairsBaseURL:               PAIRS base URL to be used for API endpoint,
+                                                     example: `https://pairs.res.ibm.com:443`
+        :type pairsBaseURL:            str
+        :param verifySSL:              if SSL connections get verified
+        :type verifySSL:               bool
+        :param auth:                   PAIRS API credentials in (user, password) format
+        :type auth:                (str, str)
+        :param spatioTemporalIndex:        whether or not to spatio-temorally index the Pandas dataframe to be returned,
+                                                     *note*: temporal index comes last for time series optimization
+        :type spatioTemporalIndex          bool
+        :param authType:               'password' or 'api-key'
+        :type port:                str
+        :returns:                  table with PAIRS data
+        :rtype:                    pandas.DataFrame
         :raises urllib3.exceptions.MaxRetryError:  in case PAIRS is unreachable
-        :raises requests.HTTPError:                in case the PAIRS HTTP response code is not 200
+        :raises requests.HTTPError:        in case the PAIRS HTTP response code is not 200
         """
 
         self.authType = authType
@@ -2577,7 +2577,7 @@ class PAIRSTimeSeries(object):
         # set up requests session
         ## set retry rules for PAIRS queries
         retryRules = requests.packages.urllib3.util.retry.Retry(
-            total           = self.PAIRS_QUERY_RETRIES,
+            total       = self.PAIRS_QUERY_RETRIES,
             backoff_factor  = self.PAIRS_QUERY_RETRY_BACKOFF_FACTOR,
         )
 
@@ -2594,11 +2594,11 @@ class PAIRSTimeSeries(object):
             try:
                 parallelExecuteList = [
                     {
-                        "t0":               interval['start'],
-                        "t1":               interval['end'],
-                        "lon":              query['longitude'],
-                        "lat":              query['latitude'],
-                        "layerID":          layerID,
+                        "t0":           interval['start'],
+                        "t1":           interval['end'],
+                        "lon":          query['longitude'],
+                        "lat":          query['latitude'],
+                        "layerID":      layerID,
                         "requestFunction":  http.get,
                     }
                     for layerName, layerID in self.querySpecs['layers'].items()
