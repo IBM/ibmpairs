@@ -16,7 +16,7 @@ __copyright__   = "(c) 2017-2021, IBM Research"
 __authors__     = ['Conrad M Albrecht', 'Steffan Taylor', 'Marcus Freitag',]
 __email__       = "pairs@us.ibm.com"
 __status__      = "Development"
-__date__    = "Feb 2021"
+__date__        = "Feb 2021"
 
 # fold: imports{{{
 # basic imports
@@ -187,7 +187,7 @@ def load_environment_variables():
 
     .. code-block:: bash
 
-      PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
+       PAW_PAIRS_DEFAULT_USER='<your PAIRS user name>' PAW_PAIRS_DEFAULT_BASE_URI python
     """
     # set global variables reading from environment variables
     for var in ENVIRONMENT_VARIABLES:
@@ -365,7 +365,7 @@ class PAIRSQuery(object):
     :type downloadDir:          str
     :param baseURI:             PAIRS API base URI to append to the base URL (cf. `pairsHost`)
     :type baseURI:              str
-    :param verifySSL:           if SSL connections get verified
+    :param verifySSL:                          if SSL connections get verified
     :type verifySSL:            bool
     :param vectorFormat:        data format of the vector data
     :type vectorFormat:         str
@@ -412,20 +412,20 @@ class PAIRSQuery(object):
 
     def __init__(
         self, query,
-        pairsHost           = None,
-        auth                = None,
-        port                = None,
-        overwriteExisting   = True,
-        deleteDownload      = False,
-        downloadDir         = DOWNLOAD_DIR,
-        baseURI             = None,
-        verifySSL           = True,
-        vectorFormat        = None,
-        inMemory            = False,
-        guiURL              = None,
-        publish2GUI         = None,
-        guiPassword         = None,
-        authType            = 'password'
+        pairsHost               = None,
+        auth                    = None,
+        port                    = None,
+        overwriteExisting       = True,
+        deleteDownload          = False,
+        downloadDir             = DOWNLOAD_DIR,
+        baseURI                 = None,
+        verifySSL               = True,
+        vectorFormat            = None,
+        inMemory                = False,
+        guiURL                  = None,
+        publish2GUI             = None,
+        guiPassword             = None,
+        authType                = 'password'
     ):
         self.authType = authType
 
