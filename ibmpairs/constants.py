@@ -36,6 +36,7 @@ CLIENT_PUT_AND_POST_HEADER       = {'Content-Type': 'application/json', 'Accept'
 CLIENT_PUT_AND_POST_HEADER_CSV   = {'Accept': 'text/csv'}
 CLIENT_GET_DEFAULT_RESPONSE_TYPE = 'json'
 CLIENT_TOKEN_REFRESH_MESSAGE     = 'claim expired'
+CLIENT_TIMEOUT                   = os.environ.get('CLIENT_TIMEOUT', 3600)
 
 UPLOAD_API                     = '/v2/uploader/upload'
 UPLOAD_STATUS_API              = '/v2/uploader/upload/'
