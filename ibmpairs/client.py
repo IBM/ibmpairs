@@ -340,9 +340,11 @@ class Client:
             if self.authentication_mode(self._authentication) in ['Basic']:
                 authentication = aiohttp.BasicAuth(self._authentication.username, self._authentication.password)
 
+            timeout = aiohttp.ClientTimeout(constants.CLIENT_TIMEOUT)
             session = aiohttp.ClientSession(connector = connector, 
                                             auth      = authentication,
-                                            headers   = self._headers
+                                            headers   = self._headers,
+                                            timeout   = timeout
                                            )
         elif self.authentication_mode(self._authentication) in ['OAuth2']:
             
@@ -350,8 +352,10 @@ class Client:
             token = 'Bearer ' + self._authentication.jwt_token
             self.append_header('Authorization', token)
             
+            timeout = aiohttp.ClientTimeout(constants.CLIENT_TIMEOUT)
             session = aiohttp.ClientSession(connector = connector, 
-                                            headers   = self._headers
+                                            headers   = self._headers,
+                                            timeout   = timeout
                                            )
         else: 
             msg = messages.ERROR_CLIENT_AUTHENTICATION_MECHANISM.format(self.authentication_mode(self._authentication))
