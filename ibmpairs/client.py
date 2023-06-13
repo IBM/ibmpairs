@@ -32,6 +32,12 @@ import aiohttp
 
 GLOBAL_PAIRS_CLIENT = None
 
+GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "True")
+if GLOBAL_LEGACY_ENVIRONMENT.lower() in ('true', 't', 'yes', 'y'):
+    GLOBAL_LEGACY_ENVIRONMENT  = True
+else:
+    GLOBAL_LEGACY_ENVIRONMENT  = False
+
 #
 class ClientResponse:
     #_status: int
@@ -145,10 +151,13 @@ class ClientResponse:
  
 #
 class Client:
-    #_host: str           = None
-    #_headers: dict       = None
-    #_authentication      = None
-    #_body                = None
+    #_host: str
+    #_headers: dict
+    #_authentication
+    #_body: str
+    #_client_id: str
+    #_tenant_id: str
+    #_legacy: bool
     
     """
     A client wrapper for interaction with IBM PAIRS.
@@ -161,6 +170,12 @@ class Client:
     :type authentication:      ibmpairs.authentication.Oauth2 or ibmpairs.authentication.Basic
     :param body:               A message body.
     :type body:                str
+    :param client_id:          A client id for the authentication system, defaults to 'ibm-pairs' if legacy.
+    :type client_id:           str
+    :param tenant_id:          IBM EIS GA API Connect Tenant Id
+    :type tenant_id:           str
+    :param legacy:             IBM EIS GA Legacy Environment selector override
+    :type legacy:              bool
     """
     
     #
@@ -206,31 +221,89 @@ class Client:
                 client_dict["authentication"] = self._authentication
         if self._body is not None:
             client_dict["body"] = self._body
+        if self._client_id is not None:
+            client_dict["client_id"] = self._client_id
+        if self._tenant_id is not None:
+            client_dict["tenant_id"] = self._tenant_id
+        if self._legacy is not None:
+            client_dict["legacy"] = self._legacy
         return client_dict
 
     #
     def __init__(self,
-                 host = None,
-                 headers = None,
+                 host: str      = None,
+                 headers: dict  = None,
                  authentication = None,
-                 body = None
+                 body: str      = None,
+                 client_id: str = None, 
+                 tenant_id: str = None,
+                 legacy: bool   = None
                 ):
+            
+            self._authentication = authentication
+
+            if legacy is not None:
+                self._legacy = legacy
+            elif (self._authentication is not None) and (self._authentication.legacy is not None):
+                self._legacy = self._authentication.legacy
+            else:
+                self._legacy = GLOBAL_LEGACY_ENVIRONMENT
 
             if (headers is not None):
                 self._headers = headers
             else:
                 self._headers = constants.CLIENT_JSON_HEADER
-
-            self._authentication = authentication
             
             if (host is not None):
                 self._host = common.ensure_protocol(host)
             elif (host is None) and (self._authentication is not None) and (self._authentication.host is not None):
                 self._host = common.ensure_protocol(self._authentication.host)
             else:
-                self._host = common.ensure_protocol(constants.CLIENT_PAIRS_URL)
+                if self._legacy is True:
+                    self._host = common.ensure_protocol(constants.CLIENT_LEGACY_URL)
+                else:
+                    self._host = common.ensure_protocol(constants.CLIENT_URL)
+                    
+            logger.info("HOST: " + self._host)
             
             self._body = body
+            
+            if self._legacy is True:
+                if client_id is not None:
+                    self._client_id = client_id
+                else:
+                    self._client_id = 'ibm-pairs'
+                self._tenant_id = tenant_id
+            else:
+                if (client_id is not None) and (tenant_id is not None):
+                    msg = messages.INFO_BOTH_CLIENT_ID_AND_TENANT_ID.format(client_id, tenant_id)
+                    logger.info(msg)
+                    if client_id.startswith('saascore-'):
+                        msg = messages.INFO_STARTS_WITH_SAASCORE
+                        logger.info(msg)
+                        self._client_id = 'geospatial-' + common.get_tenant_id(client_id)
+                    else:
+                        self._client_id = client_id
+                    self._tenant_id = common.get_tenant_id(client_id)
+                elif (client_id is not None) and (tenant_id is None):
+                    if client_id.startswith('saascore-'):
+                        msg = messages.INFO_STARTS_WITH_SAASCORE
+                        logger.info(msg)
+                        self._client_id = 'geospatial-' + common.get_tenant_id(client_id)
+                    else:
+                        self._client_id = client_id
+                    self._tenant_id = common.get_tenant_id(client_id)
+                elif (client_id is None) and (tenant_id is not None):
+                    self._tenant_id = common.get_tenant_id(tenant_id)
+                    self._client_id = 'geospatial-' + self._tenant_id
+                else:
+                    if (self._authentication is not None) and (self._authentication.tenant_id is not None):
+                        self._tenant_id = self._authentication.tenant_id
+                        self._client_id = 'geospatial-' + self._tenant_id
+                    else:
+                        msg = messages.ERROR_NO_CLIENT_OR_TENANT_ID
+                        logger.error(msg)
+                        raise common.PAWException(msg)
             
             global GLOBAL_PAIRS_CLIENT 
             GLOBAL_PAIRS_CLIENT = self
@@ -299,11 +372,55 @@ class Client:
     #    
     body = property(get_body, set_body, del_body)
     
+    #       
+    def get_client_id(self):
+        return self._client_id
+    
+    #
+    def set_client_id(self, client_id):
+        self._client_id = client_id
+        
+    #    
+    def del_client_id(self): 
+        del self._client_id
+        
+    #    
+    client_id = property(get_client_id, set_client_id, del_client_id)
+    
+    #       
+    def get_tenant_id(self):
+        return self._tenant_id
+  
+    #
+    def set_tenant_id(self, tenant_id):
+        self._tenant_id = tenant_id
+      
+    #    
+    def del_tenant_id(self): 
+        del self._tenant_id
+      
+    #    
+    tenant_id = property(get_tenant_id, set_tenant_id, del_tenant_id)
+    
+    #
+    def get_legacy(self):
+        return self._legacy
+    
+    #
+    def set_legacy(self, legacy):
+        self._legacy = common.check_bool(legacy)
+        
+    #    
+    def del_legacy(self): 
+        del self._legacy
+        
+    #    
+    legacy = property(get_legacy, set_legacy, del_legacy)
+    
     def session(self,
                 authentication = None,
                 headers        = None,
-                ssl            = None,
-                verify_ssl     = True
+                verify         = None
                ):
         
         """
@@ -313,27 +430,27 @@ class Client:
         :type authentication:      ibmpairs.authentication.Basic or ibmpairs.authentication.OAuth2
         :param headers:            A dictionary of request headers.
         :type headers:             dict
-        :param ssl:                SSL.
-        :type ssl:                 str
-        :param verify_ssl:         Verify SSL.
-        :type verify_ssl:          bool
+        :param verify:             Verify SSL.
+        :type verify:              bool
         :returns:                  A aiohttp.ClientSession using the attributes provided.
         :rtype:                    aiohttp.ClientSession
         """
         
         if headers is not None:
             self.set_headers(headers)
+            
+            if self._legacy is False:
+                self.append_header('x-ibm-client-id', self.get_client_id())
+                
             msg = messages.DEBUG_CLIENT_SET_HEADERS.format(headers)
             logger.debug(msg)
         
         if authentication is not None:
             self.set_authentication(authentication)
             msg = messages.DEBUG_CLIENT_SET_HEADERS.format(authentication)
-            logger.debug(msg)             
+            logger.debug(msg)
                         
-        connector = aiohttp.TCPConnector(ssl        = ssl,
-                                         verify_ssl = verify_ssl
-                                        )
+        connector = aiohttp.TCPConnector(ssl = verify)
                                         
         if self.authentication_mode(self._authentication) in ['Basic', 'None']:
             # If authentication.Basic then get set authenication tuple.
@@ -351,7 +468,7 @@ class Client:
             # Add bearer token to headers.
             token = 'Bearer ' + self._authentication.jwt_token
             self.append_header('Authorization', token)
-            
+
             timeout = aiohttp.ClientTimeout(constants.CLIENT_TIMEOUT)
             session = aiohttp.ClientSession(connector = connector, 
                                             headers   = self._headers,
@@ -370,8 +487,7 @@ class Client:
                         session: aiohttp.ClientSession = None,
                         authentication                 = None,
                         headers                        = None,
-                        ssl                            = None,
-                        verify                         = True,
+                        verify                         = None,
                         response_type                  = 'json'
                        ):
                         
@@ -386,22 +502,21 @@ class Client:
         :type authentication:      ibmpairs.authentication.Basic or ibmpairs.authentication.OAuth2
         :param headers:            A dictionary of request headers.
         :type headers:             dict
-        :param ssl:                SSL.
-        :type ssl:                 str
-        :param verify_ssl:         Verify SSL.
-        :type verify_ssl:          bool
+        :param verify:             Verify SSL.
+        :type verify:              bool
         :param response_type:      A response type, defaults to json.
         :type response_type:       str
         :returns:                  An ibmpairs.client.ClientResponse object.
         :rtype:                    ibmpairs.client.ClientResponse
         """
+    
+        retry: bool = False
 
         client_response = ClientResponse()
 
         if session is None:
             session = self.session(authentication, 
                                    headers,
-                                   ssl,
                                    verify
                                   )
 
@@ -415,31 +530,34 @@ class Client:
                 client_response.body   = await response.read()
 
             await session.close() 
-
-        if client_response.status in (401,403):
+            
+        if ((self._legacy is True) and (client_response.status in (401,403))):
             token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
             if client_response.body is not None:
                 response_string = client_response.body
                 if token_refresh_message in response_string:
-                    
-                    self._authentication.refresh_auth_token()
-                    
-                    session = self.session(self._authentication, 
-                                           headers,
-                                           ssl,
-                                           verify
-                                          )
+                    retry = True
+        elif ((self._legacy is False) and (client_response.status == 500)):
+            retry = True
 
-                    async with session.get(url = url
-                                          ) as response:
+        if retry is True:
+            self._authentication.refresh_auth_token()
+                    
+            session = self.session(self._authentication, 
+                                   headers,
+                                   verify
+                                  )
+
+            async with session.get(url = url
+                                  ) as response:
                             
-                        client_response.status = response.status  
-                        if response_type == 'json':
-                            client_response.body   = await response.text()
-                        else:
-                            client_response.body   = await response.read()
+                client_response.status = response.status  
+                if response_type == 'json':
+                    client_response.body   = await response.text()
+                else:
+                    client_response.body   = await response.read()
 
-                        await session.close()
+                await session.close()
         
         return client_response
     
@@ -463,10 +581,16 @@ class Client:
         :rtype:                    requests.Response
         """
         
+        retry: bool = False
+        
         response = None
         
         if headers is not None:
             self.set_headers(headers)
+            
+            if self._legacy is False:
+                self.append_header('x-ibm-client-id', self._get_client_id())
+                
             msg = messages.DEBUG_CLIENT_SET_HEADERS.format('GET', headers)
             logger.debug(msg)
         
@@ -485,20 +609,25 @@ class Client:
             response = requests.get(url, 
                                     headers = self._headers,
                                     verify  = verify
-                                   )                
-            
-            if response.status_code in (401,403):
+                                   )
+                                    
+            if ((self._legacy is True) and (response.status_code in (401,403))):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        self._authentication.refresh_auth_token()
-                        token = 'Bearer ' + self._authentication.jwt_token
-                        self.append_header('Authorization', token)
-                        response = requests.get(url, 
-                                                headers = self._headers,
-                                                verify  = verify
-                                               )
+                        retry = True
+            elif ((self._legacy is False) and (response.status_code == 500)):
+                retry = True
+            
+            if retry is True:
+                self._authentication.refresh_auth_token()
+                token = 'Bearer ' + self._authentication.jwt_token
+                self.append_header('Authorization', token)
+                response = requests.get(url, 
+                                        headers = self._headers,
+                                        verify  = verify
+                                       )
         else:
             msg = messages.ERROR_AUTHENTICATION_TYPE_NOT_RECOGNIZED.format(type(self._authentication))
             logger.error(msg)
@@ -528,11 +657,17 @@ class Client:
         :returns:                  A requests.Response object.
         :rtype:                    requests.Response
         """
+        
+        retry: bool = False
             
         response = None
         
         if headers is not None:
             self.set_headers(headers)
+            
+            if self._legacy is False:
+                self.append_header('x-ibm-client-id', self._get_client_id())
+                
             msg = messages.DEBUG_CLIENT_SET_HEADERS.format('PUT', headers)
             logger.debug(msg)
         
@@ -555,19 +690,25 @@ class Client:
                                     data    = body,
                                     verify  = verify
                                    )
-            if response.status_code in (401,403):
+            
+            if ((self._legacy is True) and (response.status_code in (401,403))):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        self._authentication.refresh_auth_token()
-                        token = 'Bearer ' + self._authentication.jwt_token
-                        self.append_header('Authorization', token)
-                        response = requests.put(url,
-                                                headers = self._headers,
-                                                data    = body,
-                                                verify  = verify
-                                               )
+                        retry = True
+            elif ((self._legacy is False) and (response.status_code == 500)):
+                retry = True
+            
+            if retry is True:
+                self._authentication.refresh_auth_token()
+                token = 'Bearer ' + self._authentication.jwt_token
+                self.append_header('Authorization', token)
+                response = requests.put(url,
+                                        headers = self._headers,
+                                        data    = body,
+                                        verify  = verify
+                                       )
 
         else:
             msg = messages.ERROR_AUTHENTICATION_TYPE_NOT_RECOGNIZED.format(type(self._authentication))
@@ -583,8 +724,7 @@ class Client:
                          session: aiohttp.ClientSession = None,
                          authentication                 = None,
                          headers                        = None,
-                         ssl                            = None,
-                         verify                         = True
+                         verify                         = None
                         ):
                           
         """
@@ -600,20 +740,19 @@ class Client:
         :type authentication:      ibmpairs.authentication.Basic or ibmpairs.authentication.OAuth2
         :param headers:            A dictionary of request headers.
         :type headers:             dict
-        :param ssl:                SSL.
-        :type ssl:                 str
-        :param verify_ssl:         Verify SSL.
-        :type verify_ssl:          bool
+        :param verify:             Verify SSL.
+        :type verify:              bool
         :returns:                  An ibmpairs.client.ClientResponse object.
         :rtype:                    ibmpairs.client.ClientResponse
         """
+    
+        retry: bool = False
                             
         client_response = ClientResponse()
 
         if session is None:
             session = self.session(authentication, 
                                    headers,
-                                   ssl,
                                    verify
                                   )
 
@@ -625,29 +764,32 @@ class Client:
             client_response.body   = await response.text()
 
             await session.close()
-        
-        if client_response.status in (401,403):
+            
+        if ((self._legacy is True) and (client_response.status in (401,403))):
             token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
             if client_response.body is not None:
                 response_string = client_response.body
                 if token_refresh_message in response_string:
+                    retry = True
+        elif ((self._legacy is False) and (client_response.status == 500)):
+            retry = True
+        
+        if retry is True:
+            self._authentication.refresh_auth_token()
                     
-                    self._authentication.refresh_auth_token()
-                    
-                    session = self.session(self._authentication, 
-                                           headers,
-                                           ssl,
-                                           verify
-                                          )
+            session = self.session(self._authentication, 
+                                   headers,
+                                   verify
+                                  )
 
-                    async with session.post(url  = url,
-                                            json = body 
-                                           ) as response:
+            async with session.post(url  = url,
+                                    json = body 
+                                   ) as response:
             
-                        client_response.status = response.status            
-                        client_response.body   = await response.text()
+                client_response.status = response.status            
+                client_response.body   = await response.text()
 
-                        await session.close()
+                await session.close()
         
         return client_response
 
@@ -674,10 +816,16 @@ class Client:
         :rtype:                    requests.Response
         """
         
+        retry: bool = False
+        
         response = None
         
         if headers is not None:
             self.set_headers(headers)
+            
+            if self._legacy is False:
+                self.append_header('x-ibm-client-id', self._get_client_id())
+                
             msg = messages.DEBUG_CLIENT_SET_HEADERS.format('POST', headers)
             logger.debug(msg)
         
@@ -704,20 +852,26 @@ class Client:
                                      data    = body,
                                      verify  = verify
                                     )
-            if response.status_code in (401,403):
+            
+            if ((self._legacy is True) and (response.status_code in (401,403))):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        self._authentication.refresh_auth_token()
-                        token = 'Bearer ' + self._authentication.jwt_token
-                        self.append_header('Authorization', token)
-                        logger.debug(messages.DEBUG_CLIENT_POST_OAUTH.format(body, url))
-                        response = requests.post(url,
-                                                 headers = self._headers,
-                                                 data    = body,
-                                                 verify  = verify
-                                                )
+                        retry = True
+            elif ((self._legacy is False) and (response.status_code == 500)):
+                retry = True
+            
+            if retry is True:
+                self._authentication.refresh_auth_token()
+                token = 'Bearer ' + self._authentication.jwt_token
+                self.append_header('Authorization', token)
+                logger.debug(messages.DEBUG_CLIENT_POST_OAUTH.format(body, url))
+                response = requests.post(url,
+                                         headers = self._headers,
+                                         data    = body,
+                                         verify  = verify
+                                        )
         else:
             msg = messages.ERROR_AUTHENTICATION_TYPE_NOT_RECOGNIZED.format(type(self._authentication))
             logger.error(msg)
@@ -744,11 +898,17 @@ class Client:
         :returns:                  A requests.Response object.
         :rtype:                    requests.Response
         """
+        
+        retry: bool = False
                 
         response = None
         
         if headers is not None:
             self.set_headers(headers)
+            
+            if self._legacy is False:
+                self.append_header('x-ibm-client-id', self._get_client_id())
+                
             msg = messages.DEBUG_CLIENT_SET_HEADERS.format('DELETE', headers)
             logger.debug(msg)
         
@@ -773,20 +933,25 @@ class Client:
                                        headers = self._headers,
                                        verify  = verify
                                       )
-          
-            if response.status_code in (401,403):
+                                        
+            if ((self._legacy is True) and (response.status_code in (401,403))):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        self._authentication.refresh_auth_token()
-                        token = 'Bearer ' + self._authentication.jwt_token
-                        self.append_header('Authorization', token)
-                        logger.debug(messages.DEBUG_CLIENT_DELETE_OAUTH.format(url))
-                        response = requests.delete(url,
-                                                   headers = self._headers,
-                                                   verify  = verify
-                                                  )
+                        retry = True
+            elif ((self._legacy is False) and (response.status_code == 500)):
+                retry = True
+          
+            if retry is True:
+                self._authentication.refresh_auth_token()
+                token = 'Bearer ' + self._authentication.jwt_token
+                self.append_header('Authorization', token)
+                logger.debug(messages.DEBUG_CLIENT_DELETE_OAUTH.format(url))
+                response = requests.delete(url,
+                                           headers = self._headers,
+                                           verify  = verify
+                                          )
         else:
             msg = messages.ERROR_AUTHENTICATION_TYPE_NOT_RECOGNIZED.format(type(self._authentication))
             logger.error(msg)
@@ -826,3 +991,90 @@ class Client:
             raise Exception(msg)
         
         return authentication_mode
+  
+#
+def get_client(host: str          = None,
+               username: str      = None,
+               api_key: str       = None,
+               api_key_file: str  = "auth/oauth2.txt",
+               client_id: str     = None,
+               endpoint: str      = None,
+               jwt_token: str     = None,
+               iam_endpoint: str  = "iam.cloud.ibm.com",
+               org_id: str        = None, 
+               tenant_id: str     = None,
+               headers: dict      = None,
+               body: str          = None,
+               password: str      = None,
+               password_file: str = None,
+               legacy: bool       = None
+              ):
+    """
+    Gets either a authentication.Basic or authentication.OAuth2 from authentication credentials.
+    
+    :param host:          IBM PAIRS host
+    :type host:           str
+    :param username:      IBM PAIRS username
+    :type username:       str
+    :param api_key:       IBM PAIRS API key
+    :type api_key:        str
+    :param api_key_file:  IBM PAIRS API key file, defaults to auth/oauth2.txt
+    :type api_key_file:   str
+    :param client_id:     A client id for the authentication system, defaults to 'ibm-pairs' if legacy.
+    :type client_id:      str
+    :param endpoint:      The authentication endpoint.
+    :type endpoint:       str
+    :param jwt_token:     A jwt token for authentication.
+    :type jwt_token:      str
+    :param iam_endpoint:  IBM Cloud IAM Endpoint
+    :type iam_endpoint:   str
+    :param org_id:        IBM EIS GA API Connect Org Id
+    :type org_id:         str
+    :param tenant_id:     IBM EIS GA API Connect Tenant Id
+    :type tenant_id:      str
+    :param password:      IBM PAIRS password
+    :type password:       str
+    :param password_file: IBM PAIRS password file, defaults to auth/basic.txt
+    :type password_file:  str
+    :param legacy:        IBM EIS GA Legacy Environment selector override
+    :type legacy:         bool
+    :rtype:               authentication.Basic or authentication.OAuth2
+    :raises Exception:    if authentication.Basic or authentication.OAuth2 raise an error
+    """
+    
+    auth = None
+    
+    if (password is not None) or (password_file is not None):
+        msg = messages.INFO_BASIC_AUTH_ASSUMPTION
+        logger.info(msg)
+        
+        auth = authentication.Basic(host          = host,
+                                    username      = username,
+                                    password      = password,
+                                    password_file = password_file,
+                                    legacy        = legacy
+                                   )
+    
+    else:
+        msg = messages.INFO_0AUTH2_AUTH_ASSUMPTION
+        logger.info(msg)
+        
+        auth = authentication.OAuth2(host         = host,
+                                     username     = username,
+                                     api_key      = api_key,
+                                     api_key_file = api_key_file,
+                                     client_id    = client_id,
+                                     endpoint     = endpoint,
+                                     jwt_token    = jwt_token,
+                                     iam_endpoint = iam_endpoint,
+                                     org_id       = org_id, 
+                                     tenant_id    = tenant_id,
+                                     legacy        = legacy
+                                    )
+        
+    eis_client = Client(headers = headers,
+                        authentication = auth,
+                        body = body
+                       )
+    
+    return eis_client

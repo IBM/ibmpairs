@@ -31,17 +31,24 @@ PAIRS_DEFAULT_PASSWORD_FILE_NAME    = u'auth/basic.txt'
 PAIRS_PASSWORD_FILE_COMMENT_REG_EX  = re.compile(r'^\s*#')
 #}}}
 
+GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "True")
+if GLOBAL_LEGACY_ENVIRONMENT.lower() in ('true', 't', 'yes', 'y'):
+    GLOBAL_LEGACY_ENVIRONMENT  = True
+else:
+    GLOBAL_LEGACY_ENVIRONMENT  = False
+
 # fold: Basic Class {{{
 class Basic:
     #_host: str
     #_username: str
     #_password: str
     #_password_file: str
+    #_legacy: bool
     
     """
     An object to represent basic credentials and recovery from a file.
 
-    :param host:             IBM PAIRS host, defaults to https://pairs.res.ibm.com
+    :param host:             IBM PAIRS host
     :type host:              str
     :param username:         IBM PAIRS username
     :type username:          str
@@ -49,6 +56,8 @@ class Basic:
     :type password:          str
     :param password_file:    IBM PAIRS password file, defaults to auth/basic.txt
     :type password_file:     str
+    :param legacy:           IBM EIS GA Legacy Environment selector override
+    :type legacy:            bool
     :raises Exception:       if username and password are not present
     """
     
@@ -92,15 +101,33 @@ class Basic:
     
     #
     def __init__(self,
-                 host: str          = constants.CLIENT_PAIRS_URL,
+                 host: str          = None,
                  username: str      = None,
                  password: str      = None,
-                 password_file: str = "auth/basic.txt"
+                 password_file: str = "auth/basic.txt",
+                 legacy: bool       = None
                 ):
-        self._host          = common.strip_protocol(host)
+        
+        if legacy is not None:
+            self._legacy = legacy
+        else:
+            self._legacy = GLOBAL_LEGACY_ENVIRONMENT
+        
+        if host is not None:
+            self._host = common.strip_protocol(host)
+        else:
+            if self._legacy is True:
+                self._host = common.strip_protocol(constants.CLIENT_LEGACY_URL)
+            else:
+                self._host = common.strip_protocol(constants.CLIENT_URL)
+        
         self._username      = username
         self._password      = password
-        self._password_file = password_file
+        
+        if password_file is not None:
+            self._password_file = password_file
+        else:
+            self._password_file = "auth/basic.txt"
         
         if ((self._password is None) and (self._username is not None)):
             try:
@@ -183,6 +210,21 @@ class Basic:
 
     #    
     password_file = property(get_password_file, set_password_file, del_password_file)
+    
+    #
+    def get_legacy(self):
+        return self._legacy
+    
+    #
+    def set_legacy(self, legacy):
+        self._legacy = common.check_bool(legacy)
+        
+    #    
+    def del_legacy(self): 
+        del self._legacy
+        
+    #    
+    legacy = property(get_legacy, set_legacy, del_legacy)
 
     #
     def set_credentials(self, username, password):
@@ -257,10 +299,11 @@ class Basic:
         :raises Exception:          if not a dictionary.
         """
         
-        username = None
-        password = None
+        username      = None
+        password      = None
         password_file = None
-        host = None
+        host          = None
+        legacy        = None
         
         common.check_dict(authentication_dict)
         if "host" in authentication_dict:
@@ -271,11 +314,14 @@ class Basic:
             password = common.check_str(authentication_dict.get("password"))
         if "password_file" in authentication_dict:
             password_file = common.check_str(authentication_dict.get("password_file"))
+        if "legacy" in authentication_dict:
+            legacy = common.check_bool(authentication_dict.get("legacy"))
             
         return Basic(host          = host,
                      username      = username,
                      password      = password,
-                     password_file = password_file
+                     password_file = password_file,
+                     legacy        = legacy
                     )
 
     #
@@ -296,6 +342,8 @@ class Basic:
             authentication_dict["password"] = self._password
         if self._password_file is not None:
             authentication_dict["password_file"] = self._password_file
+        if self._legacy is not None:
+            authentication_dict["legacy"] = self._legacy
         return authentication_dict
     
     #
@@ -340,6 +388,8 @@ class OAuth2Return:
     #_refresh_token: str
     #_scope: str
     #_error: str
+    #_expiration: int
+    #_ims_user_id: int
     
     """
     An object to represent the return provided by a Phoenix OAuth2 call.
@@ -356,6 +406,10 @@ class OAuth2Return:
     :type scope:             str
     :param error:            An error message
     :type error:             str
+    :param expiration:       The expiration timestamp (UNIX)
+    :type expiration:        int
+    :param ims_user_id:      IMS User Id
+    :type ims_user_id:       int
     :raises Exception:       if username and password are not present
     """
     
@@ -393,7 +447,9 @@ class OAuth2Return:
                  token_type: str    = None,
                  refresh_token: str = None,
                  scope: str         = None,
-                 error: str         = None
+                 error: str         = None,
+                 expiration: int    = None,
+                 ims_user_id: int   = None
                 ):
         self._access_token  = access_token
         self._expires_in    = expires_in
@@ -401,6 +457,8 @@ class OAuth2Return:
         self._refresh_token = refresh_token
         self._scope         = scope
         self._error         = error
+        self._expiration    = expiration
+        self._ims_user_id   = ims_user_id
         
     #
     def get_access_token(self):
@@ -491,6 +549,36 @@ class OAuth2Return:
 
     #    
     error = property(get_error, set_error, del_error)
+
+    #
+    def get_expiration(self):
+        return self._expiration
+    
+    #
+    def set_expiration(self, expiration):
+        self._expiration = common.check_int(expiration)
+        
+    #    
+    def del_expiration(self): 
+        del self._expiration
+        
+    #    
+    expiration = property(get_expiration, set_expiration, del_expiration)
+    
+    #
+    def get_ims_user_id(self):
+        return self._ims_user_id
+    
+    #
+    def set_ims_user_id(self, ims_user_id):
+        self._ims_user_id = common.check_int(ims_user_id)
+        
+    #    
+    def del_ims_user_id(self): 
+        del self._ims_user_id
+        
+    #    
+    ims_user_id = property(get_ims_user_id, set_ims_user_id, del_ims_user_id)
     
     #
     def from_dict(oauth2_return_dict: Any):
@@ -510,6 +598,8 @@ class OAuth2Return:
         refresh_token = None
         scope         = None
         error         = None
+        expiration    = None
+        ims_user_id   = None
         
         common.check_dict(oauth2_return_dict)
         if "access_token" in oauth2_return_dict:
@@ -530,13 +620,21 @@ class OAuth2Return:
         if "error" in oauth2_return_dict:
             if oauth2_return_dict.get("error") is not None:
                 error = common.check_str(oauth2_return_dict.get("error"))
+        if "expiration" in oauth2_return_dict:
+            if oauth2_return_dict.get("expiration") is not None:
+                expiration = common.check_int(oauth2_return_dict.get("expiration"))
+        if "ims_user_id" in oauth2_return_dict:
+            if oauth2_return_dict.get("ims_user_id") is not None:
+                ims_user_id = common.check_int(oauth2_return_dict.get("ims_user_id"))
             
         return OAuth2Return(access_token  = access_token,
                             expires_in    = expires_in,
                             token_type    = token_type,
                             refresh_token = refresh_token,
                             scope         = scope,
-                            error         = error
+                            error         = error,
+                            expiration    = expiration,
+                            ims_user_id   = ims_user_id
                            )
 
     #
@@ -561,15 +659,19 @@ class OAuth2Return:
             oauth2_return_dict["scope"] = self._scope
         if self._error is not None:
             oauth2_return_dict["error"] = self._error
+        if self._expiration is not None:
+            oauth2_return_dict["expiration"] = self._expiration
+        if self._ims_user_id is not None:
+            oauth2_return_dict["ims_user_id"] = self._ims_user_id
         return oauth2_return_dict
         
     #
     def from_json(oauth2_return_json: Any):
 
         """
-        Create an OAuth2Return object from json (dictonary or str).
+        Create a OAuth2Return object from json (dictonary or str).
         
-        :param oauth2_return_dict: A json dictionary that contains the keys of an OAuth2Return or a string representation of a json dictionary.
+        :param oauth2_return_dict: A json dictionary that contains the keys of a OAuth2Return or a string representation of a json dictionary.
         :type oauth2_return_dict:  Any             
         :rtype:                    ibmpairs.authentication.OAuth2Return
         :raises Exception:         if not a dictionary or a string.
@@ -607,13 +709,16 @@ class OAuth2(object):
     #_client_id: str
     #_endpoint: str
     #_jwt_token: str
-    
     #_oauth2_return: OAuth2Return
+    #_iam_endpoint: str
+    #_org_id: str
+    #_tenant_id: str
+    #_legacy: bool
     
     """
     An object to represent OAuth2 credentials and recovery from a file.
     
-    :param host:         IBM PAIRS host, defaults to https://pairs.res.ibm.com
+    :param host:         IBM PAIRS host
     :type host:          str
     :param username:     IBM PAIRS username
     :type username:      str
@@ -621,12 +726,20 @@ class OAuth2(object):
     :type api_key:       str
     :param api_key_file: IBM PAIRS API key file, defaults to auth/oauth2.txt
     :type api_key_file:  str
-    :param client_id:    A client id for the authentication system, defaults to 'ibm-pairs'.
+    :param client_id:    A client id for the authentication system, defaults to 'ibm-pairs' if legacy.
     :type client_id:     str
     :param endpoint:     The authentication endpoint.
     :type endpoint:      str
     :param jwt_token:    A jwt token for authentication.
     :type jwt_token:     str
+    :param iam_endpoint: IBM Cloud IAM Endpoint
+    :type iam_endpoint:  str
+    :param org_id:       IBM EIS GA API Connect Org Id
+    :type org_id:        str
+    :param tenant_id:    IBM EIS GA API Connect Tenant Id
+    :type tenant_id:     str
+    :param legacy:       IBM EIS GA Legacy Environment selector override
+    :type legacy:        bool
     :returns:            None
     :rtype:              None
     :raises Exception:   if an api key cannot be acquired from the information provided
@@ -676,24 +789,92 @@ class OAuth2(object):
 
     #
     def __init__(self,
-                 host: str         = constants.CLIENT_PAIRS_URL,
+                 host: str         = None,
                  username: str     = None,
                  api_key: str      = None,
                  api_key_file: str = "auth/oauth2.txt",
-                 client_id: str    = "ibm-pairs",
-                 endpoint: str     = "auth-b2b-twc.ibm.com",
+                 client_id: str    = None,
+                 endpoint: str     = None, #"auth-b2b-twc.ibm.com", #"api.ibm.com"
                  jwt_token: str    = None,
+                 iam_endpoint: str = "iam.cloud.ibm.com",
+                 org_id: str       = None, 
+                 tenant_id: str    = None,
+                 legacy: bool      = None
                 ):
-
-        self._host          = common.strip_protocol(host)
+        
+        if legacy is not None:
+            self._legacy = legacy
+        else:
+            self._legacy = GLOBAL_LEGACY_ENVIRONMENT
+        
+        if host is not None:
+            self._host = common.strip_protocol(host)
+        else:
+            if self._legacy is True:
+                self._host = common.strip_protocol(constants.CLIENT_LEGACY_URL)
+            else:
+                self._host = common.strip_protocol(constants.CLIENT_URL)
+        
         self._username      = username
         self._api_key       = api_key
         self._api_key_file  = api_key_file
-        self._client_id     = client_id
-        self._endpoint      = endpoint
+        
+        if self._legacy is True:
+            if client_id is not None:
+                self._client_id = client_id
+            else:
+                self._client_id = 'ibm-pairs'
+            self._tenant_id = tenant_id
+        else:
+            if (client_id is not None) and (tenant_id is not None):
+                msg = messages.INFO_BOTH_CLIENT_ID_AND_TENANT_ID.format(client_id, tenant_id)
+                logger.info(msg)
+                if client_id.startswith('geospatial-'):
+                    msg = messages.INFO_STARTS_WITH_GEOSPATIAL
+                    logger.info(msg)
+                    self._client_id = 'saascore-' + common.get_tenant_id(client_id)
+                else:
+                    self._client_id = client_id
+                self._tenant_id = common.get_tenant_id(client_id)
+            elif (client_id is not None) and (tenant_id is None):
+                if client_id.startswith('geospatial-'):
+                    msg = messages.INFO_STARTS_WITH_GEOSPATIAL
+                    logger.info(msg)
+                    self._client_id = 'saascore-' + common.get_tenant_id(client_id)
+                else:
+                    self._client_id = client_id
+                self._tenant_id = common.get_tenant_id(client_id)
+            elif (client_id is None) and (tenant_id is not None):
+                self._tenant_id = common.get_tenant_id(tenant_id)
+                self._client_id = 'saascore-' + self._tenant_id
+            else:
+                msg = messages.ERROR_NO_CLIENT_OR_TENANT_ID
+                logger.error(msg)
+                raise common.PAWException(msg)
+                
+        if endpoint is not None:
+            self._endpoint = endpoint
+        else:
+            if self._legacy is True:
+                self._endpoint = 'auth-b2b-twc.ibm.com'
+            else:
+                self._endpoint = 'api.ibm.com'
+
         self._jwt_token     = jwt_token
         
         self._oauth2_return = OAuth2Return()
+        
+        self._iam_endpoint  = iam_endpoint
+        
+        if self._legacy is True:
+            self._org_id = org_id
+        else:
+            if org_id is not None:
+                self._org_id = org_id
+            else:
+                msg = messages.ERROR_NO_ORG_ID
+                logger.error(msg)
+                raise common.PAWException(msg)
         
         if ((self._api_key is None) and (self._username is not None)):
             try:
@@ -707,9 +888,11 @@ class OAuth2(object):
         
         if (self._api_key is not None):
             try:
-                self.get_auth_token(api_key   = self._api_key,
-                                    client_id = self._client_id, 
-                                    endpoint  = self._endpoint
+                self.get_auth_token(api_key      = self._api_key,
+                                    client_id    = self._client_id, 
+                                    endpoint     = self._endpoint,
+                                    iam_endpoint = self._iam_endpoint,
+                                    org_id       = self._org_id
                                    )
             except Exception as ex:
                 msg = messages.INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN.format(api_key, ex)
@@ -849,6 +1032,70 @@ class OAuth2(object):
     oauth2_return = property(get_oauth2_return, set_oauth2_return, del_oauth2_return) 
     
     #
+    def get_iam_endpoint(self):
+        return self._iam_endpoint
+    
+    #
+    def get_iam_endpoint(self):
+        return self._iam_endpoint
+    
+    #
+    def set_iam_endpoint(self, iam_endpoint):
+        self._iam_endpoint = common.check_str(iam_endpoint)
+        
+    #    
+    def del_iam_endpoint(self): 
+        del self._iam_endpoint
+        
+    #    
+    iam_endpoint = property(get_iam_endpoint, set_iam_endpoint, del_iam_endpoint)
+    
+    #
+    def get_org_id(self):
+        return self._org_id
+    
+    #
+    def set_org_id(self, org_id):
+        self._org_id = common.check_str(org_id)
+        
+    #    
+    def del_org_id(self): 
+        del self._org_id
+        
+    #    
+    org_id = property(get_org_id, set_org_id, del_org_id)
+    
+    #
+    def get_tenant_id(self):
+        return self._tenant_id
+    
+    #
+    def set_tenant_id(self, tenant_id):
+        self._tenant_id = common.check_str(tenant_id)
+        
+    #    
+    def del_tenant_id(self): 
+        del self._tenant_id
+        
+    #    
+    tenant_id = property(get_tenant_id, set_tenant_id, del_tenant_id)
+    
+    #
+    def get_legacy(self):
+        return self._legacy
+    
+    #
+    def set_legacy(self, legacy):
+        self._legacy = common.check_bool(legacy)
+        
+    #    
+    def del_legacy(self): 
+        del self._legacy
+        
+    #    
+    legacy = property(get_legacy, set_legacy, del_legacy)
+    
+    #
     def set_credentials_from_file(self, 
                                   username, 
                                   api_key_file, 
@@ -876,12 +1123,12 @@ class OAuth2(object):
                         )
     
     #
-    def get_auth_token(self, 
-                       api_key   = None, 
-                       client_id = None, 
-                       endpoint  = None,
-                       verify    = constants.GLOBAL_SSL_VERIFY
-                      ):
+    def phoenix_get_auth_token(self, 
+                               api_key   = None, 
+                               client_id = None, 
+                               endpoint  = None,
+                               verify    = constants.GLOBAL_SSL_VERIFY
+                              ):
         
         """
         The method submits a request to the authentication system and obtains a response.
@@ -892,6 +1139,8 @@ class OAuth2(object):
         :type client_id:  str
         :param endpoint:  The authentication endpoint.
         :type endpoint:   str
+        :param verify:    Verify ssl.
+        :type verify:     boolean
         """
         
         response               = None
@@ -932,7 +1181,7 @@ class OAuth2(object):
             try:
                 response_oauth2_return = oauth2_return_from_dict(response.json())
             except Exception as ex:
-                msg = messages.ERROR_AUTHENTICATION_PHOENIX_RETURN_NOT_OAUTH2RETURN.format("Phoenix GetBearerForClient", response.json(), ex)
+                msg = messages.ERROR_AUTHENTICATION_RETURN_NOT_OAUTH2RETURN.format("Phoenix GetBearerForClient", response.json(), ex)
                 logger.error(msg)
                 raise common.PAWException(msg)
             
@@ -940,21 +1189,25 @@ class OAuth2(object):
                 self.set_jwt_token(response_oauth2_return.access_token)
                 self.set_oauth2_return(response_oauth2_return)
             else:
-                msg = messages.ERROR_AUTHENTICATION_PHOENIX_200_RETURN_ERROR.format("Phoenix GetBearerForClient", response_oauth2_return.error)
+                msg = messages.ERROR_AUTHENTICATION_200_RETURN_ERROR.format("Phoenix GetBearerForClient", response_oauth2_return.error)
                 logger.error(msg)
                 raise common.PAWException(msg)
                 
         else:
-            msg = messages.ERROR_AUTHENTICATION_PHOENIX_NOT_SUCCESSFUL.format("Phoenix GetBearerForClient", str(response))
+            msg = messages.ERROR_AUTHENTICATION_NOT_SUCCESSFUL.format("Phoenix GetBearerForClient", str(response))
             logger.error(msg)
             raise common.PAWException(msg)
 
-    def refresh_auth_token(self,
-                           verify    = constants.GLOBAL_SSL_VERIFY
-                          ):
+    #
+    def phoenix_refresh_auth_token(self,
+                                   verify    = constants.GLOBAL_SSL_VERIFY
+                                  ):
         
         """
         The method submits a request to the authentication system for a refreshed token, gets a response and updates the internal self._oauth2_return and self._jwt_token objects.
+
+        :param verify:       Verify ssl.
+        :type verify:        boolean
         """
         
         msg = messages.INFO_AUTHENTICATION_TOKEN_REFRESH
@@ -989,7 +1242,7 @@ class OAuth2(object):
             try:
                 response_oauth2_return = oauth2_return_from_dict(response.json())
             except:
-                msg = messages.ERROR_AUTHENTICATION_PHOENIX_RETURN_NOT_OAUTH2RETURN.format("/connect/token", response.json())
+                msg = messages.ERROR_AUTHENTICATION_RETURN_NOT_OAUTH2RETURN.format("/connect/token", response.json())
                 logger.error(msg)
                 raise common.PAWException(msg)
             
@@ -999,14 +1252,186 @@ class OAuth2(object):
                 msg = messages.INFO_AUTHENTICATION_TOKEN_REFRESH_SUCCESS
                 logger.info(msg)
             else:
-                msg = messages.ERROR_AUTHENTICATION_PHOENIX_REFRESH_200_RETURN_ERROR.format("/connect/token", response_oauth2_return.error)
+                msg = messages.ERROR_AUTHENTICATION_REFRESH_200_RETURN_ERROR.format("/connect/token", response_oauth2_return.error)
                 logger.error(msg)
                 raise common.PAWException(msg)
                 
         else:
-            msg = messages.ERROR_AUTHENTICATION_PHOENIX_NOT_SUCCESSFUL.format("/connect/token", str(response))
+            msg = messages.ERROR_AUTHENTICATION_NOT_SUCCESSFUL.format("/connect/token", str(response))
             logger.error(msg)
             raise common.PAWException(msg)
+            
+    #
+    def api_connect_get_auth_token(self, 
+                                   api_key      = None, 
+                                   client_id    = None, 
+                                   endpoint     = None,
+                                   verify       = constants.GLOBAL_SSL_VERIFY,
+                                   iam_endpoint = None,
+                                   org_id       = None,
+                                   tenant_id    = None
+                                  ):
+        
+        """
+        The method submits a request to the authentication system and obtains a response.
+        
+        :param api_key:      An api key for the authentication system.
+        :type api_key:       str
+        :param client_id:    A client id for the authentication system.
+        :type client_id:     str
+        :param endpoint:     The authentication endpoint.
+        :type endpoint:      str
+        :param verify:       Verify ssl.
+        :type verify:        boolean
+        :param iam_endpoint: IBM Cloud IAM Endpoint
+        :type iam_endpoint:  str
+        :param org_id:       IBM EIS GA API Connect Org Id
+        :type org_id:        str
+        :param tenant_id:    IBM EIS GA API Connect Tenant Id
+        :type tenant_id:     str
+        """
+
+        response               = None
+        response_oauth2_return = None
+        
+        if api_key is not None:
+            self.set_api_key(api_key)
+        if client_id is not None:
+            self.set_client_id(client_id)
+        if tenant_id is not None:
+            self.set_tenant_id(tenant_id)
+            self.set_client_id('saascore-'+tenant_id)
+        if endpoint is not None:
+            self.set_endpoint(endpoint)
+        if iam_endpoint is not None:
+            self.set_iam_endpoint(iam_endpoint)
+        if org_id is not None:
+            self.set_org_id(org_id)
+
+        if (self._api_key is not None) and (self._client_id is not None) and (self._org_id is not None):
+            
+            iam_request_headers: dict           = {}
+            iam_request_headers["Content-Type"] = "application/x-www-form-urlencoded"
+            
+            body = 'grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey={}'.format(self.get_api_key())
+
+            iam_response = requests.post("https://" + 
+                                             self.get_iam_endpoint() +
+                                             "/identity/token",
+                                         headers = iam_request_headers,
+                                         data    = body,
+                                         verify  = verify
+                                        )
+        else:
+            msg = messages.ERROR_AUTHENTICATION_IAM_NO_API_KEY_OR_CLIENT_ID
+            logger.error(msg)
+            raise common.PAWException(msg)
+            
+        if iam_response.status_code == 200:
+            try:
+                response_oauth2_return = oauth2_return_from_dict(iam_response.json())
+            except Exception as ex:
+                msg = messages.ERROR_AUTHENTICATION_RETURN_NOT_OAUTH2RETURN.format("IBM Cloud IAM", iam_response.json(), ex)
+                logger.error(msg)
+                raise common.PAWException(msg)
+
+            if response_oauth2_return.error is None:
+                self.set_oauth2_return(response_oauth2_return)
+            else:
+                msg = messages.ERROR_AUTHENTICATION_200_RETURN_ERROR.format("IBM Cloud IAM", iam_response.status_code)
+                logger.error(msg)
+                raise common.PAWException(msg)
+                
+            if (self.get_oauth2_return().get_access_token() is not None):
+                
+                request_headers: dict              = {}
+                request_headers["X-IBM-Client-Id"] = self.get_client_id()
+                token = 'Bearer ' + response_oauth2_return.get_access_token()
+                request_headers["Authorization"] = token
+                
+                response = requests.get("https://" + 
+                                            self.get_endpoint() +
+                                            "/saascore/run/authentication-retrieve?orgId=" +
+                                            self.get_org_id(),
+                                        headers = request_headers,
+                                        verify  = verify
+                                       )
+
+                if response.status_code == 200:
+                    self.set_jwt_token(response.text)
+                else:
+                    oauth_error_json = {"error": str(response.json()["httpMessage"]) + ': ' + str(response.json()["moreInformation"])}
+                    self.set_oauth2_return(oauth2_return_from_json(oauth_error_json))
+                    
+                    msg = messages.ERROR_AUTHENTICATION_NOT_SUCCESSFUL_API_CONNECT.format("IBM API Connect", str(response.status_code), self.get_oauth2_return().get_error())
+                    logger.error(msg)
+                    raise common.PAWException(msg)
+
+            else:
+                msg = messages.ERROR_AUTHENTICATION_NO_ACCESS_TOKEN.format("IBM API Connect", self.get_oauth2_return().to_json())
+                logger.error(msg)
+                raise common.PAWException(msg)
+
+        else:
+            oauth_error_json = {"error": str(iam_response.json()["errorCode"]) + ' ' + str(iam_response.json()["errorMessage"])}
+            self.set_oauth2_return(oauth2_return_from_json(oauth_error_json))
+            
+            msg = messages.ERROR_AUTHENTICATION_NOT_SUCCESSFUL_API_CONNECT.format("IBM Cloud IAM", str(iam_response.status_code), self.get_oauth2_return().get_error())
+            logger.error(msg)
+            raise common.PAWException(msg)
+
+    #
+    def api_connect_refresh_auth_token(self,
+                                       verify = constants.GLOBAL_SSL_VERIFY
+                                      ):
+        
+        """
+        The method performs a new api_connect_get_auth_token.
+
+        :param verify:       Verify ssl.
+        :type verify:        boolean
+        """
+        
+        self.api_connect_get_auth_token()
+        
+    #
+    def get_auth_token(self, 
+                       api_key      = None, 
+                       client_id    = None,
+                       endpoint     = None,
+                       verify       = constants.GLOBAL_SSL_VERIFY,
+                       iam_endpoint = None,
+                       org_id       = None,
+                       tenant_id    = None
+                      ):
+        
+        if self._legacy is True:
+            logger.info("Legacy Environment is True")
+            self.phoenix_get_auth_token(api_key   = api_key, 
+                                        client_id = client_id, 
+                                        endpoint  = endpoint,
+                                        verify    = verify
+                                       )
+        else:
+            logger.info("Legacy Environment is False")
+            self.api_connect_get_auth_token(api_key      = api_key, 
+                                            client_id    = client_id,
+                                            endpoint     = endpoint,
+                                            verify       = verify,
+                                            iam_endpoint = iam_endpoint,
+                                            org_id       = org_id,
+                                            tenant_id    = tenant_id
+                                           )
+            
+    #
+    def refresh_auth_token(self,
+                           verify = constants.GLOBAL_SSL_VERIFY
+                          ):
+        
+        if self._legacy is True:
+            self.phoenix_refresh_auth_token()
+        else:
+            self.api_connect_refresh_auth_token()
     
     #
     def from_dict(authentication_dict: Any):
@@ -1027,6 +1452,10 @@ class OAuth2(object):
         client_id    = None
         endpoint     = None
         jwt_token    = None
+        iam_endpoint = None
+        org_id       = None
+        tenant_id    = None
+        legacy       = None
         
         common.check_dict(authentication_dict)
         if "host" in authentication_dict:
@@ -1050,6 +1479,24 @@ class OAuth2(object):
         if "jwt_token" in authentication_dict:
             if authentication_dict.get("jwt_token") is not None:
                 jwt_token = common.check_str(authentication_dict.get("jwt_token"))
+        if "iam_endpoint" in authentication_dict:
+            if authentication_dict.get("iam_endpoint") is not None:
+                iam_endpoint = common.check_str(authentication_dict.get("iam_endpoint"))
+        if "orgId" in authentication_dict:
+            if authentication_dict.get("orgId") is not None:
+                org_id = common.check_str(authentication_dict.get("orgId"))
+        elif "org_id" in authentication_dict:
+            if authentication_dict.get("org_id") is not None:
+                org_id = common.check_str(authentication_dict.get("org_id"))
+        if "tenantId" in authentication_dict:
+            if authentication_dict.get("tenantId") is not None:
+                tenant_id = common.check_str(authentication_dict.get("tenantId"))
+        elif "tenant_id" in authentication_dict:
+            if authentication_dict.get("tenant_id") is not None:
+                tenant_id = common.check_str(authentication_dict.get("tenant_id"))
+        if "legacy" in authentication_dict:
+            if authentication_dict.get("legacy") is not None:
+                legacy = common.check_str(authentication_dict.get("legacy"))
             
         return OAuth2(host,
                       username,
@@ -1057,7 +1504,11 @@ class OAuth2(object):
                       api_key_file,
                       client_id,
                       endpoint,
-                      jwt_token
+                      jwt_token,
+                      iam_endpoint,
+                      org_id,
+                      tenant_id,
+                      legacy
                      )
 
     #
@@ -1086,6 +1537,14 @@ class OAuth2(object):
             authentication_dict["jwt_token"] = self._jwt_token
         if self._oauth2_return is not None:
             authentication_dict["oauth2_return"] = common.class_to_dict(self._oauth2_return, OAuth2Return)
+        if self._iam_endpoint is not None:
+            authentication_dict["iam_endpoint"] = self._iam_endpoint
+        if self._org_id is not None:
+            authentication_dict["org_id"] = self._org_id
+        if self._tenant_id is not None:
+            authentication_dict["tenant_id"] = self._tenant_id
+        if self._legacy is not None:
+            authentication_dict["legacy"] = self._legacy
         return authentication_dict
     
     #
@@ -1094,7 +1553,7 @@ class OAuth2(object):
         """
         Create an OAuth2 object from json (dictonary or str).
         
-        :param oauth2_dict: A json dictionary that contains the keys of an OAuth2 or a string representation of a json dictionary.
+        :param oauth2_dict: A json dictionary that contains the keys of a OAuth2 or a string representation of a json dictionary.
         :type oauth2_dict:  Any             
         :rtype:             ibmpairs.authentication.OAuth2
         :raises Exception:  if not a dictionary or a string.
