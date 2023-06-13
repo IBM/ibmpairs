@@ -9,10 +9,16 @@ SPDX-License-Identifier: BSD-3-Clause
 import os
 
 # global
-PAW_LOG_LEVEL              = os.environ.get('PAW_LOG_LEVEL', 'INFO')
-GLOBAL_JSON_REPR_INDENT    = int(os.environ.get('GLOBAL_JSON_REPR_INDENT', 4))
-GLOBAL_JSON_REPR_SORT_KEYS = os.environ.get('GLOBAL_JSON_REPR_SORT_KEYS', True)
-GLOBAL_SSL_VERIFY          = True
+GLOBAL_LEGACY_ENVIRONMENT     = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "True")
+if GLOBAL_LEGACY_ENVIRONMENT.lower() in ('true', 't', 'yes', 'y', '1', 'on'):
+	GLOBAL_LEGACY_ENVIRONMENT = True
+else:
+	GLOBAL_LEGACY_ENVIRONMENT = False
+
+PAW_LOG_LEVEL                 = os.environ.get('PAW_LOG_LEVEL', 'INFO')
+GLOBAL_JSON_REPR_INDENT       = int(os.environ.get('GLOBAL_JSON_REPR_INDENT', 4))
+GLOBAL_JSON_REPR_SORT_KEYS    = os.environ.get('GLOBAL_JSON_REPR_SORT_KEYS', True)
+GLOBAL_SSL_VERIFY             = True
 
 # catalog
 CATALOG_DATA_SETS_API                   = '/v2/datasets/'
@@ -30,7 +36,8 @@ CATALOG_DATA_LAYER_DIMENSION_VALUES_API = '/v2/datalayer_dimension_values/'
 CATALOG_DATA_LAYER_PROPERTIES_API       = '/v2/datalayer_properties/'
 
 # client
-CLIENT_PAIRS_URL                 = os.environ.get('CLIENT_PAIRS_URL', 'https://pairs.res.ibm.com')
+CLIENT_URL                       = os.environ.get('CLIENT_URL', 'https://api.ibm.com/geospatial/run/na/pairs-query')
+CLIENT_LEGACY_URL                = os.environ.get('CLIENT_LEGACY_URL', 'https://pairs.res.ibm.com')
 CLIENT_JSON_HEADER               = {"Content-Type": "application/json"}
 CLIENT_PUT_AND_POST_HEADER       = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 CLIENT_PUT_AND_POST_HEADER_CSV   = {'Accept': 'text/csv'}
@@ -46,6 +53,7 @@ UPLOAD_DEFAULT_WORKERS         = int(os.environ.get('UPLOAD_DEFAULT_WORKERS', 1)
 UPLOAD_MAX_WORKERS             = int(os.environ.get('UPLOAD_MAX_WORKERS', 8))
 UPLOAD_MIN_STATUS_INTERVAL     = int(os.environ.get('UPLOAD_MIN_STATUS_INTERVAL', 30))
 UPLOAD_STATUS_CHECK_INTERVAL   = int(os.environ.get('UPLOAD_STATUS_CHECK_INTERVAL', 60))
+UPLOAD_WORKER_DEBUG            = os.environ.get('UPLOAD_WORKER_DEBUG', "False")
 UPLOAD_WORKER_DEBUG            = False
 
 # woc
@@ -53,11 +61,11 @@ EIS_V2_API_URL                 = os.environ.get('EIS_V2_API_URL', 'https://found
 EIS_REGISTER_QUERY_URL         = EIS_V2_API_URL + '/layer/analytics/metadata'
 
 # phoenix
-PHOENIX_V1_API_URL             =  os.environ.get('PHOENIX_V1_API_URL', 'https://api.auth-b2b-twc.ibm.com/api/v1')
+PHOENIX_V1_API_URL             = os.environ.get('PHOENIX_V1_API_URL', 'https://api.auth-b2b-twc.ibm.com/api/v1')
 PHOENIX_ADD_DASHBOARD_LAYER    = PHOENIX_V1_API_URL  + '/IMAP/put-layer-config-block'
 
 #query
-QUERY_API                      = '/v2/query/'
+QUERY_API                      = '/v2/query'
 QUERY_JOBS_API                 = '/v2/queryjobs/'
 QUERY_JOBS_DOWNLOAD_API        = '/v2/queryjobs/download/'
 QUERY_JOBS_API_MERGE           = '/merge/'
@@ -66,11 +74,12 @@ QUERY_DEFAULT_WORKERS          = int(os.environ.get('QUERY_DEFAULT_WORKERS', 1))
 QUERY_MAX_WORKERS              = int(os.environ.get('QUERY_MAX_WORKERS', 8))
 QUERY_MIN_STATUS_INTERVAL      = int(os.environ.get('QUERY_MIN_STATUS_INTERVAL', 15))
 QUERY_STATUS_CHECK_INTERVAL    = int(os.environ.get('QUERY_STATUS_CHECK_INTERVAL', 30))
-QUERY_WORKER_DEBUG             = False
 QUERY_STATUS_RUNNING_CODES     = [0, 1, 10, 11, 12]
 QUERY_STATUS_SUCCESS_CODES     = [20]
 QUERY_STATUS_FAILURE_CODES     = [21, 30, 31, 40, 41]
 QUERY_DOWNLOAD_DEFAULT_FOLDER  = 'download'
+QUERY_WORKER_DEBUG             = os.environ.get('QUERY_WORKER_DEBUG', "False")
+QUERY_WORKER_DEBUG             = False
 
 #
 IBM_CLOUD_OBJECT_STORE_CONTROL_URL = 'control.cloud-object-storage.cloud.ibm.com'

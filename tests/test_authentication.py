@@ -103,9 +103,13 @@ class BasicUnitTest(unittest.TestCase):
             got_exception = True
             
         self.assertTrue(got_exception)
+        
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
 
 def mocked_requests_post(*args, **kwargs):
-
     url           = args[0]
     input_headers = None
     input_data    = None
@@ -116,15 +120,19 @@ def mocked_requests_post(*args, **kwargs):
     
     if kwargs.get("headers") is not None:
         input_headers = kwargs["headers"]
-    
+
     if kwargs.get("data") is not None:
+
         input_data = kwargs["data"]
-        
+
         if (url == 'https://auth-b2b-twc.ibm.com/Auth/GetBearerForClient'):
             input_data_dict = json.loads(input_data)
             
             if input_data_dict.get("apiKey") is not None:
                 api_key = input_data_dict["apiKey"]
+        
+            if input_data_dict.get("api_key") is not None:
+                api_key = input_data_dict["api_key"]
                 
             if input_data_dict.get("clientId") is not None:
                 client_id = input_data_dict["clientId"]
@@ -144,8 +152,6 @@ def mocked_requests_post(*args, **kwargs):
             grant_type    = split[1]
             client_id     = split[3]
             refresh_token = split[5]
-        else:
-            input_data_dict = input_data
     
     class MockResponse:
         def __init__(self, json_data, status_code):
@@ -187,9 +193,61 @@ def mocked_requests_post(*args, **kwargs):
             else:
                 return MockResponse({"error":"invalid_grant"}, 200)
         else:
-            return MockResponse({"error": "unsupported_grant_type"}, 200)
+            return MockResponse({"error":"unsupported_grant_type"}, 200)
+    elif (url == 'https://iam.cloud.ibm.com/identity/token'):
 
+        iam_api_key = remove_prefix(input_data, "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=")
+        
+        if (iam_api_key == 'thisisnotanapikey'):
+            return_dict = {}
+            return_dict["access_token"]  = "thisisnotanaccesstoken"
+            return_dict["expiration"]    = 1000000000
+            return_dict["expires_in"]    = 3600
+            return_dict["token_type"]    = "Bearer"
+            return_dict["refresh_token"] = "not_supported"
+            return_dict["scope"]         = "xxx xxx"
+        
+            return MockResponse(return_dict, 200)
+        else:
+            return_dict = {}
+            return_dict["errorCode"]  = "BXNIM0415E"
+            return_dict["errorCode"]  = "Provided API key could not be found."
+            context_dict = {}
+            context_dict["requestId"]  = "XXXXXX-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            context_dict["requestType"]  = "incoming.Identity_Token"
+            context_dict["userAgent"]  = "python-requests/2.28.1"
+            context_dict["url"]  = "https://iam.cloud.ibm.com"
+            context_dict["instanceId"]  = "XXXXX-XXXXX-XXXXX-XXXXX"
+            context_dict["threadId"]  = "XXXXXX"
+            context_dict["host"]  = "XXXXX-XXXXX-XXXXX-XXXXX"
+            context_dict["startTime"]  = "01.01.1970 00:00:00:000 GMT"
+            context_dict["elapsedTime"]  = "0"
+            context_dict["locale"]  = "en_US"
+            context_dict["clusterName"]  = "XXXXX-XXXXX-XXXXX-XXXXX"
+            return_dict["context"] = context_dict
+            
+            return MockResponse(return_dict, 500)
+        
     return MockResponse(None, 404)
+
+def mocked_requests_get(*args, **kwargs):
+
+    url = args[0]
+    
+    class MockResponse:
+        def __init__(self, json_data, status_code):
+            self.text = json_data
+            self.status_code = status_code
+            
+        def json(self):
+            return self.json_data
+    
+    if (url == 'https://api.ibm.com/saascore/run/authentication-retrieve?orgId=thisisnotanorgid'):
+        return MockResponse("thisisnotanaccesstoken", 200)
+    elif (url == 'https://api.ibm.com/saascore/run/authentication-retrieve?orgId=2'):
+        return MockResponse({"httpCode":"500","httpMessage":"External Dependency (process-guut-response)","moreInformation":"Unable to retrieve organization. Status code: 404. myOrganizationMembershipInfoByOrganization.body: {\"errors\":[\"404 NOT_FOUND \\\"No existing organization with this ID 3418fa7d-b57a-4666-8cf0-0a27c271dfcc.\\\"\"]}"}, 500)
+    elif (url == 'https://api.ibm.com/saascore/run/authentication-retrieve?orgId=3'):
+        return MockResponse({"httpCode":"401","httpMessage":"Unauthorized","moreInformation":"Invalid client id or secret."}, 401)
 
 class OAuth2ReturnUnitTest(unittest.TestCase):
     
@@ -283,8 +341,12 @@ class OAuth2UnitTest(unittest.TestCase):
             oauth2.api_key      = "thisisnotanapikey"
             oauth2.api_key_file = "auth/oauth2.txt"
             oauth2.client_id    = "ibm-pairs"
+            oauth2.tenant_id    = "thisisnotatenantid"
+            oauth2.org_id       = "thisisnotanorgid"
             oauth2.endpoint     = "auth-b2b-twc.ibm.com"
+            oauth2.iam_endpoint = "iam.cloud.ibm.com"
             oauth2.jwt_token    = "thisisnotajwttoken"
+            oauth2.legacy       = False
         except Exception as ex:
             got_exception = True
         
@@ -295,8 +357,12 @@ class OAuth2UnitTest(unittest.TestCase):
         cwd = os.getcwd()
         self.assertEqual(oauth2.api_key_file, cwd + "/auth/oauth2.txt")
         self.assertEqual(oauth2.client_id, "ibm-pairs")
+        self.assertEqual(oauth2.tenant_id, "thisisnotatenantid")
+        self.assertEqual(oauth2.org_id, "thisisnotanorgid")
         self.assertEqual(oauth2.endpoint, "auth-b2b-twc.ibm.com")
+        self.assertEqual(oauth2.iam_endpoint, "iam.cloud.ibm.com")
         self.assertEqual(oauth2.jwt_token, "thisisnotajwttoken")
+        self.assertEqual(oauth2.legacy, False)
         
         self.logger.info('test_oauth2_init: file find api_key')
         
@@ -478,6 +544,189 @@ class OAuth2UnitTest(unittest.TestCase):
             got_exception = True
 
         self.assertTrue(got_exception)
+        
+    @mock.patch('requests.get', 
+                side_effect=mocked_requests_get
+               )
+    @mock.patch('requests.post', 
+                side_effect=mocked_requests_post
+               )
+    def test_get_api_connect_auth_token(self, mock_post, mock_get):
+        
+        #
+        self.logger.info('test_get_api_connect_auth_token')
+        
+        self.logger.info('test_get_api_connect_auth_token: 200, success')
+        
+        got_exception = False
+        
+        try:
+            credentials_api_connect = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                                            tenant_id = 'thisisnotatenantid',
+                                                            org_id = 'thisisnotanorgid',
+                                                            legacy = False
+                                                           )
+            
+            credentials_api_connect.get_auth_token(api_key = 'thisisnotanapikey',
+                                                   tenant_id = 'thisisnotatenantid',
+                                                   org_id = 'thisisnotanorgid'
+                                              )
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertFalse(got_exception)
+        
+        self.assertEqual(credentials_api_connect.client_id, "saascore-thisisnotatenantid")
+        self.assertEqual(credentials_api_connect.tenant_id, "thisisnotatenantid")
+        self.assertEqual(credentials_api_connect.org_id, "thisisnotanorgid")
+        self.assertEqual(credentials_api_connect.endpoint, "api.ibm.com")
+        self.assertEqual(credentials_api_connect.host, "api.ibm.com/geospatial/run/na/pairs-query")
+        self.assertEqual(credentials_api_connect.iam_endpoint, "iam.cloud.ibm.com")
+        self.assertEqual(credentials_api_connect.legacy, False)
+        
+        self.assertEqual(credentials_api_connect.jwt_token, "thisisnotanaccesstoken")
+        self.assertEqual(credentials_api_connect.oauth2_return.access_token, "thisisnotanaccesstoken")
+        self.assertEqual(credentials_api_connect.oauth2_return.expiration, 1000000000)
+        self.assertEqual(credentials_api_connect.oauth2_return.expires_in, 3600)
+        self.assertEqual(credentials_api_connect.oauth2_return.token_type, "Bearer")
+        self.assertEqual(credentials_api_connect.oauth2_return.refresh_token, "not_supported")
+        self.assertEqual(credentials_api_connect.oauth2_return.scope, "xxx xxx")
+        
+        #
+        self.logger.info('test_get_api_connect_auth_token: 200, invalid_grant')
+        
+        got_exception = False
+        try:
+            credentials_api_connect.get_auth_token(api_key = 'incorrect_key',
+                                                   tenant_id = 'thisisnotatenantid',
+                                                   org_id = 'thisisnotanorgid',
+                                                   legacy = False
+                                                  )
+            self.assertEqual(credentials_api_connect.oauth2_return.error, "BXNIM0415E Provided API key could not be found.")
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertTrue(got_exception)
+        
+        #
+        self.logger.info('test_get_api_connect_auth_token: 200, wrong client id')
+        
+        got_exception = False
+        try:
+            credentials_api_connect.client_id = 'wrong-client-id'
+            credentials_api_connect.get_auth_token(api_key = 'thisisnotanapikey')
+            self.assertEqual(credentials_api_connect.oauth2_return.error, "Unauthorized: Invalid client id or secret.")
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertTrue(got_exception)
+        
+        credentials_api_connect.client_id = 'saascore-thisisnotatenantid'
+        
+        #
+        self.logger.info('test_get_api_connect_auth_token: 404, wrong endpoint')
+        
+        got_exception = False
+        try:
+            credentials_api_connect.endpoint = 'wrong.end.point'
+            credentials_api_connect.get_auth_token(api_key = 'thisisnotanapikey')
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertTrue(got_exception)
+        
+        credentials_api_connect.endpoint = 'api.ibm.com'
+    '''
+    @mock.patch('requests.get', 
+                side_effect=mocked_requests_get
+               )
+    @mock.patch('requests.post', 
+                side_effect=mocked_requests_post
+               )
+    def test_get_api_connect_refresh_token(self, mock_post):
+        
+        #
+        self.logger.info('test_get_api_connect_refresh_token')
+        
+        self.logger.info('test_get_api_connect_refresh_token: 200, success')
+        
+        got_exception = False
+        try:
+            credentials_api_connect = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                                            tenant_id = 'thisisnotatenantid',
+                                                            org_id = 'thisisnotanorgid',
+                                                            legacy = False
+                                                           )
+            credentials_api_connect.refresh_auth_token()
+        except:
+           got_exception = True
+            
+        self.assertFalse(got_exception)
+        
+        self.assertEqual(credentials_api_connect.client_id, "saascore-thisisnotatenantid")
+        self.assertEqual(credentials_api_connect.tenant_id, "thisisnotatenantid")
+        self.assertEqual(credentials_api_connect.org_id, "thisisnotanorgid")
+        self.assertEqual(credentials_api_connect.endpoint, "api.ibm.com")
+        self.assertEqual(credentials_api_connect.host, "api.ibm.com/geospatial/run/na/pairs-query")
+        self.assertEqual(credentials_api_connect.iam_endpoint, "iam.cloud.ibm.com")
+        self.assertEqual(credentials_api_connect.legacy, False)
+        
+        self.assertEqual(credentials_api_connect.jwt_token, "thisisnotanewaccesstoken")
+        self.assertEqual(credentials_api_connect.oauth2_return.access_token, "thisisnotanewaccesstoken")
+        self.assertEqual(credentials_api_connect.oauth2_return.expiration, 1000000000)
+        self.assertEqual(credentials_api_connect.oauth2_return.expires_in, 3600)
+        self.assertEqual(credentials_api_connect.oauth2_return.token_type, "Bearer")
+        self.assertEqual(credentials_api_connect.oauth2_return.refresh_token, "not_supported")
+        self.assertEqual(credentials_api_connect.oauth2_return.scope, "xxx xxx")
+        
+        #
+        self.logger.info('test_get_api_connect_refresh_token: 200, invalid_grant')
+        
+        credentials_api_connect = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                                        tenant_id = 'thisisnotatenantid',
+                                                        org_id = 'thisisnotanorgid',
+                                                        legacy = False
+                                                       )
+        
+        got_exception = False
+        try:
+            credentials_api_connect.oauth2_return.refresh_token = "wrong-refresh-token"
+            credentials_api_connect.refresh_auth_token()
+            self.assertEqual(credentials_api_connect.oauth2_return.error, "BXNIM0415E Provided API key could not be found.")
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertTrue(got_exception)
+        
+        #
+        self.logger.info('test_get_api_connect_refresh_token: 200, wrong client id')
+        
+        credentials = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        
+        got_exception = False
+        try:
+            credentials_api_connect.client_id = 'wrong-client-id'
+            credentials_api_connect.refresh_auth_token()
+            self.assertEqual(credentials_api_connect.oauth2_return.error, "Unauthorized: Invalid client id or secret.")
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertTrue(got_exception)
+        
+        #
+        self.logger.info('test_get_api_connect_refresh_token: 404, wrong endpoint')
+        
+        credentials_api_connect = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        
+        got_exception = False
+        try:
+            credentials_api_connect.endpoint = 'wrong.end.point'
+            credentials_api_connect.refresh_auth_token()
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertTrue(got_exception)
+    '''
         
     def test_from_dict(self):
         
@@ -778,3 +1027,4 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
             got_exception = True
 
         self.assertFalse(got_exception)
+        

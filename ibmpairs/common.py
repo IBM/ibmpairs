@@ -442,3 +442,28 @@ def ensure_protocol(host: str):
             return "http://" + strip_protocol(host)
         else:
             return "https://" + strip_protocol(host)
+
+#
+def get_tenant_id(client_id: str):
+    
+    """
+    Gets tenant id from client_id with 'saascore-', 'geospatial-' prefixes or without.
+
+    :param client_id: A client id for the authentication system.
+    :type client_id:  str
+    :returns:         The tenant id.
+    :rtype:           str
+    """ 
+    
+    tenant_id: str = None
+    
+    if client_id is not None:
+        tenant_id = client_id
+        if client_id.startswith('saascore-'):
+            tenant_id = client_id[9:len(client_id)]
+        elif client_id.startswith('geospatial-'):
+            tenant_id = client_id[11:len(client_id)]
+            
+        return tenant_id
+    else:
+        return None

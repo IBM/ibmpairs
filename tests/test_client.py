@@ -334,7 +334,7 @@ class ClientUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-           client = cl.Client(authentication = oauth2)
+            client = cl.Client(authentication = oauth2)
         except Exception as ex:
             got_exception = True
         
