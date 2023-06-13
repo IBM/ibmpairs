@@ -6165,7 +6165,7 @@ class Query:
             poll       = False
             incomplete = False
             
-    #    
+    #
     async def async_download(self,
                              query,
                              client: cl.Client    = None,
