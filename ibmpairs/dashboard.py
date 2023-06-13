@@ -9,6 +9,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 # fold: Import Python Standard Library {{{
 # Python Standard Library:
+import os
 from datetime import datetime
 import json
 import re
@@ -26,6 +27,12 @@ from ibmpairs.logger import logger
 # fold: Import Third Party Libraries {{{
 # Third Party Libraries:
 #}}}
+
+GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "True")
+if GLOBAL_LEGACY_ENVIRONMENT.lower() in ('true', 't', 'yes', 'y'):
+  GLOBAL_LEGACY_ENVIRONMENT  = True
+else:
+  GLOBAL_LEGACY_ENVIRONMENT  = False
 
 class QueryRegistrationReturn:
     #_analytics_uuid: str
@@ -200,7 +207,8 @@ class QueryRegistrationReturn:
 def register_query(query,
                    query_name: str,
                    client: client_module.Client = None,
-                   host: str                    = None
+                   host: str                    = None,
+                   legacy: bool                 = None
                   ):
                     
     """
@@ -221,6 +229,9 @@ def register_query(query,
                          if response is not 200, 
                          if object conversions fail.
     """        
+  
+    if legacy is None:
+        legacy = GLOBAL_LEGACY_ENVIRONMENT
                     
     if (host is None):
         host = constants.EIS_REGISTER_QUERY_URL
@@ -272,8 +283,10 @@ def register_query(query,
     except Exception as ex:
         raise ex
     finally:
-        # set client back to pointing at PAIRS
-        client.set_host(constants.CLIENT_PAIRS_URL)
+        if legacy is True:
+          client.set_host = common.ensure_protocol(constants.CLIENT_LEGACY_URL)
+        else:
+          client.set_host = common.ensure_protocol(constants.CLIENT_URL)
 
 
 def add_dashboard_layer(query_registration: QueryRegistrationReturn,
@@ -295,7 +308,8 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
                                             'extendMinimumColor': False,
                                             'extendMaximumColor': True,
                                             'invalidDataValue': -9999
-                                           }
+                                           },
+                        legacy: bool                 = None
                         ):
     
     """
@@ -316,6 +330,9 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
     :raises Exception:         If no client is provided or found Globally in the environment, 
                                if response is not 200.
     """ 
+  
+    if legacy is None:
+        legacy = GLOBAL_LEGACY_ENVIRONMENT
 
     if (headers is None):
         headers = constants.CLIENT_JSON_HEADER
@@ -366,6 +383,9 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
     except Exception as ex:
         raise ex
     finally:
-        # set client back to pointing at PAIRS
-        client.set_host(constants.CLIENT_PAIRS_URL)
+        if legacy is True:
+            client.set_host = common.ensure_protocol(constants.CLIENT_LEGACY_URL)
+        else:
+            client.set_host = common.ensure_protocol(constants.CLIENT_URL)
 
+      
