@@ -6488,7 +6488,7 @@ class DataLayerUnitTest(unittest.TestCase):
                                              data_layer_group = None)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request call to /v2/datasets/2/datalayers failed with status code: 404, message: Error: 404 Not Found.")
+            self.assertEqual(str(ex), "The POST request call to /datasets/2/datalayers failed with status code: 404, message: Error: 404 Not Found.")
             got_exception2 = True
             
         self.assertTrue(got_exception2)
@@ -8223,4 +8223,3 @@ class DataLayersUnitTest(unittest.TestCase):
             got_exception5 = True
 
         self.assertTrue(got_exception5)
-        
