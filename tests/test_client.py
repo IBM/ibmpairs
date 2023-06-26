@@ -296,7 +296,7 @@ class ClientUnitTest(unittest.TestCase):
             got_exception = True
         
         self.assertFalse(got_exception)
-        self.assertEqual(client.host, "https://pairs.res.ibm.com")
+        self.assertEqual(client.host, "https://pairs.res.ibm.com/v2")
         self.assertEqual(client.headers, constants.CLIENT_JSON_HEADER)
         self.assertEqual(client.authentication.api_key, "thisisnotanapikey")
         self.assertEqual(client.authentication.jwt_token, "thisisnotanaccesstoken")

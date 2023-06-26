@@ -260,9 +260,9 @@ class Client:
                 self._host = common.ensure_protocol(self._authentication.host)
             else:
                 if self._legacy is True:
-                    self._host = common.ensure_protocol(constants.CLIENT_LEGACY_URL)
+                    self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
                 else:
-                    self._host = common.ensure_protocol(constants.CLIENT_URL)
+                    self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL))
                     
             logger.info("HOST: " + self._host)
             

@@ -54,22 +54,22 @@ class BasicUnitTest(unittest.TestCase):
         self.assertEqual(basic.password, "thisisnotapassword")
         cwd = os.getcwd()
         self.assertEqual(basic.password_file, cwd + "/auth/basic.txt")
-        
+
         self.logger.info('test_basic_init: file find password')
-        
+
         self.logger.info('writing \'basic-unittest.txt\'')
         f = open("basic-unittest.txt", "a")
         f.write("pairs.res.ibm.com:email@domain.com:thisisnotapassword")
         f.close()
-        
+
         credentials2 = None
-        
+
         try:
             credentials2 = authentication.Basic(password_file = 'basic-unittest.txt',
                                                 username      = 'email@domain.com')
         except Exception as ex:
             got_exception = True
-            
+
         self.assertFalse(got_exception)
         self.assertEqual(credentials2.username, "email@domain.com")
         self.assertEqual(credentials2.password, "thisisnotapassword")
@@ -373,11 +373,11 @@ class OAuth2UnitTest(unittest.TestCase):
         
         credentials2 = None
         
-        try:
-            credentials2 = authentication.OAuth2(api_key_file = 'oauth2-unittest.txt',
+        #try:
+        credentials2 = authentication.OAuth2(api_key_file = 'oauth2-unittest.txt',
                                                 username     = 'email@domain.com')
-        except Exception as ex:
-            got_exception = True
+        #except Exception as ex:
+        #    got_exception = True
             
         self.assertFalse(got_exception)
         self.assertEqual(credentials2.jwt_token, "thisisnotanaccesstoken")
@@ -580,7 +580,7 @@ class OAuth2UnitTest(unittest.TestCase):
         self.assertEqual(credentials_api_connect.tenant_id, "thisisnotatenantid")
         self.assertEqual(credentials_api_connect.org_id, "thisisnotanorgid")
         self.assertEqual(credentials_api_connect.endpoint, "api.ibm.com")
-        self.assertEqual(credentials_api_connect.host, "api.ibm.com/geospatial/run/na/pairs-query")
+        self.assertEqual(credentials_api_connect.host, "api.ibm.com/geospatial/run/na/core/v3")
         self.assertEqual(credentials_api_connect.iam_endpoint, "iam.cloud.ibm.com")
         self.assertEqual(credentials_api_connect.legacy, False)
         
