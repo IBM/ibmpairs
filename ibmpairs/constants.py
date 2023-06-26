@@ -21,23 +21,23 @@ GLOBAL_JSON_REPR_SORT_KEYS    = os.environ.get('GLOBAL_JSON_REPR_SORT_KEYS', Tru
 GLOBAL_SSL_VERIFY             = True
 
 # catalog
-CATALOG_DATA_SETS_API                   = '/v2/datasets/'
-CATALOG_DATA_SETS_API_FULL              = '/v2/datasets/full'
+CATALOG_DATA_SETS_API                   = '/datasets/'
+CATALOG_DATA_SETS_API_FULL              = '/datasets/full'
 CATALOG_DATA_SETS_LAYERS_API            = '/datalayers'
 
-CATALOG_DATA_LAYERS_API                 = '/v2/datalayers/'
-CATALOG_DATA_LAYERS_API_FULL            = '/v2/datalayers/full'
+CATALOG_DATA_LAYERS_API                 = '/datalayers/'
+CATALOG_DATA_LAYERS_API_FULL            = '/datalayers/full'
 CATALOG_DATA_LAYERS_API_PROPERTIES      = '/datalayer_properties'
 CATALOG_DATA_LAYERS_API_DIMENSIONS      = '/datalayer_dimensions'
 
-CATALOG_DATA_LAYER_DIMENSIONS_API       = '/v2/datalayer_dimensions/'
-CATALOG_DATA_LAYER_DIMENSION_VALUES_API = '/v2/datalayer_dimension_values/'
+CATALOG_DATA_LAYER_DIMENSIONS_API       = '/datalayer_dimensions/'
+CATALOG_DATA_LAYER_DIMENSION_VALUES_API = '/datalayer_dimension_values/'
 
-CATALOG_DATA_LAYER_PROPERTIES_API       = '/v2/datalayer_properties/'
+CATALOG_DATA_LAYER_PROPERTIES_API       = '/datalayer_properties/'
 
 # client
-CLIENT_URL                       = os.environ.get('CLIENT_URL', 'https://api.ibm.com/geospatial/run/na/pairs-query')
-CLIENT_LEGACY_URL                = os.environ.get('CLIENT_LEGACY_URL', 'https://pairs.res.ibm.com')
+CLIENT_URL                       = os.environ.get('CLIENT_URL', 'https://api.ibm.com/geospatial/run/na/core/v3')
+CLIENT_LEGACY_URL                = os.environ.get('CLIENT_LEGACY_URL', 'https://pairs.res.ibm.com/v2')
 CLIENT_JSON_HEADER               = {"Content-Type": "application/json"}
 CLIENT_PUT_AND_POST_HEADER       = {'Content-Type': 'application/json', 'Accept': 'application/json'}
 CLIENT_PUT_AND_POST_HEADER_CSV   = {'Accept': 'text/csv'}
@@ -45,8 +45,8 @@ CLIENT_GET_DEFAULT_RESPONSE_TYPE = 'json'
 CLIENT_TOKEN_REFRESH_MESSAGE     = 'claim expired'
 CLIENT_TIMEOUT                   = os.environ.get('CLIENT_TIMEOUT', 3600)
 
-UPLOAD_API                     = '/v2/uploader/upload'
-UPLOAD_STATUS_API              = '/v2/uploader/upload/'
+UPLOAD_API                     = '/uploader/upload'
+UPLOAD_STATUS_API              = '/uploader/upload/'
 UPLOAD_METADATA_FILE_EXTENTION = '.meta.json'
 
 UPLOAD_DEFAULT_WORKERS         = int(os.environ.get('UPLOAD_DEFAULT_WORKERS', 1))
@@ -65,9 +65,9 @@ PHOENIX_V1_API_URL             = os.environ.get('PHOENIX_V1_API_URL', 'https://a
 PHOENIX_ADD_DASHBOARD_LAYER    = PHOENIX_V1_API_URL  + '/IMAP/put-layer-config-block'
 
 #query
-QUERY_API                      = '/v2/query'
-QUERY_JOBS_API                 = '/v2/queryjobs/'
-QUERY_JOBS_DOWNLOAD_API        = '/v2/queryjobs/download/'
+QUERY_API                      = '/query'
+QUERY_JOBS_API                 = '/queryjobs/'
+QUERY_JOBS_DOWNLOAD_API        = '/queryjobs/download/'
 QUERY_JOBS_API_MERGE           = '/merge/'
 QUERY_DATE_FORMAT              = '%Y-%m-%d'
 QUERY_DEFAULT_WORKERS          = int(os.environ.get('QUERY_DEFAULT_WORKERS', 1))

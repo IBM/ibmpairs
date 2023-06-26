@@ -260,9 +260,9 @@ class Client:
                 self._host = common.ensure_protocol(self._authentication.host)
             else:
                 if self._legacy is True:
-                    self._host = common.ensure_protocol(constants.CLIENT_LEGACY_URL)
+                    self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
                 else:
-                    self._host = common.ensure_protocol(constants.CLIENT_URL)
+                    self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL))
                     
             logger.info("HOST: " + self._host)
             
@@ -588,11 +588,11 @@ class Client:
         if headers is not None:
             self.set_headers(headers)
             
-            if self._legacy is False:
-                self.append_header('x-ibm-client-id', self._get_client_id())
-                
-            msg = messages.DEBUG_CLIENT_SET_HEADERS.format('GET', headers)
-            logger.debug(msg)
+        if self._legacy is False:
+            self.append_header('x-ibm-client-id', self.get_client_id())
+              
+        msg = messages.DEBUG_CLIENT_SET_HEADERS.format('GET', headers)
+        logger.debug(msg)
         
         if self.authentication_mode(self._authentication) in ['Basic', 'tuple', 'Dict', 'None']:
             # If Basic, construct an authentication tuple.
@@ -664,12 +664,12 @@ class Client:
         
         if headers is not None:
             self.set_headers(headers)
-            
-            if self._legacy is False:
-                self.append_header('x-ibm-client-id', self._get_client_id())
-                
-            msg = messages.DEBUG_CLIENT_SET_HEADERS.format('PUT', headers)
-            logger.debug(msg)
+
+        if self._legacy is False:
+            self.append_header('x-ibm-client-id', self.get_client_id())
+              
+        msg = messages.DEBUG_CLIENT_SET_HEADERS.format('PUT', headers)
+        logger.debug(msg)
         
         if self.authentication_mode(self._authentication) in ['Basic', 'tuple', 'Dict', 'None']:
             # If Basic, construct an authentication tuple.
@@ -822,12 +822,12 @@ class Client:
         
         if headers is not None:
             self.set_headers(headers)
-            
-            if self._legacy is False:
-                self.append_header('x-ibm-client-id', self._get_client_id())
-                
-            msg = messages.DEBUG_CLIENT_SET_HEADERS.format('POST', headers)
-            logger.debug(msg)
+        
+        if self._legacy is False:
+            self.append_header('x-ibm-client-id', self.get_client_id())
+              
+        msg = messages.DEBUG_CLIENT_SET_HEADERS.format('POST', headers)
+        logger.debug(msg)
         
         auth_mode = self.authentication_mode(self._authentication)
         
@@ -906,11 +906,11 @@ class Client:
         if headers is not None:
             self.set_headers(headers)
             
-            if self._legacy is False:
-                self.append_header('x-ibm-client-id', self._get_client_id())
-                
-            msg = messages.DEBUG_CLIENT_SET_HEADERS.format('DELETE', headers)
-            logger.debug(msg)
+        if self._legacy is False:
+            self.append_header('x-ibm-client-id', self.get_client_id())
+              
+        msg = messages.DEBUG_CLIENT_SET_HEADERS.format('DELETE', headers)
+        logger.debug(msg)
         
         auth_mode = self.authentication_mode(self._authentication)
         
