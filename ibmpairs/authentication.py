@@ -117,9 +117,9 @@ class Basic:
             self._host = common.strip_protocol(host)
         else:
             if self._legacy is True:
-                self._host = common.strip_protocol(constants.CLIENT_LEGACY_URL)
+                self._host = common.ensure_api_path(common.strip_protocol(constants.CLIENT_LEGACY_URL))
             else:
-                self._host = common.strip_protocol(constants.CLIENT_URL)
+                self._host = common.ensure_api_path(common.strip_protocol(constants.CLIENT_URL))
         
         self._username      = username
         self._password      = password
@@ -131,9 +131,9 @@ class Basic:
         
         if ((self._password is None) and (self._username is not None)):
             try:
-                self.set_credentials_from_file(self._username, self._password_file, self._host)
+                self.set_credentials_from_file(self._username, self._password_file, common.strip_api_path(self._host))
             except Exception as e:
-                msg = messages.INFO_AUTHENTICATION_PASSWORD_NOT_FOUND_IN_FILE.format(self._username, self._password_file, self._host)
+                msg = messages.INFO_AUTHENTICATION_PASSWORD_NOT_FOUND_IN_FILE.format(self._username, self._password_file, common.strip_api_path(self._host))
                 logger.info(msg)
         
         if (self._password is None) or (self._username is None):
@@ -811,9 +811,9 @@ class OAuth2(object):
             self._host = common.strip_protocol(host)
         else:
             if self._legacy is True:
-                self._host = common.strip_protocol(constants.CLIENT_LEGACY_URL)
+                self._host = common.ensure_api_path(common.strip_protocol(constants.CLIENT_LEGACY_URL))
             else:
-                self._host = common.strip_protocol(constants.CLIENT_URL)
+                self._host = common.ensure_api_path(common.strip_protocol(constants.CLIENT_URL))
         
         self._username      = username
         self._api_key       = api_key
@@ -880,10 +880,10 @@ class OAuth2(object):
             try:
                 self.set_credentials_from_file(self._username,
                                                self._api_key_file, 
-                                               self._host
+                                               common.strip_api_path(self._host)
                                               )
             except:
-                msg = messages.INFO_AUTHENTICATION_API_KEY_NOT_FOUND_IN_FILE.format(self._username, self._api_key_file, self._host)
+                msg = messages.INFO_AUTHENTICATION_API_KEY_NOT_FOUND_IN_FILE.format(self._username, self._api_key_file, common.strip_api_path(self._host))
                 logger.info(msg)
         
         if (self._api_key is not None):
@@ -1139,8 +1139,6 @@ class OAuth2(object):
         :type client_id:  str
         :param endpoint:  The authentication endpoint.
         :type endpoint:   str
-        :param verify:    Verify ssl.
-        :type verify:     boolean
         """
         
         response               = None
@@ -1205,9 +1203,6 @@ class OAuth2(object):
         
         """
         The method submits a request to the authentication system for a refreshed token, gets a response and updates the internal self._oauth2_return and self._jwt_token objects.
-
-        :param verify:       Verify ssl.
-        :type verify:        boolean
         """
         
         msg = messages.INFO_AUTHENTICATION_TOKEN_REFRESH
@@ -1282,7 +1277,7 @@ class OAuth2(object):
         :param endpoint:     The authentication endpoint.
         :type endpoint:      str
         :param verify:       Verify ssl.
-        :type verify:        boolean
+        :type endpoint:      boolean
         :param iam_endpoint: IBM Cloud IAM Endpoint
         :type iam_endpoint:  str
         :param org_id:       IBM EIS GA API Connect Org Id
@@ -1387,9 +1382,6 @@ class OAuth2(object):
         
         """
         The method performs a new api_connect_get_auth_token.
-
-        :param verify:       Verify ssl.
-        :type verify:        boolean
         """
         
         self.api_connect_get_auth_token()

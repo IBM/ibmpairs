@@ -303,6 +303,25 @@ def check_str(s: Any) -> str:
 #}}}
 
 #
+def strip_slash(input: str):
+    
+    """
+    The method ensures a slash is not at the end of a string.
+
+    :param intput:      The input string to check.
+    :type input:        str
+    :returns:           A string without a trailing "/".
+    :rtype:             str
+    """ 
+    
+    result = str(input)
+    
+    if result.endswith("/"):
+        result = result[:-1]
+        
+    return result
+
+#
 def ensure_slash(directory: str, 
                  position: int
                 ):
@@ -467,3 +486,58 @@ def get_tenant_id(client_id: str):
         return tenant_id
     else:
         return None
+
+#
+def ensure_api_path(host: str):
+    
+    """
+    Adds /core/v3 or /v2 to host
+
+    :param host:   The host string.
+    :type host:    str
+    :returns:      The host string with path added.
+    :rtype:        str
+    """ 
+    
+    result = str(strip_slash(host))
+    
+    if ("pairs.res.ibm.com" in result):
+        if ("v2" not in result):
+            result = result + "/v2"
+    elif ("api.ibm.com" in result):
+        
+        if (result.endswith("api.ibm.com")):
+            result = result + "/geospatial/run/na"
+        elif (result.endswith("api.ibm.com/geospatial")):
+            result = result + "/run/na"
+        elif (result.endswith("api.ibm.com/geospatial/run")):
+            result = result + "/na"
+            
+        if ("core/v3" not in result):
+            if (result.endswith("core")):
+                result = result + "/v3"
+            else:
+                result = result + "/core/v3"
+                
+    return result
+
+#
+def strip_api_path(host: str):
+    
+    """
+    Removes core/v3 and /v2 from a string.
+
+    :param host:   The host string.
+    :type host:    str
+    :returns:      The host string with the path.
+    :rtype:        str
+    """ 
+
+    result = str(host)
+    
+    if (result.endswith("/core/v3")):
+        result = result[:-8]
+    elif host.endswith('/v2'):
+        result = result[:-3]
+        
+    return result
