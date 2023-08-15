@@ -29,6 +29,8 @@ from ibmpairs.logger import logger
 # Third Party Libraries:
 import aiohttp
 import asyncio
+import shapely.geometry
+import shapely.wkt
 import numpy as np
 #try:
 #    from osgeo import gdal
@@ -41,6 +43,13 @@ QUERY_DEFAULT_WORKERS          = int(os.environ.get('QUERY_DEFAULT_WORKERS', 1))
 QUERY_MAX_WORKERS              = int(os.environ.get('QUERY_MAX_WORKERS', 8))
 QUERY_MIN_STATUS_INTERVAL      = int(os.environ.get('QUERY_MIN_STATUS_INTERVAL', 15))
 QUERY_STATUS_CHECK_INTERVAL    = int(os.environ.get('QUERY_STATUS_CHECK_INTERVAL', 30))
+
+HAS_GEOJSON = False
+try:
+    import geojson
+    HAS_GEOJSON = True
+except:
+    pass
 
 #
 class Aggregation:
@@ -5374,7 +5383,12 @@ class Query:
         if ((self._spatial is not None) and (self._spatial.type is not None)):
             if self._spatial.type.lower() in ['point']:
                 if ((self._batch is None) or (self._batch.lower() == 'false')):
-                    bulk = False
+                    # The following check for id captures the case where the intention of the query creator is
+                    # interactive query, however the size of the query at the backend makes this a bulk.
+                    if ((self._submit_response is not None) and (self._submit_response.id is not None)):
+                        bulk = True
+                    else:
+                        bulk = False
                 else:
                     bulk = True
             elif self._spatial.type.lower() in ['square', 'poly']:
@@ -5384,11 +5398,11 @@ class Query:
                 logger.error(msg)
                 raise common.PAWException(msg)
         else:
-            bulk = True 
-            
+            bulk = True
+
         return bulk
         
-    #        
+    #
     def list_files(self):
       
         """
@@ -5478,7 +5492,7 @@ class Query:
             logger.info(msg)
         else:
             msg = messages.INFO_STARTING_EVENT_LOOP
-            logger.info(msg)
+            logger.debug(msg)
             asyncio.run(self.async_submit(query       = self, 
                                           client      = cli,
                                           verify      = verify,
@@ -5545,7 +5559,7 @@ class Query:
             logger.info(msg)
         else:
             msg = messages.INFO_STARTING_EVENT_LOOP
-            logger.info(msg)
+            logger.debug(msg)
             asyncio.run(self.async_status(query           = self, 
                                           client          = cli,
                                           poll            = poll,
@@ -5563,7 +5577,8 @@ class Query:
                  status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
                  download_folder      = None,
                  download_file_name   = None,
-                 verify: bool         = constants.GLOBAL_SSL_VERIFY
+                 verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                 online: bool         = False
                 ):
                   
         """
@@ -5581,6 +5596,8 @@ class Query:
         :type download_file_name:  str
         :param verify:             SSL verification
         :type verify:              bool
+        :param online:             Whether a point queries data should be returned to submit_response.data.
+        :type online:              bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
                                    the Query status failed, 
                                    the download folder could not be made or identified, 
@@ -5613,19 +5630,21 @@ class Query:
                                                             status_interval    = status_interval,
                                                             download_folder    = download_folder,
                                                             download_file_name = download_file_name,
-                                                            verify             = verify)
+                                                            verify             = verify,
+                                                            online             = online)
             
             msg = messages.INFO_FOUND_EVENT_LOOP_COMPLETED_TASK.format("download")
             logger.info(msg)
         else:
             msg = messages.INFO_STARTING_EVENT_LOOP
-            logger.info(msg)        
+            logger.debug(msg)        
             asyncio.run(self.async_download(query              = self, 
                                             client             = cli,
                                             status_interval    = status_interval,
                                             download_folder    = download_folder,
                                             download_file_name = download_file_name,
-                                            verify             = verify
+                                            verify             = verify,
+                                            online             = online
                                            )
                        )
         
@@ -5686,7 +5705,7 @@ class Query:
             logger.info(msg)
         else:
             msg = messages.INFO_STARTING_EVENT_LOOP
-            logger.info(msg)
+            logger.debug(msg)
             asyncio.run(self.async_submit_and_check_status(query              = self, 
                                                            client             = cli,
                                                            poll               = poll,
@@ -5706,7 +5725,8 @@ class Query:
                                   status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
                                   download_folder      = 'download',
                                   download_file_name   = None,
-                                  verify: bool         = constants.GLOBAL_SSL_VERIFY
+                                  verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                                  online: bool         = False
                                  ):
                                   
         """
@@ -5726,6 +5746,8 @@ class Query:
         :type download_file_name:  str
         :param verify:             SSL verification
         :type verify:              bool
+        :param online:             Whether a point queries data should be returned to submit_response.data.
+        :type online:              bool
         :param compact_csv:        A flag to indicate the return of a compact csv format.
         :type compact_csv:         bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
@@ -5761,20 +5783,22 @@ class Query:
                                                                              status_interval    = status_interval,
                                                                              download_folder    = download_folder,
                                                                              download_file_name = download_file_name,
-                                                                             verify             = verify)
+                                                                             verify             = verify,
+                                                                             online             = online)
             
             msg = messages.INFO_FOUND_EVENT_LOOP_COMPLETED_TASK.format("check_status_and_download")
             logger.info(msg)
         else:
             msg = messages.INFO_STARTING_EVENT_LOOP
-            logger.info(msg)
+            logger.debug(msg)
             asyncio.run(self.async_check_status_and_download(query              = self, 
                                                              client             = cli,
                                                              poll               = poll,
                                                              status_interval    = status_interval,
                                                              download_folder    = download_folder,
                                                              download_file_name = download_file_name,
-                                                             verify             = verify))
+                                                             verify             = verify,
+                                                             online             = online))
         
         return self
                 
@@ -5786,7 +5810,8 @@ class Query:
                                          download_folder      = None,
                                          download_file_name   = None,
                                          verify: bool         = constants.GLOBAL_SSL_VERIFY,
-                                         compact_csv: bool    = False
+                                         compact_csv: bool    = False,
+                                         online: bool         = False
                                         ):
                                           
         """
@@ -5806,6 +5831,8 @@ class Query:
         :type verify:              bool
         :param compact_csv:        A flag to indicate the return of a compact csv format.
         :type compact_csv:         bool
+        :param online:             Whether a point queries data should be returned to submit_response.data.
+        :type online:              bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
                                    the Query status failed, 
                                    the download folder could not be made or identified, 
@@ -5837,14 +5864,15 @@ class Query:
                                                                                     download_folder    = download_folder,
                                                                                     download_file_name = download_file_name,
                                                                                     verify             = verify,
-                                                                                    compact_csv        = compact_csv)
+                                                                                    compact_csv        = compact_csv,
+                                                                                    online             = online)
             
             msg = messages.INFO_FOUND_EVENT_LOOP_COMPLETED_TASK.format("submit_check_status_and_download")
             logger.info(msg)
 
         else:
             msg = messages.INFO_STARTING_EVENT_LOOP
-            logger.info(msg)
+            logger.debug(msg)
             asyncio.run(self.async_submit_check_status_and_download(query              = self, 
                                                                     client             = cli,
                                                                     poll               = poll,
@@ -5852,7 +5880,8 @@ class Query:
                                                                     download_folder    = download_folder,
                                                                     download_file_name = download_file_name,
                                                                     verify             = verify,
-                                                                    compact_csv        = compact_csv))
+                                                                    compact_csv        = compact_csv,
+                                                                    online             = online))
         
         return self
 
@@ -5986,9 +6015,9 @@ class Query:
 
         try:
             if compact_csv:
-                headers = constants.CLIENT_PUT_AND_POST_HEADER_CSV
+                headers = dict(constants.CLIENT_PUT_AND_POST_HEADER_CSV)
             else:
-                headers = constants.CLIENT_PUT_AND_POST_HEADER
+                headers = dict(constants.CLIENT_PUT_AND_POST_HEADER)
                 
             response = await cli.async_post(url = cli.get_host() + 
                                             constants.QUERY_API,
@@ -6035,6 +6064,12 @@ class Query:
                 query.id = query_response.id
                 msg = messages.INFO_QUERY_SUBMIT_SUCCESS.format(str(query.id))            
                 logger.info(msg)
+                
+                if ((self._spatial is not None) and (self._spatial.type is not None) and (self._spatial.type.lower() in ['point'])) \
+                    and ((self._batch is None) or (self._batch.lower() == 'false')) \
+                    and ((self._submit_response is not None) and (self._submit_response.id is not None)):
+                    
+                    self.check_status_and_download(online = True)
             
     #
     async def async_status(self,
@@ -6172,9 +6207,10 @@ class Query:
                              status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
                              download_folder      = None,
                              download_file_name   = None,
-                             verify: bool         = constants.GLOBAL_SSL_VERIFY
+                             verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                             online               = False
                             ):
-                              
+    
         """
         An asynchronous method to download and unzip a Query result.
         
@@ -6190,6 +6226,8 @@ class Query:
         :type download_file_name:  str
         :param verify:             SSL verification
         :type verify:              bool
+        :param online:             Whether a point queries data should be returned to submit_response.data.
+        :type online:              bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
                                    query is not present, 
                                    the Query status failed, 
@@ -6198,41 +6236,52 @@ class Query:
                                    error making request to server, 
                                    the status of the request is not 200.
         """
-        
+        online_skip = False
+    
         cli = common.set_client(input_client  = client,
                                 global_client = cl.GLOBAL_PAIRS_CLIENT,
                                 self_client   = self._client)
-                        
+    
         self.download_status = "SKIPPED"
-        
+    
         bulk = self.is_bulk()
-
+    
         if bulk is True:
-          
+            
             self.download_status = "INDETERMINATE"
-          
+            
+            # Assumes if bulk is True and submit_response already has a data entry the query is pseudo interactive
+            # and that the submit step has already performed the action.
+            if ((query.submit_response is not None) and (query.submit_response.data is not None)):
+                
+                online      = True
+                online_skip = True
+                
+                msg = messages.WARN_QUERY_INTERACTIVE_ALREADY_PERFORMED
+                logger.info(msg)
+                
             if download_folder is not None:
                 self.download_folder     = common.ensure_slash(download_folder, -1)
             else:
                 if self.download_folder is None:
                     self.download_folder = constants.QUERY_DOWNLOAD_DEFAULT_FOLDER
-
+                    
             if download_file_name is not None:
                 self.download_file_name  = download_file_name
-            
+                
             if self.download_file_name is None:
                 self.download_file_name  = self.id
-            
+                
             incomplete = True
-
-            while incomplete:
             
+            while incomplete:
+                
                 await query.async_status(query  = query,
                                          client = cli,
                                          poll   = False,
                                          verify = verify
                                         )
-            
+                
                 # Queued(0)
                 # Initializing(1)
                 # Running(10)
@@ -6244,7 +6293,7 @@ class Query:
                 # Deleted(31)
                 # Failed(40)
                 # FailedConversion(41)
-
+                
                 if query.status_response.status_code == 20:
                     
                     # Check download_path exists as relative, fixed or create.
@@ -6254,14 +6303,14 @@ class Query:
                         
                         msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
                         logger.info(msg)
-
+                        
                     elif os.path.exists(self.download_folder):
                         
                         self.download_folder = common.ensure_slash(self.download_folder, -1)
-                                            
+                        
                         msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
                         logger.info(msg)
-
+                        
                     else:
                         try: 
                             msg = messages.WARN_QUERY_DOWNLOAD_PATH_CREATE.format(self.download_folder)
@@ -6271,89 +6320,118 @@ class Query:
                             
                             msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
                             logger.info(msg)
-                                                
+                            
                             os.makedirs(os.path.join(os.getcwd(), self.download_folder))
-                                                
+                            
                             msg = messages.INFO_QUERY_DOWNLOAD_PATH_CREATED.format(self.download_folder)
                             logger.info(msg)
-
+                            
                         except:
                             self.download_status = "FAILED"
-                                                
+                            
                             msg = messages.ERROR_QUERY_DOWNLOAD_PATH_CREATED.format(self.download_folder)
                             logger.error(msg)
                             raise common.PAWException(msg)
-                                                
+                            
                             incomplete = False
-                    
+                            
                     download_zip    = self.get_download_folder() + self.get_download_file_name() + '.zip'
                     download_target = self.get_download_folder() + self.get_download_file_name()
                     
-                    try:
-                        response = await cli.async_get(url           = cli.get_host() +
-                                                                       constants.QUERY_JOBS_DOWNLOAD_API +
-                                                                       str(query.id),
-                                                       verify        = verify,
-                                                       response_type = 'bytes'
-                                                      )
-                    except Exception as e:
-                        self.download_status = "FAILED"
-                        msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), e)
-                        logger.error(msg)
-                        raise common.PAWException(msg)
-                    
-                    # Download file
-                    try:
-                      
-                        msg = messages.INFO_QUERY_DOWNLOAD_FILE_SAVE.format(query.id, download_zip)
-                        logger.info(msg)
-                        
-                        with open(download_zip, 'wb') as f:
-                            f.write(response.body)
-                        f.close
-                        
-                        msg = messages.INFO_QUERY_DOWNLOAD_FILE_SAVED.format(query.id, download_zip)
-                        logger.info(msg)
-                        
-                    except:
-                        self.download_status = "FAILED"
-                        
-                        msg = messages.ERROR_QUERY_DOWNLOAD_UNSUCCESSFUL.format(query.id, download_zip)
-                        logger.error(msg)
-                        raise common.PAWException(msg)
-                        
-                        incomplete = False
-                    
-                    # Unzip file
-                    try:
-                        msg = messages.INFO_QUERY_DOWNLOAD_FILE_UNZIP.format(download_zip, download_target)
-                        logger.info(msg)
-                        
-                        with zipfile.ZipFile(download_zip, 'r') as z:
-                            z.extractall(download_target)
-                        z.close  
-                        
-                        msg = messages.INFO_QUERY_DOWNLOAD_FILE_UNZIPPED.format(download_zip, download_target)
-                        logger.info(msg)
-                        
-                        self.download_status = "SUCCEEDED"
-                        
-                        incomplete = False
-                        
-                    except:
-                        self.download_status = "FAILED"
-                        
-                        messages.ERROR_QUERY_DOWNLOAD_UNSUCCESSFUL_UNZIP.format(download_zip, download_target)
-                        logger.error(msg)
-                        raise common.PAWException(msg)
-                        
-                        incomplete = False
-                    
+                    if (online is True):
+                        if (online_skip is False):
+                            try:
+                                response = await cli.async_get(url           = cli.get_host() +
+                                                                               constants.QUERY_JOBS_DOWNLOAD_API +
+                                                                               str(query.id) +
+                                                                               "?output_type=csv",
+                                                               verify        = verify,
+                                                               response_type = 'json'
+                                                              )
+                                
+                                query.submit_response = QueryResponse(id = query.id, 
+                                                                      data = response.body
+                                                                     )
+                                
+                                bulk = False
+                                
+                                self.download_status = "SUCCEEDED"
+                                incomplete = False
+                                
+                            except Exception as e:
+                                self.download_status = "FAILED"
+                                msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_DOWNLOAD_API + str(query.id) + "?output_type=csv", e)
+                                logger.error(msg)
+                                raise common.PAWException(msg)
+                        else:
+                            self.download_status = "SUCCEEDED"
+                            incomplete = False
+                            
+                    else:
+                        try:
+                            response = await cli.async_get(url           = cli.get_host() +
+                                                                           constants.QUERY_JOBS_DOWNLOAD_API +
+                                                                           str(query.id),
+                                                           verify        = verify,
+                                                           response_type = 'bytes'
+                                                          )
+                        except Exception as e:
+                            self.download_status = "FAILED"
+                            msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), e)
+                            logger.error(msg)
+                            raise common.PAWException(msg)
+                            
+                        # Download file
+                        try:
+                            msg = messages.INFO_QUERY_DOWNLOAD_FILE_SAVE.format(query.id, download_zip)
+                            logger.info(msg)
+                            
+                            with open(download_zip, 'wb') as f:
+                                f.write(response.body)
+                            f.close
+                            
+                            msg = messages.INFO_QUERY_DOWNLOAD_FILE_SAVED.format(query.id, download_zip)
+                            logger.info(msg)
+                            
+                        except:
+                            self.download_status = "FAILED"
+                            
+                            msg = messages.ERROR_QUERY_DOWNLOAD_UNSUCCESSFUL.format(query.id, download_zip)
+                            logger.error(msg)
+                            raise common.PAWException(msg)
+                            
+                            incomplete = False
+                            
+                        # Unzip file
+                        try:
+                            msg = messages.INFO_QUERY_DOWNLOAD_FILE_UNZIP.format(download_zip, download_target)
+                            logger.info(msg)
+                            
+                            with zipfile.ZipFile(download_zip, 'r') as z:
+                                z.extractall(download_target)
+                            z.close  
+                            
+                            msg = messages.INFO_QUERY_DOWNLOAD_FILE_UNZIPPED.format(download_zip, download_target)
+                            logger.info(msg)
+                            
+                            self.download_status = "SUCCEEDED"
+                            
+                            incomplete = False
+                            
+                        except:
+                            self.download_status = "FAILED"
+                            
+                            messages.ERROR_QUERY_DOWNLOAD_UNSUCCESSFUL_UNZIP.format(download_zip, download_target)
+                            logger.error(msg)
+                            raise common.PAWException(msg)
+                            
+                            incomplete = False
+                            
                 elif query.status_response.status_code in [0, 1, 10, 11, 12]:
                     await query.async_status(query  = query,
                                              client = cli
                                             )
-                                            
+                    
                 elif query.status_response.status_code == 31:
                     self.download_status = "FAILED"
                     
@@ -6373,21 +6451,21 @@ class Query:
                     incomplete = False
                     
                 await asyncio.sleep(status_interval)
-
-        else:
+                
+        if bulk is False:
             if self.submit_response is not None and self.submit_response.data is not None:
-                  
+                
                   if len(self.submit_response.data) > 0:
-                      
+                        
                       if download_folder is not None:
                           self.download_folder        = common.ensure_slash(download_folder, -1)
                       else:
                           if self.download_folder is None:
                               self.download_folder    = common.ensure_slash(constants.QUERY_DOWNLOAD_DEFAULT_FOLDER, -1)
-
+                                
                       if download_file_name is not None:
                           self.download_file_name     = download_file_name
-                      
+                            
                       if self.download_file_name is None:
                           if self.name is not None:
                               self.download_file_name = self.name
@@ -6396,22 +6474,22 @@ class Query:
                               self.download_file_name = file_name
                       try:
                           download_target = self.get_download_folder() + self.get_download_file_name()
-                      
+                            
                           with open(download_target, 'w') as f:
                               f.write(str(self.submit_response.data))
                           f.close
-                      
+                            
                           msg = messages.INFO_POINT_QUERY_DOWNLOAD_FILE_SAVED.format(download_target)
                           logger.info(msg)
-                      
+                            
                           self.download_status = "SUCCEEDED"
                       except:
                           self.download_status = "FAILED"
-                          
+                            
                           messages.ERROR_POINT_QUERY_DOWNLOAD_UNSUCCESSFUL.format(download_target)
                           logger.error(msg)
                           raise common.PAWException(msg)
-                      
+                            
                   else:
                       msg = messages.INFO_REAL_TIME_POINT_QUERY_NO_DATA
                       logger.info(msg)
@@ -6476,7 +6554,8 @@ class Query:
                                               status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
                                               download_folder      = None,
                                               download_file_name   = None,
-                                              verify: bool         = constants.GLOBAL_SSL_VERIFY
+                                              verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                                              online: bool         = False
                                              ):
         
         """
@@ -6496,6 +6575,8 @@ class Query:
         :type download_file_name:  str
         :param verify:             SSL verification
         :type verify:              bool
+        :param online:             Whether a point queries data should be returned to submit_response.data.
+        :type online:              bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
                                    query is not present, 
                                    the Query status failed, 
@@ -6521,7 +6602,8 @@ class Query:
                                   status_interval    = status_interval,
                                   download_folder    = download_folder,
                                   download_file_name = download_file_name,
-                                  verify             = verify
+                                  verify             = verify,
+                                  online             = online
                                  )
 
     #
@@ -6533,7 +6615,8 @@ class Query:
                                                      download_folder      = None,
                                                      download_file_name   = None,
                                                      verify: bool         = constants.GLOBAL_SSL_VERIFY,
-                                                     compact_csv: bool    = False
+                                                     compact_csv: bool    = False,
+                                                     online: bool         = False
                                                     ):
 
         """
@@ -6555,6 +6638,8 @@ class Query:
         :type verify:              bool
         :param compact_csv:        A flag to indicate the return of a compact csv format.
         :type compact_csv:         bool
+        :param online:             Whether a point queries data should be returned to submit_response.data.
+        :type online:              bool
         :raises Exception:         A ibmpairs.client.Client is not found, 
                                    query is not present, 
                                    the Query status failed, 
@@ -6562,7 +6647,7 @@ class Query:
                                    the download failed, 
                                    error making request to server, 
                                    the status of the request is not 200.
-        """                                     
+        """
         
         cli = common.set_client(input_client  = client,
                                 global_client = cl.GLOBAL_PAIRS_CLIENT,
@@ -6586,10 +6671,11 @@ class Query:
                                   status_interval    = status_interval,
                                   download_folder    = download_folder,
                                   download_file_name = download_file_name,
-                                  verify             = verify
+                                  verify             = verify,
+                                  online             = online
                                  )
-                
-#        
+    
+#
 async def query_worker(queries: List[Query],
                        client: cl.Client,
                        status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
@@ -6598,7 +6684,8 @@ async def query_worker(queries: List[Query],
                        status: bool         = True,
                        download: bool       = True,
                        verify: bool         = constants.GLOBAL_SSL_VERIFY,
-                       compact_csv: bool    = False
+                       compact_csv: bool    = False,
+                       online: bool         = False
                       ):
                         
     """
@@ -6622,6 +6709,8 @@ async def query_worker(queries: List[Query],
     :type verify:           bool
     :param compact_csv:     A flag to indicate the return of a compact csv format.
     :type compact_csv:      bool
+    :param online:          Whether a point queries data should be returned to submit_response.data.
+    :type online:           bool
     :returns:               A list of queries.
     :rtype:                 List[ibmpairs.query.Query]
     """
@@ -6645,7 +6734,8 @@ async def query_worker(queries: List[Query],
                                                                                        client = cli,
                                                                                        status_interval = status_interval,
                                                                                        verify = verify,
-                                                                                       compact_csv = compact_csv
+                                                                                       compact_csv = compact_csv,
+                                                                                       online = online
                                                                                       )))
         elif (status and download) and not (submit):
             tasks.add(asyncio.create_task(query.async_submit_and_check_status(query = query, 
@@ -6658,7 +6748,8 @@ async def query_worker(queries: List[Query],
             tasks.add(asyncio.create_task(query.async_check_status_and_download(query = query, 
                                                                                 client = cli,
                                                                                 status_interval = status_interval,
-                                                                                verify = verify
+                                                                                verify = verify,
+                                                                                online = online
                                                                                )))
         elif (status) and not (submit and download):
             tasks.add(asyncio.create_task(query.async_status(query = query, 
@@ -6670,7 +6761,8 @@ async def query_worker(queries: List[Query],
             tasks.add(asyncio.create_task(query.async_download(query = query, 
                                                                client = cli,
                                                                status_interval = status_interval,
-                                                               verify = verify
+                                                               verify = verify,
+                                                               online = online
                                                               )))
         else:
             msg = messages.ERROR_QUERY_RUNNER_CHOICE_INVALID.format(submit, status, download)
@@ -6692,7 +6784,8 @@ def batch_query(queries: List[Query],
                 status: bool         = True,
                 download: bool       = True,
                 verify: bool         = constants.GLOBAL_SSL_VERIFY,
-                compact_csv: bool    = False
+                compact_csv: bool    = False,
+                online: bool         = False
                ):
                 
     """
@@ -6716,6 +6809,8 @@ def batch_query(queries: List[Query],
     :type verify:           bool
     :param compact_csv:     A flag to indicate the return of a compact csv format.
     :type compact_csv:      bool
+    :param online:             Whether a point queries data should be returned to submit_response.data.
+    :type online:              bool
     :returns:               A list of queries.
     :rtype:                 List[ibmpairs.query.Query]
     """
@@ -6755,14 +6850,15 @@ def batch_query(queries: List[Query],
                                                           status          = status,
                                                           download        = download,
                                                           verify          = verify,
-                                                          compact_csv     = compact_csv
+                                                          compact_csv     = compact_csv,
+                                                          online          = online
                                             )
       
         msg = messages.INFO_FOUND_EVENT_LOOP_COMPLETED_TASK.format("batch_query")
         logger.info(msg)
     else:
         msg = messages.INFO_STARTING_EVENT_LOOP
-        logger.info(msg)
+        logger.debug(msg)
         result = asyncio.run(query_worker(queries         = queries, 
                                           client          = cli,
                                           status_interval = status_interval,
@@ -6771,7 +6867,8 @@ def batch_query(queries: List[Query],
                                           status          = status,
                                           download        = download,
                                           verify          = verify,
-                                          compact_csv     = compact_csv
+                                          compact_csv     = compact_csv,
+                                          online          = online
                                          ),
                              debug = constants.QUERY_WORKER_DEBUG
                             )
@@ -7678,7 +7775,7 @@ class QueryHistory:
             id = common.check_str(id)
         
         response = cli.get(url = cli.get_host() +
-                                 "/v2/queryhistories/full/queryjob/" +
+                                 constants.QUERY_JOB_HISTORY +
                                  id,
                            verify = verify
                           )
@@ -7686,7 +7783,7 @@ class QueryHistory:
         if response.status_code != 200:
             error_message = 'failed'
           
-            msg = messages.ERROR_QUERY_HISTORY_GET_FAILED.format('GET', 'request', cli.get_host() + "/v2/queryhistories/full/queryjob/" + id, response.status_code, error_message)
+            msg = messages.ERROR_QUERY_HISTORY_GET_FAILED.format('GET', 'request', cli.get_host() + constants.QUERY_JOB_HISTORY + id, response.status_code, error_message)
             logger.error(msg)
             raise common.PAWException(msg)
           
@@ -7977,7 +8074,8 @@ class LatestQueries:
             fav = "false"
 
         response = cli.get(url = cli.get_host() +
-                                 "/v2/queryjobs/list?flag=" +
+                                 constants.QUERY_JOBS_API +
+                                 "list?flag=" +
                                  fav +
                                  "&page=1&size=" +
                                  str(number_of_queries),
@@ -7987,7 +8085,7 @@ class LatestQueries:
         if response.status_code != 200:
             error_message = 'failed'
           
-            msg = messages.ERROR_QUERY_MERGE_NOT_SUCCESSFUL.format('GET', 'request', cli.get_host() + "/v2/queryjobs/list?flag=" + fav + "&page=1&size=" + str(number_of_queries), response.status_code, error_message)
+            msg = messages.ERROR_QUERY_MERGE_NOT_SUCCESSFUL.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_API + "list?flag=" + fav + "&page=1&size=" + str(number_of_queries), response.status_code, error_message)
             logger.error(msg)
             raise common.PAWException(msg)
           
@@ -8416,6 +8514,843 @@ class QueryOutputInfoFile:
         return json.dumps(self.to_dict())
 
 
+#
+class AOI:
+    #_client: cl.Client
+    #_id: int
+    #_key: str
+    #_name: str
+    #_hierarchy: str
+    #_description: str
+    #_geojson: Any
+    #_wkt: Any
+    #_bbox: Any
+    
+    """
+    A representation of an AOI.
+
+    :param client:      An IBM PAIRS Client.
+    :type client:       ibmpairs.client.Client
+    :param id:          An AOI ID.
+    :type id:           int
+    :param key:         An AOI key.
+    :type key:          str
+    :param name:        An AOI name.
+    :type name:         str
+    :param hierarchy:   An AOI hierarchy.
+    :type hierarchy:    str
+    :param description: An AOI description.
+    :type description:  str
+    :param geojson:     An AOI geojson geometry.
+    :type geojson:      Any
+    :param wkt:         An AOI wkt geometry.
+    :type wkt:          Any
+    :param bbox:        An AOI bbox.
+    :type bbox:         Any
+
+    """
+    
+    #
+    def __str__(self):
+        
+        """
+        The method creates a string representation of the internal class structure.
+        
+        :returns:           A string representation of the internal class structure.
+        :rtype:             str
+        """
+        
+        return json.dumps(self.to_dict(), 
+                          indent    = constants.GLOBAL_JSON_REPR_INDENT, 
+                          sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
+
+    #
+    def __repr__(self):
+      
+        """
+        The method creates a dict representation of the internal class structure.
+        
+        :returns:           A dict representation of the internal class structure.
+        :rtype:             dict
+        """
+      
+        return json.dumps(self.to_dict(), 
+                          indent    = constants.GLOBAL_JSON_REPR_INDENT, 
+                          sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
+
+    #
+    def __init__(self,
+                 client: cl.Client = None,
+                 id: int           = None,
+                 key: str          = None,
+                 name: str         = None,
+                 hierarchy: str    = None,
+                 description: str  = None,
+                 geojson: Any      = None,
+                 wkt: Any          = None,
+                 bbox: Any         = None
+                ):
+        self._client      = common.set_client(input_client  = client,
+                                              global_client = cl.GLOBAL_PAIRS_CLIENT)
+        self._id          = id
+        self._key         = key
+        self._name        = name
+        self._hierarchy   = hierarchy
+        self._description = description
+        self._geojson     = geojson
+        self._wkt         = wkt
+        self._bbox        = bbox
+      
+    #
+    def get_client(self):
+        return self._client
+  
+    #
+    def set_client(self, c):
+        self._client = common.check_class(c, cl.Client)
+      
+    #    
+    def del_client(self): 
+        del self._client
+      
+    #    
+    client = property(get_client, set_client, del_client)
+        
+    #
+    def get_id(self):
+        return self._id
+
+    #
+    def set_id(self, id):
+        self._id = common.check_int(id)
+        
+    #
+    def del_id(self): 
+        del self._id
+
+    #
+    id = property(get_id, set_id, del_id)
+    
+    #
+    def get_key(self):
+        return self._key
+    
+    #
+    def set_key(self, key):
+        self._key = common.check_str(key)
+        
+    #
+    def del_key(self): 
+        del self._key
+        
+    #
+    key = property(get_key, set_key, del_key)
+    
+    #
+    def get_name(self):
+        return self._name
+    
+    #
+    def set_name(self, name):
+        self._name = common.check_str(name)
+        
+    #
+    def del_name(self): 
+        del self._name
+        
+    #
+    name = property(get_name, set_name, del_name)
+    
+    #
+    def get_hierarchy(self):
+        return self._hierarchy
+    
+    #
+    def set_hierarchy(self, hierarchy):
+        self._hierarchy = common.check_str(hierarchy)
+        
+    #
+    def del_hierarchy(self): 
+        del self._hierarchy
+        
+    #
+    hierarchy = property(get_hierarchy, set_hierarchy, del_hierarchy)
+    
+    #
+    def get_description(self):
+        return self._description
+    
+    #
+    def set_description(self, description):
+        self._description = common.check_str(description)
+        
+    #
+    def del_description(self): 
+        del self._description
+        
+    #
+    description = property(get_description, set_description, del_description)
+    
+    #
+    def get_geojson(self):
+        return self._geojson
+    
+    #
+    def set_geojson(self, geojson):
+        self._geojson = geojson
+        
+    #
+    def del_geojson(self): 
+        del self._geojson
+        
+    #
+    geojson = property(get_geojson, set_geojson, del_geojson)
+    
+    #
+    def get_wkt(self):
+        return self._wkt
+    
+    #
+    def set_wkt(self, wkt):
+        self._wkt = wkt
+        
+    #
+    def del_wkt(self): 
+        del self._wkt
+
+    #
+    wkt = property(get_wkt, set_wkt, del_wkt)
+    
+    #
+    def get_bbox(self):
+        return self._bbox
+    
+    #
+    def set_bbox(self, bbox):
+        self._bbox = bbox
+        
+    #
+    def del_bbox(self): 
+        del self._bbox
+        
+    #
+    bbox = property(get_bbox, set_bbox, del_bbox)
+        
+    #
+    def from_dict(aoi_dict: Any):
+      
+        """
+        Create an AOI object from a dictionary.
+        
+        :param aoi_dict:    A dictionary that contains the keys of an AOI.
+        :type aoi_dict:     Any
+        :rtype:             ibmpairs.query.AOI
+        :raises Exception:  if not a dictionary.
+        """
+      
+        id          = None
+        key         = None
+        name        = None
+        hierarchy   = None
+        description = None
+        geojson     = None
+        wkt         = None
+        bbox        = None
+      
+        common.check_dict(aoi_dict)
+        if "id" in aoi_dict:
+            if aoi_dict.get("id") is not None:
+                id = common.check_int(aoi_dict.get("id"))
+        if "key" in aoi_dict:
+            if aoi_dict.get("key") is not None:
+                key = common.check_str(aoi_dict.get("key"))
+        if "name" in aoi_dict:
+            if aoi_dict.get("name") is not None:
+                name = common.check_str(aoi_dict.get("name"))
+        if "hierarchy" in aoi_dict:
+            if aoi_dict.get("hierarchy") is not None:
+                hierarchy = common.check_str(aoi_dict.get("hierarchy"))
+        if "description" in aoi_dict:
+            if aoi_dict.get("description") is not None:
+                description = common.check_str(aoi_dict.get("description"))
+        if "geojson" in aoi_dict:
+            if aoi_dict.get("geojson") is not None:
+                geojson = aoi_dict.get("geojson")
+        if "wkt" in aoi_dict:
+            if aoi_dict.get("wkt") is not None:
+                wkt = aoi_dict.get("wkt")
+        if "bbox" in aoi_dict:
+            if aoi_dict.get("bbox") is not None:
+                bbox = aoi_dict.get("bbox")
+        
+        return AOI(id          = id, 
+                   key         = key,
+                   name        = name,
+                   hierarchy   = hierarchy,
+                   description = description,
+                   geojson     = geojson,
+                   wkt         = wkt,
+                   bbox        = bbox
+                  )
+  
+    #
+    def to_dict(self):
+      
+        """
+        Create a dictionary from the objects structure. 
+                    
+        :rtype:                     dict
+        """
+      
+        aoi_dict: dict = {}
+        if self._id is not None:
+            aoi_dict["id"] = self._id
+        if self._key is not None:
+            aoi_dict["key"] = self._key
+        if self._name is not None:
+            aoi_dict["name"] = self._name
+        if self._hierarchy is not None:
+            aoi_dict["hierarchy"] = self._hierarchy
+        if self._description is not None:
+            aoi_dict["description"] = self._description
+        if self._geojson is not None:
+            aoi_dict["geojson"] = str(self._geojson)
+        if self._wkt is not None:
+            aoi_dict["wkt"] = str(self._wkt)
+        if self._bbox is not None:
+            aoi_dict["bbox"] = self._bbox
+        return aoi_dict
+  
+    #
+    def from_json(aoi_json: Any):
+      
+        """
+        Create an AOI object from json (dictonary or str).
+        
+        :param aoi_dict:        A json dictionary that contains the keys of an AOI or a string representation of a json dictionary.
+        :type aoi_dict:         Any
+        :rtype:                 ibmpairs.query.AOI
+        :raises Exception:      if not a dictionary or a string.
+        """
+      
+        if isinstance(aoi_json, dict):
+            aoi = AOI.from_dict(aoi_json)
+        elif isinstance(aoi_json, str):
+            aoi_dict = json.loads(aoi_json)
+            aoi = AOI.from_dict(aoi_dict)
+        else:
+            msg = messages.ERROR_FROM_JSON_TYPE_NOT_RECOGNIZED.format(type(aoi_json), "aoi_json")
+            logger.error(msg)
+            raise common.PAWException(msg)
+        return aoi_json
+  
+    #
+    def to_json(self):
+      
+        """
+        Create a string representation of a json dictionary from the objects structure.
+                    
+        :rtype:                     string
+        """
+      
+        return json.dumps(self.to_dict())
+    
+    #
+    def display(self,
+                columns: List[str] = ['id', 'key', 'name', 'hierarchy', 'description', 'geojson', 'wkt', 'bbox']
+               ):
+                
+        """
+        A method to return a pandas.DataFrame object of a get result.
+        
+        :param columns: The columns to be returned in the pandas.DataFrame object, defaults to ['id', 'key', 'name', 'hierarchy', 'description', 'geojson', 'wkt', 'bbox']
+        :type columns:  List[str]
+        :returns:       A pandas.DataFrame of attributes from the object.
+        :rtype:         pandas.DataFrame
+        """
+
+        display_dict = self.to_dict()
+      
+        display_df = pandas.DataFrame([display_dict], columns=columns)  
+
+        return display_df
+        
+    #
+    def get(self,
+            id: int              = None,
+            geometry_format: str = 'geojson',
+            client: cl.Client    = None,
+            verify: bool         = constants.GLOBAL_SSL_VERIFY
+           ):
+            
+        """
+        A method to get an AOI.
+        
+        :param id:              The AOI ID of the AOI to be gathered.
+        :type id:               int
+        :param geometry_format: A geometry format, 'geojson' or 'wkt' (default: geojson)
+        :type geometry_format:  str
+        :param client:          An IBM PAIRS Client.
+        :type client:           ibmpairs.client.Client
+        :param verify:          SSL verification
+        :type verify:           bool
+        :returns:               A populated AOI object.
+        :rtype:                 ibmpairs.query.AOI
+        :raises Exception:      A ibmpairs.client.Client is not found,
+                                an ID is not provided or already held in the object,
+                                a server error occurred,
+                                the status of the request is not 200.
+        """
+        
+        if not HAS_GEOJSON:
+            msg = messages.ERROR_QUERY_NO_GEOJSON
+            logger.error(msg)
+            raise common.PAWException(msg)
+            
+        if id is not None:
+            self._id = common.check_int(id)
+          
+        if self._id is None:
+            msg = messages.ERROR_QUERY_NO_AOI_ID
+            logger.error(msg)
+            raise common.PAWException(msg)
+
+        cli = common.set_client(input_client  = client,
+                                global_client = cl.GLOBAL_PAIRS_CLIENT,
+                                self_client   = self._client)
+
+        try:
+            geometry = cli.get(url    = cli.get_host() +
+                                        constants.QUERY_AOI_BASE +
+                                        common.check_str(self._id) +
+                                        constants.QUERY_AOI_GEOMETRY +
+                                        str(geometry_format),
+                               verify = verify
+                              )
+        except Exception as e:
+            msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_AOI_GEOMETRY + common.check_str(self._id), e)
+            logger.error(msg)
+            raise common.PAWException(msg)
+
+        if (geometry.status_code != 200):
+            error_message = 'failed'
+            msg = messages.ERROR_CATALOG_RESPOSE_NOT_SUCCESSFUL.format('GET', 'request', cli.get_host() + constants.QUERY_AOI_GEOMETRY + common.check_str(self._id), str(geometry.status_code), error_message)
+            logger.error(msg)
+            raise common.PAWException(msg)
+        else:
+            aoi = AOI.from_dict(geometry.json())
+            aoi.set_client(self._client)
+            
+            logger.info(geometry.json())
+
+            if (aoi.get_geojson() is not None):
+                aoi_geom = shapely.geometry.shape(geojson.loads(aoi.get_geojson()))
+                
+                self._wkt = None
+                self.set_geojson(aoi_geom)
+
+                if not aoi_geom.geom_type.startswith('Multi'):
+                    lons, lats = aoi_geom.boundary.xy
+                    bbox = np.min(lats), np.min(lons), np.max(lats), np.max(lons)
+                    aoi.set_bbox(bbox)
+            elif (aoi.get_wkt() is not None):
+                aoi_geom = shapely.geometry.shape(shapely.wkt.loads(aoi.get_wkt()))
+                
+                self._geojson = None
+                self.set_wkt(aoi_geom)
+                  
+                if not aoi_geom.geom_type.startswith('Multi'):
+                    lons, lats = aoi_geom.boundary.xy
+                    bbox = np.min(lats), np.min(lons), np.max(lats), np.max(lons)
+                    aoi.set_bbox(bbox)
+
+            if (aoi.get_key() is not None):
+                self.set_key(aoi.get_key())
+            else:
+                self._key = None
+            if (aoi.get_name() is not None):
+                self.set_name(aoi.get_name())
+            else:
+                self._name = None
+            if (aoi.get_hierarchy() is not None):
+                self.set_hierarchy(aoi.get_hierarchy())
+            else:
+                self._hierarchy = None
+            if (aoi.get_description() is not None):
+                self.set_description(aoi.get_description())
+            else:
+                self._description = None
+            if (aoi.get_bbox() is not None):
+                self.set_bbox(aoi.get_bbox())
+            else:
+                self._bbox = None
+
+            return aoi
+        
+#
+class AOIs:
+    # 
+    #_client: cl.Client 
+    
+    # Common
+    #_aois: List[AOI]
+    
+    """
+    An object to represent a list of AOIs.
+    
+    :param client:     An IBM PAIRS Client.
+    :type client:      ibmpairs.client.Client
+    :param aois:       A list of AOIs.
+    :type aois:        List[ibmpairs.query.AOI]
+    :raises Exception: An ibmpairs.client.Client is not found.
+    """
+
+    #
+    def __str__(self):
+        
+        """
+        The method creates a string representation of the internal class structure.
+
+        :returns:           A string representation of the internal class structure.
+        :rtype:             str
+        """
+        
+        return json.dumps(self.to_dict(), 
+                          indent    = constants.GLOBAL_JSON_REPR_INDENT, 
+                          sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
+
+    #
+    def __repr__(self):
+      
+        """
+        The method creates a dict representation of the internal class structure.
+
+        :returns:           A dict representation of the internal class structure.
+        :rtype:             dict
+        """
+      
+        return json.dumps(self.to_dict(), 
+                          indent    = constants.GLOBAL_JSON_REPR_INDENT, 
+                          sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
+
+    #
+    def __getitem__(self, 
+                    aoi_id: int
+                   ):
+      
+        """
+        A method to overload the default behaviour of the slice on this object to be an
+        element from the aois attribute.
+        
+        :param aoi_id:       The name of an AOI to search for.
+        :type aoi_id:        int
+        :raises Exception:   If less than one value is found, 
+                             if more than one value is found.
+        """
+
+        if isinstance(aoi_id, int):
+            index_list = []
+            index      = 0
+            foundCount = 0
+
+            for aoi in self._aois:
+                if (aoi.id == aoi_id):
+                    if (aoi.id == aoi_id):
+                        foundCount = foundCount + 1
+                        index_list.append(index)
+                else:
+                    msg = messages.WARN_QUERY_AOI_OBJECT_NO_ID
+                    logger.warning(msg)
+                  
+                index = index + 1
+
+            if foundCount == 0:
+                msg = messages.ERROR_QUERY_AOI_NO_AOI.format(aoi_id)
+                logger.error(msg)
+                raise common.PAWException(msg)
+            elif foundCount == 1:
+                return self._aois[index_list[0]]
+            else:
+                msg = messages.ERROR_QUERY_AOI_MULTIPLE_IDENTICAL_IDS.format(aoi_id)
+                logger.error(msg)
+                raise common.PAWException(msg)
+        else:
+            msg = messages.ERROR_QUERY_AOI_ID_TYPE_UNKNOWN.format(type(aoi_id))
+            logger.error(msg)
+            raise common.PAWException(msg)
+        
+    #
+    def __init__(self,
+                 client: cl.Client  = None,
+                 aois: List[AOI]    = None
+                ):
+        self._client = common.set_client(input_client  = client,
+                                         global_client = cl.GLOBAL_PAIRS_CLIENT)
+        self._aois   = aois
+    
+    #
+    def get_client(self):
+        return self._client
+
+    #
+    def set_client(self, c):
+        self._client = common.check_class(c, cl.Client)
+
+    #
+    def del_client(self): 
+        del self._client
+
+    #
+    client = property(get_client, set_client, del_client)
+        
+    #
+    def get_aois(self):
+        return self._aois
+
+    #
+    def set_aois(self, aois):
+        self._aois = common.check_class(aois, List[AOI])
+
+    #
+    def del_aois(self): 
+        del self._aois
+
+    #
+    aois = property(get_aois, set_aois, del_aois)
+    
+    #
+    def from_dict(aois_dict: Any):
+
+        """
+        Create an AOIs object from a dictionary.
+        
+        :param aois_dict:    A dictionary that contains the keys of an AOIs object.
+        :type aois_dict:     Any
+        :rtype:              ibmpairs.query.AOIs
+        :raises Exception:   If not a dictionary.
+        """
+        
+        aois = None
+        
+        if isinstance(aois_dict, dict):
+            common.check_dict(aois_dict)
+            if "aois" in aois_dict:
+                if aois_dict.get("aois") is not None:
+                    aois = common.from_list(aois_dict.get("aois"), AOI.from_dict)
+        elif isinstance(aois_dict, list):
+            aois = common.from_list(aois_dict, AOI.from_dict)
+        else:
+            msg = messages.ERROR_QUERY_AOI_UNKNOWN.format(type(aois_dict))
+            logger.error(msg)
+            raise common.PAWException(msg)
+
+        return AOIs(aois = aois)
+
+    #
+    def to_dict(self):
+        
+        """
+        Create a dictionary from the objects structure.
+                    
+        :rtype: dict
+        """
+        
+        aois_dict: dict = {}
+        if self._aois is not None:
+            aois_dict["aois"] = common.from_list(self._aois, lambda item: common.class_to_dict(item, AOI))
+        return aois_dict
+    
+    #
+    def from_json(aois_json: Any):
+
+        """
+        Create a AOIs object from json (dictonary or str).
+
+        :param aois:        A json dictionary that contains the keys of an AOIs or a string representation of a json dictionary.
+        :type aois:         Any
+        :rtype:             ibmpairs.query.AOIs
+        :raises Exception:  If not a dictionary or a string.
+        """
+        
+        if isinstance(aois_json, dict):
+            aois = AOIs.from_dict(aois_json)
+        elif isinstance(aois_json, str):
+            aois_dict = json.loads(aois_json)
+            aois = AOIs.from_dict(aois_dict)
+        else:
+            msg = messages.ERROR_FROM_JSON_TYPE_NOT_RECOGNIZED.format(type(aois_json), "aois_json")
+            logger.error(msg)
+            raise common.PAWException(msg)
+        return aois
+
+    #
+    def to_json(self):
+
+        """
+        Create a string representation of a json dictionary from the objects structure. 
+                   
+        :rtype: string
+        """
+
+        return json.dumps(self.to_dict())
+    
+    #
+    def display(self,
+                columns: List[str] = ['id', 'key', 'name', 'hierarchy', 'description', 'geojson', 'bbox'],
+                sort_by: str       = 'id'
+               ):
+                
+        """
+        A method to return a pandas.DataFrame object of get results.
+        
+        :param columns: The columns to be returned in the pandas.DataFrame object, defaults to ['id', 'key', 'name', 'hierarchy', 'description', 'geojson', 'bbox']
+        :type columns:  List[str]
+        :param sort_by: The item to sort on, default: id
+        :param sort_by: str
+        :returns:       A pandas.DataFrame of attributes from the aois attribute.
+        :rtype:         pandas.DataFrame
+        """
+        
+        display_df = None
+      
+        if self._aois is not None:
+            for aoi in self._aois:
+                next_display = aoi.display(columns)
+                if display_df is None:
+                    display_df = next_display
+                else:
+                    display_df = pandas.concat([display_df, next_display])
+            
+            if display_df is not None:
+                display_df.reset_index(inplace=True, drop=True)
+                display_df.sort_values(by=[sort_by]) 
+            
+        return display_df 
+
+    #
+    def __get_result(self,
+                     search_term       = None,
+                     client: cl.Client = None,
+                     verify: bool      = constants.GLOBAL_SSL_VERIFY
+                    ):
+        
+        if search_term is None:
+            search_term = ''
+          
+        cli = common.set_client(input_client  = client,
+                                global_client = cl.GLOBAL_PAIRS_CLIENT,
+                                self_client   = self._client)
+      
+        try:
+            response = cli.get(url = cli.get_host() +
+                                     constants.QUERY_AOI_SEARCH +
+                                     common.check_str(search_term),
+                               verify = verify
+                              )
+        except Exception as e:
+            msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_AOI_SEARCH + common.check_str(search_term), e)
+            logger.error(msg)
+            raise common.PAWException(msg)
+        
+        return response
+
+    #
+    def get(self,
+            search_term       = None,
+            client: cl.Client = None,
+            verify: bool      = constants.GLOBAL_SSL_VERIFY
+           ):
+            
+        """
+        A method to get a list of AOIs by search term.
+        
+        :param search_term:   A search on name for the gathered AOIs; by default None (if None, all AOIs).
+        :type search_term:    str
+        :param client:        An IBM PAIRS Client.
+        :type client:         ibmpairs.client.Client
+        :param verify:        SSL verification
+        :type verify:         bool
+        :returns:             A populated AOIs object.
+        :rtype:               ibmpairs.query.AOIs
+        :raises Exception:    A ibmpairs.client.Client is not found,
+                              a server error occurred, 
+                              the status of the request is not 200.
+        """
+        
+        response = self.__get_result(search_term = search_term,
+                                     client      = client,
+                                     verify      = verify
+                                    )
+
+        if response.status_code != 200:
+            error_message = 'failed'
+
+            msg = messages.ERROR_CATALOG_RESPOSE_NOT_SUCCESSFUL.format('GET', 'request', cli.get_host() + cli.get_host() + constants.QUERY_AOI_SEARCH + common.check_str(search_term), response.status_code, error_message)
+            logger.error(msg)
+            raise common.PAWException(msg)
+        else:
+            aois = AOIs.from_dict(response.json())
+            self._aois = aois.aois
+
+            return self
+        
+    #
+    def search(self,
+               search_term: str,
+               client: cl.Client = None,
+               verify: bool      = constants.GLOBAL_SSL_VERIFY
+              ):
+                    
+        """
+        A method to search all AOI fields.
+        
+        :param search_term:   A term to search on id, key, name, hierarchy and description for the gathered AOIs.
+        :type search_term:    str
+        :param client:        An IBM PAIRS Client.
+        :type client:         ibmpairs.client.Client
+        :param verify:        SSL verification
+        :type verify:         bool
+        :returns:             A pandas.DataFrame of AOIs that match the search term.
+        :rtype:               pandas.DataFrame
+        :raises Exception:    A ibmpairs.client.Client is not found,
+                                a server error occurred, 
+                                the status of the request is not 200.
+        """
+                    
+        response = self.__get_result(client      = client,
+                                     verify      = verify
+                                    )
+        
+        if response.status_code != 200:
+            error_message = 'failed'
+            
+            msg = messages.ERROR_CATALOG_RESPOSE_NOT_SUCCESSFUL.format('GET', 'request', client.get_host() + client.get_host() + constants.QUERY_AOI_SEARCH + common.check_str(search_term), response.status_code, error_message)
+            logger.error(msg)
+            raise common.PAWException(msg)
+        else:
+            aoi_df = pandas.DataFrame(response.json())
+            
+            aoi_df = aoi_df.fillna("")
+            
+            if len(aoi_df.index) > 0:
+                try:
+                    float(search_term)
+                    search = dl.query('id.str.contains("'+search_term+'")', engine='python')
+                except:
+                    search = aoi_df.query('key.str.contains("'+search_term+'")' or
+                                          'name.str.contains("'+ search_term +'")' or
+                                          'hierarchy.str.contains("'+ search_term +'")' or
+                                          'description.str.contains("'+ search_term +'")', 
+                                          engine='python'
+                                         )
+          
+                search.reset_index(inplace=True, drop=True)
+                
+                return search
+      
+            return aoi_df
+
+#
 def submit(query: Any,
            client: cl.Client = None,
            verify: bool      = constants.GLOBAL_SSL_VERIFY,
@@ -8443,7 +9378,7 @@ def submit(query: Any,
     
     cli = common.set_client(input_client = client,
                             global_client = cl.GLOBAL_PAIRS_CLIENT)
-    
+
     if isinstance(query, Query):
         pass
     elif isinstance(query, dict):
@@ -8522,7 +9457,8 @@ def download(query: Any           = None,
              status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
              download_folder      = None,
              download_file_name   = None,
-             verify: bool         = constants.GLOBAL_SSL_VERIFY
+             verify: bool         = constants.GLOBAL_SSL_VERIFY,
+             online: bool         = False
             ):
                 
     """
@@ -8542,6 +9478,8 @@ def download(query: Any           = None,
     :type download_file_name:  str
     :param verify:             SSL verification
     :type verify:              bool
+    :param online:             Whether a point queries data should be returned to submit_response.data.
+    :type online:              bool
     :returns:                  A query object.
     :rtype:                    ibmpairs.query.Query
     :raises Exception:         A ibmpairs.client.Client is not found, 
@@ -8570,7 +9508,8 @@ def download(query: Any           = None,
                    status_interval    = status_interval,
                    download_folder    = download_folder,
                    download_file_name = download_file_name,
-                   verify             = verify
+                   verify             = verify,
+                   online             = online
                   )
     
     return query
@@ -8637,7 +9576,8 @@ def check_status_and_download(query: Any           = None,
                               status_interval: int = QUERY_STATUS_CHECK_INTERVAL,
                               download_folder      = 'download',
                               download_file_name   = None,
-                              verify: bool         = constants.GLOBAL_SSL_VERIFY
+                              verify: bool         = constants.GLOBAL_SSL_VERIFY,
+                              online: bool         = False
                              ):
                                 
     """
@@ -8659,6 +9599,8 @@ def check_status_and_download(query: Any           = None,
     :type download_file_name:  str
     :param verify:             SSL verification
     :type verify:              bool
+    :param online:             Whether a point queries data should be returned to submit_response.data.
+    :type online:              bool
     :returns:                  A query object.
     :rtype:                    ibmpairs.query.Query
     :raises Exception:         A ibmpairs.client.Client is not found, 
@@ -8688,7 +9630,8 @@ def check_status_and_download(query: Any           = None,
                                     status_interval    = status_interval,
                                     download_folder    = download_folder,
                                     download_file_name = download_file_name,
-                                    verify             = verify
+                                    verify             = verify,
+                                    online             = online
                                    )
     
     return query
@@ -8700,7 +9643,8 @@ def submit_check_status_and_download(query: Any,
                                      download_folder      = None,
                                      download_file_name   = None,
                                      verify: bool         = constants.GLOBAL_SSL_VERIFY,
-                                     compact_csv: bool    = False
+                                     compact_csv: bool    = False,
+                                     online: bool         = False
                                     ):
 
     """
@@ -8722,6 +9666,8 @@ def submit_check_status_and_download(query: Any,
     :type verify:              bool
     :param compact_csv:        A flag to indicate the return of a compact csv format.
     :type compact_csv:         bool
+    :param online:             Whether a point queries data should be returned to submit_response.data.
+    :type online:              bool
     :returns:                  A query object.
     :rtype:                    ibmpairs.query.Query
     :raises Exception:         A ibmpairs.client.Client is not found, 
@@ -8753,7 +9699,8 @@ def submit_check_status_and_download(query: Any,
                                            download_folder    = download_folder,
                                            download_file_name = download_file_name,
                                            verify             = verify,
-                                           compact_csv        = compact_csv
+                                           compact_csv        = compact_csv,
+                                           online             = online
                                           )
     
     return query
@@ -8952,6 +9899,104 @@ def get_latest_favorites(client: cl.Client      = None,
                              verify              = verify
                             )
     return lf
+
+#
+def get_aois(search_term: str,
+             client: cl.Client = None,
+             verify: bool      = constants.GLOBAL_SSL_VERIFY
+            ):
+    """
+    A helper method to get a series of AOIs by a search_term (searches the name field only).
+    
+    :param search_term:   A search on name for the gathered AOIs; by default None (if None, all AOIs).
+    :type search_term:    str
+    :param client:        An IBM PAIRS Client.
+    :type client:         ibmpairs.client.Client
+    :param verify:        SSL verification
+    :type verify:         bool
+    :returns:             A populated AOIs object.
+    :rtype:               ibmpairs.query.AOIs
+    :raises Exception:    A ibmpairs.client.Client is not found,
+                          a server error occurred, 
+                          the status of the request is not 200.
+    """
+            
+    cli = common.set_client(input_client  = client,
+                            global_client = cl.GLOBAL_PAIRS_CLIENT)
+    
+    aois = AOIs()
+    get = aois.get(search_term = search_term, 
+                   client      = cli,
+                   verify      = verify
+                  )
+    return get
+
+#
+def search_aois(search_term: str,
+                client: cl.Client = None,
+                verify: bool      = constants.GLOBAL_SSL_VERIFY
+               ):
+    """
+    A helper method to search all available AOIs against all metadata fields.
+    
+    :param search_term:   A term to search on id, key, name, hierarchy and description for the gathered AOIs.
+    :type search_term:    str
+    :param client:        An IBM PAIRS Client.
+    :type client:         ibmpairs.client.Client
+    :param verify:        SSL verification
+    :type verify:         bool
+    :returns:             A pandas.DataFrame of AOIs that match the search term.
+    :rtype:               pandas.DataFrame
+    :raises Exception:    A ibmpairs.client.Client is not found,
+                          a server error occurred, 
+                          the status of the request is not 200.
+    """
+            
+    cli = common.set_client(input_client  = client,
+                            global_client = cl.GLOBAL_PAIRS_CLIENT)
+    
+    aois = AOIs()
+    search = aois.search(search_term = search_term, 
+                         client      = cli,
+                         verify      = verify
+                        )
+    return search
+
+#
+def get_aoi(id: int              = None,
+            geometry_format: str = 'geojson',
+            client: cl.Client    = None,
+            verify: bool         = constants.GLOBAL_SSL_VERIFY
+           ):
+    """
+    A helper method to get an AOI.
+        
+    :param id:              The AOI ID of the AOI to be gathered.
+    :type id:               int
+    :param geometry_format: A geometry format, 'geojson' or 'wkt' (default: geojson)
+    :type geometry_format:  str
+    :param client:          An IBM PAIRS Client.
+    :type client:           ibmpairs.client.Client
+    :param verify:          SSL verification
+    :type verify:           bool
+    :returns:               A populated AOI object.
+    :rtype:                 ibmpairs.query.AOI
+    :raises Exception:      A ibmpairs.client.Client is not found,
+                            an ID is not provided or already held in the object,
+                            a server error occurred,
+                            the status of the request is not 200.
+    """
+    
+    cli = common.set_client(input_client  = client,
+                            global_client = cl.GLOBAL_PAIRS_CLIENT)
+    
+    aoi = AOI()
+    get = aoi.get(id              = id, 
+                  geometry_format = geometry_format, 
+                  client          = cli,
+                  verify          = verify
+                 )
+    return get
 
 #
 def aggregation_from_dict(aggregation_dictionary: dict):
@@ -10057,3 +11102,63 @@ def query_to_json_post(query: Query):
     :rtype:          str
     """
     return Query.to_json_query_post(query)
+                  
+#
+def aois_from_json(aois_json: Any,
+                   client: cl.Client = None):
+    """
+    The function converts a dictionary or json string of AOIs to an AOIs object.
+    
+    :param aois_json:           A dictionary or json string that contains the keys of an AOIs.
+    :type aois_json:            Any
+    :param client:              An IBM PAIRS client.
+    :type client:               ibmpairs.client.Client 
+    :rtype:                     ibmpairs.query.AOIs
+    :raises Exception:          if not a dict or a str.
+    """
+    aois = AOIs.from_json(aois_json)
+    cli = common.set_client(input_client = client,
+                            global_client = cl.GLOBAL_PAIRS_CLIENT)
+    aois.client = cli
+    return aois
+
+#
+def aois_to_json(aois: AOIs):
+    """
+    The function converts an object of AOIs to a json string.
+    
+    :param query:    An AOIs object.
+    :type query:     ibmpairs.query.AOIs
+    :rtype:          str
+    """
+    return AOIs.to_json(aois)
+
+#
+def aoi_from_json(aoi_json: Any,
+                  client: cl.Client = None):
+    """
+    The function converts a dictionary or json string of AOI to an AOI object.
+    
+    :param aoi_json:            A dictionary or json string that contains the keys of an AOI.
+    :type aoi_json:             Any
+    :param client:              An IBM PAIRS client.
+    :type client:               ibmpairs.client.Client 
+    :rtype:                     ibmpairs.query.AOI
+    :raises Exception:          if not a dict or a str.
+    """
+    aoi = AOI.from_json(aoi_json)
+    cli = common.set_client(input_client = client,
+                            global_client = cl.GLOBAL_PAIRS_CLIENT)
+    aoi.client = cli
+    return aoi
+
+#
+def aoi_to_json(aoi: AOI):
+    """
+    The function converts an object of AOI to a json string.
+    
+    :param query:    An AOI object.
+    :type query:     ibmpairs.query.AOI
+    :rtype:          str
+    """
+    return AOI.to_json(aoi)

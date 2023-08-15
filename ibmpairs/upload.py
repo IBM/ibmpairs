@@ -3311,7 +3311,7 @@ class Upload:
         try:
             response = await cli.async_post(url     = cli.get_host() + 
                                                          constants.UPLOAD_API,
-                                            headers = constants.CLIENT_PUT_AND_POST_HEADER,
+                                            headers = dict(constants.CLIENT_PUT_AND_POST_HEADER),
                                             body    = upload_json,
                                             verify  = verify
                                            )
