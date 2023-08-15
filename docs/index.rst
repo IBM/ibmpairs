@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to IBM PAIRS's open source tools documentation!
-=======================================================
+IBM Environmental Intelligence Suite: Geospatial Analytics Python SDK (ibmpairs)
+================================================================================
 
 .. toctree::
    :maxdepth: 2

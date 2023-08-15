@@ -162,8 +162,8 @@ class Client:
     """
     A client wrapper for interaction with IBM PAIRS.
     
-    :param headers:            IBM PAIRS host.
-    :type headers:             str
+    :param host:               IBM PAIRS host.
+    :type host:                str
     :param headers:            A dictionary of request headers.
     :type headers:             dict
     :param authentication:     An authentication object.
@@ -252,12 +252,12 @@ class Client:
             if (headers is not None):
                 self._headers = headers
             else:
-                self._headers = constants.CLIENT_JSON_HEADER
+                self._headers = dict(constants.CLIENT_JSON_HEADER)
             
             if (host is not None):
-                self._host = common.ensure_protocol(host)
+                self._host = common.ensure_api_path(common.ensure_protocol(host))
             elif (host is None) and (self._authentication is not None) and (self._authentication.host is not None):
-                self._host = common.ensure_protocol(self._authentication.host)
+                self._host = common.ensure_api_path(common.ensure_protocol(self._authentication.host))
             else:
                 if self._legacy is True:
                     self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
@@ -305,7 +305,7 @@ class Client:
                         logger.error(msg)
                         raise common.PAWException(msg)
             
-            global GLOBAL_PAIRS_CLIENT 
+            global GLOBAL_PAIRS_CLIENT
             GLOBAL_PAIRS_CLIENT = self
     
     #       
@@ -314,7 +314,7 @@ class Client:
 
     #
     def set_host(self, host):
-        self._host = common.ensure_protocol(common.check_str(host))
+        self._host = common.check_str(common.ensure_api_path(common.ensure_protocol(host)))
         
     #    
     def del_host(self): 
@@ -435,7 +435,7 @@ class Client:
         :returns:                  A aiohttp.ClientSession using the attributes provided.
         :rtype:                    aiohttp.ClientSession
         """
-        
+
         if headers is not None:
             self.set_headers(headers)
             
@@ -822,10 +822,10 @@ class Client:
         
         if headers is not None:
             self.set_headers(headers)
-        
+     
         if self._legacy is False:
             self.append_header('x-ibm-client-id', self.get_client_id())
-              
+
         msg = messages.DEBUG_CLIENT_SET_HEADERS.format('POST', headers)
         logger.debug(msg)
         
@@ -908,7 +908,7 @@ class Client:
             
         if self._legacy is False:
             self.append_header('x-ibm-client-id', self.get_client_id())
-              
+
         msg = messages.DEBUG_CLIENT_SET_HEADERS.format('DELETE', headers)
         logger.debug(msg)
         

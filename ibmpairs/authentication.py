@@ -114,12 +114,12 @@ class Basic:
             self._legacy = GLOBAL_LEGACY_ENVIRONMENT
         
         if host is not None:
-            self._host = common.strip_protocol(host)
+            self._host = common.ensure_api_path(common.ensure_protocol(host))
         else:
             if self._legacy is True:
-                self._host = common.ensure_api_path(common.strip_protocol(constants.CLIENT_LEGACY_URL))
+                self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
             else:
-                self._host = common.ensure_api_path(common.strip_protocol(constants.CLIENT_URL))
+                self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL))
         
         self._username      = username
         self._password      = password
@@ -131,9 +131,11 @@ class Basic:
         
         if ((self._password is None) and (self._username is not None)):
             try:
-                self.set_credentials_from_file(self._username, self._password_file, common.strip_api_path(self._host))
+                logger.info(self._username +  self._password_file + str(self._host))
+              
+                self.set_credentials_from_file(self._username, self._password_file, common.strip_protocol(common.strip_api_path(self._host)))
             except Exception as e:
-                msg = messages.INFO_AUTHENTICATION_PASSWORD_NOT_FOUND_IN_FILE.format(self._username, self._password_file, common.strip_api_path(self._host))
+                msg = messages.INFO_AUTHENTICATION_PASSWORD_NOT_FOUND_IN_FILE.format(self._username, self._password_file, common.strip_protocol(common.strip_api_path(self._host)))
                 logger.info(msg)
         
         if (self._password is None) or (self._username is None):
@@ -148,7 +150,7 @@ class Basic:
 
     #
     def set_host(self, host):
-        self._host = common.check_str(common.strip_protocol(host))
+        self._host = common.check_str(common.ensure_api_path(common.ensure_protocol(host)))
         
     #    
     def del_host(self): 
@@ -245,12 +247,13 @@ class Basic:
         :type host:           str
         :raises Exception:    if password file does not exist,
                               if password was not found
-        """ 
+        """
       
         self.set_username(username)
         self.set_password_file(password_file)
         self.set_host(host)
-        self.set_password(get_password_from_file(server   = self._host,
+
+        self.set_password(get_password_from_file(server   = common.strip_protocol(common.strip_api_path(self._host)),
                                                  user     = self._username,
                                                  passFile = self._password_file
                                                 )
@@ -281,7 +284,7 @@ class Basic:
         self.set_username(username)
         self.set_password_file(password_file)
         self.set_host(host)
-        self.set_password(get_password_from_file(server   = self._host,
+        self.set_password(get_password_from_file(server   = common.strip_protocol(common.strip_api_path(self._host)),
                                                  user     = self._username,
                                                  passFile = self._password_file
                                                 )
@@ -794,7 +797,7 @@ class OAuth2(object):
                  api_key: str      = None,
                  api_key_file: str = "auth/oauth2.txt",
                  client_id: str    = None,
-                 endpoint: str     = None, #"auth-b2b-twc.ibm.com", #"api.ibm.com"
+                 endpoint: str     = None, #"auth-b2b-twc.ibm.com", #"api.ibm.com/saascore/run/authentication-retrieve"
                  jwt_token: str    = None,
                  iam_endpoint: str = "iam.cloud.ibm.com",
                  org_id: str       = None, 
@@ -808,12 +811,12 @@ class OAuth2(object):
             self._legacy = GLOBAL_LEGACY_ENVIRONMENT
         
         if host is not None:
-            self._host = common.strip_protocol(host)
+            self._host = common.ensure_api_path(common.ensure_protocol(host))
         else:
             if self._legacy is True:
-                self._host = common.ensure_api_path(common.strip_protocol(constants.CLIENT_LEGACY_URL))
+                self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
             else:
-                self._host = common.ensure_api_path(common.strip_protocol(constants.CLIENT_URL))
+                self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL))
         
         self._username      = username
         self._api_key       = api_key
@@ -858,7 +861,7 @@ class OAuth2(object):
             if self._legacy is True:
                 self._endpoint = 'auth-b2b-twc.ibm.com'
             else:
-                self._endpoint = 'api.ibm.com'
+                self._endpoint = 'api.ibm.com/saascore/run/authentication-retrieve'
 
         self._jwt_token     = jwt_token
         
@@ -880,7 +883,7 @@ class OAuth2(object):
             try:
                 self.set_credentials_from_file(self._username,
                                                self._api_key_file, 
-                                               common.strip_api_path(self._host)
+                                               common.strip_protocol(common.strip_api_path(self._host))
                                               )
             except:
                 msg = messages.INFO_AUTHENTICATION_API_KEY_NOT_FOUND_IN_FILE.format(self._username, self._api_key_file, common.strip_api_path(self._host))
@@ -898,10 +901,35 @@ class OAuth2(object):
                 msg = messages.INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN.format(api_key, ex)
                 logger.info(msg)
                 
+                if ((legacy is False) and 
+                    (client_id is not None) and
+                    ((not client_id.startswith('saascore-')) and (not client_id.startswith('geospatial-')))
+                   ):
+                    msg = messages.INFO_API_CONNECT_POSSIBLE_TENANT_ID_IN_CLIENT_ID_FIELD
+                    logger.info(msg)
+                    
+                    cl_id = 'saascore-' + client_id
+                    
+                    try:
+                        self.get_auth_token(api_key      = self._api_key,
+                                            client_id    = cl_id, 
+                                            endpoint     = self._endpoint,
+                                            iam_endpoint = self._iam_endpoint,
+                                            org_id       = self._org_id
+                                            )
+                        self._client_id = cl_id
+                    except Exception as ex:
+                        msg = messages.INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN.format(api_key, ex)
+                        logger.info(msg)
+                        
+                
         if self._jwt_token is None:
             msg = messages.ERROR_AUTHENTICATION_FAILED.format("JWT token")
             logger.error(msg)
             raise common.PAWException(msg)
+        else:
+            msg = messages.INFO_AUTHENTICATION_SUCCESSFUL
+            logger.info(msg)
 
     #
     def get_host(self):
@@ -909,7 +937,7 @@ class OAuth2(object):
 
     #
     def set_host(self, host):
-        self._host = common.check_str(common.strip_protocol(host))
+        self._host = common.check_str(common.ensure_api_path(common.ensure_protocol(host)))
         
     #    
     def del_host(self): 
@@ -1116,7 +1144,7 @@ class OAuth2(object):
         self.set_username(username)
         self.set_api_key_file(api_key_file)
         self.set_host(host)
-        self.set_api_key(get_password_from_file(server   = self._host,
+        self.set_api_key(get_password_from_file(server   = common.strip_protocol(common.strip_api_path(self._host)),
                                                 user     = self._username,
                                                 passFile = self._api_key_file
                                                )
@@ -1277,7 +1305,7 @@ class OAuth2(object):
         :param endpoint:     The authentication endpoint.
         :type endpoint:      str
         :param verify:       Verify ssl.
-        :type endpoint:      boolean
+        :type verify:        boolean
         :param iam_endpoint: IBM Cloud IAM Endpoint
         :type iam_endpoint:  str
         :param org_id:       IBM EIS GA API Connect Org Id
@@ -1343,10 +1371,10 @@ class OAuth2(object):
                 request_headers["X-IBM-Client-Id"] = self.get_client_id()
                 token = 'Bearer ' + response_oauth2_return.get_access_token()
                 request_headers["Authorization"] = token
-                
+
                 response = requests.get("https://" + 
                                             self.get_endpoint() +
-                                            "/saascore/run/authentication-retrieve?orgId=" +
+                                            "?orgId=" +
                                             self.get_org_id(),
                                         headers = request_headers,
                                         verify  = verify
@@ -1596,7 +1624,7 @@ def get_password_from_file(server,
     :raises Exception:  if password file does not exist
                         if password was not found
     """
-    
+
     # of either no user or server is provided
     if server is None or user is None:
         return None

@@ -34,6 +34,8 @@ ERROR_NO_CLIENT_OR_TENANT_ID = 'A client_id or tenant_id must be specified in or
 ERROR_NO_ORG_ID = 'An org_id must be specified in order to authentication via IBM API Connect.'
 INFO_STARTS_WITH_GEOSPATIAL = 'The string starts with geospatial, where it should start with saascore; correcting.'
 INFO_STARTS_WITH_SAASCORE = 'The string starts with saascore, where it should start with geospatial; correcting.'
+INFO_API_CONNECT_POSSIBLE_TENANT_ID_IN_CLIENT_ID_FIELD = 'It might be that a tenant_id is declared in the client_id field, attempting to auth with \'saascore-\' prefixed.'
+INFO_AUTHENTICATION_SUCCESSFUL = 'Authentication success.'
 
 # catalog messages
 ERROR_CATALOG_RESPOSE_NOT_SUCCESSFUL = 'The {} {} call to {} failed with status code: {}, message: {}.'
@@ -180,7 +182,7 @@ ERROR_QUERY_MERGE_UNAUTHORIZED = 'Unauthorized: The user may not be the owner of
 ERROR_QUERY_MERGE_NOT_FOUND = 'Not Found: It may be that one, or both, of the jobs (master and other) have failed.'
 ERROR_QUERY_MERGE_PRECONDITION = 'Precondition Failed: It may be that the master and other jobs have different bounding boxes.'
 ERROR_QUERY_JOB_LIST_UNKNOWN = 'The QueryJobList from_dict method only takes a dict or list, the type \'{}\' is not accepted.'
-INFO_STARTING_EVENT_LOOP = 'No running async even loop detected; performing asyncio.run() to start a new event loop.'
+INFO_STARTING_EVENT_LOOP = 'No running async event loop detected; performing asyncio.run() to start a new event loop.'
 DEBUG_FOUND_EVENT_LOOP = 'An already running async event loop was found; starting event loop in new thread.'
 INFO_FOUND_EVENT_LOOP_STARTING_TASK = 'TASK: {} STARTING.'
 INFO_FOUND_EVENT_LOOP_COMPLETED_TASK = 'TASK: {} COMPLETED.'
@@ -194,6 +196,15 @@ ERROR_QUERY_LATEST_QUERIES_TYPE_UNKNOWN = 'The latest_queries list can only be s
 WARN_QUERY_LATEST_QUERIES_QUERY_OBJECT_NO_NAME = 'A query in the latest_queries object has no name and therefore cannot be searched.'
 ERROR_QUERY_COULD_NOT_LOAD_POINT_QUERY = 'Unable to load point data into dataframe: {}.'
 ERROR_QUERY_NO_POINT_DATA = 'There is no point data in the Query object at Query.submit_response.data available to load/return.'
+ERROR_QUERY_NO_AOI_ID = 'The AOI object has no ID set and none was provided.'
+ERROR_QUERY_NO_GEOJSON = 'Sorry, the GeoJSON Python module (e.g. via `pip install geojson`) is required for AOI.get() to operate. Please install and try again.'
+WARN_QUERY_AOI_OBJECT_NO_ID = 'An AOI in the AOIs object has no id and therefore cannot be searched.'
+ERROR_QUERY_AOI_NO_AOI = 'The aois attribute does not contain an AOI with the id attribute {}.'
+ERROR_QUERY_AOI_MULTIPLE_IDENTICAL_IDS = 'The aois object has multiple properties with the id \'{}\'- this id should be unique.'
+ERROR_QUERY_AOI_ID_TYPE_UNKNOWN = 'The aois list can only be searched by an int id no, not {}.'
+ERROR_QUERY_AOI_UNKNOWN = 'The AOIs.from_dict() method only takes a dict or list, the type {} is not accepted.'
+ERROR_QUERY_AOI_RESPOSE_NOT_SUCCESSFUL = 'The {} {} call to {} failed with status code: {}, message: {}.'
+WARN_QUERY_INTERACTIVE_ALREADY_PERFORMED = 'The query.submit_response object has a data value already present; skipping action as it appears this is an online query and the gathering of data has already been performed.'
 
 # woc messages
 ERROR_QUERY_TYPE_NOT_RECOGNIZED = 'The query input type {} is not recognized, should be in [\'query.Query\',\'dict\',\'str\']'

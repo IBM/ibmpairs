@@ -302,6 +302,25 @@ def check_str(s: Any) -> str:
     return string
 #}}}
 
+
+#
+def strip_slash(input: str):
+    
+    """
+    The method ensures a slash is not at the end of a string.
+    :param intput:      The input string to check.
+    :type input:        str
+    :returns:           A string without a trailing "/".
+    :rtype:             str
+    """ 
+    
+    result = str(input)
+    
+    if result.endswith("/"):
+        result = result[:-1]
+        
+    return result
+
 #
 def strip_slash(input: str):
     
@@ -367,10 +386,10 @@ def run_async_in_thread(func, *args, **kwargs):
 
     :param func:        The name of the function to run.
     :type func:         str
-    :param *args:       The arguments of the function.
-    :type *args:        
-    :param **kwargs:    The arguments of the function.
-    :type **kwargs:     
+    :param args:        The arguments of the function.
+    :type args:         args
+    :param kwargs:      The arguments of the function.
+    :type kwargs:       kwargs
     :returns:           the result of the execution of the thread
     :rtype:             AsyncThreadWrapper.result
     """ 
@@ -531,7 +550,7 @@ def strip_api_path(host: str):
     :type host:    str
     :returns:      The host string with the path.
     :rtype:        str
-    """ 
+    """
 
     result = str(host)
     
@@ -539,5 +558,5 @@ def strip_api_path(host: str):
         result = result[:-8]
     elif host.endswith('/v2'):
         result = result[:-3]
-        
-    return result
+
+    return result 

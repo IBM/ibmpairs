@@ -1,12 +1,10 @@
-## Contributing In General
+## Contributing
 
-You are very welcome to contribute to the open source repository of the IBM PAIRS Geoscope.
+You are very welcome to contribute to the open source repository of the IBM Environmental Intelligence Suite: Geospatial Analytics python SDK (ibmpairs).
 To contribute code or documentation, please submit a [pull request](https://github.com/IBM/ibmpairs/pulls).
 
-### Setting up your development environment
 
-You can start off a plan Python 2 or 3 setup. Right now the code is compatible with
-both, however, since the former fades out end of 2019, we focus on the latter.
+### Setting up your development environment
 
 To obtain all required Python module, simply run
 ```Bash
@@ -15,12 +13,11 @@ pip install -r requirements-development.txt
 ```
 from the base of this repo.
 
+
 ### Proposing new features
 
 If you would like to implement a new feature, please [raise an issue](https://github.com/IBM/ibmpairs/issues)
-before sending a pull request so the feature can be discussed. This is to avoid
-you wasting your valuable time working on a feature that the project developers
-are not interested in accepting into the code base.
+before sending a pull request so the feature can be discussed.
 
 
 ### Fixing bugs
@@ -56,7 +53,7 @@ same approach - the [Developer's Certificate of Origin 1.1 (DCO)](https://github
 the Linux® Kernel [community](https://elinux.org/Developer_Certificate_Of_Origin)
 uses to manage code contributions.
 
-We simply ask that when submitting a patch for review, the developer must include
+We simply assert that when submitting a patch for review, the developer must include
 a sign-off statement in the commit message.
 
 Here is an example Signed-off-by line, which indicates that the submitter accepts
@@ -72,7 +69,7 @@ git commit -s
 ```
 Alternatively/in addition you can have a template for your commit text in a file
 like `git-commit-template` with the DCO above. Then run `git config commit.template git-commit-template`
-to have it as your default when running `git commmit ...`.
+to have it as your default when running `git commit ...`.
 
 
 ## Testing
@@ -90,6 +87,7 @@ passes without error. Note, there is a set of environment variables such as
 `PAW_TESTS_REAL_CONNECT`, `PAW_TESTS_PAIRS_PASSWORD_FILE_NAME`, `PAW_TESTS_PAIRS_USER`,
 etc. which can be employed to configure the test suite at runtime.
 
+
 ## Coding style guidelines
 
 When writing code please adopt the following coding style guidelines:
@@ -101,7 +99,7 @@ When writing code please adopt the following coding style guidelines:
   ```Python
   def numbers_2_string(numbers):
       """
-      This is a one-liner summarizing the function.
+      This is a one-liner summarising the function.
 
       And here comes more details.
 
@@ -140,7 +138,7 @@ When writing code please adopt the following coding style guidelines:
     ...
   )
   ```
-  Similarely, it holds for dictionaries:
+  Similarly, it holds for dictionaries:
   ```Python
   {
     "key1": [
@@ -160,15 +158,12 @@ When writing code please adopt the following coding style guidelines:
   ```
 - For indentation, please use 4 simple space characters,
 - Try to avoid having more than 80 characters of code per line
-- it would be nice if you use ([VIM](http://vimdoc.sourceforge.net/htmldoc/fold.html)-style)
-  text folding markers (`{{{` and `}}}`) to logically group
-  your code.
 - Please choose descriptive names for variables, e.g. for quantities with physical
   units we tend to include the unit in the name, some examples:
 
   | variable example        | description                                                                    |
   |-------------------------|--------------------------------------------------------------------------------|
-  | `timeStartRunningSec`   | simple variable using [camel cases](https://en.wikipedia.org/wiki/Camel_case)  |
+  | `time_start_running_sec`   | simple variable   |
   | `PingServer`            | class instance having fist character upper case                                |
   | `MAX_TIME_THESHOLD_MS`  | a global constant with units miliseconds                                       |
   | `time_service_response` | a function name                                                                |

@@ -14,4 +14,12 @@ brotlipy
 tableschema
 ibm-cos-sdk
 polling
-aiohttp
+aiohttp>=3.0.0
+matplotlib
+numpy
+ipyleaflet
+pyproj
+pandas
+numexpr
+bottleneck
+xarray

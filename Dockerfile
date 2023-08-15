@@ -5,78 +5,61 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-FROM alpine:3.8
+FROM ghcr.io/osgeo/gdal:ubuntu-full-3.7.0
 
-# variable settings
 MAINTAINER IBM PAIRS "pairs@us.ibm.com"
 ENV PYTHONUNBUFFERED 1
 
-# install required Alpine software
-RUN apk add \
-    libffi \
-    libffi-dev \
-    python3-dev \
-    zlib-dev \
-    jpeg-dev \
-    tiff-dev \
-    g++ \
-    make \
-    musl-dev \
-    zeromq-dev \
-    git
+# install Ubuntu packages
+RUN apt-get update
+RUN apt-get -y install \
+    python3-pip \
+    python3 
 
-# compile and install GEOS specific software (required for shapely)
-ADD http://download.osgeo.org/geos/geos-3.6.2.tar.bz2 /root/
-RUN cd /root && tar xjf geos-3.6.2.tar.bz2
-RUN cd /root/geos-3.6.2 && \
-    ./configure --enable-python && \
-    make && \
-    make install
-RUN geos-config --cflags
+# install python, pip, virtualenv (conf)
+RUN pip install --upgrade pip
 
-# install required Python modules
-RUN pip3 install --upgrade pip
-## IBM PAIRS API wrapper requirements
-RUN pip3 install \
+# install jupyter and ibmpairs
+RUN pip install jupyter
+RUN pip install \
+    numpy \
+    Pillow \
+    pandas \
     future \
     requests \
-    geojson \
-    numpy \
-    pandas \
     shapely \
-    Pillow
-# installs not strictly required for running the IBM PAIRS
-## Jupyter notebook for IBM PAIRS tutorial
-RUN apk add \
-    libpng-dev \
-    freetype-dev
-RUN pip3 install \
-    jupyter \
-    urllib3 \
-    urlparse3 \
-    matplotlib
-## install tools for development
-RUN pip3 install \
-    responses
-RUN apk add \
-    vim
+    fs \
+    pytz \
+    jsonschema \
+    asyncio \
+    aiodns \
+    brotlipy \
+    tableschema \
+    ibm-cos-sdk \
+    polling \
+    aiohttp
 
 # add IBM PAIRS to installation
-RUN     adduser -D ibmpairs
+RUN useradd -ms /bin/bash ibmpairs
+USER ibmpairs
 WORKDIR /home/ibmpairs
 # add tutorials to the installation
-COPY    tutorials/* /home/ibmpairs
+COPY    tutorials/* /home/ibmpairs/
 # add the IBM PAIRS open-source code
-COPY    ibmpairs    /home/ibmpairs/ibmpairs
-# set correct permissions
-RUN     chown ibmpairs:ibmpairs /home/ibmpairs/*
+COPY    ibmpairs    /home/ibmpairs/ibmpairs/
 
 # start python environment as Jupyter notebook
-EXPOSE  18380:18380
-ENTRYPOINT su -c "\
-    jupyter notebook \
-        --ip 0.0.0.0 \
-        --port 18380 \
-        --no-browser \
-        --NotebookApp.token='' \
-    " ibmpairs
+
+# https://jupyter-notebook.readthedocs.io/en/stable/public_server.html
+ENV TINI_VERSION v0.6.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
+
+USER root
+RUN chown -R ibmpairs:ibmpairs /home/ibmpairs/*
+RUN chmod +x /usr/bin/tini
+
+USER ibmpairs
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
+EXPOSE 18380:18380
+CMD ["jupyter", "notebook", "--port=18380", "--no-browser", "--ip=0.0.0.0", "--NotebookApp.token=''"]

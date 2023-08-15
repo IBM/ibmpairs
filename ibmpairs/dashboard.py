@@ -335,7 +335,7 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
         legacy = GLOBAL_LEGACY_ENVIRONMENT
 
     if (headers is None):
-        headers = constants.CLIENT_JSON_HEADER
+        headers = dict(constants.CLIENT_JSON_HEADER)
 
     if (host is None):
         host = constants.PHOENIX_ADD_DASHBOARD_LAYER

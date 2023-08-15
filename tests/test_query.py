@@ -116,6 +116,11 @@ async def mocked_submit_async_post(*args, **kwargs):
         return_dict = None
             
         return MockResponse(return_dict, 502)
+    elif (name == '1000000000_30000000'):
+        return_dict              = {}
+        return_dict["id"]        = '1000000000_30000000'
+    
+        return MockResponse(return_dict, 200)
     elif (name == '1625544000_31302646'):        
         return_dict              = {}
         return_dict["id"]        = '1625544000_31302646'
@@ -271,9 +276,23 @@ query_status_response_dict_13 = {
     "hadoopId": "string"
 }
 
+query_status_response_dict_1000000000_30000000 = {
+    "id": "1000000000_30000000",
+    "status": "Succeeded(20)",
+    "statusCode": 20,
+    "start": 0,
+    "swLat": 0,
+    "swLon": 0,
+    "neLat": 0,
+    "neLon": 0,
+    "nickname": "string",
+    "exPercent": 0,
+    "hadoopId": "string"
+}
+
 poll_tracker_status = 0
 
-# test_async_submit
+# test_async_status
 async def mocked_status_async_get(*args, **kwargs):
     
     global poll_tracker_status
@@ -391,6 +410,10 @@ async def mocked_status_async_get(*args, **kwargs):
         return_dict["invalid"] = "return"
         return_json = json.dumps(return_dict)
         return MockResponse(return_json, 200)
+    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1000000000_30000000'):
+        return_json = json.dumps(query_status_response_dict_1000000000_30000000)
+        
+        return MockResponse(return_json, 200)
     else:
         return_dict = {}
         return_dict["status"]  = "pass"
@@ -447,9 +470,11 @@ query_download_status_response_dict_deleted = {
     "statusCode": 31
 }
 
+query_online_response_1000000000_30000000 = {"data": "1,2,3\na,b,c"}
+
 poll_tracker_download = 0
         
-# test_async_submit
+# test_async_download
 async def mocked_download_async_get(*args, **kwargs):
     
     global poll_tracker_download
@@ -517,6 +542,10 @@ async def mocked_download_async_get(*args, **kwargs):
         return_json = json.dumps(query_download_status_response_dict_deleted)
         
         return MockResponse(return_json, 200)
+    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1000000000_30000000'):
+        return_json = json.dumps(query_status_response_dict_1000000000_30000000)
+        
+        return MockResponse(return_json, 200)
     elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1625544000_31302646'): 
         with open(os.path.join('tests/data/v2','1625544000_31302646.zip'), "rb") as zipfile:
             resp = zipfile.read()
@@ -532,6 +561,9 @@ async def mocked_download_async_get(*args, **kwargs):
     elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1625544000_31302648'): 
         with open(os.path.join('tests/data/v2','1625544000_31302646.zip'), "rb") as zipfile:
             resp = zipfile.read()
+        return MockResponse(resp, 200)
+    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1000000000_30000000?output_type=csv'):
+        resp = json.dumps(query_online_response_1000000000_30000000)
         return MockResponse(resp, 200)
     else:
         return_dict = {}
@@ -4023,6 +4055,99 @@ query_dict_download_status_20 = {
     }
 }
 
+query_dict_download_status_20_no_point_values = {
+    "description": "string",
+    "id": "1",
+    "layers": [
+        {
+            "aggregation": "None",
+            "alias": "string",
+            "dimensions": [
+                {
+                    "name": "string",
+                    "operator": "EQ",
+                    "options": [
+                        "string"
+                    ],
+                    "value": "string"
+                }
+            ],
+            "expression": "string",
+            "filter": {
+                "operator": "EQ",
+                "value": "string"
+            },
+            "filter_only": True,
+            "id": "string",
+            "output": True,
+            "temporal": {
+                "intervals": [
+                    {
+                        "end": "string",
+                        "snapshot": "string",
+                        "start": "string"
+                    }
+                ]
+            },
+            "type": "raster"
+        }
+    ],
+    "merge_response": {},
+    "name": "1",
+    "notification": {
+        "host": "string",
+        "queue": "string",
+        "type": "rabbitmq"
+    },
+    "output_level": 0,
+    "output_type": "json",
+    "publish": True,
+    "spatial": {
+        "aggregation": {
+            "aoi": [
+                "string"
+            ]
+        },
+        "aoi": "string",
+        "coordinates": [
+            0.0
+        ],
+        "type": "square"
+    },
+    "status_response": {
+        "ex_percent": 0.0,
+        "hadoop_id": "string",
+        "id": "1",
+        "ne_lat": 0.0,
+        "ne_lon": 0.0,
+        "nickname": "string",
+        "start": 0,
+        "status": "Succeeded(20)",
+        "status_code": 20,
+        "sw_lat": 0.0,
+        "sw_lon": 0.0
+    },
+    "submit_response": {
+        "id": "1",
+        "url": "string"
+    },
+    "temporal": {
+        "intervals": [
+            {
+                "end": "string",
+                "snapshot": "string",
+                "start": "string"
+            }
+        ]
+    },
+    "upload": {
+        "bucket": "string",
+        "endpoint": "string",
+        "provider": "ibm",
+        "token": "string"
+    }
+}
+
 #
 class QueryUnitTest(unittest.TestCase):
     
@@ -5150,8 +5275,9 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            query_async_download_relative = query.from_dict(query_dict_download_status_20)
+            query_async_download_relative = query.from_dict(query_dict_download_status_20_no_point_values)
             query_async_download_relative.id = '1625544000_31302646'
+            # The prepared output has a data entry in submit_response (its a generic structure), needs to be removed.
             asyncio.run(query_async_download_relative.async_download(query  = query_async_download_relative,
                                                                      client = c
                                                                     )
@@ -5197,7 +5323,7 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            query_async_download_change_filename = query.from_dict(query_dict_download_status_20)
+            query_async_download_change_filename = query.from_dict(query_dict_download_status_20_no_point_values)
             query_async_download_change_filename.id = '1625544000_31302646'
             query_async_download_change_filename.download_folder = '/tmp'
             query_async_download_change_filename.download_file_name = 'ibmpairs_unit_test'
@@ -5210,7 +5336,7 @@ class QueryUnitTest(unittest.TestCase):
         
         self.assertFalse(got_exception)
         
-        self.assertEqual(query_async_download_relative.download_status, "SUCCEEDED")
+        self.assertEqual(query_async_download_change_filename.download_status, "SUCCEEDED")
         
         self.assertTrue(os.path.isdir("/tmp"))
         self.assertTrue(os.path.isfile("/tmp/ibmpairs_unit_test.zip"))
@@ -5232,7 +5358,7 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            query_async_download_failed = query.from_dict(query_dict_download_status_20)
+            query_async_download_failed = query.from_dict(query_dict_download_status_20_no_point_values)
             query_async_download_failed.id = '1625544000_31302647'
             asyncio.run(query_async_download_failed.async_download(query  = query_async_download_failed,
                                                                      client = c
@@ -5255,7 +5381,7 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            query_async_unzip_failed = query.from_dict(query_dict_download_status_20)
+            query_async_unzip_failed = query.from_dict(query_dict_download_status_20_no_point_values)
             query_async_unzip_failed.id = '1625544000_31302645'
             asyncio.run(query_async_unzip_failed.async_download(query  = query_async_unzip_failed,
                                                                 client = c
@@ -5282,7 +5408,7 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            query_async_download_poll_success = query.from_dict(query_dict_download_status_20)
+            query_async_download_poll_success = query.from_dict(query_dict_download_status_20_no_point_values)
             query_async_download_poll_success.id = '1625544000_31302648'
             asyncio.run(query_async_download_poll_success.async_download(query  = query_async_download_poll_success,
                                                                      client = c
@@ -5312,7 +5438,7 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            query_async_download_poll_fail = query.from_dict(query_dict_download_status_20)
+            query_async_download_poll_fail = query.from_dict(query_dict_download_status_20_no_point_values)
             query_async_download_poll_fail.id = '1625544000_31302649'
             asyncio.run(query_async_download_poll_fail.async_download(query  = query_async_download_poll_fail,
                                                                      client = c
@@ -5335,7 +5461,7 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            query_async_download_deleted = query.from_dict(query_dict_download_status_20)
+            query_async_download_deleted = query.from_dict(query_dict_download_status_20_no_point_values)
             query_async_download_deleted.id = '1625544000_31302650'
             asyncio.run(query_async_download_deleted.async_download(query  = query_async_download_deleted,
                                                                      client = c
@@ -5361,8 +5487,8 @@ class QueryUnitTest(unittest.TestCase):
 
         got_exception = False
 
-        try:            
-            query_download = query.from_dict(query_dict_download_status_20)
+        try:
+            query_download = query.from_dict(query_dict_download_status_20_no_point_values)
             query_download.id = '1625544000_31302646'
             query_download.download(client = c)
         except Exception as ex:
@@ -5389,7 +5515,7 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
 
         try:            
-            query_download_params = query.from_dict(query_dict_download_status_20)
+            query_download_params = query.from_dict(query_dict_download_status_20_no_point_values)
             query_download_params.id = '1625544000_31302646'
             query_download_params.download(client             = c,
                                            download_folder    = '/tmp',
@@ -5425,7 +5551,7 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
 
         try:            
-            query_check_status_and_download = query.from_dict(query_dict_download_status_20)
+            query_check_status_and_download = query.from_dict(query_dict_download_status_20_no_point_values)
             query_check_status_and_download.id = '1625544000_31302646'
             query_check_status_and_download.check_status_and_download(client = c)
         except Exception as ex:
@@ -5659,7 +5785,7 @@ class QueryUnitTest(unittest.TestCase):
         self.assertFalse(got_exception)
         self.assertEqual(query_merge_success.merge_status, "SUCCEEDED")
     
-    #    
+    #
     def test_point_data_as_dataframe_csv(self):
         self.logger.info('test_point_data_as_dataframe_csv')
         
@@ -5683,6 +5809,96 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(float(query_as_df_csv.head(1)["longitude"]), 139.7)
         self.assertEqual(float(query_as_df_csv.head(1)["latitude"]), 35.7)
         self.assertEqual(float(query_as_df_csv.head(1)["value"]), 273.918212890625)
+        
+    @mock.patch('ibmpairs.client.Client.async_get', 
+                side_effect=mocked_download_async_get
+               )
+    @mock.patch('ibmpairs.client.Client.async_post', 
+                side_effect=mocked_submit_async_post
+               )
+    def test_point_query_online_intransparent_batch(self, mock_post, mock_get):
+        self.logger.info('test_point_query_online_intransparent_batch')
+        
+        self.logger.info('test_point_query_online_intransparent_batch: 200')
+        
+        c      = client.Client() 
+        query  = query_module.Query
+        
+        query_async_point_online = None
+        
+        got_exception = False
+        
+        try:
+            query_async_point_online = query.from_dict(query_dict)
+            query_async_point_online.name         = "1000000000_30000000"
+            query_async_point_online.spatial.type = "point"
+            asyncio.run(query_async_point_online.async_submit(query  = query_async_point_online,
+                                                              client = c
+                                                             )
+                       )
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertFalse(got_exception)
+        self.assertEqual(query_async_point_online.id, "1000000000_30000000")
+        self.assertEqual(query_async_point_online.status_response.status, "Succeeded(20)")
+        self.assertEqual(query_async_point_online.download_status, "SUCCEEDED")
+        self.assertEqual(query_async_point_online.submit_response.data, '{"data": "1,2,3\\na,b,c"}')
+        
+        self.logger.info('test_point_query_online_status_intransparent_batch: 200')
+        
+        c      = client.Client() 
+        query  = query_module.Query
+        
+        query_async_point_online_status = None
+        
+        got_exception2 = False
+        
+        try:
+            query_async_point_online_status = query.from_dict(query_dict)
+            query_async_point_online_status.name         = "1000000000_30000000"
+            query_async_point_online_status.spatial.type = "point"
+            asyncio.run(query_async_point_online_status.async_submit_and_check_status(query  = query_async_point_online_status,
+                                                                                      client = c
+                                                                                     )
+                       )
+        except Exception as ex:
+            got_exception2 = True
+            
+        self.assertFalse(got_exception2)
+        self.assertEqual(query_async_point_online_status.id, "1000000000_30000000")
+        self.assertEqual(query_async_point_online_status.status_response.status, "Succeeded(20)")
+        self.assertEqual(query_async_point_online_status.download_status, "SUCCEEDED")
+        self.assertEqual(query_async_point_online_status.submit_response.data, '{"data": "1,2,3\\na,b,c"}')
+        
+        # This test should trigger an 'online skip', see query.submit_response.
+        self.logger.info('test_point_query_online_status_and_download_intransparent_batch + online skip: 200')
+        
+        c      = client.Client() 
+        query  = query_module.Query
+        
+        query_async_point_online_status_and_download = None
+        
+        got_exception3 = False
+        
+        try:
+            query_async_point_online_status_and_download = query.from_dict(query_dict)
+            query_async_point_online_status_and_download.name         = "1000000000_30000000"
+            query_async_point_online_status_and_download.spatial.type = "point"
+            asyncio.run(query_async_point_online_status_and_download.async_submit_check_status_and_download(query  = query_async_point_online_status_and_download,
+                                                                                                            client = c
+                                                                                                           )
+                       )
+        except Exception as ex:
+            got_exception3 = True
+            
+        self.assertFalse(got_exception3)
+        self.assertEqual(query_async_point_online_status_and_download.id, "1000000000_30000000")
+        self.assertEqual(query_async_point_online_status_and_download.status_response.status, "Succeeded(20)")
+        self.assertEqual(query_async_point_online_status_and_download.download_status, "SUCCEEDED")
+        self.assertEqual(query_async_point_online_status_and_download.submit_response.data, '{"data": "1,2,3\\na,b,c"}')
+        
+        
     
 #
 #class BatchQueryUnitTest(unittest.TestCase):

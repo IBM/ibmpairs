@@ -51,3 +51,18 @@ test-upload: ## Runs upload unit tests
 test-upload:
 	@echo 'Running upload unit tests ...'
 	@if $(PYTHON_ENV) -m pytest tests/test_upload.py; then exit 0; else exit 1; fi
+
+docker-build: ## Builds docker container
+docker-build:
+	@echo 'Building docker container ibmpairs'
+	@docker build -t ibmpairs .
+
+docker-run: ## Runs ibmpairs container
+docker-run:
+	@echo 'Running docker container ibmpairs on port 18380'
+	@docker run -dit -p 18380:18380 --name ibmpairs ibmpairs:latest
+
+docs: ## Create local SDK documentation
+docs:
+	@echo 'Building docker container ibmpairs'
+	@cd docs && make html
