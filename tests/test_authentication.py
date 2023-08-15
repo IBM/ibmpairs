@@ -49,7 +49,7 @@ class BasicUnitTest(unittest.TestCase):
             got_exception = True
         
         self.assertFalse(got_exception)
-        self.assertEqual(basic.host, "pairs.res.ibm.com")
+        self.assertEqual(basic.host, "https://pairs.res.ibm.com/v2")
         self.assertEqual(basic.username, "email@domain.com")
         self.assertEqual(basic.password, "thisisnotapassword")
         cwd = os.getcwd()
@@ -351,7 +351,7 @@ class OAuth2UnitTest(unittest.TestCase):
             got_exception = True
         
         self.assertFalse(got_exception)
-        self.assertEqual(oauth2.host, "pairs.res.ibm.com")
+        self.assertEqual(oauth2.host, "https://pairs.res.ibm.com/v2")
         self.assertEqual(oauth2.username, "email@domain.com")
         self.assertEqual(oauth2.api_key, "thisisnotanapikey")
         cwd = os.getcwd()
@@ -373,11 +373,11 @@ class OAuth2UnitTest(unittest.TestCase):
         
         credentials2 = None
         
-        #try:
-        credentials2 = authentication.OAuth2(api_key_file = 'oauth2-unittest.txt',
-                                                username     = 'email@domain.com')
-        #except Exception as ex:
-        #    got_exception = True
+        try:
+            credentials2 = authentication.OAuth2(api_key_file = 'oauth2-unittest.txt',
+                                                 username     = 'email@domain.com')
+        except Exception as ex:
+            got_exception = True
             
         self.assertFalse(got_exception)
         self.assertEqual(credentials2.jwt_token, "thisisnotanaccesstoken")
@@ -579,8 +579,8 @@ class OAuth2UnitTest(unittest.TestCase):
         self.assertEqual(credentials_api_connect.client_id, "saascore-thisisnotatenantid")
         self.assertEqual(credentials_api_connect.tenant_id, "thisisnotatenantid")
         self.assertEqual(credentials_api_connect.org_id, "thisisnotanorgid")
-        self.assertEqual(credentials_api_connect.endpoint, "api.ibm.com")
-        self.assertEqual(credentials_api_connect.host, "api.ibm.com/geospatial/run/na/core/v3")
+        self.assertEqual(credentials_api_connect.endpoint, "api.ibm.com/saascore/run/authentication-retrieve")
+        self.assertEqual(credentials_api_connect.host, "https://api.ibm.com/geospatial/run/na/core/v3")
         self.assertEqual(credentials_api_connect.iam_endpoint, "iam.cloud.ibm.com")
         self.assertEqual(credentials_api_connect.legacy, False)
         
@@ -635,7 +635,7 @@ class OAuth2UnitTest(unittest.TestCase):
             
         self.assertTrue(got_exception)
         
-        credentials_api_connect.endpoint = 'api.ibm.com'
+        credentials_api_connect.endpoint = 'api.ibm.com/saascore/run/authentication-retrieve'
     '''
     @mock.patch('requests.get', 
                 side_effect=mocked_requests_get
@@ -752,7 +752,7 @@ class OAuth2UnitTest(unittest.TestCase):
             got_exception = True
 
         self.assertFalse(got_exception)
-        self.assertEqual(oauth2_from_dict.host, "pairs.res.ibm.com")
+        self.assertEqual(oauth2_from_dict.host, "https://pairs.res.ibm.com/v2")
         self.assertEqual(oauth2_from_dict.username, "TWCcustomersupport@us.ibm.com")
         self.assertEqual(oauth2_from_dict.api_key, "thisisnotanapikey")
         self.assertEqual(oauth2_from_dict.api_key_file, "ibmpairspass.txt")
@@ -784,7 +784,7 @@ class OAuth2UnitTest(unittest.TestCase):
 
         self.assertFalse(got_exception)
         self.assertIsInstance(oauth2_to_dict , dict)
-        self.assertEqual(oauth2_to_dict["host"], "pairs.res.ibm.com")
+        self.assertEqual(oauth2_to_dict["host"], "https://pairs.res.ibm.com/v2")
         self.assertEqual(oauth2_to_dict["username"], "TWCcustomersupport@us.ibm.com")
         self.assertEqual(oauth2_to_dict["api_key"], "thisisnotanapikey")
         self.assertEqual(oauth2_to_dict["api_key_file"], "ibmpairspass.txt")
@@ -822,7 +822,7 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
             got_exception = True
 
         self.assertFalse(got_exception)
-        self.assertEqual(oauth2_from_dict.host, "pairs.res.ibm.com")
+        self.assertEqual(oauth2_from_dict.host, "https://pairs.res.ibm.com/v2")
         self.assertEqual(oauth2_from_dict.username, "TWCcustomersupport@us.ibm.com")
         self.assertEqual(oauth2_from_dict.api_key, "thisisnotanapikey")
         self.assertEqual(oauth2_from_dict.api_key_file, "ibmpairspass.txt")
@@ -853,7 +853,7 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
 
         self.assertFalse(got_exception)
         self.assertIsInstance(oauth2_to_dict , dict)
-        self.assertEqual(oauth2_to_dict["host"], "pairs.res.ibm.com")
+        self.assertEqual(oauth2_to_dict["host"], "https://pairs.res.ibm.com/v2")
         self.assertEqual(oauth2_to_dict["username"], "TWCcustomersupport@us.ibm.com")
         self.assertEqual(oauth2_to_dict["api_key"], "thisisnotanapikey")
         self.assertEqual(oauth2_to_dict["api_key_file"], "ibmpairspass.txt")
@@ -885,7 +885,7 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
 
         self.assertFalse(got_exception)
         
-        self.assertEqual(oauth2_from_json.host, "pairs.res.ibm.com")
+        self.assertEqual(oauth2_from_json.host, "https://pairs.res.ibm.com/v2")
         self.assertEqual(oauth2_from_json.username, "TWCcustomersupport@us.ibm.com")
         self.assertEqual(oauth2_from_json.api_key, "thisisnotanapikey")
         self.assertEqual(oauth2_from_json.api_key_file, "ibmpairspass.txt")

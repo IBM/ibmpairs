@@ -69,6 +69,11 @@ QUERY_API                      = '/query'
 QUERY_JOBS_API                 = '/queryjobs/'
 QUERY_JOBS_DOWNLOAD_API        = '/queryjobs/download/'
 QUERY_JOBS_API_MERGE           = '/merge/'
+QUERY_JOB_HISTORY              = '/queryhistories/full/queryjob/'
+QUERY_AOI_BASE                 = '/aois/'
+QUERY_AOI_GEOMETRY             = '?format='
+QUERY_AOI_METADATA             = QUERY_AOI_BASE
+QUERY_AOI_SEARCH               = QUERY_AOI_BASE + 'search?name='
 QUERY_DATE_FORMAT              = '%Y-%m-%d'
 QUERY_DEFAULT_WORKERS          = int(os.environ.get('QUERY_DEFAULT_WORKERS', 1))
 QUERY_MAX_WORKERS              = int(os.environ.get('QUERY_MAX_WORKERS', 8))

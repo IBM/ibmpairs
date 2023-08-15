@@ -19,9 +19,9 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = u'IBM PAIRS open source tools'
-copyright = u'2019, Physical Analytics, IBM Research'
-author = u'Physical Analytics, IBM Research'
+project = u'IBM Environmental Intelligence Suite: Geospatial Analytics'
+copyright = u'IBM Corporation'
+author = u'IBM Corporation'
 
 # The short X.Y version
 version = u''
@@ -111,7 +111,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'IBMPAIRSdoc'
+htmlhelp_basename = 'IBMEISGAdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -138,8 +138,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'IBMPAIRS.tex', u'IBM PAIRS open source tools Documentation',
-     u'Physical Analytics, IBM Research', 'manual'),
+    (master_doc, 'IBMEISGA.tex', u'IBM Environmental Intelligence Suite: Geospatial Analytics open source tools Documentation',
+     u'IBM Corp.', 'manual'),
 ]
 
 
@@ -148,7 +148,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'ibmpairs', u'IBM PAIRS open source tools Documentation',
+    (master_doc, 'ibmpairs', u'IBM Environmental Intelligence Suite: Geospatial Analytics open source tools Documentation',
      [author], 1)
 ]
 
@@ -159,8 +159,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'IBMPAIRS', u'IBM PAIRS open source tools Documentation',
-     author, 'IBMPAIRS', 'One line description of project.',
+    (master_doc, 'IBMEISGA', u'IBM Environmental Intelligence Suite: Geospatial Analytics open source tools Documentation',
+     author, 'IBMEISGA', 'IBM Environmental Intelligence Suite: Geospatial Analytics open source tools Documentation',
      'Miscellaneous'),
 ]
 
