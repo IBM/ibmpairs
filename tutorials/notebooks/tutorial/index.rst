@@ -5,6 +5,3 @@ API
    :maxdepth: 2
 
    pythonapiwrapper
-   workingwithoutpythonapiwrapper
-   aggregationandfiltering
-   userdefinedfunctions

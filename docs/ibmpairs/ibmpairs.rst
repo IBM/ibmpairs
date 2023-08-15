@@ -11,7 +11,7 @@ ibmpairs.authentication module
     :members:
     :undoc-members:
     :show-inheritance:
-
+    
 ibmpairs.catalog module
 -----------------------
 
@@ -19,23 +19,23 @@ ibmpairs.catalog module
     :members:
     :undoc-members:
     :show-inheritance:
-
+    
 ibmpairs.client module
-----------------------       
+----------------------
 
-.. automodule:: ibmpairs.client       
+.. automodule:: ibmpairs.client
     :members:
     :undoc-members:
     :show-inheritance:
+    
+ibmpairs.common module
+----------------------
 
-ibmpairs.dashboard module
-------------------------- 
-
-.. automodule:: ibmpairs.dashboard 
+.. automodule:: ibmpairs.common
     :members:
     :undoc-members:
     :show-inheritance:
-
+    
 ibmpairs.external.ibm module
 ----------------------------
 
@@ -43,23 +43,7 @@ ibmpairs.external.ibm module
     :members:
     :undoc-members:
     :show-inheritance:
-
-ibmpairs.query module
----------------------
-
-.. automodule:: ibmpairs.query
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-ibmpairs.upload module
----------------------   
-
-.. automodule:: ibmpairs.upload    
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+    
 ibmpairs.paw module
 -------------------
 
@@ -67,7 +51,23 @@ ibmpairs.paw module
     :members:
     :undoc-members:
     :show-inheritance:
+    
+ibmpairs.query module
+---------------------
 
+.. automodule:: ibmpairs.query
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
+ibmpairs.upload module
+----------------------
+
+.. automodule:: ibmpairs.upload
+    :members:
+    :undoc-members:
+    :show-inheritance:
+    
 
 Module contents
 ---------------
@@ -76,3 +76,4 @@ Module contents
     :members:
     :undoc-members:
     :show-inheritance:
+    

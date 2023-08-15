@@ -307,7 +307,7 @@ class ClientUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            client.host                     = "https://pairs.res.ibm.com"
+            client.host                     = "https://pairs.res.ibm.com/v2"
             client.headers                  = constants.CLIENT_JSON_HEADER
             client.authentication.api_key   = "thisisnotanapikey"
             client.authentication.jwt_token = "thisisnotanaccesstoken"

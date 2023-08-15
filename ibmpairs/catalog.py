@@ -800,7 +800,7 @@ class DataSet:
     #_temporal_max: str # datetime?
     
     # Get Exclusive 
-    # (GET /v2/datasets/{dataset_id})
+    # (GET /datasets/{dataset_id})
     #_id: str
     #_key: str
     #_dsource_h_link: str
@@ -811,23 +811,23 @@ class DataSet:
     #_updated_at: str
     
     # Create Exclusive
-    # (POST /v2/datasets/{dataset_id})
+    # (POST /datasets/{dataset_id})
     # N/A
     
     # Update Exclusive 
-    # (PUT /v2/datasets/{dataset_id})
+    # (PUT /datasets/{dataset_id})
     # N/A
 
     # Create & Get Common
-    # (POST /v2/datasets/{dataset_id})
-    # (GET /v2/datasets/{dataset_id})
+    # (POST /datasets/{dataset_id})
+    # (GET /datasets/{dataset_id})
     #_level: int
     #_crs: str
     #_offering_status: str
 
     # Create & Update Common
-    # (POST /v2/datasets/{dataset_id})
-    # (PUT /v2/datasets/{dataset_id})
+    # (POST /datasets/{dataset_id})
+    # (PUT /datasets/{dataset_id})
     #_contact_person: str
     #_description_internal: str
     #_description_internal_links: List[str]
@@ -837,8 +837,8 @@ class DataSet:
     #_license_information: str
     
     # Get & Update Common
-    # (GET /v2/datasets/{dataset_id}) 
-    # (PUT /v2/datasets/{dataset_id}) 
+    # (GET /datasets/{dataset_id}) 
+    # (PUT /datasets/{dataset_id}) 
     # N/A  
     
     # Internal
@@ -2640,7 +2640,7 @@ class DataSet:
         try:
             response = cli.post(url     = cli.get_host() + 
                                           constants.CATALOG_DATA_SETS_API,
-                                headers = constants.CLIENT_PUT_AND_POST_HEADER,
+                                headers = dict(constants.CLIENT_PUT_AND_POST_HEADER),
                                 body    = dataset_json,
                                 verify  = verify
                                )
@@ -2710,7 +2710,7 @@ class DataSet:
             response = cli.put(url      = cli.get_host() + 
                                           constants.CATALOG_DATA_SETS_API + 
                                           common.check_str(self._id),
-                                headers = constants.CLIENT_PUT_AND_POST_HEADER,
+                                headers = dict(constants.CLIENT_PUT_AND_POST_HEADER),
                                 body    = dataset_json,
                                 verify  = verify
                                )
@@ -3695,7 +3695,7 @@ class DataLayerDimension:
     #_unit: str
     
     # GET Exclusive 
-    # (GET /v2/datalayers/{datalayer_id}/datalayer_dimensions)
+    # (GET /datalayers/{datalayer_id}/datalayer_dimensions)
     #_id: str
     #_order: int
     #_identifier: str
@@ -4216,7 +4216,7 @@ class DataLayerDimension:
                                          constants.CATALOG_DATA_LAYERS_API +
                                          self._data_layer_id + 
                                          constants.CATALOG_DATA_LAYERS_API_DIMENSIONS,
-                               headers = constants.CLIENT_PUT_AND_POST_HEADER,
+                               headers = dict(constants.CLIENT_PUT_AND_POST_HEADER),
                                body    = data_layer_dimension,
                                verify  = verify
                               )
@@ -4549,6 +4549,10 @@ class DataLayerDimensions:
                                        constants.CATALOG_DATA_LAYERS_API_DIMENSIONS,
                               verify = verify
                              )
+           logger.info(cli.get_host() +
+            constants.CATALOG_DATA_LAYERS_API +
+            common.check_str(self._data_layer_id) +
+            constants.CATALOG_DATA_LAYERS_API_DIMENSIONS)
         except Exception as e:
             msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.CATALOG_DATA_LAYERS_API + common.check_str(self._data_layer_id) + constants.CATALOG_DATA_LAYERS_API_DIMENSIONS, e)
             logger.error(msg)
@@ -4765,7 +4769,7 @@ class DataLayerProperty:
     #_unit: str
     
     # GET Exclusive 
-    # (GET /v2/datalayers/{datalayer_id}/datalayer_dimensions)
+    # (GET /datalayers/{datalayer_id}/datalayer_dimensions)
     #_id: int
     #_order: int
     #_identifier: str
@@ -5288,7 +5292,7 @@ class DataLayerProperty:
                                           constants.CATALOG_DATA_LAYERS_API +
                                           common.check_str(self._data_layer_id) + 
                                           constants.CATALOG_DATA_LAYERS_API_PROPERTIES,
-                                headers = constants.CLIENT_PUT_AND_POST_HEADER,
+                                headers = dict(constants.CLIENT_PUT_AND_POST_HEADER),
                                 body    = data_layer_property,
                                 verify  = verify
                                )
@@ -5331,7 +5335,7 @@ class DataLayerProperties:
     
     :param client:                An IBM PAIRS Client.
     :type client:                 ibmpairs.client.Client
-    :param data_layer_properties: An list of Data Layer Properties.
+    :param data_layer_properties: A list of Data Layer Properties.
     :type data_layer_properties:  List[ibmpairs.catalog.DataLayerProperty]
     :param data_layer_id:         The Data Layer ID of the Data Layer Properties.
     :type data_layer_id:          str
@@ -5683,7 +5687,7 @@ class DataLayer:
     #_data_layer_return: DataLayerReturn
     
     # Get Exclusive
-    # (GET /v2/datalayers/{datalayer_id})
+    # (GET /datalayers/{datalayer_id})
     #_id: str
     #_dataset: DataSet
     #_created_at: str
@@ -5693,22 +5697,22 @@ class DataLayer:
     #_dataset_id: str 
 
     # Create Exclusive
-    # (POST /v2/datasets/{dataset_id}/datalayers)
+    # (POST /datasets/{dataset_id}/datalayers)
     # N/A
     
     # Update Exclusive
-    # (PUT /v2/datalayers/{datalayer_id})
+    # (PUT /datalayers/{datalayer_id})
     # N/A
     
     # Get & Update 
-    # (GET /v2/datalayers/{datalayer_id})
-    # (GET /v2/datalayers/full)
+    # (GET /datalayers/{datalayer_id})
+    # (GET /datalayers/full)
     #_min_value: float
     #_max_value: float
 
     # Create & Get Common
-    # (POST /v2/datasets/{dataset_id}/datalayers)
-    # (GET /v2/datalayers/{datalayer_id})
+    # (POST /datasets/{dataset_id}/datalayers)
+    # (GET /datalayers/{datalayer_id})
     #_units: str
     #_datatype: str
     #_level: int
@@ -5716,8 +5720,8 @@ class DataLayer:
     #_color_table: ColorTable
     
     # Create & Update Common
-    # (POST /v2/datasets/{dataset_id}/datalayers)
-    # (PUT /v2/datalayers/{datalayer_id})
+    # (POST /datasets/{dataset_id}/datalayers)
+    # (PUT /datalayers/{datalayer_id})
     #_description_internal: str
     #_description_internal_links: List[str]
     #_formula: str
@@ -7640,7 +7644,7 @@ class DataLayer:
             response = cli.put(url     = cli.get_host() + 
                                          constants.CATALOG_DATA_LAYERS_API + 
                                          common.check_str(self._id),
-                               headers = constants.CLIENT_PUT_AND_POST_HEADER,
+                               headers = dict(constants.CLIENT_PUT_AND_POST_HEADER),
                                body    = data_layer_update_json,
                                verify  = verify
                               )
@@ -8481,7 +8485,7 @@ class DataLayers:
                                           constants.CATALOG_DATA_SETS_API + 
                                           common.check_str(self._data_set_id) +
                                           constants.CATALOG_DATA_SETS_LAYERS_API,
-                                headers = constants.CLIENT_PUT_AND_POST_HEADER,
+                                headers = dict(constants.CLIENT_PUT_AND_POST_HEADER),
                                 body    = data_layer_create_json,
                                 verify  = verify
                                )
@@ -8519,7 +8523,7 @@ class DataLayers:
             if group_id_regex is not None:
                 self.set_group_id(common.check_str(group_id_regex.group(0)))
 
-# 
+#
 class Search:
     #_data_sets: DataSets
     #_data_layers: DataLayers
@@ -8572,11 +8576,11 @@ class Search:
     def set_data_layers(self, data_layers):
       self._data_layers = common.check_class(data_layers, DataLayers)
 
-    #    
+    #
     def del_data_layers(self): 
       del self._data_layers
 
-    #    
+    #
     data_layers = property(get_data_layers, set_data_layers, del_data_layers)
     
                                   
@@ -8764,6 +8768,7 @@ class Search:
         search.reset_index(inplace=True, drop=True)
                             
         return search
+
 
 #
 def category_from_dict(category_dictionary: dict):
@@ -10335,7 +10340,7 @@ def search(search_term: str,
            verify: bool      = constants.GLOBAL_SSL_VERIFY
           ):
     """
-    Creates a DataLayerProperty in a DataLayer from a DataLayerProperty object.
+    Searches the catalog for DataSets and Datalayers.
     
     :param search_term:      A free text search term used to search DataSets and DataLayers.
     :type search_term:       str
