@@ -8714,12 +8714,12 @@ class Search:
             float(search_term) #check if searchterm is a number, if not search df for string
             search = ds.query('data_set_id ==' + search_term, engine='python')
         except:
-            search = ds.query('data_set_name.str.contains("'+search_term+'")' or
-                                  'dataset_description_short.str.contains("'+ search_term +'")' or
-                                  'data_set_description_long.str.contains("'+ search_term +'")', 
-                              engine='python'
-                             )
-                            
+            name       = ds.query('data_set_name.str.contains("'+search_term+'", case = False)', engine='python')
+            desc_short = ds.query('data_set_description_short.str.contains("'+ search_term +'", case = False)', engine='python')
+            desc_long  = ds.query('data_set_description_long.str.contains("'+ search_term +'", case = False)', engine='python')
+            search = pd.concat([name, desc_short, desc_long])
+        
+        search.drop_duplicates(subset=None, keep='first', inplace=False)
         search.reset_index(inplace=True, drop=True)
                             
         return search
@@ -8758,13 +8758,12 @@ class Search:
             float(search_term)
             search = dl.query('data_layer_id.str.contains("'+search_term+'")', engine='python')
         except:
-            search = dl.query('data_layer_id.str.contains("'+search_term+'")' or
-                              'data_layer_name.str.contains("'+search_term+'")' or
-                                  'data_layer_description_short.str.contains("'+ search_term +'")' or
-                                  'data_layer_description_long.str.contains("'+ search_term +'")', 
-                              engine='python'
-                             )
+            name       = dl.query('data_layer_name.str.contains("'+search_term+'", case = False)', engine='python')
+            desc_short = dl.query('data_layer_description_short.str.contains("'+ search_term +'", case = False)', engine='python')
+            desc_long  = dl.query('data_layer_description_long.str.contains("'+ search_term +'", case = False)', engine='python')
+            search = pd.concat([name, desc_short, desc_long])
 
+        search.drop_duplicates(subset=None, keep='first', inplace=False)
         search.reset_index(inplace=True, drop=True)
                             
         return search
