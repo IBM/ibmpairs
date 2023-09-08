@@ -1402,6 +1402,76 @@ class OAuth2(object):
             msg = messages.ERROR_AUTHENTICATION_NOT_SUCCESSFUL_API_CONNECT.format("IBM Cloud IAM", str(iam_response.status_code), self.get_oauth2_return().get_error())
             logger.error(msg)
             raise common.PAWException(msg)
+            
+    #
+    def eis_get_auth_token(self, 
+                           api_key      = None, 
+                           client_id    = None, 
+                           endpoint     = None,
+                           verify       = constants.GLOBAL_SSL_VERIFY,
+                           iam_endpoint = None,
+                           org_id       = None,
+                           tenant_id    = None
+                          ):
+      
+        """
+        The method submits a request to the authentication system and obtains a response.
+        
+        :param api_key:      An api key for the authentication system (in this case a non-legacy EIS key).
+        :type api_key:       str
+        :param client_id:    A client id for the authentication system.
+        :type client_id:     str
+        :param endpoint:     The authentication endpoint.
+        :type endpoint:      str
+        :param verify:       Verify ssl.
+        :type verify:        boolean
+        :param iam_endpoint: IBM Cloud IAM Endpoint
+        :type iam_endpoint:  str
+        :param org_id:       IBM EIS GA API Connect Org Id
+        :type org_id:        str
+        :param tenant_id:    IBM EIS GA API Connect Tenant Id
+        :type tenant_id:     str
+        """
+      
+        response               = None
+        response_oauth2_return = None
+      
+        if api_key is not None:
+            self.set_api_key(api_key)
+        if client_id is not None:
+            self.set_client_id(client_id)
+        if tenant_id is not None:
+            self.set_tenant_id(tenant_id)
+            self.set_client_id('saascore-'+tenant_id)
+        if endpoint is not None:
+            self.set_endpoint(endpoint)
+        if iam_endpoint is not None:
+            self.set_iam_endpoint(iam_endpoint)
+        if org_id is not None:
+            self.set_org_id(org_id)
+
+
+        request_headers: dict              = {}
+        request_headers["X-IBM-Client-Id"] = self.get_client_id()
+        request_headers["X-API-Key"] = self.get_api_key()
+              
+        response = requests.get("https://" + 
+                                    self.get_endpoint() +
+                                    "/api-key?orgId=" +
+                                    self.get_org_id(),
+                                headers = request_headers,
+                                verify  = verify
+                               )
+              
+        if response.status_code == 200:
+            self.set_jwt_token(response.text)
+        else:
+            oauth_error_json = {"error": str(response.json()["httpMessage"]) + ': ' + str(response.json()["moreInformation"])}
+            self.set_oauth2_return(oauth2_return_from_json(oauth_error_json))
+                  
+            msg = messages.ERROR_AUTHENTICATION_NOT_SUCCESSFUL_API_CONNECT.format("IBM EIS", str(response.status_code), self.get_oauth2_return().get_error())
+            logger.error(msg)
+            raise common.PAWException(msg)
 
     #
     def api_connect_refresh_auth_token(self,
@@ -1411,8 +1481,19 @@ class OAuth2(object):
         """
         The method performs a new api_connect_get_auth_token.
         """
-        
+
         self.api_connect_get_auth_token()
+            
+    #
+    def eis_refresh_auth_token(self,
+                               verify = constants.GLOBAL_SSL_VERIFY
+                              ):
+      
+        """
+        The method performs a new eis_get_auth_token.
+        """
+      
+        self.eis_get_auth_token()
         
     #
     def get_auth_token(self, 
@@ -1434,14 +1515,34 @@ class OAuth2(object):
                                        )
         else:
             logger.info("Legacy Environment is False")
-            self.api_connect_get_auth_token(api_key      = api_key, 
-                                            client_id    = client_id,
-                                            endpoint     = endpoint,
-                                            verify       = verify,
-                                            iam_endpoint = iam_endpoint,
-                                            org_id       = org_id,
-                                            tenant_id    = tenant_id
-                                           )
+            
+            # In the (very) unlikely event that an api key from IBM Cloud IAM
+            # starts with 'PHX' it may be mistaken for an EIS api key.
+            if ((api_key is not None) and 
+                (api_key.startswith('PHX'))):
+                msg = messages.INFO_AUTHENTICATION_API_KEY_TYPE.format('IBM EIS', 'is')
+                logger.info(msg)
+                
+                self.eis_get_auth_token(api_key      = api_key, 
+                                        client_id    = client_id,
+                                        endpoint     = endpoint,
+                                        verify       = verify,
+                                        iam_endpoint = iam_endpoint,
+                                        org_id       = org_id,
+                                        tenant_id    = tenant_id
+                                       )
+            else:
+                msg = messages.INFO_AUTHENTICATION_API_KEY_TYPE.format('IBM Cloud IAM', 'is not')
+                logger.info(msg)
+                
+                self.api_connect_get_auth_token(api_key      = api_key, 
+                                                client_id    = client_id,
+                                                endpoint     = endpoint,
+                                                verify       = verify,
+                                                iam_endpoint = iam_endpoint,
+                                                org_id       = org_id,
+                                                tenant_id    = tenant_id
+                                               )
             
     #
     def refresh_auth_token(self,
@@ -1451,7 +1552,20 @@ class OAuth2(object):
         if self._legacy is True:
             self.phoenix_refresh_auth_token()
         else:
-            self.api_connect_refresh_auth_token()
+            # In the (very) unlikely event that an api key from IBM Cloud IAM
+            # starts with 'PHX' it may be mistaken for an EIS api key.
+            
+            if ((self.get_api_key() is not None) and 
+                (self.get_api_key().startswith('PHX'))):
+                msg = messages.INFO_AUTHENTICATION_API_KEY_TYPE_REFRESH.format('IBM EIS', 'is')
+                logger.info(msg)
+            
+                self.eis_refresh_auth_token()
+            else:
+                msg = messages.INFO_AUTHENTICATION_API_KEY_TYPE_REFRESH.format('IBM Cloud IAM', 'is not')
+                logger.info(msg)
+                
+                self.api_connect_refresh_auth_token()
     
     #
     def from_dict(authentication_dict: Any):

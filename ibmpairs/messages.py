@@ -36,6 +36,8 @@ INFO_STARTS_WITH_GEOSPATIAL = 'The string starts with geospatial, where it shoul
 INFO_STARTS_WITH_SAASCORE = 'The string starts with saascore, where it should start with geospatial; correcting.'
 INFO_API_CONNECT_POSSIBLE_TENANT_ID_IN_CLIENT_ID_FIELD = 'It might be that a tenant_id is declared in the client_id field, attempting to auth with \'saascore-\' prefixed.'
 INFO_AUTHENTICATION_SUCCESSFUL = 'Authentication success.'
+INFO_AUTHENTICATION_API_KEY_TYPE = 'The authentication api key type is assumed to be {}, because the api key prefix \'PHX\' {} present.'
+INFO_AUTHENTICATION_TYPE_API_KEY_REFRESH = 'The authentication api key type is assumed to be {}, because the api key prefix \'PHX\' {} present; trying to refresh.'
 
 # catalog messages
 ERROR_CATALOG_RESPOSE_NOT_SUCCESSFUL = 'The {} {} call to {} failed with status code: {}, message: {}.'
