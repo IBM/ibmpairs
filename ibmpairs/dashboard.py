@@ -38,6 +38,7 @@ class QueryRegistrationReturn:
     #_analytics_uuid: str
     #_layer_id: str
     #_base_computation_id: str
+    #_host: str
     
     """
     An object to represent the return from an IBM Environmental Intelligence Suite (EIS) Query Registration call.
@@ -48,6 +49,8 @@ class QueryRegistrationReturn:
     :type layer_id:                     str
     :param base_computation_id:         Base Computation ID.
     :type base_computation_id:          str
+    :param host:                        The Query Registration host
+    :type host:                         str
     """
     
     #
@@ -81,12 +84,14 @@ class QueryRegistrationReturn:
     def __init__(self,
                  analytics_uuid: str      = None,
                  layer_id: str            = None,
-                 base_computation_id: str = None
+                 base_computation_id: str = None,
+                 host                     = None
                 ):
 
         self._analytics_uuid = analytics_uuid
         self._layer_id = layer_id
         self._base_computation_id = base_computation_id
+        self._host = host
 
     def get_analytics_uuid(self):
         return self._analytics_uuid
@@ -121,6 +126,17 @@ class QueryRegistrationReturn:
         
     base_computation_id = property(get_base_computation_id, set_base_computation_id, del_base_computation_id)
 
+    def get_host(self):
+        return self._host
+  
+    def set_host(self, host):
+        self._host = common.check_str(host)
+      
+    def del_host(self):
+        del self._host
+      
+    host = property(get_host, set_host, del_host)
+
     #
     def from_dict(query_registration_return_dict: Any):
       
@@ -135,6 +151,7 @@ class QueryRegistrationReturn:
         analytics_uuid      = None
         layer_id            = None
         base_computation_id = None
+        host                = None
 
         #common.check_dict(query_dict)
         if "analyticsUuid" in query_registration_return_dict:
@@ -146,9 +163,13 @@ class QueryRegistrationReturn:
         if "baseComputationId" in query_registration_return_dict:
             if query_registration_return_dict.get("baseComputationId") is not None:
                 base_computation_id = common.check_str(query_registration_return_dict.get("baseComputationId"))
+        if "host" in query_registration_return_dict:
+            if query_registration_return_dict.get("host") is not None:
+                host = common.check_str(query_registration_return_dict.get("host"))
         return QueryRegistrationReturn(analytics_uuid      = analytics_uuid,
                                        layer_id            = layer_id,
-                                       base_computation_id = base_computation_id
+                                       base_computation_id = base_computation_id,
+                                       host                = host
                                       )
 
     #
@@ -167,6 +188,8 @@ class QueryRegistrationReturn:
             query_registration_return_dict["layer_id"] = self._layer_id
         if self._base_computation_id is not None:
             query_registration_return_dict["base_computation_id"] = self._base_computation_id
+        if self._host is not None:
+            query_registration_return_dict["host"] = self._host
         return query_registration_return_dict
         
     #
@@ -234,7 +257,7 @@ def register_query(query,
         legacy = GLOBAL_LEGACY_ENVIRONMENT
                     
     if (host is None):
-        host = constants.EIS_REGISTER_QUERY_URL
+        host = constants.EIS_V2_API_URL
 
     if (client is None):
         client = common.set_client(input_client  = client,
@@ -257,9 +280,9 @@ def register_query(query,
                 "analyticsName": query_name }
     bodyJsonString = json.dumps(bodyJson)
     try:
-        response = client.post(host,
-                                body = bodyJsonString
-                                )
+        response = client.post(host + constants.EIS_REGISTER_QUERY,
+                               body = bodyJsonString
+                              )
         if response.status_code != 200:
             try:
                 msg = json.dumps(response.json())
@@ -269,6 +292,7 @@ def register_query(query,
             raise common.PAWException(msg)
 
         query_registration =  QueryRegistrationReturn.from_dict(response.json()[0])
+        query_registration.set_host(host)
         query_return = query_module.QueryResponse(id = query_registration.base_computation_id)
         if isinstance(query, query_module.Query):
             query_obj = query
@@ -284,9 +308,9 @@ def register_query(query,
         raise ex
     finally:
         if legacy is True:
-          client.set_host = common.ensure_protocol(constants.CLIENT_LEGACY_URL)
+          client.set_host(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
         else:
-          client.set_host = common.ensure_protocol(constants.CLIENT_URL)
+          client.set_host(common.ensure_protocol(constants.CLIENT_URL))
 
 
 def add_dashboard_layer(query_registration: QueryRegistrationReturn,
@@ -338,7 +362,7 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
         headers = dict(constants.CLIENT_JSON_HEADER)
 
     if (host is None):
-        host = constants.PHOENIX_ADD_DASHBOARD_LAYER
+        host = constants.PHOENIX_V1_API_URL
 
     if (client is None):
         client = common.set_client(input_client  = client,
@@ -357,7 +381,7 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
                                    'enableValidity': False,
                                    'lastUpdatedUtc': None,
                                    'coverageArea': 'Custom',
-                                   'dataAttributes': { 'url': 'https://foundation.agtech.ibm.com/v2',
+                                   'dataAttributes': { 'url': query_registration.host,
                                                        'uuid': query_registration.analytics_uuid 
                                                      },
                                   'menuIconUrl': None,
@@ -369,7 +393,7 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
     bodyJsonString = json.dumps(bodyJson)
 
     try:
-        response = client.put(host,
+        response = client.put(host + constants.EIS_DASHBOARD_ADD_LAYER,
                               body = bodyJsonString,
                               headers = headers
                              )
@@ -380,12 +404,14 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
                 msg = str(response.status_code)
                 logger.error(msg)
             raise common.PAWException(msg)
+        else:
+            logger.info("Success: " + str(response.status_code) + " " +  str(response.text))
     except Exception as ex:
         raise ex
     finally:
         if legacy is True:
-            client.set_host = common.ensure_protocol(constants.CLIENT_LEGACY_URL)
+            client.set_host(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
         else:
-            client.set_host = common.ensure_protocol(constants.CLIENT_URL)
+            client.set_host(common.ensure_protocol(constants.CLIENT_URL))
 
       

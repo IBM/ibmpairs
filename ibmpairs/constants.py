@@ -58,7 +58,9 @@ UPLOAD_WORKER_DEBUG            = False
 
 # woc
 EIS_V2_API_URL                 = os.environ.get('EIS_V2_API_URL', 'https://foundation.agtech.ibm.com/v2')
-EIS_REGISTER_QUERY_URL         = EIS_V2_API_URL + '/layer/analytics/metadata'
+EIS_REGISTER_QUERY             = '/layer/analytics/metadata'
+EIS_REGISTER_QUERY_URL         = EIS_V2_API_URL + EIS_REGISTER_QUERY
+EIS_DASHBOARD_ADD_LAYER        = '/IMAP/put-layer-config-block'
 
 # phoenix
 PHOENIX_V1_API_URL             = os.environ.get('PHOENIX_V1_API_URL', 'https://api.auth-b2b-twc.ibm.com/api/v1')
