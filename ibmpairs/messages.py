@@ -174,6 +174,7 @@ ERROR_POINT_QUERY_DOWNLOAD_UNSUCCESSFUL = 'The online point query could not be s
 INFO_QUERY_DOWNLOAD_FILE_UNZIP = 'The query zip {} will be unzipped to the following path {}.'
 INFO_QUERY_DOWNLOAD_FILE_UNZIPPED = 'The query zip {} was successfully unzipped to {}.'
 ERROR_QUERY_DOWNLOAD_UNSUCCESSFUL_UNZIP = 'The query zip {} could not be unzipped to {}, the operation failed.'
+ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL = 'The {} {} call to {} failed with status code: {}, message: {}.'
 ERROR_QUERY_EXCEED_MAX_WORKERS = 'The number of workers specified \'{}\' is greater than the maxmimum value\'{}\', please decrease.'
 ERROR_QUERY_STATUS_INTERVAL = 'The status_interval specified \'{}\' is less than the minimum value \'{}\', please increase.'
 INFO_QUERY_RUNNER_MUST_CHECK_STATUS = 'The status must be checked in order to query and download.'
