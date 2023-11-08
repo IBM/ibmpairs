@@ -6349,14 +6349,22 @@ class Query:
                                                                response_type = 'json'
                                                               )
                                 
-                                query.submit_response = QueryResponse(id = query.id, 
+                                if response.status != 200:
+                                    self.download_status = "FAILED"
+                                  
+                                    msg = messages.ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL.format('GET', 'request', constants.QUERY_JOBS_DOWNLOAD_API + str(query.id) + "?output_type=csv", response.status, response.body)
+                                    logger.error(msg)
+                                    raise common.PAWException(msg)
+                                else:
+                                
+                                    query.submit_response = QueryResponse(id = query.id, 
                                                                       data = response.body
                                                                      )
                                 
-                                bulk = False
+                                    bulk = False
                                 
-                                self.download_status = "SUCCEEDED"
-                                incomplete = False
+                                    self.download_status = "SUCCEEDED"
+                                    incomplete = False
                                 
                             except Exception as e:
                                 self.download_status = "FAILED"
@@ -6375,6 +6383,14 @@ class Query:
                                                            verify        = verify,
                                                            response_type = 'bytes'
                                                           )
+                                                        
+                            if response.status != 200:
+                                self.download_status = "FAILED"
+                                
+                                msg = messages.ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL.format('GET', 'request', constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), response.status, response.body)
+                                logger.error(msg)
+                                raise common.PAWException(msg)
+                                
                         except Exception as e:
                             self.download_status = "FAILED"
                             msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), e)
@@ -9335,15 +9351,13 @@ class AOIs:
             if len(aoi_df.index) > 0:
                 try:
                     float(search_term)
-                    search = dl.query('id.str.contains("'+search_term+'")', engine='python')
+                    search = aoi_df.query('id ==' + search_term, engine='python')
                 except:
-                    search = aoi_df.query('key.str.contains("'+search_term+'")' or
-                                          'name.str.contains("'+ search_term +'")' or
-                                          'hierarchy.str.contains("'+ search_term +'")' or
-                                          'description.str.contains("'+ search_term +'")', 
-                                          engine='python'
-                                         )
-          
+                    key          = aoi_df.query('key.str.contains("'+search_term+'", case = False)', engine='python')
+                    name         = aoi_df.query('name.str.contains("'+ search_term +'", case = False)', engine='python')
+                    search = pandas.concat([key, name])
+                  
+                search.drop_duplicates(subset=None, keep='first', inplace=False)
                 search.reset_index(inplace=True, drop=True)
                 
                 return search

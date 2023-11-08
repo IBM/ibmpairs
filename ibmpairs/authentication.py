@@ -1557,12 +1557,12 @@ class OAuth2(object):
             
             if ((self.get_api_key() is not None) and 
                 (self.get_api_key().startswith('PHX'))):
-                msg = messages.INFO_AUTHENTICATION_API_KEY_TYPE_REFRESH.format('IBM EIS', 'is')
+                msg = messages.INFO_AUTHENTICATION_TYPE_API_KEY_REFRESH.format('IBM EIS', 'is')
                 logger.info(msg)
             
                 self.eis_refresh_auth_token()
             else:
-                msg = messages.INFO_AUTHENTICATION_API_KEY_TYPE_REFRESH.format('IBM Cloud IAM', 'is not')
+                msg = messages.INFO_AUTHENTICATION_TYPE_API_KEY_REFRESH.format('IBM Cloud IAM', 'is not')
                 logger.info(msg)
                 
                 self.api_connect_refresh_auth_token()
