@@ -7600,7 +7600,7 @@ class DataLayer:
                          data_layers = [self],
                          client = cli
                         )
-        dls.create()
+        dls.create(verify = verify)
         
         return dls
 
@@ -8516,7 +8516,8 @@ class DataLayers:
             msg = messages.INFO_CATALOG_DATA_LAYERS_CREATE_SUCCESS.format(str(self._data_layer_response.data_layer_ids))
             logger.info(msg)
             
-            self.get(data_set_id = self._data_set_id)
+            self.get(data_set_id = self._data_set_id,
+                     verify = verify)
             
             group_id_regex = re.search("(?<=P)(.*?)(?=C)", self._data_layer_response.data_layer_ids[0])
             
