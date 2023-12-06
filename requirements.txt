@@ -1,5 +1,5 @@
 numpy>=1.18.1
-Pillow>=1.6
+Pillow>=1.6,<=10.0.1
 pandas>=1.0.1
 future
 futures; python_version < '3.0'
