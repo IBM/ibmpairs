@@ -294,6 +294,13 @@ def check_str(s: Any) -> str:
             msg = messages.ERROR_COMMON_INT_TO_STR.format(s)
             logger.error(msg)
             raise PAWException(msg)
+    elif isinstance(s, float):
+        try:
+            string = str(s)
+        except:
+            msg = messages.ERROR_COMMON_FLOAT_TO_STR.format(s)
+            logger.error(msg)
+            raise PAWException(msg)
     else:
         msg = messages.ERROR_COMMON_CHECK_STR.format(type(s), str(s))
         logger.error(msg)

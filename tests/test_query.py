@@ -437,6 +437,36 @@ query_download_status_response_dict = {
 }
 
 #
+query_download_status_response_csv_dict = {
+    "id": "1702468800_05116057",
+    "status": "Succeeded(20)",
+    "statusCode": 20,
+    "start": 0,
+    "swLat": 0,
+    "swLon": 0,
+    "neLat": 0,
+    "neLon": 0,
+    "nickname": "string",
+    "exPercent": 0,
+    "hadoopId": "string"
+}
+
+#
+query_download_status_response_json_dict = {
+    "id": "1702468800_05212195",
+    "status": "Succeeded(20)",
+    "statusCode": 20,
+    "start": 0,
+    "swLat": 0,
+    "swLon": 0,
+    "neLat": 0,
+    "neLon": 0,
+    "nickname": "string",
+    "exPercent": 0,
+    "hadoopId": "string"
+}
+
+#
 query_download_status_response_dict_success_1 = {
     "id": "1625544000_31302648",
     "status": "Running(10)",
@@ -504,6 +534,14 @@ async def mocked_download_async_get(*args, **kwargs):
         return_json = json.dumps(query_download_status_response_dict)
         
         return MockResponse(return_json, 200)
+    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1702468800_05116057'):
+        return_json = json.dumps(query_download_status_response_csv_dict)
+        
+        return MockResponse(return_json, 200)
+    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1702468800_05212195'):
+        return_json = json.dumps(query_download_status_response_json_dict)
+        
+        return MockResponse(return_json, 200)
     elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1625544000_31302648'): 
 
         return_dict = {}
@@ -550,6 +588,14 @@ async def mocked_download_async_get(*args, **kwargs):
         with open(os.path.join('tests/data/v2','1625544000_31302646.zip'), "rb") as zipfile:
             resp = zipfile.read()
         return MockResponse(resp, 200)
+    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1702468800_05116057'): 
+        with open(os.path.join('tests/data/v2','1702468800_05116057.csv'), "rb") as csvfile:
+            resp = csvfile.read()
+        return MockResponse(resp, 200)
+    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1702468800_05212195'): 
+        with open(os.path.join('tests/data/v2','1702468800_05212195.json'), "rb") as jsonfile:
+            resp = jsonfile.read()
+        return MockResponse(resp, 200)
     elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1625544000_31302647'): 
         # This is intended to mock a 'server error' init of MockResponse has no attribute status.
         return MockResponse(status = 401)
@@ -562,7 +608,7 @@ async def mocked_download_async_get(*args, **kwargs):
         with open(os.path.join('tests/data/v2','1625544000_31302646.zip'), "rb") as zipfile:
             resp = zipfile.read()
         return MockResponse(resp, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1000000000_30000000?output_type=csv'):
+    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1000000000_30000000'):
         resp = json.dumps(query_online_response_1000000000_30000000)
         return MockResponse(resp, 200)
     else:
@@ -5514,7 +5560,7 @@ class QueryUnitTest(unittest.TestCase):
 
         got_exception = False
 
-        try:            
+        try:
             query_download_params = query.from_dict(query_dict_download_status_20_no_point_values)
             query_download_params.id = '1625544000_31302646'
             query_download_params.download(client             = c,
@@ -5536,6 +5582,62 @@ class QueryUnitTest(unittest.TestCase):
         if os.path.exists('/tmp/ibmpairs_unit_test_2'):
             shutil.rmtree('/tmp/ibmpairs_unit_test_2')
 
+    @mock.patch('ibmpairs.client.Client.async_get', 
+                side_effect=mocked_download_async_get
+               )
+    def test_download_csv(self, mock_get):
+        self.logger.info('test_download: csv success')
+        
+        c      = client.Client() 
+        query  = query_module.Query
+        
+        query_download = None
+        
+        got_exception = False
+        
+        try:
+            query_download = query.from_dict(query_dict_download_status_20_no_point_values)
+            query_download.id = '1702468800_05116057'
+            query_download.download(client = c)
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertFalse(got_exception)
+        
+        self.assertEqual(query_download.status_response.status, "Succeeded(20)")
+        
+        self.logger.info('removing \'download/1702468800_05116057.csv\'')
+        if os.path.isfile(os.path.join(os.getcwd(), 'download/1702468800_05116057.csv')):
+            os.remove(os.path.join(os.getcwd(), 'download/1702468800_05116057.csv'))
+
+            
+    @mock.patch('ibmpairs.client.Client.async_get', 
+                side_effect=mocked_download_async_get
+               )
+    def test_download_json(self, mock_get):
+        self.logger.info('test_download: json success')
+        
+        c      = client.Client() 
+        query  = query_module.Query
+        
+        query_download = None
+        
+        got_exception = False
+        
+        try:
+            query_download = query.from_dict(query_dict_download_status_20_no_point_values)
+            query_download.id = '1702468800_05212195'
+            query_download.download(client = c)
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertFalse(got_exception)
+        
+        self.assertEqual(query_download.status_response.status, "Succeeded(20)")
+        
+        self.logger.info('removing \'download/1702468800_05212195.json\'')
+        if os.path.isfile(os.path.join(os.getcwd(), 'download/1702468800_05212195.json')):
+            os.remove(os.path.join(os.getcwd(), 'download/1702468800_05212195.json'))
 
     @mock.patch('ibmpairs.client.Client.async_get', 
                 side_effect=mocked_download_async_get
@@ -5843,7 +5945,7 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_async_point_online.id, "1000000000_30000000")
         self.assertEqual(query_async_point_online.status_response.status, "Succeeded(20)")
         self.assertEqual(query_async_point_online.download_status, "SUCCEEDED")
-        self.assertEqual(query_async_point_online.submit_response.data, '{"data": "1,2,3\\na,b,c"}')
+        self.assertEqual(query_async_point_online.submit_response.data, '1,2,3\na,b,c')
         
         self.logger.info('test_point_query_online_status_intransparent_batch: 200')
         
@@ -5869,7 +5971,7 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_async_point_online_status.id, "1000000000_30000000")
         self.assertEqual(query_async_point_online_status.status_response.status, "Succeeded(20)")
         self.assertEqual(query_async_point_online_status.download_status, "SUCCEEDED")
-        self.assertEqual(query_async_point_online_status.submit_response.data, '{"data": "1,2,3\\na,b,c"}')
+        self.assertEqual(query_async_point_online_status.submit_response.data, '1,2,3\na,b,c')
         
         # This test should trigger an 'online skip', see query.submit_response.
         self.logger.info('test_point_query_online_status_and_download_intransparent_batch + online skip: 200')
@@ -5896,7 +5998,7 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_async_point_online_status_and_download.id, "1000000000_30000000")
         self.assertEqual(query_async_point_online_status_and_download.status_response.status, "Succeeded(20)")
         self.assertEqual(query_async_point_online_status_and_download.download_status, "SUCCEEDED")
-        self.assertEqual(query_async_point_online_status_and_download.submit_response.data, '{"data": "1,2,3\\na,b,c"}')
+        self.assertEqual(query_async_point_online_status_and_download.submit_response.data, '1,2,3\na,b,c')
         
         
     

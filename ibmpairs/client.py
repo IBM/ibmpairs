@@ -275,35 +275,36 @@ class Client:
                     self._client_id = 'ibm-pairs'
                 self._tenant_id = tenant_id
             else:
-                if (client_id is not None) and (tenant_id is not None):
-                    msg = messages.INFO_BOTH_CLIENT_ID_AND_TENANT_ID.format(client_id, tenant_id)
-                    logger.info(msg)
-                    if client_id.startswith('saascore-'):
-                        msg = messages.INFO_STARTS_WITH_SAASCORE
+                if self.authentication_mode(self._authentication) in ['OAuth2']:
+                    if (client_id is not None) and (tenant_id is not None):
+                        msg = messages.INFO_BOTH_CLIENT_ID_AND_TENANT_ID.format(client_id, tenant_id)
                         logger.info(msg)
-                        self._client_id = 'geospatial-' + common.get_tenant_id(client_id)
-                    else:
-                        self._client_id = client_id
-                    self._tenant_id = common.get_tenant_id(client_id)
-                elif (client_id is not None) and (tenant_id is None):
-                    if client_id.startswith('saascore-'):
-                        msg = messages.INFO_STARTS_WITH_SAASCORE
-                        logger.info(msg)
-                        self._client_id = 'geospatial-' + common.get_tenant_id(client_id)
-                    else:
-                        self._client_id = client_id
-                    self._tenant_id = common.get_tenant_id(client_id)
-                elif (client_id is None) and (tenant_id is not None):
-                    self._tenant_id = common.get_tenant_id(tenant_id)
-                    self._client_id = 'geospatial-' + self._tenant_id
-                else:
-                    if (self._authentication is not None) and (self._authentication.tenant_id is not None):
-                        self._tenant_id = self._authentication.tenant_id
+                        if client_id.startswith('saascore-'):
+                            msg = messages.INFO_STARTS_WITH_SAASCORE
+                            logger.info(msg)
+                            self._client_id = 'geospatial-' + common.get_tenant_id(client_id)
+                        else:
+                            self._client_id = client_id
+                        self._tenant_id = common.get_tenant_id(client_id)
+                    elif (client_id is not None) and (tenant_id is None):
+                        if client_id.startswith('saascore-'):
+                            msg = messages.INFO_STARTS_WITH_SAASCORE
+                            logger.info(msg)
+                            self._client_id = 'geospatial-' + common.get_tenant_id(client_id)
+                        else:
+                            self._client_id = client_id
+                        self._tenant_id = common.get_tenant_id(client_id)
+                    elif (client_id is None) and (tenant_id is not None):
+                        self._tenant_id = common.get_tenant_id(tenant_id)
                         self._client_id = 'geospatial-' + self._tenant_id
                     else:
-                        msg = messages.ERROR_NO_CLIENT_OR_TENANT_ID
-                        logger.error(msg)
-                        raise common.PAWException(msg)
+                        if (self._authentication is not None) and (self._authentication.tenant_id is not None):
+                            self._tenant_id = self._authentication.tenant_id
+                            self._client_id = 'geospatial-' + self._tenant_id
+                        else:
+                            msg = messages.ERROR_NO_CLIENT_OR_TENANT_ID
+                            logger.error(msg)
+                            raise common.PAWException(msg)
             
             global GLOBAL_PAIRS_CLIENT
             GLOBAL_PAIRS_CLIENT = self
@@ -439,7 +440,7 @@ class Client:
         if headers is not None:
             self.set_headers(headers)
             
-            if self._legacy is False:
+            if ((self._legacy is False) and (self.authentication_mode(self._authentication) in ['OAuth2'])):
                 self.append_header('x-ibm-client-id', self.get_client_id())
                 
             msg = messages.DEBUG_CLIENT_SET_HEADERS.format(headers)
