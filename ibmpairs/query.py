@@ -15,7 +15,7 @@ import os
 import warnings
 import re
 from typing import List, Any
-from io import StringIO 
+from io import StringIO, BytesIO
 #}}}
 # fold: Import ibmpairs Modules {{{
 # ibmpairs Modules:
@@ -6010,6 +6010,9 @@ class Query:
         cli = common.set_client(input_client  = client,
                                 global_client = cl.GLOBAL_PAIRS_CLIENT,
                                 self_client   = self._client)
+        
+        if (((self._batch is None) or (self._batch == '') or (self._batch is False) or (self._batch == "False")) and ((self._output_type is None) or ((self._output_type.lower() != 'json') and (self._output_type.lower() != 'csv')))):
+            self._output_type = 'json'
                             
         query_json = query.to_dict_query_post()
 
@@ -6343,8 +6346,7 @@ class Query:
                             try:
                                 response = await cli.async_get(url           = cli.get_host() +
                                                                                constants.QUERY_JOBS_DOWNLOAD_API +
-                                                                               str(query.id) +
-                                                                               "?output_type=csv",
+                                                                               str(query.id),
                                                                verify        = verify,
                                                                response_type = 'json'
                                                               )
@@ -6352,15 +6354,22 @@ class Query:
                                 if response.status != 200:
                                     self.download_status = "FAILED"
                                   
-                                    msg = messages.ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL.format('GET', 'request', constants.QUERY_JOBS_DOWNLOAD_API + str(query.id) + "?output_type=csv", response.status, response.body)
+                                    msg = messages.ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL.format('GET', 'request', constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), response.status, response.body)
                                     logger.error(msg)
                                     raise common.PAWException(msg)
                                 else:
-                                
-                                    query.submit_response = QueryResponse(id = query.id, 
-                                                                      data = response.body
-                                                                     )
-                                
+                                    # json
+                                    try:
+                                        json.loads(response.body)
+
+                                        resp = query_response_from_json(response.body)
+                                        resp.id = query.id
+                                        query.submit_response = resp
+                                    # csv
+                                    except ValueError as e:
+                                        query.submit_response = QueryResponse(id   = query.id, 
+                                                                              data = response.body)
+
                                     bulk = False
                                 
                                     self.download_status = "SUCCEEDED"
@@ -6368,7 +6377,7 @@ class Query:
                                 
                             except Exception as e:
                                 self.download_status = "FAILED"
-                                msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_DOWNLOAD_API + str(query.id) + "?output_type=csv", e)
+                                msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), e)
                                 logger.error(msg)
                                 raise common.PAWException(msg)
                         else:
@@ -6397,13 +6406,41 @@ class Query:
                             logger.error(msg)
                             raise common.PAWException(msg)
                             
+                        # Default zipped = true
+                        zipped = False
+
+                        result = response.body
+                            
                         # Download file
                         try:
+                            if zipfile.is_zipfile(BytesIO(response.body)):
+                                zipped = True
+
+                                msg = messages.INFO_QUERY_FORMAT.format(query.id, 'zip')
+                                logger.info(msg)
+                                
+                            else:
+                                try:
+                                    json.loads(response.body)
+                          
+                                    download_zip = download_zip[:-4] + '.json'
+                                    zipped = False
+                                    
+                                    msg = messages.INFO_QUERY_FORMAT.format(query.id, 'json')
+                                    logger.info(msg)
+                                    
+                                except ValueError as e:
+                                    download_zip = download_zip[:-4] + '.csv'
+                                    zipped = False
+                                    
+                                    msg = messages.INFO_QUERY_FORMAT.format(query.id, 'csv')
+                                    logger.info(msg)
+
                             msg = messages.INFO_QUERY_DOWNLOAD_FILE_SAVE.format(query.id, download_zip)
                             logger.info(msg)
                             
                             with open(download_zip, 'wb') as f:
-                                f.write(response.body)
+                                f.write(result)
                             f.close
                             
                             msg = messages.INFO_QUERY_DOWNLOAD_FILE_SAVED.format(query.id, download_zip)
@@ -6420,15 +6457,16 @@ class Query:
                             
                         # Unzip file
                         try:
-                            msg = messages.INFO_QUERY_DOWNLOAD_FILE_UNZIP.format(download_zip, download_target)
-                            logger.info(msg)
+                            if zipped:
+                                msg = messages.INFO_QUERY_DOWNLOAD_FILE_UNZIP.format(download_zip, download_target)
+                                logger.info(msg)
                             
-                            with zipfile.ZipFile(download_zip, 'r') as z:
-                                z.extractall(download_target)
-                            z.close  
+                                with zipfile.ZipFile(download_zip, 'r') as z:
+                                    z.extractall(download_target)
+                                z.close
                             
-                            msg = messages.INFO_QUERY_DOWNLOAD_FILE_UNZIPPED.format(download_zip, download_target)
-                            logger.info(msg)
+                                msg = messages.INFO_QUERY_DOWNLOAD_FILE_UNZIPPED.format(download_zip, download_target)
+                                logger.info(msg)
                             
                             self.download_status = "SUCCEEDED"
                             
@@ -6478,6 +6516,18 @@ class Query:
                       else:
                           if self.download_folder is None:
                               self.download_folder    = common.ensure_slash(constants.QUERY_DOWNLOAD_DEFAULT_FOLDER, -1)
+                              
+                      result = str(self.submit_response)
+                      
+                      file_format = '.json'
+                    
+                      # json
+                      try:
+                          json.loads(str(self.submit_response.data))
+                      # csv
+                      except ValueError as e:
+                          result = str(self.submit_response.data)
+                          file_format = '.csv'
                                 
                       if download_file_name is not None:
                           self.download_file_name     = download_file_name
@@ -6488,11 +6538,12 @@ class Query:
                           else:
                               file_name = "point_query_" + datetime.now().strftime("%Y%m%d-%H%M%S")
                               self.download_file_name = file_name
+                      
                       try:
-                          download_target = self.get_download_folder() + self.get_download_file_name()
-                            
+                          download_target = self.get_download_folder() + self.get_download_file_name() + file_format
+
                           with open(download_target, 'w') as f:
-                              f.write(str(self.submit_response.data))
+                              f.write(result)
                           f.close
                             
                           msg = messages.INFO_POINT_QUERY_DOWNLOAD_FILE_SAVED.format(download_target)
@@ -6502,7 +6553,7 @@ class Query:
                       except:
                           self.download_status = "FAILED"
                             
-                          messages.ERROR_POINT_QUERY_DOWNLOAD_UNSUCCESSFUL.format(download_target)
+                          msg = messages.ERROR_POINT_QUERY_DOWNLOAD_UNSUCCESSFUL.format(download_target)
                           logger.error(msg)
                           raise common.PAWException(msg)
                             
