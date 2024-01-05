@@ -333,7 +333,9 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
                                             'extendMaximumColor': True,
                                             'invalidDataValue': -9999
                                            },
-                        legacy: bool                 = None
+                        legacy: bool                 = None,
+                        selected: bool               = None,
+                        active: bool                 = None
                         ):
     
     """
@@ -351,6 +353,10 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
     :type host:                str
     :param style_properties:   (Optional) A dictionary of style properties for the dashboard layer.
     :type style_properties:    dict
+    :param selected:           Whether the Dashboard Layer is selected. Default False.
+    :type selected:            bool
+    :param active:             Whether the Dashboard Layer is active. Default False.
+    :type active:              bool
     :raises Exception:         If no client is provided or found Globally in the environment, 
                                if response is not 200.
     """ 
@@ -367,6 +373,12 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
     if (client is None):
         client = common.set_client(input_client  = client,
                                    global_client = client_module.GLOBAL_PAIRS_CLIENT)
+    
+    if selected is None:
+        selected = False
+      
+    if active is None:
+        active = False
 
     client.set_host(host)
 
@@ -376,8 +388,8 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
                                    'displayName': name,
                                    'provider': None,
                                    'layerType': 'grid',
-                                   'isSelected': False,
-                                   'isActive': False,
+                                   'isSelected': selected,
+                                   'isActive': active,
                                    'enableValidity': False,
                                    'lastUpdatedUtc': None,
                                    'coverageArea': 'Custom',
