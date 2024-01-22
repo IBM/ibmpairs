@@ -14,7 +14,7 @@ ERROR_NO_RASTERIO = 'rasterio is not available on your system, please install ra
 # authentication messages
 INFO_AUTHENTICATION_API_KEY_NOT_FOUND_IN_FILE = 'The api key for the user \'{}\' in file \'{}\' could not be found or set for the host \'{}\'.'
 INFO_AUTHENTICATION_PASSWORD_NOT_FOUND_IN_FILE = 'The password for the user \'{}\' in file \'{}\' could not be found or set for the host \'{}\'.'
-INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN = 'The authentication failed with auth token \'{}\', exception: \'{}\''
+INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN = 'The authentication failed with the provided auth token, exception: \'{}\''
 ERROR_AUTHENTICATION_FAILED = 'AUTHENTICATION FAILED: A {} could not be gathered from the provided attributes.'
 ERROR_AUTHENTICATION_COULD_NOT_FIND_API_KEY_FILE = 'The api key file \'{}\' could not be found.'
 ERROR_AUTHENTICATION_NO_API_KEY_OR_CLIENT_ID = 'The OAuth2 Authentication type requires an api_key and client_id to be set.'

@@ -898,7 +898,8 @@ class OAuth2(object):
                                     org_id       = self._org_id
                                    )
             except Exception as ex:
-                msg = messages.INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN.format(api_key, ex)
+              
+                msg = messages.INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN.format(ex)
                 logger.info(msg)
                 
                 if ((legacy is False) and 
@@ -919,7 +920,7 @@ class OAuth2(object):
                                             )
                         self._client_id = cl_id
                     except Exception as ex:
-                        msg = messages.INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN.format(api_key, ex)
+                        msg = messages.INFO_AUTHENTICATION_COULD_NOT_GET_AUTH_TOKEN.format(ex)
                         logger.info(msg)
                         
                 
