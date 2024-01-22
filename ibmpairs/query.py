@@ -6011,8 +6011,11 @@ class Query:
                                 global_client = cl.GLOBAL_PAIRS_CLIENT,
                                 self_client   = self._client)
         
-        if (((self._batch is None) or (self._batch == '') or (self._batch is False) or (self._batch == "False")) and ((self._output_type is None) or ((self._output_type.lower() != 'json') and (self._output_type.lower() != 'csv')))):
-            self._output_type = 'json'
+        if ((self._spatial is not None) and (self._spatial.type is not None)):
+            if self._spatial.type.lower() in ['point']:
+                if ((self._batch is None) or (self._batch.lower() == 'false') or (self._batch == '') or (self._batch is False)): 
+                    if ((self._output_type is None) or ((self._output_type.lower() != 'json') and (self._output_type.lower() != 'csv'))):
+                        self._output_type = 'json'
                             
         query_json = query.to_dict_query_post()
 
@@ -6203,6 +6206,52 @@ class Query:
             poll       = False
             incomplete = False
             
+    def _create_download_folder(self):
+        """
+        An internal function to ensure the download folder specified in the object exists or is created.
+        
+        :raises Exception:         If the folder either does not exist or cannot be created
+        """
+      
+        # Check download_path exists as relative, fixed or create.
+        if os.path.exists(os.path.join(os.getcwd(), self.download_folder)):
+          
+            self.download_folder = common.ensure_slash(os.path.join(os.getcwd(), self.download_folder), -1)
+          
+            msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
+            logger.info(msg)
+          
+        elif os.path.exists(self.download_folder):
+          
+            self.download_folder = common.ensure_slash(self.download_folder, -1)
+          
+            msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
+            logger.info(msg)
+          
+        else:
+            try: 
+                msg = messages.WARN_QUERY_DOWNLOAD_PATH_CREATE.format(self.download_folder)
+                logger.warn(msg)
+              
+                self.download_folder = common.ensure_slash(os.path.join(os.getcwd(), self.download_folder), -1)
+              
+                msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
+                logger.info(msg)
+              
+                os.makedirs(os.path.join(os.getcwd(), self.download_folder))
+              
+                msg = messages.INFO_QUERY_DOWNLOAD_PATH_CREATED.format(self.download_folder)
+                logger.info(msg)
+              
+            except:
+                self.download_status = "FAILED"
+              
+                msg = messages.ERROR_QUERY_DOWNLOAD_PATH_CREATED.format(self.download_folder)
+                logger.error(msg)
+                raise common.PAWException(msg)
+              
+                incomplete = False
+    
     #
     async def async_download(self,
                              query,
@@ -6299,44 +6348,7 @@ class Query:
                 
                 if query.status_response.status_code == 20:
                     
-                    # Check download_path exists as relative, fixed or create.
-                    if os.path.exists(os.path.join(os.getcwd(), self.download_folder)):
-                        
-                        self.download_folder = common.ensure_slash(os.path.join(os.getcwd(), self.download_folder), -1)
-                        
-                        msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
-                        logger.info(msg)
-                        
-                    elif os.path.exists(self.download_folder):
-                        
-                        self.download_folder = common.ensure_slash(self.download_folder, -1)
-                        
-                        msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
-                        logger.info(msg)
-                        
-                    else:
-                        try: 
-                            msg = messages.WARN_QUERY_DOWNLOAD_PATH_CREATE.format(self.download_folder)
-                            logger.warn(msg)
-                            
-                            self.download_folder = common.ensure_slash(os.path.join(os.getcwd(), self.download_folder), -1)
-                            
-                            msg = messages.INFO_QUERY_DOWNLOAD_PATH_SET.format(self.download_folder)
-                            logger.info(msg)
-                            
-                            os.makedirs(os.path.join(os.getcwd(), self.download_folder))
-                            
-                            msg = messages.INFO_QUERY_DOWNLOAD_PATH_CREATED.format(self.download_folder)
-                            logger.info(msg)
-                            
-                        except:
-                            self.download_status = "FAILED"
-                            
-                            msg = messages.ERROR_QUERY_DOWNLOAD_PATH_CREATED.format(self.download_folder)
-                            logger.error(msg)
-                            raise common.PAWException(msg)
-                            
-                            incomplete = False
+                    self._create_download_folder()
                             
                     download_zip    = self.get_download_folder() + self.get_download_file_name() + '.zip'
                     download_target = self.get_download_folder() + self.get_download_file_name()
@@ -6540,6 +6552,8 @@ class Query:
                               self.download_file_name = file_name
                       
                       try:
+                          self._create_download_folder()
+                        
                           download_target = self.get_download_folder() + self.get_download_file_name() + file_format
 
                           with open(download_target, 'w') as f:
