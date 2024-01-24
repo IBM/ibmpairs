@@ -6529,7 +6529,7 @@ class Query:
                           if self.download_folder is None:
                               self.download_folder    = common.ensure_slash(constants.QUERY_DOWNLOAD_DEFAULT_FOLDER, -1)
                               
-                      result = str(self.submit_response)
+                      result = str(self.submit_response.data)
                       
                       file_format = '.json'
                     
@@ -6538,7 +6538,6 @@ class Query:
                           json.loads(str(self.submit_response.data))
                       # csv
                       except ValueError as e:
-                          result = str(self.submit_response.data)
                           file_format = '.csv'
                                 
                       if download_file_name is not None:
