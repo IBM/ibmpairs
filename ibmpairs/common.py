@@ -329,25 +329,6 @@ def strip_slash(input: str):
     return result
 
 #
-def strip_slash(input: str):
-    
-    """
-    The method ensures a slash is not at the end of a string.
-
-    :param intput:      The input string to check.
-    :type input:        str
-    :returns:           A string without a trailing "/".
-    :rtype:             str
-    """ 
-    
-    result = str(input)
-    
-    if result.endswith("/"):
-        result = result[:-1]
-        
-    return result
-
-#
 def ensure_slash(directory: str, 
                  position: int
                 ):
@@ -514,13 +495,17 @@ def get_tenant_id(client_id: str):
         return None
 
 #
-def ensure_api_path(host: str):
+def ensure_api_path(host: str,
+                    version: int = None
+                   ):
     
     """
-    Adds /core/v3 or /v2 to host
+    Adds  /core/v4, /core/v3 or /v2 to host
 
     :param host:   The host string.
     :type host:    str
+    :param host:   The api version.
+    :type host:    int
     :returns:      The host string with path added.
     :rtype:        str
     """ 
@@ -531,7 +516,7 @@ def ensure_api_path(host: str):
         if ("v2" not in result):
             result = result + "/v2"
     elif ("api.ibm.com" in result):
-        
+
         if (result.endswith("api.ibm.com")):
             result = result + "/geospatial/run/na"
         elif (result.endswith("api.ibm.com/geospatial")):
@@ -539,11 +524,21 @@ def ensure_api_path(host: str):
         elif (result.endswith("api.ibm.com/geospatial/run")):
             result = result + "/na"
             
-        if ("core/v3" not in result):
+        if (("core/v3" not in result) and
+            ("core/v4" not in result)
+           ):
+            
+            version_path = "/v3"
+            
+            if (version == 4):
+                version_path = "/v4"
+            
             if (result.endswith("core")):
-                result = result + "/v3"
+                result = result + version_path
             else:
-                result = result + "/core/v3"
+                result = result + "/core" + version_path
+                
+            print(result)
                 
     return result
 
@@ -551,7 +546,7 @@ def ensure_api_path(host: str):
 def strip_api_path(host: str):
     
     """
-    Removes core/v3 and /v2 from a string.
+    Removes core/v4, core/v3 and /v2 from a string.
 
     :param host:   The host string.
     :type host:    str
@@ -561,7 +556,7 @@ def strip_api_path(host: str):
 
     result = str(host)
     
-    if (result.endswith("/core/v3")):
+    if ((result.endswith("/core/v3") or (result.endswith("/core/v4")))):
         result = result[:-8]
     elif host.endswith('/v2'):
         result = result[:-3]

@@ -284,7 +284,8 @@ class ClientUnitTest(unittest.TestCase):
                                      password = "thisisnotapassword"
                                     )
         
-        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                       legacy = True)
         
         self.logger.info('test_client_init')
         
@@ -329,7 +330,8 @@ class ClientUnitTest(unittest.TestCase):
                                      password = "thisisnotapassword"
                                     )
         
-        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                       legacy  = True)
         
         got_exception = False
         
@@ -362,9 +364,10 @@ class ClientUnitTest(unittest.TestCase):
         got_exception3 = False
         
         try:
-           oauth2_2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
-           client2 = cl.Client(authentication = oauth2_2)
-           resp2 = client2.get(url = "https://token.refreshed")
+            oauth2_2 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                             legacy = True)
+            client2 = cl.Client(authentication = oauth2_2)
+            resp2 = client2.get(url = "https://token.refreshed")
         except:
             got_exception3 = True
     
@@ -400,7 +403,8 @@ class ClientUnitTest(unittest.TestCase):
                                      password = "thisisnotapassword"
                                     )
         
-        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                       legacy  = True)
         
         got_exception = False
         
@@ -434,7 +438,8 @@ class ClientUnitTest(unittest.TestCase):
         got_exception3 = False
         
         try:
-            oauth2_2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+            oauth2_2 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                             legacy = True)
             client2 = cl.Client(authentication = oauth2_2)
             resp2 = client2.post(url  = "https://token.refreshed",
                                  body = "body")
@@ -477,7 +482,8 @@ class ClientUnitTest(unittest.TestCase):
                                      password = "thisisnotapassword"
                                     )
         
-        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                       legacy  = True)
         
         got_exception = False
         
@@ -511,7 +517,8 @@ class ClientUnitTest(unittest.TestCase):
         got_exception3 = False
         
         try:
-            oauth2_2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+            oauth2_2 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                             legacy = True)
             client2 = cl.Client(authentication = oauth2_2)
             resp2 = client2.put(url  = "https://token.refreshed",
                                 body = "body")
@@ -554,7 +561,8 @@ class ClientUnitTest(unittest.TestCase):
                                      password = "thisisnotapassword"
                                     )
         
-        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey', 
+                                       legacy  = True)
         
         got_exception = False
         
@@ -587,7 +595,8 @@ class ClientUnitTest(unittest.TestCase):
         got_exception3 = False
         
         try:
-            oauth2_2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+            oauth2_2 = authentication.OAuth2(api_key = 'thisisnotanapikey', 
+                                             legacy  = True)
             client2 = cl.Client(authentication = oauth2_2)
             resp2 = client2.delete(url  = "https://token.refreshed")
         except:

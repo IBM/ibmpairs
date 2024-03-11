@@ -40,7 +40,9 @@ class BasicUnitTest(unittest.TestCase):
         
         try:
             basic = authentication.Basic(username = "email@domain.com",
-                                         password = "thisisnotapassword")
+                                         password = "thisisnotapassword",
+                                         legacy = True
+                                        )
             basic.host          = "https://pairs.res.ibm.com"
             basic.username      = "email@domain.com"
             basic.password      = "thisisnotapassword"
@@ -54,6 +56,7 @@ class BasicUnitTest(unittest.TestCase):
         self.assertEqual(basic.password, "thisisnotapassword")
         cwd = os.getcwd()
         self.assertEqual(basic.password_file, cwd + "/auth/basic.txt")
+        self.assertEqual(basic.legacy, True)
 
         self.logger.info('test_basic_init: file find password')
 
@@ -66,7 +69,9 @@ class BasicUnitTest(unittest.TestCase):
 
         try:
             credentials2 = authentication.Basic(password_file = 'basic-unittest.txt',
-                                                username      = 'email@domain.com')
+                                                username      = 'email@domain.com',
+                                                legacy        = True
+                                               )
         except Exception as ex:
             got_exception = True
 
@@ -84,7 +89,9 @@ class BasicUnitTest(unittest.TestCase):
         
         try:
             credentials3 = authentication.Basic(username = 'email@domain.com',
-                                                password = 'thisisnotapassword')
+                                                password = 'thisisnotapassword',
+                                                legacy        = True
+                                               )
         except Exception as ex:
             got_exception = True
             
@@ -97,7 +104,9 @@ class BasicUnitTest(unittest.TestCase):
         credentials4 = None
         
         try:
-            credentials4 = authentication.Basic(password = 'abc')
+            credentials4 = authentication.Basic(password = 'abc',
+                                                legacy   = True
+                                               )
         except Exception as ex:
             self.assertEqual(str(ex), "AUTHENTICATION FAILED: A username and password could not be gathered from the provided attributes.")
             got_exception = True
@@ -335,7 +344,8 @@ class OAuth2UnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+            oauth2 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                           legacy = True)
             oauth2.host         = "https://pairs.res.ibm.com"
             oauth2.username     = "email@domain.com"
             oauth2.api_key      = "thisisnotanapikey"
@@ -346,7 +356,6 @@ class OAuth2UnitTest(unittest.TestCase):
             oauth2.endpoint     = "auth-b2b-twc.ibm.com"
             oauth2.iam_endpoint = "iam.cloud.ibm.com"
             oauth2.jwt_token    = "thisisnotajwttoken"
-            oauth2.legacy       = False
         except Exception as ex:
             got_exception = True
         
@@ -362,7 +371,7 @@ class OAuth2UnitTest(unittest.TestCase):
         self.assertEqual(oauth2.endpoint, "auth-b2b-twc.ibm.com")
         self.assertEqual(oauth2.iam_endpoint, "iam.cloud.ibm.com")
         self.assertEqual(oauth2.jwt_token, "thisisnotajwttoken")
-        self.assertEqual(oauth2.legacy, False)
+        self.assertEqual(oauth2.legacy, True)
         
         self.logger.info('test_oauth2_init: file find api_key')
         
@@ -375,7 +384,8 @@ class OAuth2UnitTest(unittest.TestCase):
         
         try:
             credentials2 = authentication.OAuth2(api_key_file = 'oauth2-unittest.txt',
-                                                 username     = 'email@domain.com')
+                                                 username     = 'email@domain.com',
+                                                 legacy       = True)
         except Exception as ex:
             got_exception = True
             
@@ -391,7 +401,8 @@ class OAuth2UnitTest(unittest.TestCase):
         credentials3 = None
         
         try:
-            credentials3 = authentication.OAuth2(api_key = 'thisisnotanapikey')
+            credentials3 = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                                 legacy  = True)
         except Exception as ex:
             got_exception = True
             
@@ -403,7 +414,8 @@ class OAuth2UnitTest(unittest.TestCase):
         credentials4 = None
         
         try:
-            credentials4 = authentication.OAuth2(api_key = 'thisisnotavalidapikey')
+            credentials4 = authentication.OAuth2(api_key = 'thisisnotavalidapikey',
+                                                 legacy  = True)
         except Exception as ex:
             self.assertEqual(str(ex), "AUTHENTICATION FAILED: A JWT token could not be gathered from the provided attributes.")
             got_exception = True
@@ -422,7 +434,8 @@ class OAuth2UnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            credentials = authentication.OAuth2(api_key = 'thisisnotanapikey')
+            credentials = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                                legacy = True)
             credentials.get_auth_token(api_key = 'thisisnotanapikey')
         except Exception as ex:
             got_exception = True
@@ -487,7 +500,8 @@ class OAuth2UnitTest(unittest.TestCase):
         
         got_exception = False
         try:
-            credentials = authentication.OAuth2(api_key = 'thisisnotanapikey')
+            credentials = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                                legacy  = True)
             credentials.refresh_auth_token()
         except:
            got_exception = True
@@ -504,7 +518,8 @@ class OAuth2UnitTest(unittest.TestCase):
         #
         self.logger.info('test_refresh_auth_token: 200, invalid_grant')
         
-        credentials = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        credentials = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                            legacy  = True)
         
         got_exception = False
         try:
@@ -519,7 +534,8 @@ class OAuth2UnitTest(unittest.TestCase):
         #
         self.logger.info('test_refresh_auth_token: 200, wrong client id')
         
-        credentials = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        credentials = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                            legacy  = True)
         
         got_exception = False
         try:
@@ -534,7 +550,8 @@ class OAuth2UnitTest(unittest.TestCase):
         #
         self.logger.info('test_refresh_auth_token: 404, wrong endpoint')
         
-        credentials = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        credentials = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                            legacy  = True)
         
         got_exception = False
         try:
@@ -636,14 +653,14 @@ class OAuth2UnitTest(unittest.TestCase):
         self.assertTrue(got_exception)
         
         credentials_api_connect.endpoint = 'api.ibm.com/saascore/run/authentication-retrieve'
-    '''
+
     @mock.patch('requests.get', 
                 side_effect=mocked_requests_get
                )
     @mock.patch('requests.post', 
                 side_effect=mocked_requests_post
                )
-    def test_get_api_connect_refresh_token(self, mock_post):
+    def test_get_api_connect_refresh_token(self, mock_post, mock_get):
         
         #
         self.logger.info('test_get_api_connect_refresh_token')
@@ -666,13 +683,13 @@ class OAuth2UnitTest(unittest.TestCase):
         self.assertEqual(credentials_api_connect.client_id, "saascore-thisisnotatenantid")
         self.assertEqual(credentials_api_connect.tenant_id, "thisisnotatenantid")
         self.assertEqual(credentials_api_connect.org_id, "thisisnotanorgid")
-        self.assertEqual(credentials_api_connect.endpoint, "api.ibm.com")
-        self.assertEqual(credentials_api_connect.host, "api.ibm.com/geospatial/run/na/pairs-query")
+        self.assertEqual(credentials_api_connect.endpoint, "api.ibm.com/saascore/run/authentication-retrieve")
+        self.assertEqual(credentials_api_connect.host, "https://api.ibm.com/geospatial/run/na/core/v3")
         self.assertEqual(credentials_api_connect.iam_endpoint, "iam.cloud.ibm.com")
         self.assertEqual(credentials_api_connect.legacy, False)
         
-        self.assertEqual(credentials_api_connect.jwt_token, "thisisnotanewaccesstoken")
-        self.assertEqual(credentials_api_connect.oauth2_return.access_token, "thisisnotanewaccesstoken")
+        self.assertEqual(credentials_api_connect.jwt_token, "thisisnotanaccesstoken")
+        self.assertEqual(credentials_api_connect.oauth2_return.access_token, "thisisnotanaccesstoken")
         self.assertEqual(credentials_api_connect.oauth2_return.expiration, 1000000000)
         self.assertEqual(credentials_api_connect.oauth2_return.expires_in, 3600)
         self.assertEqual(credentials_api_connect.oauth2_return.token_type, "Bearer")
@@ -701,7 +718,11 @@ class OAuth2UnitTest(unittest.TestCase):
         #
         self.logger.info('test_get_api_connect_refresh_token: 200, wrong client id')
         
-        credentials = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        credentials_api_connect = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                                        tenant_id = 'thisisnotatenantid',
+                                                        org_id = 'thisisnotanorgid',
+                                                        legacy = False
+                                                       )
         
         got_exception = False
         try:
@@ -716,7 +737,11 @@ class OAuth2UnitTest(unittest.TestCase):
         #
         self.logger.info('test_get_api_connect_refresh_token: 404, wrong endpoint')
         
-        credentials_api_connect = authentication.OAuth2(api_key = 'thisisnotanapikey')
+        credentials_api_connect = authentication.OAuth2(api_key = 'thisisnotanapikey',
+                                                        tenant_id = 'thisisnotatenantid',
+                                                        org_id = 'thisisnotanorgid',
+                                                        legacy = False
+                                                       )
         
         got_exception = False
         try:
@@ -726,7 +751,6 @@ class OAuth2UnitTest(unittest.TestCase):
             got_exception = True
             
         self.assertTrue(got_exception)
-    '''
         
     def test_from_dict(self):
         
@@ -740,14 +764,13 @@ class OAuth2UnitTest(unittest.TestCase):
         oauth2_dict["client_id"]    = "ibm-pairs"
         oauth2_dict["endpoint"]     = "auth-b2b-twc.ibm.com"
         oauth2_dict["jwt_token"]    = "thisisnotanaccesstoken"
-        
-        oauth2 = authentication.OAuth2
+        oauth2_dict["legacy"]       = True
                 
         oauth2_from_dict = None
         
         got_exception = False
         try:
-            oauth2_from_dict = oauth2.from_dict(oauth2_dict)
+            oauth2_from_dict = authentication.OAuth2.from_dict(oauth2_dict)
         except Exception as ex:
             got_exception = True
 
@@ -759,6 +782,7 @@ class OAuth2UnitTest(unittest.TestCase):
         self.assertEqual(oauth2_from_dict.client_id, "ibm-pairs")
         self.assertEqual(oauth2_from_dict.endpoint, "auth-b2b-twc.ibm.com")
         self.assertEqual(oauth2_from_dict.jwt_token, "thisisnotanaccesstoken")
+        self.assertEqual(oauth2_from_dict.legacy, True)
         
     def test_to_dict(self):
         
@@ -772,6 +796,7 @@ class OAuth2UnitTest(unittest.TestCase):
         oauth2_dict["client_id"]    = "ibm-pairs"
         oauth2_dict["endpoint"]     = "auth-b2b-twc.ibm.com"
         oauth2_dict["jwt_token"]    = "thisisnotanaccesstoken"
+        oauth2_dict["legacy"]       = True
         
         oauth2_to_dict = None
         
@@ -791,6 +816,7 @@ class OAuth2UnitTest(unittest.TestCase):
         self.assertEqual(oauth2_to_dict["client_id"], "ibm-pairs")
         self.assertEqual(oauth2_to_dict["endpoint"], "auth-b2b-twc.ibm.com")
         self.assertEqual(oauth2_to_dict["jwt_token"], "thisisnotanaccesstoken")
+        self.assertEqual(oauth2_to_dict["legacy"], True)
 
 class OAuth2HelperFunctionsTest(unittest.TestCase):
 
@@ -814,6 +840,7 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
         oauth2_dict["client_id"]    = "ibm-pairs"
         oauth2_dict["endpoint"]     = "auth-b2b-twc.ibm.com"
         oauth2_dict["jwt_token"]    = "thisisnotanaccesstoken"
+        oauth2_dict["legacy"]       = True
     
         got_exception = False
         try:
@@ -829,6 +856,7 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
         self.assertEqual(oauth2_from_dict.client_id, "ibm-pairs")
         self.assertEqual(oauth2_from_dict.endpoint, "auth-b2b-twc.ibm.com")
         self.assertEqual(oauth2_from_dict.jwt_token, "thisisnotanaccesstoken")
+        self.assertEqual(oauth2_from_dict.legacy, True)
 
     #
     def test_oauth2_to_dict(self):
@@ -843,6 +871,7 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
         oauth2_dict["client_id"]    = "ibm-pairs"
         oauth2_dict["endpoint"]     = "auth-b2b-twc.ibm.com"
         oauth2_dict["jwt_token"]    = "thisisnotanaccesstoken"
+        oauth2_dict["legacy"]       = True
     
         got_exception = False
         try:
@@ -874,7 +903,8 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
              "api_key_file" : "ibmpairspass.txt",
              "client_id" : "ibm-pairs",
              "endpoint" : "auth-b2b-twc.ibm.com",
-             "jwt_token" : "thisisnotanaccesstoken"
+             "jwt_token" : "thisisnotanaccesstoken",
+             "legacy" : true 
         }'''
     
         got_exception = False
@@ -906,7 +936,8 @@ class OAuth2HelperFunctionsTest(unittest.TestCase):
              "api_key_file" : "ibmpairspass.txt",
              "client_id" : "ibm-pairs",
              "endpoint" : "auth-b2b-twc.ibm.com",
-             "jwt_token" : "thisisnotanaccesstoken"
+             "jwt_token" : "thisisnotanaccesstoken",
+             "legacy" : true 
         }'''
 
         got_exception = False

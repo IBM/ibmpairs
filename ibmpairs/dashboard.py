@@ -28,7 +28,7 @@ from ibmpairs.logger import logger
 # Third Party Libraries:
 #}}}
 
-GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "True")
+GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "False")
 if GLOBAL_LEGACY_ENVIRONMENT.lower() in ('true', 't', 'yes', 'y'):
   GLOBAL_LEGACY_ENVIRONMENT  = True
 else:
@@ -308,9 +308,12 @@ def register_query(query,
         raise ex
     finally:
         if legacy is True:
-          client.set_host(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
+            client.set_host(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
         else:
-          client.set_host(common.ensure_protocol(constants.CLIENT_URL))
+            if ((version is not None) and (version == 4)):
+                client.set_host(common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V4), 4))
+            else:
+                client.set_host(common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V3)))
 
 
 def add_dashboard_layer(query_registration: QueryRegistrationReturn,
@@ -424,6 +427,9 @@ def add_dashboard_layer(query_registration: QueryRegistrationReturn,
         if legacy is True:
             client.set_host(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
         else:
-            client.set_host(common.ensure_protocol(constants.CLIENT_URL))
+            if ((version is not None) and (version == 4)):
+                client.set_host(common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V4), 4))
+            else:
+                client.set_host(common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V3)))
 
       

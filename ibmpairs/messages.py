@@ -38,6 +38,8 @@ INFO_API_CONNECT_POSSIBLE_TENANT_ID_IN_CLIENT_ID_FIELD = 'It might be that a ten
 INFO_AUTHENTICATION_SUCCESSFUL = 'Authentication success.'
 INFO_AUTHENTICATION_API_KEY_TYPE = 'The authentication api key type is assumed to be {}, because the api key prefix \'PHX\' {} present.'
 INFO_AUTHENTICATION_TYPE_API_KEY_REFRESH = 'The authentication api key type is assumed to be {}, because the api key prefix \'PHX\' {} present; trying to refresh.'
+ERROR_AUTHENTICATION_VERSION_UNKNOWN = 'The host version specified {} is invalid, version must be in (2,3,4): default 3.'
+INFO_AUTHENTICATION_TWO_IS_LEGACY = 'The specified host version is 2, which is synonymous with LEGACY=True; altered LEGACY=TRUE.'
 
 # catalog messages
 ERROR_CATALOG_RESPOSE_NOT_SUCCESSFUL = 'The {} {} call to {} failed with status code: {}, message: {}.'
@@ -210,6 +212,9 @@ ERROR_QUERY_AOI_ID_TYPE_UNKNOWN = 'The aois list can only be searched by an int 
 ERROR_QUERY_AOI_UNKNOWN = 'The AOIs.from_dict() method only takes a dict or list, the type {} is not accepted.'
 ERROR_QUERY_AOI_RESPOSE_NOT_SUCCESSFUL = 'The {} {} call to {} failed with status code: {}, message: {}.'
 WARN_QUERY_INTERACTIVE_ALREADY_PERFORMED = 'The query.submit_response object has a data value already present; skipping action as it appears this is an online query and the gathering of data has already been performed.'
+ERROR_QUERY_CANNOT_LOAD_GEOJSON = 'The provided geojson {} was invalid, unable to load.'
+ERROR_QUERY_CANNOT_CONVERT_GEOJSON_TO_DICT = 'The Query.Spatial.geojson had an error converting to dict.'
+ERROR_QUERY_CANNOT_LOAD_GEOJSON_TYPE_UNKNOWN = 'The provided geojson is an unknown type, please provide as a str, dict, geojson.feature.Feature or geojson.feature.FeatureCollection.'
 
 # woc messages
 ERROR_QUERY_TYPE_NOT_RECOGNIZED = 'The query input type {} is not recognized, should be in [\'query.Query\',\'dict\',\'str\']'

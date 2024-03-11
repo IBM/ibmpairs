@@ -9,7 +9,7 @@ SPDX-License-Identifier: BSD-3-Clause
 import os
 
 # global
-GLOBAL_LEGACY_ENVIRONMENT     = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "True")
+GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "False")
 if GLOBAL_LEGACY_ENVIRONMENT.lower() in ('true', 't', 'yes', 'y', '1', 'on'):
 	GLOBAL_LEGACY_ENVIRONMENT = True
 else:
@@ -36,7 +36,9 @@ CATALOG_DATA_LAYER_DIMENSION_VALUES_API = '/datalayer_dimension_values/'
 CATALOG_DATA_LAYER_PROPERTIES_API       = '/datalayer_properties/'
 
 # client
-CLIENT_URL                       = os.environ.get('CLIENT_URL', 'https://api.ibm.com/geospatial/run/na/core/v3')
+CLIENT_URL                       = os.environ.get('CLIENT_URL_V3', 'https://api.ibm.com/geospatial/run/na/core/')
+CLIENT_URL_V4                    = os.environ.get('CLIENT_URL_V4', CLIENT_URL + 'v4')
+CLIENT_URL_V3                    = os.environ.get('CLIENT_URL_V3', CLIENT_URL + 'v3')
 CLIENT_LEGACY_URL                = os.environ.get('CLIENT_LEGACY_URL', 'https://pairs.res.ibm.com/v2')
 CLIENT_JSON_HEADER               = {"Content-Type": "application/json"}
 CLIENT_PUT_AND_POST_HEADER       = {'Content-Type': 'application/json', 'Accept': 'application/json'}
@@ -69,7 +71,7 @@ PHOENIX_ADD_DASHBOARD_LAYER    = PHOENIX_V1_API_URL  + '/IMAP/put-layer-config-b
 #query
 QUERY_API                      = '/query'
 QUERY_JOBS_API                 = '/queryjobs/'
-QUERY_JOBS_DOWNLOAD_API        = '/queryjobs/download/'
+QUERY_JOBS_DOWNLOAD_API        = '/download'
 QUERY_JOBS_API_MERGE           = '/merge/'
 QUERY_JOB_HISTORY              = '/queryhistories/full/queryjob/'
 QUERY_AOI_BASE                 = '/aois/'
