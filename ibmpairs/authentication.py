@@ -31,7 +31,7 @@ PAIRS_DEFAULT_PASSWORD_FILE_NAME    = u'auth/basic.txt'
 PAIRS_PASSWORD_FILE_COMMENT_REG_EX  = re.compile(r'^\s*#')
 #}}}
 
-GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "True")
+GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "False")
 if GLOBAL_LEGACY_ENVIRONMENT.lower() in ('true', 't', 'yes', 'y'):
     GLOBAL_LEGACY_ENVIRONMENT  = True
 else:
@@ -44,6 +44,7 @@ class Basic:
     #_password: str
     #_password_file: str
     #_legacy: bool
+    #_version: int
     
     """
     An object to represent basic credentials and recovery from a file.
@@ -58,6 +59,8 @@ class Basic:
     :type password_file:     str
     :param legacy:           IBM EIS GA Legacy Environment selector override
     :type legacy:            bool
+    :param version:          IBM EIS GA api version (default: 3)
+    :type version:           int
     :raises Exception:       if username and password are not present
     """
     
@@ -105,21 +108,33 @@ class Basic:
                  username: str      = None,
                  password: str      = None,
                  password_file: str = "auth/basic.txt",
-                 legacy: bool       = None
+                 legacy: bool       = None,
+                 version: int       = None
                 ):
         
         if legacy is not None:
             self._legacy = legacy
         else:
             self._legacy = GLOBAL_LEGACY_ENVIRONMENT
+            
+        if version is not None:
+            self._version = version
+        else:
+            self._version = 3
         
         if host is not None:
             self._host = common.ensure_api_path(common.ensure_protocol(host))
         else:
             if self._legacy is True:
+                self.set_version(2)
                 self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
             else:
-                self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL))
+                if ((version is not None) and (version == 4)):
+                    self.set_version(4)
+                    self._host    = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V4), 4)
+                else:
+                    self.set_version(3)
+                    self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V3))
         
         self._username      = username
         self._password      = password
@@ -227,6 +242,21 @@ class Basic:
         
     #    
     legacy = property(get_legacy, set_legacy, del_legacy)
+    
+    #
+    def get_version(self):
+        return self._version
+  
+    #
+    def set_version(self, version):
+        self._version = common.check_int(version)
+      
+    #    
+    def del_version(self): 
+        del self._version
+      
+    #    
+    version = property(get_version, set_version, del_version)
 
     #
     def set_credentials(self, username, password):
@@ -307,6 +337,7 @@ class Basic:
         password_file = None
         host          = None
         legacy        = None
+        version       = None
         
         common.check_dict(authentication_dict)
         if "host" in authentication_dict:
@@ -319,12 +350,15 @@ class Basic:
             password_file = common.check_str(authentication_dict.get("password_file"))
         if "legacy" in authentication_dict:
             legacy = common.check_bool(authentication_dict.get("legacy"))
+        if "version" in authentication_dict:
+            version = common.check_int(authentication_dict.get("version"))
             
         return Basic(host          = host,
                      username      = username,
                      password      = password,
                      password_file = password_file,
-                     legacy        = legacy
+                     legacy        = legacy,
+                     version       = version
                     )
 
     #
@@ -347,6 +381,8 @@ class Basic:
             authentication_dict["password_file"] = self._password_file
         if self._legacy is not None:
             authentication_dict["legacy"] = self._legacy
+        if self._version is not None:
+            authentication_dict["version"] = self._version
         return authentication_dict
     
     #
@@ -717,6 +753,7 @@ class OAuth2(object):
     #_org_id: str
     #_tenant_id: str
     #_legacy: bool
+    #_version: int
     
     """
     An object to represent OAuth2 credentials and recovery from a file.
@@ -743,6 +780,8 @@ class OAuth2(object):
     :type tenant_id:     str
     :param legacy:       IBM EIS GA Legacy Environment selector override
     :type legacy:        bool
+    :param version:      IBM EIS GA api version (default: 3)
+    :type version:       int
     :returns:            None
     :rtype:              None
     :raises Exception:   if an api key cannot be acquired from the information provided
@@ -802,21 +841,43 @@ class OAuth2(object):
                  iam_endpoint: str = "iam.cloud.ibm.com",
                  org_id: str       = None, 
                  tenant_id: str    = None,
-                 legacy: bool      = None
+                 legacy: bool      = None,
+                 version: int      = None
                 ):
-        
+
         if legacy is not None:
             self._legacy = legacy
         else:
             self._legacy = GLOBAL_LEGACY_ENVIRONMENT
+            
+        if version is not None:
+            if version in (3,4):
+                self._version = version
+            elif version == 2:
+                self._version = version
+                self._legacy = True
+                msg = messages.INFO_AUTHENTICATION_TWO_IS_LEGACY
+                logger.info(msg)
+            else:
+                msg = messages.ERROR_AUTHENTICATION_VERSION_UNKNOWN.format(version)
+                logger.error(msg)
+                raise common.PAWException(msg)
+        else:
+            self._version = 3
         
         if host is not None:
             self._host = common.ensure_api_path(common.ensure_protocol(host))
         else:
             if self._legacy is True:
+                self.set_version(2)
                 self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
             else:
-                self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL))
+                if ((version is not None) and (version == 4)):
+                    self.set_version(4)
+                    self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V4), 4)
+                else:
+                    self.set_version(3)
+                    self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V3))
         
         self._username      = username
         self._api_key       = api_key
@@ -1123,6 +1184,21 @@ class OAuth2(object):
         
     #    
     legacy = property(get_legacy, set_legacy, del_legacy)
+    
+    #
+    def get_version(self):
+        return self._version
+  
+    #
+    def set_version(self, version):
+        self._version = common.check_int(version)
+      
+    #    
+    def del_version(self): 
+        del self._version
+      
+    #    
+    version = property(get_version, set_version, del_version)
     
     #
     def set_credentials_from_file(self, 
@@ -1482,8 +1558,14 @@ class OAuth2(object):
         """
         The method performs a new api_connect_get_auth_token.
         """
+      
+        msg = messages.INFO_AUTHENTICATION_TOKEN_REFRESH
+        logger.info(msg)
 
         self.api_connect_get_auth_token()
+        
+        msg = messages.INFO_AUTHENTICATION_TOKEN_REFRESH_SUCCESS
+        logger.info(msg)
             
     #
     def eis_refresh_auth_token(self,
@@ -1494,7 +1576,13 @@ class OAuth2(object):
         The method performs a new eis_get_auth_token.
         """
       
+        msg = messages.INFO_AUTHENTICATION_TOKEN_REFRESH
+        logger.info(msg)
+      
         self.eis_get_auth_token()
+        
+        msg = messages.INFO_AUTHENTICATION_TOKEN_REFRESH_SUCCESS
+        logger.info(msg)
         
     #
     def get_auth_token(self, 
@@ -1591,6 +1679,7 @@ class OAuth2(object):
         org_id       = None
         tenant_id    = None
         legacy       = None
+        version      = None
         
         common.check_dict(authentication_dict)
         if "host" in authentication_dict:
@@ -1631,7 +1720,10 @@ class OAuth2(object):
                 tenant_id = common.check_str(authentication_dict.get("tenant_id"))
         if "legacy" in authentication_dict:
             if authentication_dict.get("legacy") is not None:
-                legacy = common.check_str(authentication_dict.get("legacy"))
+                legacy = common.check_bool(authentication_dict.get("legacy"))
+        if "version" in authentication_dict:
+            if authentication_dict.get("version") is not None:
+                version = common.check_int(authentication_dict.get("version"))
             
         return OAuth2(host,
                       username,
@@ -1643,7 +1735,8 @@ class OAuth2(object):
                       iam_endpoint,
                       org_id,
                       tenant_id,
-                      legacy
+                      legacy,
+                      version
                      )
 
     #
@@ -1680,6 +1773,8 @@ class OAuth2(object):
             authentication_dict["tenant_id"] = self._tenant_id
         if self._legacy is not None:
             authentication_dict["legacy"] = self._legacy
+        if self._version is not None:
+            authentication_dict["version"] = self._version
         return authentication_dict
     
     #

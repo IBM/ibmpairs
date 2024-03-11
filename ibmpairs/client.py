@@ -9,12 +9,12 @@ SPDX-License-Identifier: BSD-3-Clause
 
 # fold: Import Python Standard Library {{{
 # Python Standard Library:
-#}}}
 from typing import List, Any
 import json
 import logging
 import os
 import warnings
+#}}}
 # fold: Import ibmpairs Modules {{{
 # ibmpairs Modules:
 import ibmpairs.authentication as authentication
@@ -32,7 +32,7 @@ import aiohttp
 
 GLOBAL_PAIRS_CLIENT = None
 
-GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "True")
+GLOBAL_LEGACY_ENVIRONMENT      = os.environ.get('GLOBAL_LEGACY_ENVIRONMENT', "False")
 if GLOBAL_LEGACY_ENVIRONMENT.lower() in ('true', 't', 'yes', 'y'):
     GLOBAL_LEGACY_ENVIRONMENT  = True
 else:
@@ -158,6 +158,7 @@ class Client:
     #_client_id: str
     #_tenant_id: str
     #_legacy: bool
+    #_version: int
     
     """
     A client wrapper for interaction with IBM PAIRS.
@@ -176,6 +177,8 @@ class Client:
     :type tenant_id:           str
     :param legacy:             IBM EIS GA Legacy Environment selector override
     :type legacy:              bool
+    :param version:            IBM EIS GA api version (default: 3)
+    :type version:             int
     """
     
     #
@@ -237,17 +240,35 @@ class Client:
                  body: str      = None,
                  client_id: str = None, 
                  tenant_id: str = None,
-                 legacy: bool   = None
+                 legacy: bool   = None,
+                 version: int   = None
                 ):
             
             self._authentication = authentication
 
             if legacy is not None:
                 self._legacy = legacy
-            elif (self._authentication is not None) and (self._authentication.legacy is not None):
+            elif ((legacy is None) and ((self._authentication is not None) and (self._authentication.legacy is not None))):
                 self._legacy = self._authentication.legacy
             else:
                 self._legacy = GLOBAL_LEGACY_ENVIRONMENT
+                
+            if version is not None:
+                if version in (3,4):
+                    self._version = version
+                elif version == 2:
+                    self._version = version
+                    self._legacy = True
+                    msg = messages.INFO_AUTHENTICATION_TWO_IS_LEGACY
+                    logger.info(msg)
+                else:
+                    msg = messages.ERROR_AUTHENTICATION_VERSION_UNKNOWN.format(version)
+                    logger.error(msg)
+                    raise common.PAWException(msg)
+            elif ((version is None) and ((self._authentication is not None) and (self._authentication.version is not None))):
+                self._version = self._authentication.version
+            else:
+                self._version = 3
 
             if (headers is not None):
                 self._headers = headers
@@ -260,9 +281,19 @@ class Client:
                 self._host = common.ensure_api_path(common.ensure_protocol(self._authentication.host))
             else:
                 if self._legacy is True:
+                    self.set_version(2)
                     self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_LEGACY_URL))
                 else:
-                    self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL))
+                    if ((version is not None) and (version == 4)) \
+                        or ((self._authentication is not None) and 
+                            (self._authentication.version is not None) and 
+                            (self._authentication.version == 4)
+                    ):
+                        self.set_version(4)
+                        self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V4), 4)
+                    else:
+                        self.set_version(3)
+                        self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V3))
                     
             logger.info("HOST: " + self._host)
             
@@ -417,6 +448,21 @@ class Client:
         
     #    
     legacy = property(get_legacy, set_legacy, del_legacy)
+    
+    #
+    def get_version(self):
+        return self._version
+  
+    #
+    def set_version(self, version):
+        self._version = common.check_int(version)
+      
+    #    
+    def del_version(self): 
+        del self._version
+      
+    #    
+    version = property(get_version, set_version, del_version)
     
     def session(self,
                 authentication = None,
@@ -1008,7 +1054,8 @@ def get_client(host: str          = None,
                body: str          = None,
                password: str      = None,
                password_file: str = None,
-               legacy: bool       = None
+               legacy: bool       = None,
+               version: int       = None
               ):
     """
     Gets either a authentication.Basic or authentication.OAuth2 from authentication credentials.
@@ -1039,6 +1086,8 @@ def get_client(host: str          = None,
     :type password_file:  str
     :param legacy:        IBM EIS GA Legacy Environment selector override
     :type legacy:         bool
+    :param version:       IBM EIS GA api version (default: 3)
+    :type version:        int
     :rtype:               authentication.Basic or authentication.OAuth2
     :raises Exception:    if authentication.Basic or authentication.OAuth2 raise an error
     """
@@ -1053,7 +1102,8 @@ def get_client(host: str          = None,
                                     username      = username,
                                     password      = password,
                                     password_file = password_file,
-                                    legacy        = legacy
+                                    legacy        = legacy,
+                                    version       = version
                                    )
     
     else:
@@ -1070,7 +1120,8 @@ def get_client(host: str          = None,
                                      iam_endpoint = iam_endpoint,
                                      org_id       = org_id, 
                                      tenant_id    = tenant_id,
-                                     legacy        = legacy
+                                     legacy       = legacy,
+                                     version      = version
                                     )
         
     eis_client = Client(headers = headers,

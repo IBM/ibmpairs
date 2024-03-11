@@ -130,10 +130,10 @@ def mocked_data_set_requests_get(*args, **kwargs):
         def json(self):
             return self.json_data
             
-    if (url == "https://pairs.res.ibm.com/v2/datasets/1"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/1"):
         
         return MockResponse(data_set_requests_get_success_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datasets/2"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/2"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
             
@@ -161,13 +161,13 @@ def mocked_data_set_requests_post(*args, **kwargs):
         def json(self):
             return self.json_data
 
-    if (url == "https://pairs.res.ibm.com/v2/datasets/" and name == "High res imagery (ESA Sentinel 2)"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/" and name == "High res imagery (ESA Sentinel 2)"):
         return_dict = {}
         return_dict["datasetId"] = 0
         return_dict["status"] = 0
         return_dict["message"] = "string"
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datasets/" and name == "string2"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/" and name == "string2"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
 
@@ -195,13 +195,13 @@ def mocked_data_set_requests_put(*args, **kwargs):
         def json(self):
             return self.json_data
 
-    if (url == "https://pairs.res.ibm.com/v2/datasets/1" and name == "High res imagery (ESA Sentinel 2)"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/1" and name == "High res imagery (ESA Sentinel 2)"):
         return_dict = {}
         return_dict["datasetId"] = 0
         return_dict["status"] = 0
         return_dict["message"] = "string"
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datasets/2" and name == "string2"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/2" and name == "string2"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
 
@@ -224,19 +224,19 @@ def mocked_data_set_requests_delete(*args, **kwargs):
         def json(self):
             return self.json_data
 
-    if (url == "https://pairs.res.ibm.com/v2/datasets/1"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/1"):
         return_dict = {}
         return_dict["datasetId"] = 1
         return_dict["status"] = 0
         return_dict["message"] = "string"
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datasets/2?hard_delete=true&force=true"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/2?hard_delete=true&force=true"):
         return_dict = {}
         return_dict["datasetId"] = 2
         return_dict["status"] = 0
         return_dict["message"] = "string"
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datasets/3"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/3"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
 
@@ -263,10 +263,10 @@ def mocked_data_sets_requests_get(*args, **kwargs):
         def json(self):
             return self.json_data
             
-    if (url == "https://pairs.res.ibm.com/v2/datasets/full" and ds_gets_tracker == 0):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/full" and ds_gets_tracker == 0):
         ds_gets_tracker = ds_gets_tracker + 1
         return MockResponse(data_sets_dict, 200)
-    if (url == "https://pairs.res.ibm.com/v2/datasets/full" and ds_gets_tracker == 1):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/full" and ds_gets_tracker == 1):
         return_dict = {}
         ds_gets_tracker = ds_gets_tracker + 1
         return MockResponse(return_dict, 404)
@@ -394,10 +394,10 @@ def mocked_data_layer_requests_get(*args, **kwargs):
         def json(self):
             return self.json_data
             
-    if (url == "https://pairs.res.ibm.com/v2/datalayers/1"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/1"):
         
         return MockResponse(data_layer_requests_get_success_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayers/2"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
             
@@ -425,18 +425,18 @@ def mocked_data_layer_requests_post(*args, **kwargs):
         def json(self):
             return self.json_data
 
-    if (url == "https://pairs.res.ibm.com/v2/datasets/1/datalayers"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/1/datalayers"):
         return_dict = {}
         return_dict["datalayerIds"] = [1]
         return_dict["status"] = 200
         return_dict["message"] = "Datalayer(s) created successfully"
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datasets/2/datalayers"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/2/datalayers"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
 
         return MockResponse(return_dict, 404)
-    elif (url == "https://pairs.res.ibm.com/v2/datasets/998/datalayers"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datasets/998/datalayers"):
         return_dict = {}
         return_dict["datalayerIds"] = ["P001C0001","P001C0002"]
         return_dict["status"] = 200
@@ -466,13 +466,13 @@ def mocked_data_layer_requests_put(*args, **kwargs):
         def json(self):
             return self.json_data
 
-    if (url == "https://pairs.res.ibm.com/v2/datalayers/1"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/1"):
         return_dict = {}
         return_dict["datalayerIds"] = [87234,87235,872346]
         return_dict["status"] = 200
         return_dict["message"] = "Datalayer(s) created successfully"
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayers/2"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
 
@@ -495,15 +495,15 @@ def mocked_data_layer_requests_delete(*args, **kwargs):
         def json(self):
             return self.json_data
 
-    if (url == "https://pairs.res.ibm.com/v2/datalayers/1"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/1"):
         return_dict = {}
         return_dict["id"] = 1
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayers/2?hard_delete=true&force=true"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2?hard_delete=true&force=true"):
         return_dict = {}
         return_dict["id"] = 2
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayers/3"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
 
@@ -646,21 +646,21 @@ def mocked_data_layers_requests_get(*args, **kwargs):
         def json(self):
             return self.json_data
             
-    if (url == "https://pairs.res.ibm.com/v2/datalayers/full" and dl_gets_tracker == 0):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/full" and dl_gets_tracker == 0):
         dl_gets_tracker = dl_gets_tracker + 1
         return MockResponse(data_layers_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayers/full" and dl_gets_tracker == 1):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/full" and dl_gets_tracker == 1):
         return_dict = {}
         dl_gets_tracker = dl_gets_tracker + 1
         return MockResponse(return_dict, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/datasets/1/datalayers'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/datasets/1/datalayers'):
         return MockResponse(data_layer_create_get_dict, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/datasets/998/datalayers'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/datasets/998/datalayers'):
         return_dict = data_layers_create_get_dict
         return_dict[0]["id"] = "P001C0001"
         return_dict[1]["id"] = "P001C0002"
         return MockResponse(return_dict, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/datasets/999/datalayers'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/datasets/999/datalayers'):
         return MockResponse(data_layer_get_999_dict, 200)
     else:
         # This is intended to mock a 'server error' init of MockResponse has no attribute status.
@@ -693,10 +693,10 @@ def mocked_data_layer_dimension_requests_get(*args, **kwargs):
         def json(self):
             return self.json_data
             
-    if (url == "https://pairs.res.ibm.com/v2/datalayer_dimensions/1"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayer_dimensions/1"):
         
         return MockResponse(data_layer_dimension_requests_get_success_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayer_dimensions/2"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayer_dimensions/2"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
             
@@ -719,13 +719,13 @@ def mocked_data_layer_dimension_requests_post(*args, **kwargs):
         def json(self):
             return self.json_data
 
-    if (url == "https://pairs.res.ibm.com/v2/datalayers/1/datalayer_dimensions"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/1/datalayer_dimensions"):
         return_dict = {}
         return_dict["datalayerDimensionId"] = 100
         return_dict["status"] = 200
         return_dict["message"] = "Datalayer dimension created successfully"
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayers/2/datalayer_dimensions"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2/datalayer_dimensions"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
 
@@ -749,10 +749,10 @@ def mocked_data_layer_dimensions_requests_get(*args, **kwargs):
         def json(self):
             return self.json_data
             
-    if (url == "https://pairs.res.ibm.com/v2/datalayers/1/datalayer_dimensions"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/1/datalayer_dimensions"):
 
         return MockResponse(data_layer_dimensions_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayers/2/datalayer_dimensions"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2/datalayer_dimensions"):
         return_dict = {}
 
         return MockResponse(return_dict, 404)
@@ -785,10 +785,10 @@ def mocked_data_layer_property_requests_get(*args, **kwargs):
         def json(self):
             return self.json_data
             
-    if (url == "https://pairs.res.ibm.com/v2/datalayer_properties/1"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayer_properties/1"):
         
         return MockResponse(data_layer_property_requests_get_success_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayer_properties/2"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayer_properties/2"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
             
@@ -811,13 +811,13 @@ def mocked_data_layer_property_requests_post(*args, **kwargs):
         def json(self):
             return self.json_data
 
-    if (url == "https://pairs.res.ibm.com/v2/datalayers/1/datalayer_properties"):
+    if (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/1/datalayer_properties"):
         return_dict = {}
         return_dict["datalayerPropertyId"] = 101
         return_dict["status"] = 200
         return_dict["message"] = "Datalayer property created successfully"
         return MockResponse(return_dict, 200)
-    elif (url == "https://pairs.res.ibm.com/v2/datalayers/2/datalayer_properties"):
+    elif (url == "https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2/datalayer_properties"):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found"
 
@@ -2096,7 +2096,7 @@ class DataSetUnitTest(unittest.TestCase):
             result = ds2.get(id = "2")
         except Exception as ex:
             got_exception2 = True
-            self.assertEqual(str(ex), "The GET request call to https://pairs.res.ibm.com/v2/datasets/2 failed with status code: 404, message: failed.")
+            self.assertEqual(str(ex), "The GET request call to https://api.ibm.com/geospatial/run/na/core/v3/datasets/2 failed with status code: 404, message: failed.")
             
         self.assertTrue(got_exception2)
         
@@ -2110,7 +2110,7 @@ class DataSetUnitTest(unittest.TestCase):
             result = ds3.get(id = "3")
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://pairs.res.ibm.com/v2/datasets/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -2174,7 +2174,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_create2.create()
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request call to https://pairs.res.ibm.com/v2/datasets/ failed with status code: 404, message: Error: 404 Not Found.")
+            self.assertEqual(str(ex), "The POST request call to https://api.ibm.com/geospatial/run/na/core/v3/datasets/ failed with status code: 404, message: Error: 404 Not Found.")
             got_exception2 = True
             
         self.assertTrue(got_exception2)
@@ -2190,7 +2190,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_create3.create()
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request to https://pairs.res.ibm.com/v2/datasets/ encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/ encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
             got_exception3 = True
             
         self.assertTrue(got_exception3)
@@ -2257,7 +2257,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_update2.update(id = 2)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The PUT request call to https://pairs.res.ibm.com/v2/datasets/2 failed with status code: 404, message: Error: 404 Not Found.")
+            self.assertEqual(str(ex), "The PUT request call to https://api.ibm.com/geospatial/run/na/core/v3/datasets/2 failed with status code: 404, message: Error: 404 Not Found.")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -2273,7 +2273,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_update3.update(id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The PUT request to https://pairs.res.ibm.com/v2/datasets/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_put.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The PUT request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_put.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -2354,7 +2354,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_delete2.delete(id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The DELETE request call to https://pairs.res.ibm.com/v2/datasets/3 failed with status code: 404, message: Error: 404 Not Found.")
+            self.assertEqual(str(ex), "The DELETE request call to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3 failed with status code: 404, message: Error: 404 Not Found.")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -2369,7 +2369,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_delete3.delete(id = 4)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The DELETE request to https://pairs.res.ibm.com/v2/datasets/4 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_delete.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The DELETE request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/4 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_delete.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -3446,7 +3446,7 @@ class DataSetsUnitTest(unittest.TestCase):
             result = ds2.get()
         except Exception as ex:
             got_exception2 = True
-            self.assertEqual(str(ex), "The GET request call to https://pairs.res.ibm.com/v2/datasets/full failed with status code: 404, message: failed.")
+            self.assertEqual(str(ex), "The GET request call to https://api.ibm.com/geospatial/run/na/core/v3/datasets/full failed with status code: 404, message: failed.")
             
         self.assertTrue(got_exception2)
         
@@ -3460,7 +3460,7 @@ class DataSetsUnitTest(unittest.TestCase):
             result = ds3.get()
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://pairs.res.ibm.com/v2/datasets/full encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_sets_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/full encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_sets_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -4154,7 +4154,7 @@ class DataLayerDimensionUnitTest(unittest.TestCase):
             result = dld2.get(id = "2")
         except Exception as ex:
             got_exception2 = True
-            self.assertEqual(str(ex), "The GET request call to https://pairs.res.ibm.com/v2/datalayer_dimensions/2 failed with status code: 404, message: failed.")
+            self.assertEqual(str(ex), "The GET request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayer_dimensions/2 failed with status code: 404, message: failed.")
             
         self.assertTrue(got_exception2)
         
@@ -4168,7 +4168,7 @@ class DataLayerDimensionUnitTest(unittest.TestCase):
             result = dld3.get(id = "3")
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://pairs.res.ibm.com/v2/datalayer_dimensions/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimension_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayer_dimensions/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimension_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -4237,7 +4237,7 @@ class DataLayerDimensionUnitTest(unittest.TestCase):
             dlds2 = data_layer_dimension_create2.create(data_layer_id = 2)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request call to https://pairs.res.ibm.com/v2/datalayers/2/datalayer_dimensions failed with status code: 404, message: failed.")
+            self.assertEqual(str(ex), "The POST request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2/datalayer_dimensions failed with status code: 404, message: failed.")
             got_exception2 = True
             
         self.assertTrue(got_exception2)
@@ -4252,7 +4252,7 @@ class DataLayerDimensionUnitTest(unittest.TestCase):
            dld3 = data_layer_dimension_create3.create(data_layer_id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request to https://pairs.res.ibm.com/v2/datalayers/3/datalayer_dimensions encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimension_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_dimensions encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimension_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
             got_exception3 = True
             
         self.assertTrue(got_exception3)
@@ -4649,7 +4649,7 @@ class DataLayerDimensionsUnitTest(unittest.TestCase):
             result = dld2.get(data_layer_id = 2)
         except Exception as ex:
             got_exception2 = True
-            self.assertEqual(str(ex), "The GET request call to https://pairs.res.ibm.com/v2/datalayers/2/datalayer_dimensions failed with status code: 404, message: failed.")
+            self.assertEqual(str(ex), "The GET request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2/datalayer_dimensions failed with status code: 404, message: failed.")
             
         self.assertTrue(got_exception2)
         
@@ -4663,7 +4663,7 @@ class DataLayerDimensionsUnitTest(unittest.TestCase):
             result = dld3.get(data_layer_id = 3)
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://pairs.res.ibm.com/v2/datalayers/3/datalayer_dimensions encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimensions_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_dimensions encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimensions_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
 
@@ -5035,7 +5035,7 @@ class DataLayerPropertyUnitTest(unittest.TestCase):
             result = dlp2.get(id = "2")
         except Exception as ex:
             got_exception2 = True
-            self.assertEqual(str(ex), "The GET request call to https://pairs.res.ibm.com/v2/datalayer_properties/2 failed with status code: 404, message: failed.")
+            self.assertEqual(str(ex), "The GET request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayer_properties/2 failed with status code: 404, message: failed.")
             
         self.assertTrue(got_exception2)
         
@@ -5049,7 +5049,7 @@ class DataLayerPropertyUnitTest(unittest.TestCase):
             result = dlp3.get(id = "3")
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://pairs.res.ibm.com/v2/datalayer_properties/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_property_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayer_properties/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_property_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -5117,7 +5117,7 @@ class DataLayerPropertyUnitTest(unittest.TestCase):
             dlps2 = data_layer_property_create2.create(data_layer_id = 2)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request call to https://pairs.res.ibm.com/v2/datalayers/2/datalayer_properties failed with status code: 404, message: Error: 404 Not Found.")
+            self.assertEqual(str(ex), "The POST request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2/datalayer_properties failed with status code: 404, message: Error: 404 Not Found.")
             got_exception2 = True
             
         self.assertTrue(got_exception2)
@@ -5132,7 +5132,7 @@ class DataLayerPropertyUnitTest(unittest.TestCase):
             dlp3 = data_layer_property_create3.create(data_layer_id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request to https://pairs.res.ibm.com/v2/datalayers/3/datalayer_properties encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_property_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_properties encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_property_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
             got_exception3 = True
             
         self.assertTrue(got_exception3)
@@ -6395,7 +6395,7 @@ class DataLayerUnitTest(unittest.TestCase):
             result = dl2.get(id = "2")
         except Exception as ex:
             got_exception2 = True
-            self.assertEqual(str(ex), "The GET request call to https://pairs.res.ibm.com/v2/datalayers/2 failed with status code: 404, message: failed.")
+            self.assertEqual(str(ex), "The GET request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2 failed with status code: 404, message: failed.")
             
         self.assertTrue(got_exception2)
         
@@ -6409,7 +6409,7 @@ class DataLayerUnitTest(unittest.TestCase):
             result = dl3.get(id = "3")
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://pairs.res.ibm.com/v2/datalayers/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -6505,7 +6505,7 @@ class DataLayerUnitTest(unittest.TestCase):
                                             data_layer_group = None)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request to https://pairs.res.ibm.com/v2/datasets/3/datalayers encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3/datalayers encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
             got_exception3 = True
             
         self.assertTrue(got_exception3)
@@ -6579,7 +6579,7 @@ class DataLayerUnitTest(unittest.TestCase):
             data_layer_update2.update(id = 2)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The PUT request call to https://pairs.res.ibm.com/v2/datalayers/2 failed with status code: 404, message: Error: 404 Not Found.")
+            self.assertEqual(str(ex), "The PUT request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/2 failed with status code: 404, message: Error: 404 Not Found.")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -6595,7 +6595,7 @@ class DataLayerUnitTest(unittest.TestCase):
             data_layer_update3.update(id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The PUT request to https://pairs.res.ibm.com/v2/datalayers/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_put.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The PUT request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_put.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -6675,7 +6675,7 @@ class DataLayerUnitTest(unittest.TestCase):
             data_layer_delete2.delete(id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The DELETE request call to https://pairs.res.ibm.com/v2/datalayers/3 failed with status code: 404, message: Error: 404 Not Found.")
+            self.assertEqual(str(ex), "The DELETE request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3 failed with status code: 404, message: Error: 404 Not Found.")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -6690,7 +6690,7 @@ class DataLayerUnitTest(unittest.TestCase):
             data_layer_delete3.delete(id = 4)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The DELETE request to https://pairs.res.ibm.com/v2/datalayers/4 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_delete.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The DELETE request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/4 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_delete.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -8049,7 +8049,7 @@ class DataLayersUnitTest(unittest.TestCase):
             result = dl2.get()
         except Exception as ex:
             got_exception2 = True
-            self.assertEqual(str(ex), "The GET request call to https://pairs.res.ibm.com/v2/datalayers/full failed with status code: 404, message: failed.")
+            self.assertEqual(str(ex), "The GET request call to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/full failed with status code: 404, message: failed.")
             
         self.assertTrue(got_exception2)
         
@@ -8063,7 +8063,7 @@ class DataLayersUnitTest(unittest.TestCase):
             result = dl3.get()
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://pairs.res.ibm.com/v2/datalayers/full encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layers_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/full encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layers_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -8077,7 +8077,7 @@ class DataLayersUnitTest(unittest.TestCase):
             result4 = dl4.get(data_set_id = 997)
         except Exception as ex:
             got_exception4 = True
-            self.assertEqual(str(ex), "The GET request to https://pairs.res.ibm.com/v2/datasets/997/datalayers encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layers_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/997/datalayers encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layers_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception4)
         

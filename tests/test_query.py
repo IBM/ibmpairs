@@ -310,49 +310,49 @@ async def mocked_status_async_get(*args, **kwargs):
         def json(self):
             return self.body
             
-    if (url == 'https://pairs.res.ibm.com/v2/queryjobs/1'): 
+    if (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1'): 
         return_json = json.dumps(query_status_response_dict_1)
                    
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/2'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/2'): 
         return_json = json.dumps(query_status_response_dict_2)
                    
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/3'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/3'): 
         return_json = json.dumps(query_status_response_dict_3)
                    
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/4'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/4'): 
         return_json = json.dumps(query_status_response_dict_4)
                    
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/5'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/5'): 
         return_json = json.dumps(query_status_response_dict_5)
                    
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/6'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/6'): 
         return_json = json.dumps(query_status_response_dict_6)
                    
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/7'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/7'):
         return_dict = {}
         return_dict["status"]  = "Error: 404 Not Found." 
         return_json = json.dumps(return_dict)
         
         return MockResponse(return_json, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/8'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/8'):
         return_dict = {}
         return_dict["status"]  = "Error: 404 Not Found." 
         return_json = json.dumps(return_dict)
         
         return MockResponse(return_json, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/9'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/9'):
         return_dict = {}
         return_dict["status"]  = "Error: 503 Service Unavailable." 
         return_json = json.dumps(return_dict)
         
         return MockResponse(return_json, 503)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/10'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/10'): 
 
         return_dict = {}
 
@@ -385,7 +385,7 @@ async def mocked_status_async_get(*args, **kwargs):
             return_json = json.dumps(return_dict)
             
             return MockResponse(return_json, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/11'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/11'): 
 
         return_dict = {}
 
@@ -406,11 +406,11 @@ async def mocked_status_async_get(*args, **kwargs):
             return_json = json.dumps(return_dict)
             
             return MockResponse(return_json, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/12'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/12'):
         return_dict["invalid"] = "return"
         return_json = json.dumps(return_dict)
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1000000000_30000000'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1000000000_30000000'):
         return_json = json.dumps(query_status_response_dict_1000000000_30000000)
         
         return MockResponse(return_json, 200)
@@ -522,27 +522,27 @@ async def mocked_download_async_get(*args, **kwargs):
         def json(self):
             return self.body
             
-    if (url == 'https://pairs.res.ibm.com/v2/queryjobs/1625544000_31302646'):
+    if (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302646'):
         return_json = json.dumps(query_download_status_response_dict)
         
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1625544000_31302647'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302647'):
         return_json = json.dumps(query_download_status_response_dict)
         
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1625544000_31302645'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302645'):
         return_json = json.dumps(query_download_status_response_dict)
         
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1702468800_05116057'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1702468800_05116057'):
         return_json = json.dumps(query_download_status_response_csv_dict)
         
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1702468800_05212195'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1702468800_05212195'):
         return_json = json.dumps(query_download_status_response_json_dict)
         
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1625544000_31302648'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302648'): 
 
         return_dict = {}
 
@@ -559,7 +559,7 @@ async def mocked_download_async_get(*args, **kwargs):
             return_json = json.dumps(return_dict)
             
             return MockResponse(return_json, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1625544000_31302649'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302649'): 
 
         return_dict = {}
 
@@ -576,39 +576,39 @@ async def mocked_download_async_get(*args, **kwargs):
             return_json = json.dumps(return_dict)
             
             return MockResponse(return_json, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1625544000_31302650'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302650'):
         return_json = json.dumps(query_download_status_response_dict_deleted)
         
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/1000000000_30000000'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1000000000_30000000'):
         return_json = json.dumps(query_status_response_dict_1000000000_30000000)
         
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1625544000_31302646'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302646/download'): 
         with open(os.path.join('tests/data/v2','1625544000_31302646.zip'), "rb") as zipfile:
             resp = zipfile.read()
         return MockResponse(resp, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1702468800_05116057'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1702468800_05116057/download'): 
         with open(os.path.join('tests/data/v2','1702468800_05116057.csv'), "rb") as csvfile:
             resp = csvfile.read()
         return MockResponse(resp, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1702468800_05212195'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1702468800_05212195/download'): 
         with open(os.path.join('tests/data/v2','1702468800_05212195.json'), "rb") as jsonfile:
             resp = jsonfile.read()
         return MockResponse(resp, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1625544000_31302647'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302647/download'): 
         # This is intended to mock a 'server error' init of MockResponse has no attribute status.
         return MockResponse(status = 401)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1625544000_31302645'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302645/download'): 
         # This is intended to produce an invalid zip, -> byte reader, rather than -> 'bytes'.
         with open(os.path.join('tests/data/v2','1625544000_31302646.zip'), "rb") as zipfile:
             resp = zipfile
         return MockResponse(resp, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1625544000_31302648'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1625544000_31302648/download'): 
         with open(os.path.join('tests/data/v2','1625544000_31302646.zip'), "rb") as zipfile:
             resp = zipfile.read()
         return MockResponse(resp, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/download/1000000000_30000000'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1000000000_30000000/download'):
         resp = json.dumps(query_online_response_1000000000_30000000)
         return MockResponse(resp, 200)
     else:
@@ -665,20 +665,20 @@ def mocked_merge_requests_put(*args, **kwargs):
         def json(self):
             return self.json_data
             
-    if (url == 'https://pairs.res.ibm.com/v2/queryjobs/1/merge/2'):
+    if (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/1/merge/2'):
         
         return MockResponse(query_jobs_list_merge_success, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/2/merge/3'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/2/merge/3'):
         return_dict = {}
         return_dict["message"] = "Error: 404 Not Found."
             
         return MockResponse(return_dict, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/3/merge/4'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/3/merge/4'):
         return_dict = {}
         return_dict["message"] = "Error: 401 Unauthorized."
             
         return MockResponse(return_dict, 401)
-    elif (url == 'https://pairs.res.ibm.com/v2/queryjobs/4/merge/5'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/queryjobs/4/merge/5'):
         return_dict = {}
         return_dict["message"] = "Error: 412 Precondition Failed."
             
@@ -1800,6 +1800,34 @@ spatial_json = r'''{
         ]
     }
 }'''
+    
+spatial_geojson_dict = {
+    "type": "poly",
+    "geojson": {
+        "type": "Feature",
+        "geometry": {"coordinates":[[[[-9.164699678818277,39.10329357870404],
+            [-9.148221910727607,39.146135775739786],
+            [-9.092197499219324,39.13295356126725],
+            [-9.118561928164398,39.090111364231504],
+            [-9.164699678818277,39.10329357870404]]]],
+            "type":"MultiPolygon"
+        }
+    }
+}
+
+spatial_geojson_json = r'''{
+    "type": "poly",
+    "geojson": {
+        "type": "Feature",
+        "geometry": {"coordinates":[[[[-9.164699678818277,39.10329357870404],
+            [-9.148221910727607,39.146135775739786],
+            [-9.092197499219324,39.13295356126725],
+            [-9.118561928164398,39.090111364231504],
+            [-9.164699678818277,39.10329357870404]]]],
+            "type":"MultiPolygon"
+        }
+    }
+}'''
 
 #
 class SpatialUnitTest(unittest.TestCase):
@@ -1924,6 +1952,93 @@ class SpatialUnitTest(unittest.TestCase):
             got_exception = True
 
         self.assertFalse(got_exception)
+    
+    #    
+    def test_spatial_geojson_from_dict(self):
+        self.logger.info('test_spatial_geojson_from_dict')
+        
+        spatial = query_module.Spatial
+        
+        spatial_from_dict = None
+        
+        got_exception = False
+        
+        try:
+            spatial_from_dict = spatial.from_dict(spatial_geojson_dict)
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertFalse(got_exception)
+        self.assertEqual(spatial_from_dict.type, "poly")
+        self.assertEqual(spatial_from_dict.geojson.type, "Feature")
+        self.assertEqual(spatial_from_dict.geojson.geometry.coordinates, [[[[-9.164699678818277,39.10329357870404],[-9.148221910727607,39.146135775739786],[-9.092197499219324,39.13295356126725],[-9.118561928164398,39.090111364231504],[-9.164699678818277,39.10329357870404]]]])
+        self.assertEqual(spatial_from_dict.geojson.geometry.type, "MultiPolygon")
+        
+    #    
+    def test_spatial_geojson_to_dict(self):
+        self.logger.info('test_spatial_geojson_to_dict')
+        
+        spatial = query_module.Spatial
+        
+        spatial_from_dict = None
+        spatial_to_dict   = None
+        
+        got_exception = False
+        
+        #try:
+        spatial_from_dict = spatial.from_dict(spatial_geojson_dict)
+        spatial_to_dict   = spatial_from_dict.to_dict()
+        #except Exception as ex:
+        #    got_exception = True
+        
+        self.assertFalse(got_exception)
+        self.assertIsInstance(spatial_to_dict, dict)
+        self.assertEqual(spatial_to_dict["type"], "poly")
+        self.assertEqual(spatial_to_dict["geojson"]["type"], "Feature")
+        self.assertEqual(spatial_to_dict["geojson"]["geometry"]["coordinates"], [[[[-9.164699678818277,39.10329357870404],[-9.148221910727607,39.146135775739786],[-9.092197499219324,39.13295356126725],[-9.118561928164398,39.090111364231504],[-9.164699678818277,39.10329357870404]]]])
+        self.assertEqual(spatial_to_dict["geojson"]["geometry"]["type"], "MultiPolygon")
+'''
+    #
+    def test_spatial_geojson_from_json(self):
+        self.logger.info('test_spatial_from_json')
+        
+        spatial = query_module.Spatial
+        
+        spatial_from_json = None
+        
+        got_exception = False
+        
+        try:
+            spatial_from_json = spatial.from_json(spatial_json)
+        except Exception as ex:
+            self.logger.info(ex)
+            got_exception = True
+            
+        self.assertFalse(got_exception)
+        self.assertEqual(spatial_from_json.type, "point")
+        self.assertEqual(spatial_from_json.aoi, "string")
+        self.assertEqual(spatial_from_json.coordinates[0], 0)
+        self.assertEqual(spatial_from_json.aggregation.aoi[0], "string")
+        
+    #
+    def test_spatial_geojson_to_json(self):
+        self.logger.info('test_spatial_to_json')
+        
+        spatial = query_module.Spatial
+        
+        spatial_from_json = None
+        spatial_to_json = None
+        
+        got_exception = False
+        
+        try:
+            spatial_from_json = spatial.from_json(spatial_json)
+            spatial_to_json = spatial_from_json.to_json()
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertFalse(got_exception)
+'''
 
 upload_dict = {
     "provider": "ibm",

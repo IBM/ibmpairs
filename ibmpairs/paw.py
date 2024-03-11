@@ -2157,16 +2157,6 @@ class PAIRSQuery(object):
                                                 # load temporary file with PIL into NumPy array
                                                 with open(tf.name, 'rb') as f:
                                                         im = PIL.Image.open(f)
-                                                        if 'details' in layerMeta and 'pixelType' in layerMeta['details']:
-                                                                if layerMeta['details']['pixelType'] in PAIRS_RASTER_INT_PIX_TYPE_CLASS:
-                                                                        im.mode=u'I'
-                                                                elif layerMeta['details']['pixelType'] in PAIRS_RASTER_FLOAT_PIX_TYPE_CLASS:
-                                                                        im.mode=u'F'
-                                                        else:
-                                                                logger.warning(
-                                                                        "No pixel data type identified from query meta data, default to 4 bytes floating point numbers."
-                                                                )
-                                                                im.mode=u'F'
                                                         a = numpy.array(im).astype(numpy.float64)
                                         # try to expliticly remove the temporary file used to load the data
                                         if tempFilePath is not None:

@@ -32,6 +32,8 @@ import asyncio
 import shapely.geometry
 import shapely.wkt
 import numpy as np
+import geojson as gj
+
 #try:
 #    from osgeo import gdal
 import pandas
@@ -43,6 +45,8 @@ QUERY_DEFAULT_WORKERS          = int(os.environ.get('QUERY_DEFAULT_WORKERS', 1))
 QUERY_MAX_WORKERS              = int(os.environ.get('QUERY_MAX_WORKERS', 8))
 QUERY_MIN_STATUS_INTERVAL      = int(os.environ.get('QUERY_MIN_STATUS_INTERVAL', 15))
 QUERY_STATUS_CHECK_INTERVAL    = int(os.environ.get('QUERY_STATUS_CHECK_INTERVAL', 30))
+
+gj.geometry.DEFAULT_PRECISION = 15
 
 HAS_GEOJSON = False
 try:
@@ -757,66 +761,86 @@ class Interval:
 #
 class Temporal:
     #_intervals: List[Interval]
-    
+    #_years: List[int]
+  
     """
     A representation of a Query Temporal.
     
     :param intervals: A list of temporal intervals.
     :type intervals:  List[ibmpairs.query.Interval]
+    :param years: A list of years.
+    :type years:  List[int]
     """
-
+  
     #
     def __str__(self):
-                
+      
         """
         The method creates a string representation of the internal class structure.
         
         :returns:       A string representation of the internal class structure.
         :rtype:         str
         """
-                                
+      
         return json.dumps(self.to_dict(), 
                           indent    = constants.GLOBAL_JSON_REPR_INDENT, 
                           sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
-
+  
     #
     def __repr__(self):
-                
+      
         """
         The method creates a dict representation of the internal class structure.
         
         :returns:       A dict representation of the internal class structure.
         :rtype:         dict
         """
-                
+      
         return json.dumps(self.to_dict(), 
                           indent    = constants.GLOBAL_JSON_REPR_INDENT, 
                           sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
-
+  
     #
     def __init__(self, 
-                 intervals: List[Interval] = None
+                 intervals: List[Interval] = None,
+                 years: List[int]          = None
                 ):
         self._intervals = intervals
-        
+        self._years     = years
+      
     #
     def get_intervals(self):
         return self._intervals
-
+  
     #
     def set_intervals(self, intervals):
         self._intervals = common.check_list(intervals)
-        
+      
     #
     def del_intervals(self): 
         del self._intervals
-
+      
     #
     intervals = property(get_intervals, set_intervals, del_intervals)
-        
+  
+    #
+    def get_years(self):
+        return self._years
+  
+    #
+    def set_years(self, years):
+        self._years = common.check_list(years)
+      
+    #
+    def del_years(self): 
+        del self._years
+      
+    #
+    years = property(get_years, set_years, del_years)
+  
     #    
     def from_dict(temporal_dict: Any):
-
+      
         """
         Create a Temporal object from a dictionary.
         
@@ -825,32 +849,40 @@ class Temporal:
         :rtype:                  ibmpairs.query.Temporal
         :raises Exception:       if not a dictionary.
         """
-        
+      
         intervals = None
-        
+        years     = None
+      
         common.check_dict(temporal_dict)
         if "intervals" in temporal_dict:
             if temporal_dict.get("intervals") is not None:
                 intervals = common.from_list(temporal_dict.get("intervals"), Interval.from_dict)
-        return Temporal(intervals = intervals)
-
+        if "years" in temporal_dict:
+            if temporal_dict.get("years") is not None:
+                years = common.from_list(temporal_dict.get("years"), common.check_int)
+        return Temporal(intervals = intervals,
+                        years     = years
+                       )
+  
     #
     def to_dict(self):
       
         """
         Create a dictionary from the objects structure. 
-                   
+                    
         :rtype:                     dict
         """
-        
+      
         temporal_dict: dict = {}
         if self._intervals is not None:
             temporal_dict["intervals"] = common.from_list(self._intervals, lambda item: common.class_to_dict(item, Interval))
+        if self._years is not None:
+            temporal_dict["years"] = common.from_list(self._years, common.check_int)
         return temporal_dict
-    
+  
     #
     def from_json(temporal_json: Any):
-    
+      
         """
         Create a Temporal object from json (dictonary or str).
         
@@ -859,7 +891,7 @@ class Temporal:
         :rtype:                      ibmpairs.query.Temporal
         :raises Exception:           if not a dictionary or a string.
         """
-
+      
         if isinstance(temporal_json, dict):
             temporal = Temporal.from_dict(temporal_json)
         elif isinstance(temporal_json, str):
@@ -870,16 +902,16 @@ class Temporal:
             logger.error(msg)
             raise common.PAWException(msg)
         return temporal
-
+  
     #
     def to_json(self):
       
         """
         Create a string representation of a json dictionary from the objects structure. 
-                   
+                    
         :rtype:                     string
         """
-        
+      
         return json.dumps(self.to_dict())
 
 #
@@ -894,7 +926,9 @@ class Layer:
     #_dimensions: List[Dimension]
     #_expression: str
     #_output: bool
-    
+    #_datalayer: str
+    #_properties: dict
+  
     """
     A representation of a Query Layer.
     
@@ -918,36 +952,40 @@ class Layer:
     :type expression:   str
     :param output:      Output.
     :type output:       bool
+    :param datalayer:   A data layer name.
+    :type datalayer:    str
+    :param properties:  A dictionary of properties associated with a layer.
+    :type properties:   dict
     """
-
+  
     #
     def __str__(self):
-                
+      
         """
         The method creates a string representation of the internal class structure.
         
         :returns:       A string representation of the internal class structure.
         :rtype:         str
         """
-                                
+      
         return json.dumps(self.to_dict(), 
                           indent    = constants.GLOBAL_JSON_REPR_INDENT, 
                           sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
-
+  
     #
     def __repr__(self):
-                
+      
         """
         The method creates a dict representation of the internal class structure.
         
         :returns:       A dict representation of the internal class structure.
         :rtype:         dict
         """
-                
+      
         return json.dumps(self.to_dict(), 
                           indent    = constants.GLOBAL_JSON_REPR_INDENT, 
                           sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
-
+  
     #
     def __init__(self, 
                  id: str = None, 
@@ -959,7 +997,9 @@ class Layer:
                  filter: Filter = None, 
                  dimensions: List[Dimension] = None, 
                  expression: str = None, 
-                 output: bool = None
+                 output: bool = None,
+                 datalayer: str = None,
+                 properties: dict = None
                 ):
         self._id          = id
         self._type        = type
@@ -971,160 +1011,192 @@ class Layer:
         self._dimensions  = dimensions
         self._expression  = expression
         self._output      = output
-
+        self._datalayer   = datalayer
+        self._properties  = properties
+      
     #
     def get_id(self):
         return self._id
-
+  
     #
     def set_id(self, id):
         self._id = common.check_str(id)
-        
+      
     #
     def del_id(self): 
         del self._id
-
+      
     #
     id = property(get_id, set_id, del_id)
-
+  
     #
     def get_type(self):
         return self._type
-
+  
     #
     def set_type(self, type):
         self._type = common.check_str(type)
-   
+      
     #
     def del_type(self): 
         del self._type
-
+      
     #
     type = property(get_type, set_type, del_type)
-
+  
     #     
     def get_temporal(self):
         return self._temporal
-
+  
     #
     def set_temporal(self, temporal):
         self._temporal = common.check_class(temporal, Temporal)
-        
+      
     #
     def del_temporal(self): 
         del self._temporal
-
+      
     #
     temporal = property(get_temporal, set_temporal, del_temporal)
-
+  
     #
     def get_alias(self):
         return self._alias
-
+  
     #
     def set_alias(self, alias):
         self._alias = common.check_str(alias)
-     
+      
     #
     def del_alias(self): 
         del self._alias
-
+      
     #
     alias = property(get_alias, set_alias, del_alias)
-    
+  
     #   
     def get_filter_only(self):
         return self._filter_only
-
+  
     #
     def set_filter_only(self, filter_only):
         self._filter_only = common.check_bool(filter_only)
-        
+      
     #
     def del_filter_only(self): 
         del self._filter_only
-
+      
     #
     filter_only = property(get_filter_only, set_filter_only, del_filter_only)
-     
+  
     #   
     def get_aggregation(self):
         return self._aggregation
-
+  
     #
     def set_aggregation(self, aggregation):
         self._aggregation = common.check_str(aggregation)
-        
+      
     #
     def del_aggregation(self): 
         del self._aggregation
-
+      
     #
     aggregation = property(get_aggregation, set_aggregation, del_aggregation)
-    
+  
     #
     def get_filter(self):
         return self._filter
-    
+  
     #
     def set_filter(self, filter):
         self._filter = common.check_class(filter, Filter)  
-        
+      
     #
     def del_filter(self): 
         del self._filter
-
+      
     #
     filter = property(get_filter, set_filter, del_filter)
-
+  
     #
     def get_dimensions(self):
         return self._dimensions
-
+  
     #
     def set_dimensions(self, dimensions):
         self._dimensions = common.check_list(dimensions) 
-    
+      
     #
     def del_dimensions(self): 
         del self._dimensions
-
+      
     #
     dimensions = property(get_dimensions, set_dimensions, del_dimensions)
-
+  
     #
     def get_expression(self):
         return self._expression
-
+  
     #
     def set_expression(self, expression):
         self._expression = common.check_str(expression)
-        
+      
     #
     def del_expression(self): 
         del self._expression
-
+      
     #
     expression = property(get_expression, set_expression, del_expression)
-
+  
     #        
     def get_output(self):
         return self._output
-
+  
     #
     def set_output(self, output):
         self._output = common.check_bool(output)
-
+      
     #
     def del_output(self): 
         del self._output
-
+      
     #
     output = property(get_output, set_output, del_output)
-
+  
+    #
+    def get_datalayer(self):
+        return self._datalayer
+  
+    #
+    def set_datalayer(self, datalayer):
+        self._datalayer = common.check_str(datalayer)
+      
+    #
+    def del_datalayer(self): 
+        del self._datalayer
+      
+    #
+    datalayer = property(get_datalayer, set_datalayer, del_datalayer)
+    
+    #
+    def get_properties(self):
+        return self._properties
+  
+    #
+    def set_properties(self, properties):
+        self._properties = common.check_dict(properties)
+      
+    #
+    def del_properties(self): 
+        del self._properties
+      
+    #
+    properties = property(get_properties, set_properties, del_properties)
+  
     #
     def from_dict(layer_dict: Any):
-
+      
         """
         Create a Layer object from a dictionary.
         
@@ -1133,7 +1205,7 @@ class Layer:
         :rtype:               ibmpairs.query.Layer
         :raises Exception:    if not a dictionary.
         """
-        
+      
         id          = None
         type        = None
         temporal    = None
@@ -1144,7 +1216,9 @@ class Layer:
         dimensions  = None
         expression  = None
         output      = None
-        
+        datalayer   = None
+        properties  = None
+      
         common.check_dict(layer_dict)
         if "id" in layer_dict:
             if layer_dict.get("id") is not None:
@@ -1179,6 +1253,12 @@ class Layer:
         if "output" in layer_dict:
             if layer_dict.get("output") is not None:
                 output = common.check_bool(layer_dict.get("output"))
+        if "datalayer" in layer_dict:
+            if layer_dict.get("datalayer") is not None:
+                datalayer = common.check_str(layer_dict.get("datalayer"))
+        if "properties" in layer_dict:
+            if layer_dict.get("properties") is not None:
+                properties = common.check_dict(layer_dict.get("properties"))
         return Layer(id          = id, 
                      type        = type, 
                      temporal    = temporal, 
@@ -1188,15 +1268,17 @@ class Layer:
                      filter      = filter, 
                      dimensions  = dimensions, 
                      expression  = expression, 
-                     output      = output
+                     output      = output,
+                     datalayer   = datalayer,
+                     properties  = properties
                     )
-
+  
     #
     def to_dict(self):
-     
+      
         """
         Create a dictionary from the objects structure. 
-                   
+                    
         :rtype:                     dict
         """
       
@@ -1221,11 +1303,15 @@ class Layer:
             layer_dict["expression"] = self._expression
         if self._output is not None:
             layer_dict["output"] = self._output
+        if self._datalayer is not None:
+            layer_dict["datalayer"] = self._datalayer
+        if self._properties is not None:
+            layer_dict["properties"] = self._properties
         return layer_dict
-        
+  
     #
     def to_dict_layer_post(self):
-        
+      
         """
         Create a dictionary from the objects structure ready for a POST operation.
                     
@@ -1253,11 +1339,15 @@ class Layer:
             layer_dict["expression"] = self._expression
         if self._output is not None:
             layer_dict["output"] = self._output
+        if self._datalayer is not None:
+            layer_dict["datalayer"] = self._datalayer
+        if self._properties is not None:
+            layer_dict["properties"] = self._properties
         return layer_dict
-    
+  
     #
     def from_json(layer_json: Any):
-        
+      
         """
         Create a Layer object from json (dictonary or str).
         
@@ -1266,7 +1356,7 @@ class Layer:
         :rtype:                     ibmpairs.query.Layer
         :raises Exception:          if not a dictionary or a string.
         """
-
+      
         if isinstance(layer_json, dict):
             layer = Layer.from_dict(layer_json)
         elif isinstance(layer_json, str):
@@ -1277,28 +1367,29 @@ class Layer:
             logger.error(msg)
             raise common.PAWException(msg)
         return layer
-
+  
     #
     def to_json(self):
       
         """
         Create a string representation of a json dictionary from the objects structure. 
-                   
+                    
         :rtype:                     string
         """
-        
+      
         return json.dumps(self.to_dict())
-        
+  
     #
     def to_json_layer_post(self):
-        
+      
         """
         Create a string representation of a json dictionary from the objects structure ready for a POST operation.  
                   
         :rtype:                     string
         """
-        
+      
         return json.dumps(self.to_dict_layer_post())
+
 
 #
 class Notification:
@@ -1618,7 +1709,10 @@ class Spatial:
     #_polygon: Polygon
     #_coordinates: List[float]
     #_aggregation: Aggregation
-    
+    #_geojson: dict or 
+    #          geojson.feature.FeatureCollection or 
+    #          geojson.feature.Feature
+  
     """
     A representation of a Query Spatial.
     
@@ -1632,84 +1726,88 @@ class Spatial:
     :type coordinates:   list[float]
     :param aggregation:  A spatial aggregation definition.
     :type aggregation:   ibmpairs.query.aggregation
+    :param geojson:      A geojson specification.
+    :type geojson:       dict or geojson.feature.FeatureCollection or geojson.feature.Feature
     """
-
+  
     #
     def __str__(self):
-                
+      
         """
         The method creates a string representation of the internal class structure.
         
         :returns:       A string representation of the internal class structure.
         :rtype:         str
         """
-                                
+      
         return json.dumps(self.to_dict(), 
                           indent    = constants.GLOBAL_JSON_REPR_INDENT, 
                           sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
-
+  
     #
     def __repr__(self):
-                
+      
         """
         The method creates a dict representation of the internal class structure.
         
         :returns:       A dict representation of the internal class structure.
         :rtype:         dict
         """
-                
+      
         return json.dumps(self.to_dict(), 
                           indent    = constants.GLOBAL_JSON_REPR_INDENT, 
                           sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
-
+  
     #
     def __init__(self, 
                  type: str                = None, 
                  aoi: str                 = None, 
                  polygon: Polygon         = None,
                  coordinates: List[float] = None, 
-                 aggregation: Aggregation = None
+                 aggregation: Aggregation = None,
+                 geojson                  = None
                 ):
         self._type        = type
         self._aoi         = aoi
         self._polygon     = polygon
         self._coordinates = coordinates
         self._aggregation = aggregation
-        
+        self._geojson     = geojson
+      
     #    
     def get_type(self):
         return self._type
-
+  
     #
     def set_type(self, type):
         self._type = common.check_str(type)
-        
+      
     #
     def del_type(self): 
         del self._type
-
+      
     #
     type = property(get_type, set_type, del_type) 
-
+  
     #
     def get_aoi(self):
         return self._aoi
-
+  
     #
     def set_aoi(self, aoi):
         self._aoi = common.check_str(aoi)
-        
+      
     #
     def del_aoi(self): 
         del self._aoi
-
+      
     #
     aoi = property(get_aoi, set_aoi, del_aoi) 
-    
+  
     #
     def get_polygon(self):
       return self._polygon
-
+  
     #
     def set_polygon(self, polygon):
       self._polygon = common.check_class(polygon, Polygon)
@@ -1717,58 +1815,96 @@ class Spatial:
     #
     def del_polygon(self): 
       del self._polygon
-
+      
     #
     polygon = property(get_polygon, set_polygon, del_polygon) 
-    
+  
     #    
     def get_coordinates(self):
         return self._coordinates
-
+  
     #
     def set_coordinates(self, coordinates):
         self._coordinates = common.check_list(coordinates)
-        
+      
     #
     def del_coordinates(self): 
         del self._coordinates
-
+      
     #
     coordinates = property(get_coordinates, set_coordinates, del_coordinates) 
-        
+  
     #    
     def get_aggregation(self):
         return self._aggregation
-
+  
     #
     def set_aggregation(self, aggregation):
         self._aggregation = common.check_class(aggregation, Aggregation)
-        
+      
     #
     def del_aggregation(self): 
         del self._aggregation
-
+      
     #
     aggregation = property(get_aggregation, set_aggregation, del_aggregation)
-        
+  
+    #
+    def get_geojson(self):
+        return self._geojson
+  
+    #
+    def set_geojson(self, geojson):
+        if isinstance(geojson, dict):
+            try:
+                self._geojson = gj.GeoJSON.to_instance(geojson, strict=True)
+            except: 
+                msg = messages.ERROR_QUERY_CANNOT_LOAD_GEOJSON.format('dict')
+                logger.error(msg)
+                raise common.PAWException(msg)
+        elif isinstance(geojson, str):
+            try:
+                self._geojson = gj.loads(geojson)
+            except: 
+                msg = messages.ERROR_QUERY_CANNOT_LOAD_GEOJSON.format('str')
+                logger.error(msg)
+                raise common.PAWException(msg)
+        elif isinstance(geojson, gj.feature.FeatureCollection):
+            self._geojson = geojson
+        elif isinstance(geojson, gj.feature.Feature):
+            self._geojson = geojson
+        elif geojson is None:
+            pass
+        else:
+            msg = messages.ERROR_QUERY_CANNOT_LOAD_GEOJSON_TYPE_UNKNOWN
+            logger.error(msg)
+            raise common.PAWException(msg)
+    #
+    def del_geojson(self): 
+        del self._geojson
+      
+    #
+    geojson = property(get_geojson, set_geojson, del_geojson)
+  
     #
     def from_dict(spatial_dict: Any):
-
+      
         """
         Create a Spatial object from a dictionary.
         
         :param spatial_dict:    A dictionary that contains the keys of a Spatial.
-        :type spatial_dict:     Any             
+        :type spatial_dict:     Any
         :rtype:                 ibmpairs.query.Spatial
         :raises Exception:      if not a dictionary.
         """
-        
+      
         type        = None
         aoi         = None
         polygon     = None
         coordinates = None
         aggregation = None
-        
+        geojson     = None
+      
         common.check_dict(spatial_dict)
         if "type" in spatial_dict:
             if spatial_dict.get("type") is not None:
@@ -1785,16 +1921,25 @@ class Spatial:
         if "aggregation" in spatial_dict:
             if spatial_dict.get("aggregation") is not None:
                 aggregation = Aggregation.from_dict(spatial_dict.get("aggregation"))
+        if "geojson" in spatial_dict:
+            if spatial_dict.get("geojson") is not None:
+                try:
+                    geojson = gj.GeoJSON.to_instance(spatial_dict.get("geojson"), strict=True)
+                except: 
+                    msg = messages.ERROR_QUERY_CANNOT_LOAD_GEOJSON.format('dict')
+                    logger.error(msg)
+                    raise common.PAWException(msg)
         return Spatial(type        = type, 
                        aoi         = aoi, 
                        polygon     = polygon,
                        coordinates = coordinates, 
-                       aggregation = aggregation
+                       aggregation = aggregation,
+                       geojson     = geojson
                       )
-
+  
     #
     def to_dict(self):
-        
+      
         """
         Create a dictionary from the objects structure.  
                   
@@ -1812,11 +1957,18 @@ class Spatial:
             spatial_dict["coordinates"] = common.from_list(self._coordinates, common.check_float)
         if self._aggregation is not None:
             spatial_dict["aggregation"] = common.class_to_dict(self._aggregation, Aggregation)
+        if self._geojson is not None:
+            try:
+                spatial_dict["geojson"] = json.loads(gj.dumps(self._geojson, sort_keys=True))
+            except: 
+                msg = messages.ERROR_QUERY_CANNOT_CONVERT_GEOJSON_TO_DICT
+                logger.error(msg)
+                raise common.PAWException(msg)
         return spatial_dict
-        
+  
     #
     def from_json(spatial_json: Any):
-        
+      
         """
         Create a Spatial object from json (dictonary or str).
         
@@ -1825,7 +1977,7 @@ class Spatial:
         :rtype:                     ibmpairs.query.Spatial
         :raises Exception:          if not a dictionary or a string.
         """
-
+      
         if isinstance(spatial_json, dict):
             spatial = Spatial.from_dict(spatial_json)
         elif isinstance(spatial_json, str):
@@ -1836,16 +1988,16 @@ class Spatial:
             logger.error(msg)
             raise common.PAWException(msg)
         return spatial
-
+  
     #
     def to_json(self):
-        
+      
         """
         Create a string representation of a json dictionary from the objects structure. 
-                   
+                    
         :rtype:                     string
         """
-        
+      
         return json.dumps(self.to_dict())
 
 #
@@ -4479,6 +4631,7 @@ class Query:
     #_upload: Upload
     #_batch: str
     #_processor: List[Processor]
+    #_debug: bool
     
     # Query Submit Response
     #_submit_response: QueryResponse
@@ -4525,6 +4678,8 @@ class Query:
     :type batch:                str
     :param processor:           A list of post processors to apply to a query.
     :type processor:            List[ibmpairs.query.Processor]
+    :param debug:               A debug flag.
+    :type debug:                bool
     :param id:                  A Query id.
     :type id:                   str
     :param submit_response:     A response from the submit phase.        
@@ -4587,6 +4742,7 @@ class Query:
                  upload: Upload                 = None,
                  batch: str                     = None,
                  processor: List[Processor]     = None,
+                 debug: bool                    = None,
                  id: str                        = None,
                  submit_response: QueryResponse = None,
                  status_response: QueryJob      = None,
@@ -4610,6 +4766,7 @@ class Query:
         self._upload              = upload
         self._batch               = batch
         self._processor           = processor
+        self._debug               = debug
         self._id                  = id
         
         if submit_response is None:
@@ -4844,6 +5001,21 @@ class Query:
     processor = property(get_processor, set_processor, del_processor) 
     
     #
+    def get_debug(self):
+        return self._debug
+  
+    #
+    def set_debug(self, debug):
+        self._debug = common.check_bool(debug)
+      
+    #
+    def del_debug(self): 
+        del self._debug
+      
+    #
+    debug = property(get_debug, set_debug, del_debug) 
+    
+    #
     def get_id(self):
         return self._id
 
@@ -4987,6 +5159,7 @@ class Query:
         upload             = None
         batch              = None
         processor          = None
+        debug              = None
         id                 = None
         submit_response    = None
         status_response    = None
@@ -5039,6 +5212,9 @@ class Query:
         if "processor" in query_dict:
             if query_dict.get("processor") is not None:
                 processor = common.from_list(query_dict.get("processor"), Processor.from_dict)
+        if "debug" in query_dict:
+            if query_dict.get("debug") is not None:
+                debug = common.check_bool(query_dict.get("debug"))
         if "id" in query_dict:
             if query_dict.get("id") is not None:
                 id = common.check_str(query_dict.get("id"))
@@ -5075,6 +5251,7 @@ class Query:
                      upload             = upload,
                      batch              = batch,
                      processor          = processor,
+                     debug              = debug,
                      id                 = id,
                      submit_response    = submit_response,
                      status_response    = status_response,
@@ -5119,6 +5296,8 @@ class Query:
             query_dict["batch"] = self._batch
         if self._processor is not None:
             query_dict["processor"] = common.from_list(self._processor, lambda item: common.class_to_dict(item, Processor))
+        if self._debug is not None:
+            query_dict["debug"] = self._debug
         if self._id is not None:
             query_dict["id"] = self._id
         if self._submit_response is not None:
@@ -5172,6 +5351,8 @@ class Query:
             query_dict["batch"] = self._batch
         if self._processor is not None:
             query_dict["processor"] = common.from_list(self._processor, lambda item: item.to_dict())
+        if self._debug is not None:
+            query_dict["debug"] = self._debug
         return query_dict
         
     #
@@ -6357,8 +6538,9 @@ class Query:
                         if (online_skip is False):
                             try:
                                 response = await cli.async_get(url           = cli.get_host() +
-                                                                               constants.QUERY_JOBS_DOWNLOAD_API +
-                                                                               str(query.id),
+                                                                               constants.QUERY_JOBS_API +
+                                                                               str(query.id) + 
+                                                                               constants.QUERY_JOBS_DOWNLOAD_API,
                                                                verify        = verify,
                                                                response_type = 'json'
                                                               )
@@ -6366,7 +6548,7 @@ class Query:
                                 if response.status != 200:
                                     self.download_status = "FAILED"
                                   
-                                    msg = messages.ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL.format('GET', 'request', constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), response.status, response.body)
+                                    msg = messages.ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL.format('GET', 'request', constants.QUERY_JOBS_API + str(query.id) + constants.QUERY_JOBS_DOWNLOAD_API, response.status, response.body)
                                     logger.error(msg)
                                     raise common.PAWException(msg)
                                 else:
@@ -6389,7 +6571,7 @@ class Query:
                                 
                             except Exception as e:
                                 self.download_status = "FAILED"
-                                msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), e)
+                                msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_API + str(query.id) + constants.QUERY_JOBS_DOWNLOAD_API, e)
                                 logger.error(msg)
                                 raise common.PAWException(msg)
                         else:
@@ -6399,8 +6581,9 @@ class Query:
                     else:
                         try:
                             response = await cli.async_get(url           = cli.get_host() +
-                                                                           constants.QUERY_JOBS_DOWNLOAD_API +
-                                                                           str(query.id),
+                                                                           constants.QUERY_JOBS_API +
+                                                                           str(query.id) + 
+                                                                           constants.QUERY_JOBS_DOWNLOAD_API,
                                                            verify        = verify,
                                                            response_type = 'bytes'
                                                           )
@@ -6408,13 +6591,13 @@ class Query:
                             if response.status != 200:
                                 self.download_status = "FAILED"
                                 
-                                msg = messages.ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL.format('GET', 'request', constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), response.status, response.body)
+                                msg = messages.ERROR_QUERY_DOWNLOAD_REQUEST_NOT_SUCCESSFUL.format('GET', 'request', constants.QUERY_JOBS_API + str(query.id) + constants.QUERY_JOBS_DOWNLOAD_API, response.status, response.body)
                                 logger.error(msg)
                                 raise common.PAWException(msg)
                                 
                         except Exception as e:
                             self.download_status = "FAILED"
-                            msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_DOWNLOAD_API + str(query.id), e)
+                            msg = messages.ERROR_CLIENT_UNSPECIFIED_ERROR.format('GET', 'request', cli.get_host() + constants.QUERY_JOBS_API + str(query.id) + constants.QUERY_JOBS_DOWNLOAD_API, e)
                             logger.error(msg)
                             raise common.PAWException(msg)
                             

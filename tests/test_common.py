@@ -300,6 +300,38 @@ class CommonUnitTest(unittest.TestCase):
         
         self.assertEqual(common.ensure_protocol('abc.123'), 'https://abc.123')
 
+    def ensure_api_path(self):
+        
+        self.logger.info('test_ensure_api_path')
+        
+        self.assertEqual(common.ensure_api_path('https://pairs.res.ibm.com'), 'https://pairs.res.ibm.com/v2')
+
+        self.assertEqual(common.ensure_api_path('http://web-machine1.ibm.com:9999'), 'http://web-machine1.ibm.com:9999')
+        
+        self.assertEqual(common.ensure_api_path('https://api.ibm.com'), 'https://api.ibm.com/geospatial/run/na/core/v3')
+        
+        self.assertEqual(common.ensure_api_path('https://api.ibm.com/geospatial'), 'https://api.ibm.com/geospatial/run/na/core/v3')
+        
+        self.assertEqual(common.ensure_api_path('https://api.ibm.com/geospatial/run'), 'https://api.ibm.com/geospatial/run/na/core/v3')
+        
+        self.assertEqual(common.ensure_api_path('https://api.ibm.com/geospatial/run/na'), 'https://api.ibm.com/geospatial/run/na/core/v3')
+        
+        self.assertEqual(common.ensure_api_path('https://api.ibm.com/geospatial/run/na', 4), 'https://api.ibm.com/geospatial/run/na/core/v4')
+        
+        self.assertEqual(common.ensure_api_path('https://api.ibm.com/geospatial/run/na/core'), 'https://api.ibm.com/geospatial/run/na/core/v3')
+        
+        self.assertEqual(common.ensure_api_path('https://api.ibm.com/geospatial/run/na/core', 4), 'https://api.ibm.com/geospatial/run/na/core/v4')
+        
+    def strip_api_path(self):
+        
+        self.logger.info('test_strip_api_path')
+        
+        self.assertEqual(common.strip_api_path('https://pairs.res.ibm.com/v2'), 'https://pairs.res.ibm.com')
+        
+        self.assertEqual(common.strip_api_path('https://api.ibm.com/geospatial/run/na/core/v3'), 'https://api.ibm.com/geospatial/run/na')
+        
+        self.assertEqual(common.strip_api_path('https://api.ibm.com/geospatial/run/na/core/v4'), 'https://api.ibm.com/geospatial/run/na')
+
 
 class TestClass:
     _string: str
@@ -350,3 +382,4 @@ class TestClass:
 
     #    
     integer = property(get_integer, set_integer, del_integer)
+    

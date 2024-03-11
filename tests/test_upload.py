@@ -270,39 +270,39 @@ async def mocked_status_async_get(*args, **kwargs):
         def json(self):
             return self.body
             
-    if (url == 'https://pairs.res.ibm.com/v2/uploader/upload/1'): 
+    if (url == 'https://api.ibm.com/geospatial/run/na/core/v3/uploader/upload/1'): 
         return_dict = {}
         return_dict["message"]  = "Error: 404 Not Found." 
         return_json = json.dumps(return_dict)
         
         return MockResponse(return_json, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/uploader/upload/2'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/uploader/upload/2'): 
         return_dict = {}
         return_dict["message"]  = "Error: 503 Service Unavailable." 
         return_json = json.dumps(return_dict)
         
         return MockResponse(return_json, 503)
-    elif (url == 'https://pairs.res.ibm.com/v2/uploader/upload/3'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/uploader/upload/3'):
         return_json = json.dumps(upload_status_response_dict_3)
         
         print(MockResponse(return_json, 200))
         
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/uploader/upload/4'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/uploader/upload/4'): 
         return_json = json.dumps(upload_status_response_dict_4)
                            
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/uploader/upload/5'):
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/uploader/upload/5'):
         return_json = json.dumps(upload_status_response_dict_5)
                             
         return MockResponse(return_json, 200)
-    elif (url == 'https://pairs.res.ibm.com/v2/uploader/upload/6'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/uploader/upload/6'): 
         return_dict = {}
         return_dict["message"]  = "Error: 401 Unauthorized." 
         return_json = json.dumps(return_dict)
         
         return MockResponse(return_json, 401)
-    elif (url == 'https://pairs.res.ibm.com/v2/uploader/upload/7'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/uploader/upload/7'): 
 
         return_dict = {}
 
@@ -322,7 +322,7 @@ async def mocked_status_async_get(*args, **kwargs):
             return_json = json.dumps(return_dict)
             
             return MockResponse(return_json, 404)
-    elif (url == 'https://pairs.res.ibm.com/v2/uploader/upload/8'): 
+    elif (url == 'https://api.ibm.com/geospatial/run/na/core/v3/uploader/upload/8'): 
 
         return_dict = {}
 
