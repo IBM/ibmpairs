@@ -277,7 +277,7 @@ class Client:
             
             if (host is not None):
                 self._host = common.ensure_api_path(common.ensure_protocol(host))
-            elif (host is None) and (self._authentication is not None) and (self._authentication.host is not None):
+            elif (host is None) and (self._authentication is not None) and (self._authentication.host is not None) and (self._legacy is False):
                 self._host = common.ensure_api_path(common.ensure_protocol(self._authentication.host))
             else:
                 if self._legacy is True:
@@ -336,6 +336,11 @@ class Client:
                             msg = messages.ERROR_NO_CLIENT_OR_TENANT_ID
                             logger.error(msg)
                             raise common.PAWException(msg)
+                else:
+                    if client_id is not None:
+                        self._client_id = client_id
+                    else:
+                        self._client_id = 'ibm-pairs'
             
             global GLOBAL_PAIRS_CLIENT
             GLOBAL_PAIRS_CLIENT = self
@@ -583,9 +588,15 @@ class Client:
             if client_response.body is not None:
                 response_string = client_response.body
                 if token_refresh_message in response_string:
+                    logger.info(response_string)
                     retry = True
         elif ((self._legacy is False) and (client_response.status == 500)):
-            retry = True
+            token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
+            if client_response.body is not None:
+                response_string = client_response.body
+                if token_refresh_message in response_string:
+                    logger.info(response_string)
+                    retry = True
 
         if retry is True:
             self._authentication.refresh_auth_token()
@@ -663,9 +674,15 @@ class Client:
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
+                        logger.info(response_string)
                         retry = True
             elif ((self._legacy is False) and (response.status_code == 500)):
-                retry = True
+                token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
+                if response.json() is not None:
+                    response_string = json.dumps(response.json())
+                    if token_refresh_message in response_string:
+                        logger.info(response_string)
+                        retry = True
             
             if retry is True:
                 self._authentication.refresh_auth_token()
@@ -743,9 +760,15 @@ class Client:
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
+                        logger.info(response_string)
                         retry = True
             elif ((self._legacy is False) and (response.status_code == 500)):
-                retry = True
+                token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
+                if response.json() is not None:
+                    response_string = json.dumps(response.json())
+                    if token_refresh_message in response_string:
+                        logger.info(response_string)
+                        retry = True
             
             if retry is True:
                 self._authentication.refresh_auth_token()
@@ -792,7 +815,7 @@ class Client:
         :returns:                  An ibmpairs.client.ClientResponse object.
         :rtype:                    ibmpairs.client.ClientResponse
         """
-    
+
         retry: bool = False
                             
         client_response = ClientResponse()
@@ -807,7 +830,7 @@ class Client:
                                 json = body 
                                ) as response:
             
-            client_response.status = response.status            
+            client_response.status = response.status
             client_response.body   = await response.text()
 
             await session.close()
@@ -817,9 +840,15 @@ class Client:
             if client_response.body is not None:
                 response_string = client_response.body
                 if token_refresh_message in response_string:
+                    logger.info(response_string)
                     retry = True
         elif ((self._legacy is False) and (client_response.status == 500)):
-            retry = True
+            token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
+            if client_response.body is not None:
+                response_string = client_response.body
+                if token_refresh_message in response_string:
+                    logger.info(response_string)
+                    retry = True
         
         if retry is True:
             self._authentication.refresh_auth_token()
@@ -833,7 +862,7 @@ class Client:
                                     json = body 
                                    ) as response:
             
-                client_response.status = response.status            
+                client_response.status = response.status
                 client_response.body   = await response.text()
 
                 await session.close()
@@ -905,9 +934,15 @@ class Client:
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
+                        logger.info(response_string)
                         retry = True
             elif ((self._legacy is False) and (response.status_code == 500)):
-                retry = True
+                token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
+                if response.json() is not None:
+                    response_string = json.dumps(response.json())
+                    if token_refresh_message in response_string:
+                        logger.info(response_string)
+                        retry = True
             
             if retry is True:
                 self._authentication.refresh_auth_token()
@@ -986,9 +1021,15 @@ class Client:
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
+                        logger.info(response_string)
                         retry = True
             elif ((self._legacy is False) and (response.status_code == 500)):
-                retry = True
+                token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
+                if response.json() is not None:
+                    response_string = json.dumps(response.json())
+                    if token_refresh_message in response_string:
+                        logger.info(response_string)
+                        retry = True
           
             if retry is True:
                 self._authentication.refresh_auth_token()
