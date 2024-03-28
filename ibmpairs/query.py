@@ -5618,7 +5618,9 @@ class Query:
         else:
             try:
                 if isinstance(self.submit_response.to_dict()["data"], str):
-                    return pandas.read_csv(StringIO(str(self.submit_response.to_dict()["data"])))
+                    df = pandas.read_csv(StringIO(str(self.submit_response.to_dict()["data"])))
+                    df.columns = ['layer_id' if x=='layerId' else x for x in df.columns]
+                    return df 
                 else:
                     return pandas.DataFrame(self.submit_response.to_dict()["data"])
             except Exception as e:
@@ -6623,6 +6625,8 @@ class Query:
                                     
                                     msg = messages.INFO_QUERY_FORMAT.format(query.id, 'json')
                                     logger.info(msg)
+
+                                    query.submit_response = query_response_from_json(response.body.decode("utf-8"))
                                     
                                 except ValueError as e:
                                     download_zip = download_zip[:-4] + '.csv'
@@ -6630,6 +6634,8 @@ class Query:
                                     
                                     msg = messages.INFO_QUERY_FORMAT.format(query.id, 'csv')
                                     logger.info(msg)
+                                    
+                                    query.submit_response.data = response.body.decode("utf-8")
 
                             msg = messages.INFO_QUERY_DOWNLOAD_FILE_SAVE.format(query.id, download_zip)
                             logger.info(msg)

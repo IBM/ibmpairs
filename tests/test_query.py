@@ -6015,13 +6015,13 @@ class QueryUnitTest(unittest.TestCase):
 
         try:
             query_from_dict_df_csv = query_df_csv.from_dict(query_dict)
-            query_from_dict_df_csv.submit_response.data = "layerId,timestamp,longitude,latitude,value,region,property,alias\n16100,1421528400000,139.7,35.7,273.918212890625,,,"
+            query_from_dict_df_csv.submit_response.data = "layer_id,timestamp,longitude,latitude,value,region,property,alias\n16100,1421528400000,139.7,35.7,273.918212890625,,,"
             query_as_df_csv = query_from_dict_df_csv.point_data_as_dataframe()
         except Exception as ex:
             got_exception = True
 
         self.assertFalse(got_exception)
-        self.assertEqual(int(query_as_df_csv.head(1)["layerId"]), 16100)
+        self.assertEqual(int(query_as_df_csv.head(1)["layer_id"]), 16100)
         self.assertEqual(int(query_as_df_csv.head(1)["timestamp"]), 1421528400000)
         self.assertEqual(float(query_as_df_csv.head(1)["longitude"]), 139.7)
         self.assertEqual(float(query_as_df_csv.head(1)["latitude"]), 35.7)

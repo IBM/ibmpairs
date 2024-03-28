@@ -36,16 +36,17 @@ CATALOG_DATA_LAYER_DIMENSION_VALUES_API = '/datalayer_dimension_values/'
 CATALOG_DATA_LAYER_PROPERTIES_API       = '/datalayer_properties/'
 
 # client
-CLIENT_URL                       = os.environ.get('CLIENT_URL_V3', 'https://api.ibm.com/geospatial/run/na/core/')
-CLIENT_URL_V4                    = os.environ.get('CLIENT_URL_V4', CLIENT_URL + 'v4')
-CLIENT_URL_V3                    = os.environ.get('CLIENT_URL_V3', CLIENT_URL + 'v3')
-CLIENT_LEGACY_URL                = os.environ.get('CLIENT_LEGACY_URL', 'https://pairs.res.ibm.com/v2')
-CLIENT_JSON_HEADER               = {"Content-Type": "application/json"}
-CLIENT_PUT_AND_POST_HEADER       = {'Content-Type': 'application/json', 'Accept': 'application/json'}
-CLIENT_PUT_AND_POST_HEADER_CSV   = {'Accept': 'text/csv'}
-CLIENT_GET_DEFAULT_RESPONSE_TYPE = 'json'
-CLIENT_TOKEN_REFRESH_MESSAGE     = 'claim expired'
-CLIENT_TIMEOUT                   = os.environ.get('CLIENT_TIMEOUT', 3600)
+CLIENT_URL                        = os.environ.get('CLIENT_URL_V3', 'https://api.ibm.com/geospatial/run/na/core/')
+CLIENT_URL_V4                     = os.environ.get('CLIENT_URL_V4', CLIENT_URL + 'v4')
+CLIENT_URL_V3                     = os.environ.get('CLIENT_URL_V3', CLIENT_URL + 'v3')
+CLIENT_LEGACY_URL                 = os.environ.get('CLIENT_LEGACY_URL', 'https://pairs.res.ibm.com/v2')
+CLIENT_JSON_HEADER                = {"Content-Type": "application/json"}
+CLIENT_PUT_AND_POST_HEADER        = {'Content-Type': 'application/json', 'Accept': 'application/json'}
+CLIENT_PUT_AND_POST_HEADER_CSV    = {'Accept': 'text/csv'}
+CLIENT_GET_DEFAULT_RESPONSE_TYPE  = 'json'
+CLIENT_TOKEN_REFRESH_MESSAGE      = 'claim expired'
+CLIENT_TOKEN_REFRESH_MESSAGE_APIC = 'Invalid-JWT-Validate'
+CLIENT_TIMEOUT                    = os.environ.get('CLIENT_TIMEOUT', 3600)
 
 UPLOAD_API                     = '/uploader/upload'
 UPLOAD_STATUS_API              = '/uploader/upload/'

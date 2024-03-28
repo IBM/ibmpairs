@@ -27,6 +27,11 @@ import aiohttp
 
 mocked_requests_get_tracker = 0
 
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
+
 #
 def mocked_requests_get(*args, **kwargs):
 
@@ -38,6 +43,7 @@ def mocked_requests_get(*args, **kwargs):
         def __init__(self, json_data, status_code):
             self.json_data = json_data
             self.status_code = status_code
+            self.text = self.json_data
 
         def json(self):
             return self.json_data
@@ -63,6 +69,20 @@ def mocked_requests_get(*args, **kwargs):
             mocked_requests_get_tracker = 0
             return MockResponse(message, 200)
         else:
+            return MockResponse(None, 404)
+    elif (url == 'https://api.ibm.com/saascore/run/authentication-retrieve?orgId=thisisnotanorgidapic'):
+        return MockResponse("thisisnotanaccesstokenapic", 200)
+    elif (url == 'https://token.expiry'):
+        if mocked_requests_get_tracker == 0:
+            mocked_requests_get_tracker = mocked_requests_get_tracker + 1
+            message = r'''{"httpCode":"500","httpMessage":"Invalid-JWT-Validate","moreInformation":"JWT validation failed"}'''
+            return MockResponse(message, 500)
+        elif mocked_requests_get_tracker == 1:
+            message = r'''{"message":"success"}'''
+            mocked_requests_get_tracker = 0
+            return MockResponse(message, 200)
+        else:
+            mocked_requests_get_tracker = 0
             return MockResponse(None, 404)
     else:
         return MockResponse(None, 404)
@@ -178,6 +198,20 @@ def mocked_requests_post(*args, **kwargs):
             return MockResponse(message, 200)
         else:
             return MockResponse(None, 404)
+    elif (url == 'https://iam.cloud.ibm.com/identity/token'):
+        
+        iam_api_key = remove_prefix(input_data, "grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=")
+        
+        if (iam_api_key == 'thisisnotanapikeyapic'):
+            return_dict = {}
+            return_dict["access_token"]  = "thisisnotanaccesstokenapic"
+            return_dict["expiration"]    = 1000000000
+            return_dict["expires_in"]    = 3600
+            return_dict["token_type"]    = "Bearer"
+            return_dict["refresh_token"] = "not_supported"
+            return_dict["scope"]         = "xxx xxx"
+            
+            return MockResponse(return_dict, 200)
             
     return MockResponse(None, 404)
 
@@ -302,6 +336,7 @@ class ClientUnitTest(unittest.TestCase):
         self.assertEqual(client.authentication.api_key, "thisisnotanapikey")
         self.assertEqual(client.authentication.jwt_token, "thisisnotanaccesstoken")
         self.assertEqual(client.body, None)
+        self.assertEqual(client.client_id, 'ibm-pairs')
         
         self.logger.info('test_client_init: set attributes')
         
@@ -624,3 +659,38 @@ class ClientUnitTest(unittest.TestCase):
         self.assertEqual(client.authentication.oauth2_return.access_token, "thisisnotanewaccesstoken")
         self.assertEqual(client.authentication.oauth2_return.refresh_token, "thisisnotanewrefreshtoken")
     
+    @mock.patch('requests.get', 
+                side_effect=mocked_requests_get
+               )
+    @mock.patch('requests.post', 
+                side_effect=mocked_requests_post
+               )
+    def test_client_get(self, mock_post, mock_get):
+        self.logger.info('test_client_refresh_apic')
+        
+        oauth2 = authentication.OAuth2(api_key   = 'thisisnotanapikeyapic',
+                                       client_id = 'thisisnotaclientidapic',
+                                       org_id    = 'thisisnotanorgidapic'
+                                      )
+        
+        got_exception = False
+        
+        try:
+            client = cl.Client(authentication = oauth2)
+        except Exception as ex:
+            got_exception = True
+            
+        self.assertFalse(got_exception)
+        
+        got_exception2 = False
+        
+        try:
+            resp = client.get(url = "https://token.expiry")
+        except:
+            got_exception2 = True
+            
+        self.assertFalse(got_exception2)
+        self.assertEqual(resp.json(), r'''{"message":"success"}''')
+        self.assertEqual(client.authentication.jwt_token, "thisisnotanaccesstokenapic")
+
+        
