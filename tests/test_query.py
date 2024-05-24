@@ -2676,7 +2676,8 @@ query_job_dict = {
     "hadoopId": "string",
     "ready": True,
     "rtStatus": "string",
-    "pdStatus": "string"
+    "pdStatus": "string",
+    "message": "string"
 }
 
 query_job_json = r'''{
@@ -2694,7 +2695,8 @@ query_job_json = r'''{
     "hadoopId": "string",
     "ready": true,
     "rtStatus": "string",
-    "pdStatus": "string"
+    "pdStatus": "string",
+    "message": "string"
 }'''
 
 #
@@ -2733,6 +2735,7 @@ class QueryJobUnitTest(unittest.TestCase):
             query_job.ready       = True
             query_job.rt_status   = "string"
             query_job.pd_status   = "string"
+            query_job.message     = "string"
         except Exception as ex:
             got_exception = True
         
@@ -2752,6 +2755,7 @@ class QueryJobUnitTest(unittest.TestCase):
         self.assertEqual(query_job.ready, True)
         self.assertEqual(query_job.rt_status, "string")
         self.assertEqual(query_job.pd_status, "string")
+        self.assertEqual(query_job.message, "string")
     #    
     def test_query_job_from_dict(self):
         self.logger.info('test_query_job_from_dict')
@@ -2783,6 +2787,7 @@ class QueryJobUnitTest(unittest.TestCase):
         self.assertEqual(query_job_from_dict.ready, True)
         self.assertEqual(query_job_from_dict.rt_status, "string")
         self.assertEqual(query_job_from_dict.pd_status, "string")
+        self.assertEqual(query_job_from_dict.message, "string")
         
     #    
     def test_query_job_to_dict(self):
@@ -2818,6 +2823,7 @@ class QueryJobUnitTest(unittest.TestCase):
         self.assertEqual(query_job_to_dict["ready"], True)
         self.assertEqual(query_job_to_dict["rt_status"], "string")
         self.assertEqual(query_job_to_dict["pd_status"], "string")
+        self.assertEqual(query_job_to_dict["message"], "string")
 
     #
     def test_query_job_from_json(self):
@@ -2851,6 +2857,7 @@ class QueryJobUnitTest(unittest.TestCase):
         self.assertEqual(query_job_from_json.ready, True)
         self.assertEqual(query_job_from_json.rt_status, "string")
         self.assertEqual(query_job_from_json.pd_status, "string")
+        self.assertEqual(query_job_from_json.message, "string")
     
     #
     def test_query_job_to_json(self):
@@ -2890,7 +2897,8 @@ query_jobs_dict = {
             "hadoopId": "string",
             "ready": True,
             "rtStatus": "string",
-            "pdStatus": "string"
+            "pdStatus": "string",
+            "message": "string"
         },
         {
             "id": "string",
@@ -2907,7 +2915,8 @@ query_jobs_dict = {
             "hadoopId": "string",
             "ready": False,
             "rtStatus": "string",
-            "pdStatus": "string"
+            "pdStatus": "string",
+            "message": "string"
         }
     ]
 }
@@ -2931,7 +2940,8 @@ query_jobs_json = r'''{
             "hadoopId": "string",
             "ready": true,
             "rtStatus": "string",
-            "pdStatus": "string"
+            "pdStatus": "string",
+            "message": "string"
         },
         {
             "id": "string",
@@ -2948,7 +2958,8 @@ query_jobs_json = r'''{
             "hadoopId": "string",
             "ready": false,
             "rtStatus": "string",
-            "pdStatus": "string"
+            "pdStatus": "string",
+            "message": "string"
         }
     ]
 }'''
@@ -2991,6 +3002,7 @@ class QueryJobsUnitTest(unittest.TestCase):
             query_job.ready            = True
             query_job.rt_status        = "string"
             query_job.pd_status        = "string"
+            query_job.message          = "string"
             query_job_2                = query_module.QueryJob()
             query_job_2.id             = "string"
             query_job_2.status         = "Queued(2)"
@@ -3007,6 +3019,7 @@ class QueryJobsUnitTest(unittest.TestCase):
             query_job_2.ready          = False
             query_job_2.rt_status      = "string"
             query_job_2.pd_status      = "string"
+            query_job_2.message        = "string"
             query_job_list             = [query_job, query_job_2]
             query_jobs.query_job_list  = query_job_list
         except Exception as ex:
@@ -3029,6 +3042,7 @@ class QueryJobsUnitTest(unittest.TestCase):
         self.assertEqual(query_jobs.query_job_list[0].ready, True)
         self.assertEqual(query_jobs.query_job_list[0].rt_status, "string")
         self.assertEqual(query_jobs.query_job_list[0].pd_status, "string")
+        self.assertEqual(query_jobs.query_job_list[0].message, "string")
         self.assertEqual(query_jobs.query_job_list[1].id, "string")
         self.assertEqual(query_jobs.query_job_list[1].status, "Queued(2)")
         self.assertEqual(query_jobs.query_job_list[1].status_code, 1)
@@ -3044,6 +3058,7 @@ class QueryJobsUnitTest(unittest.TestCase):
         self.assertEqual(query_jobs.query_job_list[1].ready, False)
         self.assertEqual(query_jobs.query_job_list[1].rt_status, "string")
         self.assertEqual(query_jobs.query_job_list[1].pd_status, "string")
+        self.assertEqual(query_jobs.query_job_list[1].message, "string")
     
     #
     def test_query_jobs_from_dict(self):
@@ -3077,6 +3092,7 @@ class QueryJobsUnitTest(unittest.TestCase):
         self.assertEqual(query_jobs_from_dict.query_job_list[0]._ready, True)
         self.assertEqual(query_jobs_from_dict.query_job_list[0]._rt_status, "string")
         self.assertEqual(query_jobs_from_dict.query_job_list[0]._pd_status, "string")
+        self.assertEqual(query_jobs_from_dict.query_job_list[0]._message, "string")
         self.assertEqual(query_jobs_from_dict.query_job_list[1]._id, "string")
         self.assertEqual(query_jobs_from_dict.query_job_list[1]._status, "Queued(2)")
         self.assertEqual(query_jobs_from_dict.query_job_list[1]._status_code, 1)
@@ -3092,6 +3108,7 @@ class QueryJobsUnitTest(unittest.TestCase):
         self.assertEqual(query_jobs_from_dict.query_job_list[1]._ready, False)
         self.assertEqual(query_jobs_from_dict.query_job_list[1]._rt_status, "string")
         self.assertEqual(query_jobs_from_dict.query_job_list[1]._pd_status, "string")
+        self.assertEqual(query_jobs_from_dict.query_job_list[1]._message, "string")
     
     #    
     def test_query_jobs_to_dict(self):
@@ -3128,6 +3145,7 @@ class QueryJobsUnitTest(unittest.TestCase):
         self.assertEqual(query_jobs_to_dict["query_job_list"][0]["ready"], True)
         self.assertEqual(query_jobs_to_dict["query_job_list"][0]["rt_status"], "string")
         self.assertEqual(query_jobs_to_dict["query_job_list"][0]["pd_status"], "string")
+        self.assertEqual(query_jobs_to_dict["query_job_list"][0]["message"], "string")
         self.assertEqual(query_jobs_to_dict["query_job_list"][1]["id"], "string")
         self.assertEqual(query_jobs_to_dict["query_job_list"][1]["status"], "Queued(2)")
         self.assertEqual(query_jobs_to_dict["query_job_list"][1]["status_code"], 1)
@@ -3143,6 +3161,7 @@ class QueryJobsUnitTest(unittest.TestCase):
         self.assertEqual(query_jobs_to_dict["query_job_list"][1]["ready"], False)
         self.assertEqual(query_jobs_to_dict["query_job_list"][1]["rt_status"], "string")
         self.assertEqual(query_jobs_to_dict["query_job_list"][1]["pd_status"], "string")
+        self.assertEqual(query_jobs_to_dict["query_job_list"][1]["message"], "string")
 
     #
     def test_query_jobs_from_json(self):
@@ -3177,6 +3196,7 @@ class QueryJobsUnitTest(unittest.TestCase):
         self.assertEqual(query_jobs_from_json.query_job_list[0]._ready, True)
         self.assertEqual(query_jobs_from_json.query_job_list[0]._rt_status, "string")
         self.assertEqual(query_jobs_from_json.query_job_list[0]._pd_status, "string")
+        self.assertEqual(query_jobs_from_json.query_job_list[0]._message, "string")
         self.assertEqual(query_jobs_from_json.query_job_list[1]._id, "string")
         self.assertEqual(query_jobs_from_json.query_job_list[1]._status, "Queued(2)")
         self.assertEqual(query_jobs_from_json.query_job_list[1]._status_code, 1)
@@ -3192,6 +3212,7 @@ class QueryJobsUnitTest(unittest.TestCase):
         self.assertEqual(query_jobs_from_json.query_job_list[1]._ready, False)
         self.assertEqual(query_jobs_from_json.query_job_list[1]._rt_status, "string")
         self.assertEqual(query_jobs_from_json.query_job_list[1]._pd_status, "string")
+        self.assertEqual(query_jobs_from_json.query_job_list[1]._message, "string")
     
     #
     def test_query_jobs_to_json(self):

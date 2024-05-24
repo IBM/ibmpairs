@@ -2884,6 +2884,7 @@ class QueryJob:
     #_rt_status: str
     #_pd_status: str
     #_status_code: int
+    #_message: str
     
     """
     A representation of a Query Job.
@@ -2918,6 +2919,8 @@ class QueryJob:
     :type pd_status:    str
     :param status_code: Status code.
     :type status_code:  int
+    :param message:     Query message.
+    :type message:      str
     """
 
     #
@@ -2964,7 +2967,8 @@ class QueryJob:
                  ready: bool      = None, 
                  rt_status: str   = None, 
                  pd_status: str   = None, 
-                 status_code: int = None
+                 status_code: int = None,
+                 message: str     = None
                 ):
         self._id          = id
         self._status      = status
@@ -2981,6 +2985,7 @@ class QueryJob:
         self._rt_status   = rt_status
         self._pd_status   = pd_status
         self._status_code = status_code
+        self._message     = message
 
     #
     def get_id(self):
@@ -3208,6 +3213,21 @@ class QueryJob:
     status_code = property(get_status_code, set_status_code, del_status_code)
     
     #
+    def get_message(self):
+        return self._message
+  
+    #
+    def set_message(self, message):
+        self._message = common.check_str(message)
+      
+    #
+    def del_message(self): 
+        del self._message
+      
+    #
+    message = property(get_message, set_message, del_message)
+    
+    #
     def from_dict(query_job_dict: Any):
 
         """
@@ -3234,6 +3254,7 @@ class QueryJob:
         rt_status   = None
         pd_status   = None
         status_code = None
+        message     = None
         
         common.check_dict(query_job_dict)
         if "id" in query_job_dict:
@@ -3308,6 +3329,9 @@ class QueryJob:
         elif "status_code" in query_job_dict:
             if query_job_dict.get("status_code") is not None:
                 status_code = common.check_int(query_job_dict.get("status_code"))
+        if "message" in query_job_dict:
+            if query_job_dict.get("message") is not None:
+                message = common.check_str(query_job_dict.get("message"))
         return QueryJob(id          = id,
                         status      = status,
                         start       = start,
@@ -3322,7 +3346,8 @@ class QueryJob:
                         ready       = ready,
                         rt_status   = rt_status,
                         pd_status   = pd_status,
-                        status_code = status_code
+                        status_code = status_code,
+                        message     = message
                        )
 
     #
@@ -3365,6 +3390,8 @@ class QueryJob:
             query_job_dict["pd_status"] = self._pd_status
         if self._status_code is not None:
             query_job_dict["status_code"] = self._status_code
+        if self._message is not None:
+            query_job_dict["message"] = self._message
         return query_job_dict
         
     #
