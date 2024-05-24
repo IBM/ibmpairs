@@ -7481,7 +7481,7 @@ class DataLayer:
         
     #
     def display(self,
-                columns: List[str] = ['dataset_id', 'id', 'name', 'description_short', 'description_long', 'level', 'type', 'unit']
+                columns: List[str] = ['dataset_id', 'id', 'name', 'description_short', 'description_long', 'level', 'type', 'units']
                ):
                 
         """

@@ -6337,7 +6337,7 @@ class DataLayerUnitTest(unittest.TestCase):
         self.assertEqual(df.at[0,'description_long'], "Sentinel-2 is a set of two satellites in polar orbit 180 degrees apart. It monitors land surface and coastal waters every 5 days at the equator and more frequently at mid-latitudes. The coverage is between latitudes 56° south and 84° north. Images are in 13 spectral bands at various ground resolutions: 4 bands at 10 m, 6 at 20 m and 3 at 60 m; the orbital swath is 290 km wide. Level 2A (L2A) images are 100x100 km ortho-rectified and spatially registered on a  global reference system; they are corrected for the atmosphere so they represent ground conditions. Currently PAIRS ingests Bands 4 (red), 8 (NIR) and SCL (Scene Classification). An NDVI layer, called 'NDVI sh', is calculated from Bands 4 and 8. Tiles are ingested on request. Currently there is some coverage for tiles in USA, Brazil, India and the Netherlands for selected days in 2018 and 2019.")
         self.assertEqual(df.at[0,'level'], 22)
         #self.assertTrue(pd.isna(df.at[0,'type']))
-        self.assertTrue(pd.isna(df.at[0,'unit']))
+        self.assertTrue(df.at[0,'units'], "string")
 
         try:
             data_layer_from_json4 = catalog.data_layer_from_json(data_layer_str)

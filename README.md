@@ -9,7 +9,7 @@ This repository provides an interface to the geo-spatial big data platform
 
 E.g. the `query` module in the subdirectory `ibmpairs` serves as a wrapper employing the IBM EIS: 
 Geospatial Analytics core RESTful API served through the host reachable via
-[https://pairs.res.ibm.com](https://pairs.res.ibm.com/manual/api-doc/).
+[https://api.ibm.com/geospatial/run/na/core/v3/](https://pairs.res.ibm.com/manual/api-doc/).
 
 
 # General Notes
