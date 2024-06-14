@@ -9244,21 +9244,16 @@ class AOI:
                 
                 self._wkt = None
                 self.set_geojson(aoi_geom)
-
-                if not aoi_geom.geom_type.startswith('Multi'):
-                    lons, lats = aoi_geom.boundary.xy
-                    bbox = np.min(lats), np.min(lons), np.max(lats), np.max(lons)
-                    aoi.set_bbox(bbox)
+                bbox = aoi_geom.bounds[1], aoi_geom.bounds[0], aoi_geom.bounds[3], aoi_geom.bounds[2]
+                aoi.set_bbox(bbox)
+                
             elif (aoi.get_wkt() is not None):
                 aoi_geom = shapely.geometry.shape(shapely.wkt.loads(aoi.get_wkt()))
                 
                 self._geojson = None
                 self.set_wkt(aoi_geom)
-                  
-                if not aoi_geom.geom_type.startswith('Multi'):
-                    lons, lats = aoi_geom.boundary.xy
-                    bbox = np.min(lats), np.min(lons), np.max(lats), np.max(lons)
-                    aoi.set_bbox(bbox)
+                bbox = aoi_geom.bounds[1], aoi_geom.bounds[0], aoi_geom.bounds[3], aoi_geom.bounds[2]
+                aoi.set_bbox(bbox)
 
             if (aoi.get_key() is not None):
                 self.set_key(aoi.get_key())
