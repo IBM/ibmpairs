@@ -1,11 +1,12 @@
 """
-IBM PAIRS RESTful API wrapper: A Python module to access PAIRS's core API to
-load data into Python compatible data formats.
+Environmental Intelligence: Geospatial APIs SDK (ibmpairs): A Python module to 
+wrap the core functionality of the Geospatial APIs component.            
 
-Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2024 IBM Software: Sustainability, IBM Corp. All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 """
+
 import os
 
 # global

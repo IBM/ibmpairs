@@ -62,7 +62,17 @@ docker-run:
 	@echo 'Running docker container ibmpairs on port 18380'
 	@docker run -dit -p 18380:18380 --name ibmpairs ibmpairs:latest
 
-docs: ## Create local SDK documentation
-docs:
-	@echo 'Building docker container ibmpairs'
-	@cd docs && make html
+doc: ## Create SDK documentation
+doc:
+	@echo 'Creating ibmpairs SDK docs'
+	@rm -rf sphinx/build
+	@rm -rf sphinx/source/tutorials
+	@pip install -r requirements-development.txt
+	@mkdir -p sphinx/source/tutorials
+	@cp -R tutorials/notebooks/* sphinx/source/tutorials
+	@cd sphinx && make html
+
+pages: # Copy sphinx/build/html to docs to create GitHub pages 
+pages:
+	@echo 'Copying documentation to docs'
+	@cp -r sphinx/build/html/* docs 

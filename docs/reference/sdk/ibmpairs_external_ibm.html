@@ -1,0 +1,1477 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="PAW" href="ibmpairs_paw.html" /><link rel="prev" title="Common" href="ibmpairs_common.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>External - IBM - IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs) documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials/index.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/introducingpairsgeospatialanalytics.html">Introducing Environmental Intelligence: Geospatial APIs</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorials/quickstart/index.html">Quick Start</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Quick Start</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartsetup.html">Quick Start - Setting Up for the API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartpointquery.html">Quick Start - Point Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartrasterquery.html">Quick Start - Raster Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartaoiquery.html">Quick Start - Area of Interest (AOI) Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartcatalog.html">Quick Start - Catalog</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorials/tutorial/index.html">SDK Model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of SDK Model</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/tutorial/pythonapiwrapper.html">ibmpairs SDK</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api/ibm_api_hub.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/udf_function_reference.html">User Defined Functions (UDF)</a></li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">SDK</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of SDK</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_authentication.html">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_catalog.html">Catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_client.html">Client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_common.html">Common</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">External - IBM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_paw.html">PAW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_query.html">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/reference/sdk/ibmpairs_external_ibm.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-external.ibm">
+<span id="external-ibm"></span><h1>External - IBM<a class="headerlink" href="#module-external.ibm" title="Link to this heading">¶</a></h1>
+<p>Environmental Intelligence: Geospatial APIs SDK (ibmpairs): A Python module to 
+wrap the core functionality of the Geospatial APIs component.</p>
+<p>Copyright 2019-2024 IBM Software: Sustainability, IBM Corp. All Rights Reserved.</p>
+<p>SPDX-License-Identifier: BSD-3-Clause</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">IBMCOSBucket</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_auth_endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secret_access_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_cos_service_credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSServiceCredentials" title="external.ibm.IBMCOSServiceCredentials"><span class="pre">IBMCOSServiceCredentials</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_cos_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSFile" title="external.ibm.IBMCOSFile"><span class="pre">IBMCOSFile</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket" title="Link to this definition">¶</a></dt>
+<dd><p>An object to represent an IBM Cloud Object Storage (COS) bucket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> (<em>str</em>) – API Key.</p></li>
+<li><p><strong>resource_instance_id</strong> (<em>str</em>) – Resource Instance ID.</p></li>
+<li><p><strong>ibm_auth_endpoint</strong> (<em>str</em>) – IBM Authentication Endpoint.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint.</p></li>
+<li><p><strong>bucket</strong> (<em>str</em>) – Bucket name.</p></li>
+<li><p><strong>access_key_id</strong> (<em>str</em>) – Access Key ID.</p></li>
+<li><p><strong>secret_access_key</strong> (<em>str</em>) – Secret Access Key.</p></li>
+<li><p><strong>ibm_cos_service_credentials</strong> (<em>ibmpairs.external.ibm.IBMCOSServiceCredentials</em>) – An IBMCOSServiceCredentials instance.</p></li>
+<li><p><strong>ibm_cos_file</strong> (<em>ibmpairs.external.ibm.IBMCOSFile</em>) – An IBMCOSFile instance.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If a client could not be found or created, 
+if a resource could not be found or created, 
+if ibm_cos_service_credentials provided but not valid, 
+if ibm_cos_file provided but not valid.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.delete" title="Link to this definition">¶</a></dt>
+<dd><p>Deletes a (data) object from the IBM COS bucket</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Name of (data) object to be deleted</p></li>
+<li><p><strong>bucket</strong> (<em>str</em>) – (Optional) name of the bucket.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.download">
+<span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">download_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'download'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.download" title="Link to this definition">¶</a></dt>
+<dd><p>Downloads the <cite>key</cite> in bucket to local. 
+Will raise an exception of <cite>file_name</cite> if the file does not exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em>) – Name of (data) file to download.</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – (Optional) name of the file in the bucket.</p></li>
+<li><p><strong>bucket</strong> (<em>str</em>) – (Optional) name of the bucket.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If upload fails with an IBMClientError, 
+if upload operation fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.from_dict">
+<span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSBucket object from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_bucket_dict</strong> (<em>Any</em>) – A dictionary that contains the keys of an IBMCOSBucket.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSBucket</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.from_json">
+<span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.from_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSBucket object from json (dictonary or str).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_client_json</strong> (<em>Any</em>) – A json dictionary that contains the keys of an IBMCOSBucket or a string representation of a json dictionary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSBucket</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary or a string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.get" title="Link to this definition">¶</a></dt>
+<dd><p>Gets an object from a bucket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Name of object in the bucket.</p></li>
+<li><p><strong>bucket</strong> (<em>str</em>) – (Optional) name of the bucket.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If operation fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.get_presigned_url">
+<span class="sig-name descname"><span class="pre">get_presigned_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expiration_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">86400</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.get_presigned_url" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a presigned URL for the object <cite>key</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – Name of object in the bucket.</p></li>
+<li><p><strong>bucket</strong> (<em>str</em>) – (Optional) name of the bucket.</p></li>
+<li><p><strong>expiration_time</strong> (<em>int</em>) – Expiration time of the URL (in seconds).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.set_client">
+<span class="sig-name descname"><span class="pre">set_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_key_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secret_access_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_auth_endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.set_client" title="Link to this definition">¶</a></dt>
+<dd><p>Populates the self._cos_client attribute. If a client is provided, the method uses this, if not, a new IBMCOSClient is created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>access_key_id</strong> (<em>str</em>) – Access Key ID.</p></li>
+<li><p><strong>secret_access_key</strong> (<em>str</em>) – Secret Access Key.</p></li>
+<li><p><strong>resource_instance_id</strong> (<em>str</em>) – Resource Instance ID.</p></li>
+<li><p><strong>ibm_auth_endpoint</strong> (<em>str</em>) – IBM Authentication Endpoint.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint.</p></li>
+<li><p><strong>client</strong> (<em>ibmpairs.external.ibm.IBMCOSClient</em>) – An existing IBMCOSClient.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If ibm_boto3.client could not be created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.set_resource">
+<span class="sig-name descname"><span class="pre">set_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_auth_endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.set_resource" title="Link to this definition">¶</a></dt>
+<dd><p>Populates the self._cos_resource attribute. If a resource is provided, the method uses this, if not, a new IBMCOSResource is created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> (<em>str</em>) – API Key.</p></li>
+<li><p><strong>resource_instance_id</strong> (<em>str</em>) – Resource Instance ID.</p></li>
+<li><p><strong>ibm_auth_endpoint</strong> (<em>str</em>) – IBM Authentication Endpoint.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint.</p></li>
+<li><p><strong>resource</strong> (<em>ibmpairs.external.ibm.IBMCOSResource</em>) – An existing IBMCOSResource.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If ibm_boto3.resource could not be created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create a dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.to_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create a string representation of a json dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSBucket.upload">
+<span class="sig-name descname"><span class="pre">upload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSBucket.upload" title="Link to this definition">¶</a></dt>
+<dd><p>Stores the local file <cite>file_name</cite> in bucket as <cite>key</cite>. 
+Will raise an exception of <cite>file_name</cite> if the file does not exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em>) – Name of (data) file to ingest.</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – (Optional) name of file in bucket. <cite>file_name</cite>
+without parent directories will be used if not
+provided.</p></li>
+<li><p><strong>bucket</strong> (<em>str</em>) – (Optional) name of the bucket.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If upload fails with an IBMClientError, 
+if upload operation fails.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">IBMCOSClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secret_access_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_auth_endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSClient" title="Link to this definition">¶</a></dt>
+<dd><p>An object to wrap the creation of an ibm_boto3.client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> (<em>str</em>) – API Key.</p></li>
+<li><p><strong>access_key_id</strong> (<em>str</em>) – Access Key ID.</p></li>
+<li><p><strong>secret_access_key</strong> (<em>str</em>) – Secret Access Key.</p></li>
+<li><p><strong>resource_instance_id</strong> (<em>str</em>) – Resource Instance ID.</p></li>
+<li><p><strong>ibm_auth_endpoint</strong> (<em>str</em>) – IBM Authentication Endpoint.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSClient.from_dict">
+<span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSClient.from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSClient object from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_client_dict</strong> (<em>Any</em>) – A dictionary that contains the keys of an IBMCOSClient.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSClient</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSClient.from_json">
+<span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSClient.from_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSClient object from json (dictonary or str).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_client_json</strong> (<em>Any</em>) – A json dictionary that contains the keys of an IBMCOSClient or a string representation of a json dictionary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSClient</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary or a string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSClient.set_client">
+<span class="sig-name descname"><span class="pre">set_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">access_key_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secret_access_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_instance_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_auth_endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSClient.set_client" title="Link to this definition">¶</a></dt>
+<dd><p>Creates an ibm_boto3.client from attributes in the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> (<em>str</em>) – API Key.</p></li>
+<li><p><strong>access_key_id</strong> (<em>str</em>) – Access Key ID.</p></li>
+<li><p><strong>secret_access_key</strong> (<em>str</em>) – Secret Access Key.</p></li>
+<li><p><strong>resource_instance_id</strong> (<em>str</em>) – Resource Instance ID.</p></li>
+<li><p><strong>ibm_auth_endpoint</strong> (<em>str</em>) – IBM Authentication Endpoint.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if ibm_boto3.client could not be created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSClient.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSClient.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create a dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSClient.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSClient.to_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create a string representation of a json dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSFile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">IBMCOSFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iam_service_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_api_key_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_auth_endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSFile" title="Link to this definition">¶</a></dt>
+<dd><p>An object to represent IBM Cloud Object Storage (COS) File entry returned by Watson Studio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iam_service_id</strong> (<em>str</em>) – IAM Service ID.</p></li>
+<li><p><strong>ibm_api_key_id</strong> (<em>str</em>) – IBM API Key ID.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint.</p></li>
+<li><p><strong>ibm_auth_endpoint</strong> (<em>str</em>) – IBM Authentication Endpoint.</p></li>
+<li><p><strong>bucket</strong> (<em>str</em>) – Bucket name.</p></li>
+<li><p><strong>file</strong> (<em>str</em>) – File.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSFile.from_dict">
+<span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSFile.from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSFile object from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_file_dict</strong> (<em>Any</em>) – A dictionary that contains the keys of an IBMCOSFile.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSFile</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSFile.from_json">
+<span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSFile.from_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSFile object from json (dictonary or str).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_file_json</strong> (<em>Any</em>) – A json dictionary that contains the keys of an IBMCOSFile or a string representation of a json dictionary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSFile</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary or a string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSFile.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSFile.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create a dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSFile.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSFile.to_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create a string representation of a json dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSHMACKeys">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">IBMCOSHMACKeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">access_key_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secret_access_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSHMACKeys" title="Link to this definition">¶</a></dt>
+<dd><p>An object to represent IBM Cloud Object Storage (COS) HMAC Keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>access_key_id</strong> (<em>str</em>) – Access key ID</p></li>
+<li><p><strong>secret_access_key</strong> (<em>str</em>) – Secret access key</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSHMACKeys.from_dict">
+<span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSHMACKeys.from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSHMACKeys object from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_hmac_keys_dict</strong> (<em>Any</em>) – A dictionary that contains the keys of an IBMCOSHMACKeys.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSHMACKeys</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSHMACKeys.from_json">
+<span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSHMACKeys.from_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSHMACKeys object from json (dictonary or str).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_hmac_keys_json</strong> (<em>Any</em>) – A json dictionary that contains the keys of an IBMCOSHMACKeys or a string representation of a json dictionary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSHMACKeys</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary or a string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSHMACKeys.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSHMACKeys.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create a dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSHMACKeys.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSHMACKeys.to_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create a string representation of a json dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSResource">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">IBMCOSResource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_auth_endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSResource" title="Link to this definition">¶</a></dt>
+<dd><p>An object to wrap the creation of an ibm_boto3.resource.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> (<em>str</em>) – API Key.</p></li>
+<li><p><strong>resource_instance_id</strong> (<em>str</em>) – Resource Instance ID.</p></li>
+<li><p><strong>ibm_auth_endpoint</strong> (<em>str</em>) – IBM Authentication Endpoint.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSResource.from_dict">
+<span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSResource.from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSResource object from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_resource_dict</strong> (<em>Any</em>) – A dictionary that contains the keys of an IBMCOSResource.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSResource</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSResource.from_json">
+<span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSResource.from_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSResource object from json (dictonary or str).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_resource_json</strong> (<em>Any</em>) – A json dictionary that contains the keys of an IBMCOSResource or a string representation of a json dictionary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSResource</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary or a string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSResource.set_resource">
+<span class="sig-name descname"><span class="pre">set_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ibm_auth_endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSResource.set_resource" title="Link to this definition">¶</a></dt>
+<dd><p>Creates an ibm_boto3.resource from attributes in the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> (<em>str</em>) – API Key.</p></li>
+<li><p><strong>resource_instance_id</strong> (<em>str</em>) – Resource Instance ID.</p></li>
+<li><p><strong>ibm_auth_endpoint</strong> (<em>str</em>) – IBM Authentication Endpoint.</p></li>
+<li><p><strong>endpoint</strong> (<em>str</em>) – Endpoint.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if ibm_boto3.resource could not be created.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSResource.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSResource.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create a dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSResource.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSResource.to_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create a string representation of a json dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSServiceCredentials">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">IBMCOSServiceCredentials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cos_hmac_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iam_api_key_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iam_api_key_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iam_role_crn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iam_service_id_crn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_instance_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSServiceCredentials" title="Link to this definition">¶</a></dt>
+<dd><p>An object to represent IBM Cloud Object Storage (COS) Service Credentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>api_key</strong> (<em>str</em>) – API Key</p></li>
+<li><p><strong>cos_hmac_keys</strong> (<em>ibmpairs.external.ibm.IBMCOSHMACKeys</em>) – IBM COS HMAC Keys</p></li>
+<li><p><strong>endpoints</strong> (<em>str</em>) – IBM Cloud Enpoints URL</p></li>
+<li><p><strong>iam_api_key_description</strong> (<em>str</em>) – IAM API Key Description</p></li>
+<li><p><strong>iam_api_key_name</strong> (<em>str</em>) – IAM API Key Name</p></li>
+<li><p><strong>iam_role_crn</strong> (<em>str</em>) – IAM Role CRN</p></li>
+<li><p><strong>iam_service_id_crn</strong> (<em>str</em>) – IAM Service ID CRN</p></li>
+<li><p><strong>resource_instance_id</strong> (<em>str</em>) – Resource Instance ID</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If IBMCOSHMACKeys type is unknown.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSServiceCredentials.from_dict">
+<span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSServiceCredentials.from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSServiceCredentials object from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_service_credentials_dict</strong> (<em>Any</em>) – A dictionary that contains the keys of an IBMCOSServiceCredentials.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSServiceCredentials</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSServiceCredentials.from_json">
+<span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSServiceCredentials.from_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create an IBMCOSServiceCredentials object from json (dictonary or str).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cos_service_credentials_json</strong> (<em>Any</em>) – A json dictionary that contains the keys of an IBMCOSServiceCredentials or a string representation of a json dictionary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSServiceCredentials</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If not a dictionary or a string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSServiceCredentials.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSServiceCredentials.to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>Create a dictionary from the objects structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="external.ibm.IBMCOSServiceCredentials.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.IBMCOSServiceCredentials.to_json" title="Link to this definition">¶</a></dt>
+<dd><p>Create a string representation of a json dictionary from the objects structure.            
+:rtype:                     string</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.get_cos_auth_endpoint">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">get_cos_auth_endpoint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.get_cos_auth_endpoint" title="Link to this definition">¶</a></dt>
+<dd><p>A helper function to get IBM COS Authentication Endpoint.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The current IBM COS Authentication Endpoint.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – If endpoint not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.get_cos_endpoint_by_region">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">get_cos_endpoint_by_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'public'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.get_cos_endpoint_by_region" title="Link to this definition">¶</a></dt>
+<dd><p>A helper function to get an IBM COS bucket endpoint by region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>region</strong> (<em>str</em>) – Region signifier (e.g. ‘us-south’).</p></li>
+<li><p><strong>interface</strong> (<em>str</em>) – A choice of endpoint type- ‘public’ or ‘private’ or ‘direct’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The current IBM COS bucket endpoint.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If response is not 200.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_bucket_from_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_bucket_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_bucket_dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_bucket_from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary of IBMCOSBucket to a IBMCOSBucket object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_bucket_dict</strong> (<em>dict</em>) – A dictionary that contains the keys of a IBMCOSBucket.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSBucket</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_bucket_from_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_bucket_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_bucket_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_bucket_from_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary or json string of IBMCOSBucket to a IBMCOSBucket object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_bucket_json</strong> (<em>Any</em>) – A dictionary or json string that contains the keys of a IBMCOSBucket.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSBucket</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict or a str.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_bucket_to_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_bucket_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSBucket" title="external.ibm.IBMCOSBucket"><span class="pre">IBMCOSBucket</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_bucket_to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSBucket to a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_bucket</strong> (<em>ibmpairs.external.ibm.IBMCOSBucket</em>) – A IBMCOSBucket object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_bucket_to_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_bucket_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_bucket</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSBucket" title="external.ibm.IBMCOSBucket"><span class="pre">IBMCOSBucket</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_bucket_to_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSBucket to a json string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_bucket</strong> (<em>ibmpairs.external.ibm.IBMCOSBucket</em>) – A IBMCOSBucket object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_client_from_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_client_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_client_dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_client_from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary of IBMCOSClient to a IBMCOSClient object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_client_dict</strong> (<em>dict</em>) – A dictionary that contains the keys of a IBMCOSClient.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSClient</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_client_from_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_client_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_client_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_client_from_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary or json string of IBMCOSClient to a IBMCOSClient object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_client_json</strong> (<em>Any</em>) – A dictionary or json string that contains the keys of a IBMCOSClient.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSClient</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict or a str.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_client_to_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_client_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSClient" title="external.ibm.IBMCOSClient"><span class="pre">IBMCOSClient</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_client_to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSClient to a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_client</strong> (<em>ibmpairs.external.ibm.IBMCOSClient</em>) – A IBMCOSClient object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_client_to_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_client_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSClient" title="external.ibm.IBMCOSClient"><span class="pre">IBMCOSClient</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_client_to_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSClient to a json string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_client</strong> (<em>ibmpairs.external.ibm.IBMCOSClient</em>) – A IBMCOSClient object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_file_from_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_file_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_file_dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_file_from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary of IBMCOSFile to a IBMCOSFile object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_file_dict</strong> (<em>dict</em>) – A dictionary that contains the keys of a IBMCOSFile.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSFile</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_file_from_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_file_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_file_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_file_from_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary or json string of IBMCOSFile to a IBMCOSFile object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_file_json</strong> (<em>Any</em>) – A dictionary or json string that contains the keys of a IBMCOSFile.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSFile</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict or a str.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_file_to_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_file_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSFile" title="external.ibm.IBMCOSFile"><span class="pre">IBMCOSFile</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_file_to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSFile to a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_file</strong> (<em>ibmpairs.external.ibm.IBMCOSFile</em>) – A IBMCOSFile object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_file_to_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_file_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSFile" title="external.ibm.IBMCOSFile"><span class="pre">IBMCOSFile</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_file_to_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSFile to a json string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_file</strong> (<em>ibmpairs.external.ibm.IBMCOSFile</em>) – A IBMCOSFile object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_hmac_keys_from_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_hmac_keys_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_hmac_keys_dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_hmac_keys_from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary of IBMCOSHMACKeys to a IBMCOSHMACKeys object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_hmac_keys_dict</strong> (<em>dict</em>) – A dictionary that contains the keys of a IBMCOSHMACKeys.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSHMACKeys</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_hmac_keys_from_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_hmac_keys_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_hmac_keys_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_hmac_keys_from_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary or json string of IBMCOSHMACKeys to a IBMCOSHMACKeys object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_hmac_keys_json</strong> (<em>Any</em>) – A dictionary or json string that contains the keys of a IBMCOSHMACKeys.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSHMACKeys</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict or a str.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_hmac_keys_to_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_hmac_keys_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_hmac_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSHMACKeys" title="external.ibm.IBMCOSHMACKeys"><span class="pre">IBMCOSHMACKeys</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_hmac_keys_to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSHMACKeys to a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_hmac_keys</strong> (<em>ibmpairs.external.ibm.IBMCOSHMACKeys</em>) – A IBMCOSHMACKeys object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_hmac_keys_to_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_hmac_keys_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_hmac_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSHMACKeys" title="external.ibm.IBMCOSHMACKeys"><span class="pre">IBMCOSHMACKeys</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_hmac_keys_to_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSHMACKeys to a json string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_hmac_keys</strong> (<em>ibmpairs.external.ibm.IBMCOSHMACKeys</em>) – A IBMCOSHMACKeys object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_resource_from_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_resource_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_resource_dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_resource_from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary of IBMCOSResource to a IBMCOSResource object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_resource_dict</strong> (<em>dict</em>) – A dictionary that contains the keys of a IBMCOSResource.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSResource</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_resource_from_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_resource_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_resource_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_resource_from_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary or json string of IBMCOSResource to a IBMCOSResource object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_resource_json</strong> (<em>Any</em>) – A dictionary or json string that contains the keys of a IBMCOSResource.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSResource</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict or a str.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_resource_to_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_resource_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSResource" title="external.ibm.IBMCOSResource"><span class="pre">IBMCOSResource</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_resource_to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSResource to a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_resource</strong> (<em>ibmpairs.external.ibm.IBMCOSResource</em>) – A IBMCOSResource object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_resource_to_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_resource_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_resource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSResource" title="external.ibm.IBMCOSResource"><span class="pre">IBMCOSResource</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_resource_to_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSResource to a json string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_resource</strong> (<em>ibmpairs.external.ibm.IBMCOSResource</em>) – A IBMCOSResource object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_service_credentials_from_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_service_credentials_from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_service_credentials_dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_service_credentials_from_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary of IBMCOSServiceCredentials to a IBMCOSServiceCredentials object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_service_credentials_dict</strong> (<em>dict</em>) – A dictionary that contains the keys of a IBMCOSServiceCredentials.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSServiceCredentials</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_service_credentials_from_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_service_credentials_from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_service_credentials_json</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_service_credentials_from_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts a dictionary or json string of IBMCOSServiceCredentials to a IBMCOSServiceCredentials object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_service_credentials_json</strong> (<em>Any</em>) – A dictionary or json string that contains the keys of a IBMCOSServiceCredentials.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ibmpairs.external.ibm.IBMCOSServiceCredentials</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if not a dict or a str.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_service_credentials_to_dict">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_service_credentials_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_service_credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSServiceCredentials" title="external.ibm.IBMCOSServiceCredentials"><span class="pre">IBMCOSServiceCredentials</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_service_credentials_to_dict" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSServiceCredentials to a dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_service_credentials</strong> (<em>ibmpairs.external.ibm.IBMCOSServiceCredentials</em>) – A IBMCOSServiceCredentials object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="external.ibm.ibm_cos_service_credentials_to_json">
+<span class="sig-prename descclassname"><span class="pre">external.ibm.</span></span><span class="sig-name descname"><span class="pre">ibm_cos_service_credentials_to_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ibm_cos_service_credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#external.ibm.IBMCOSServiceCredentials" title="external.ibm.IBMCOSServiceCredentials"><span class="pre">IBMCOSServiceCredentials</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#external.ibm.ibm_cos_service_credentials_to_json" title="Link to this definition">¶</a></dt>
+<dd><p>The function converts an object of IBMCOSServiceCredentials to a json string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ibm_cos_service_credentials</strong> (<em>ibmpairs.external.ibm.IBMCOSServiceCredentials</em>) – A IBMCOSServiceCredentials object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="ibmpairs_paw.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">PAW</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="ibmpairs_common.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Common</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, IBM Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">External - IBM</a><ul>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket</span></code></a><ul>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.delete"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.delete()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.download"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.download()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.from_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.from_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.get"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.get()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.get_presigned_url"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.get_presigned_url()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.set_client"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.set_client()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.set_resource"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.set_resource()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.to_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.to_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.to_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSBucket.upload"><code class="docutils literal notranslate"><span class="pre">IBMCOSBucket.upload()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSClient"><code class="docutils literal notranslate"><span class="pre">IBMCOSClient</span></code></a><ul>
+<li><a class="reference internal" href="#external.ibm.IBMCOSClient.from_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSClient.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSClient.from_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSClient.from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSClient.set_client"><code class="docutils literal notranslate"><span class="pre">IBMCOSClient.set_client()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSClient.to_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSClient.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSClient.to_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSClient.to_json()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSFile"><code class="docutils literal notranslate"><span class="pre">IBMCOSFile</span></code></a><ul>
+<li><a class="reference internal" href="#external.ibm.IBMCOSFile.from_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSFile.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSFile.from_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSFile.from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSFile.to_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSFile.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSFile.to_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSFile.to_json()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSHMACKeys"><code class="docutils literal notranslate"><span class="pre">IBMCOSHMACKeys</span></code></a><ul>
+<li><a class="reference internal" href="#external.ibm.IBMCOSHMACKeys.from_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSHMACKeys.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSHMACKeys.from_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSHMACKeys.from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSHMACKeys.to_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSHMACKeys.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSHMACKeys.to_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSHMACKeys.to_json()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSResource"><code class="docutils literal notranslate"><span class="pre">IBMCOSResource</span></code></a><ul>
+<li><a class="reference internal" href="#external.ibm.IBMCOSResource.from_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSResource.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSResource.from_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSResource.from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSResource.set_resource"><code class="docutils literal notranslate"><span class="pre">IBMCOSResource.set_resource()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSResource.to_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSResource.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSResource.to_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSResource.to_json()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSServiceCredentials"><code class="docutils literal notranslate"><span class="pre">IBMCOSServiceCredentials</span></code></a><ul>
+<li><a class="reference internal" href="#external.ibm.IBMCOSServiceCredentials.from_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSServiceCredentials.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSServiceCredentials.from_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSServiceCredentials.from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSServiceCredentials.to_dict"><code class="docutils literal notranslate"><span class="pre">IBMCOSServiceCredentials.to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.IBMCOSServiceCredentials.to_json"><code class="docutils literal notranslate"><span class="pre">IBMCOSServiceCredentials.to_json()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#external.ibm.get_cos_auth_endpoint"><code class="docutils literal notranslate"><span class="pre">get_cos_auth_endpoint()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.get_cos_endpoint_by_region"><code class="docutils literal notranslate"><span class="pre">get_cos_endpoint_by_region()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_bucket_from_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_bucket_from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_bucket_from_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_bucket_from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_bucket_to_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_bucket_to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_bucket_to_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_bucket_to_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_client_from_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_client_from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_client_from_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_client_from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_client_to_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_client_to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_client_to_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_client_to_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_file_from_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_file_from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_file_from_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_file_from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_file_to_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_file_to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_file_to_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_file_to_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_hmac_keys_from_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_hmac_keys_from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_hmac_keys_from_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_hmac_keys_from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_hmac_keys_to_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_hmac_keys_to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_hmac_keys_to_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_hmac_keys_to_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_resource_from_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_resource_from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_resource_from_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_resource_from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_resource_to_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_resource_to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_resource_to_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_resource_to_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_service_credentials_from_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_service_credentials_from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_service_credentials_from_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_service_credentials_from_json()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_service_credentials_to_dict"><code class="docutils literal notranslate"><span class="pre">ibm_cos_service_credentials_to_dict()</span></code></a></li>
+<li><a class="reference internal" href="#external.ibm.ibm_cos_service_credentials_to_json"><code class="docutils literal notranslate"><span class="pre">ibm_cos_service_credentials_to_json()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

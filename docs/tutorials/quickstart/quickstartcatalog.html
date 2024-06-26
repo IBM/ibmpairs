@@ -1,0 +1,1887 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="SDK Model" href="../tutorial/index.html" /><link rel="prev" title="Quick Start - Area of Interest (AOI) Query" href="quickstartaoiquery.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>Quick Start - Catalog - IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs) documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../introducingpairsgeospatialanalytics.html">Introducing Environmental Intelligence: Geospatial APIs</a></li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Quick Start</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Quick Start</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="quickstartsetup.html">Quick Start - Setting Up for the API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartpointquery.html">Quick Start - Point Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartrasterquery.html">Quick Start - Raster Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartaoiquery.html">Quick Start - Area of Interest (AOI) Query</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Quick Start - Catalog</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../tutorial/index.html">SDK Model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of SDK Model</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tutorial/pythonapiwrapper.html">ibmpairs SDK</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/api/ibm_api_hub.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/api/udf_function_reference.html">User Defined Functions (UDF)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/sdk/index.html">SDK</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of SDK</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_authentication.html">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_catalog.html">Catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_client.html">Client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_common.html">Common</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_external_ibm.html">External - IBM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_paw.html">PAW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_query.html">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/tutorials/quickstart/quickstartcatalog.ipynb.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Quick-Start---Catalog">
+<h1>Quick Start - Catalog<a class="headerlink" href="#Quick-Start---Catalog" title="Link to this heading">¶</a></h1>
+<p>IBM Environmental Intelligence Service: Geospatial APIs contains a several petabytes of queryable data. It is therefore necessary to understand, briefly, the storage data model and how the metadata can be retrieved.</p>
+<section id="The-Storage-Model">
+<h2>The Storage Model<a class="headerlink" href="#The-Storage-Model" title="Link to this heading">¶</a></h2>
+<p>The storage model in Geospatial APIs is illustrated by the following diagram:</p>
+<p><img alt="Queries1" src="../../_images/catalogstoragemodel.png" /></p>
+<section id="Data-Sets">
+<h3>Data Sets<a class="headerlink" href="#Data-Sets" title="Link to this heading">¶</a></h3>
+<p>The Data Set is the highest tier in the hierarchy. It functions as a collection for Data Layers for which defaults (e.g. attributes, security controls etc) can be applied. In most cases, the Data Set serves as a collection for interrelated data, usually acquired contemporaneously, (e.g. the ‘bands’ in the data provided by the ESA Sentinel 2 satellite) however, there is nothing that restricts a Data Set from use on more informal terms.</p>
+</section>
+<section id="Data-Layers">
+<h3>Data Layers<a class="headerlink" href="#Data-Layers" title="Link to this heading">¶</a></h3>
+<p>The Data Layer is the tier of the hierarchy that is directly connected to the storage sub-system. The metadata defined here overwrites the Data Set defined defaults and applies directly to the manner in which the data is stored. When querying data from Geospatial APIs, this tier is the entry point.</p>
+<p>In configuring a Data Layer, two important attributes, in particular, are the level and the datatype (as they determine storage size and speed of retrieval at query time):</p>
+<ul class="simple">
+<li><p>the level is a granularity band range,</p></li>
+<li><p>the datatype is the data type that will be applied to the storage.</p></li>
+</ul>
+<p>The most efficient level and type that can contain the data to be uploaded to a Data Layer should always be used.</p>
+<p>Level:</p>
+<ul class="simple">
+<li><p>29 (11.125 cm at equator)</p></li>
+<li><p>28 (22.25 cm at equator)</p></li>
+<li><p>27 (44.5 cm at equator)</p></li>
+<li><p>26 (0.89 m at equator)</p></li>
+<li><p>25 (1.78 m at equator)</p></li>
+<li><p>24 (3.56 m at equator)</p></li>
+<li><p>23 (7.12 m at equator)</p></li>
+<li><p>22 (14.24 m at equator)</p></li>
+<li><p>21 (28.48 m at equator)</p></li>
+<li><p>20 (56.96 m at equator)</p></li>
+<li><p>19 (113.92 m at equator)</p></li>
+<li><p>18 (227.84 m at equator)</p></li>
+<li><p>17 (455.68 m at equator)</p></li>
+<li><p>16 (911.36 m at equator)</p></li>
+<li><p>15 (1.82272 km at equator)</p></li>
+<li><p>14 (3.64544 km at equator)</p></li>
+<li><p>13 (7.29088 km at equator)</p></li>
+<li><p>12 (14.58176 km at equator)</p></li>
+<li><p>11 (29.16352 km at equator)</p></li>
+<li><p>10 (58.32704 km at equator)</p></li>
+<li><p>9 (116.65408 km at equator)</p></li>
+<li><p>8 (233.30816 km at equator)</p></li>
+<li><p>7 (466.61632 km at equator)</p></li>
+<li><p>6 (933.23264 km at equator)</p></li>
+<li><p>5 (1866.46528 km at equator)</p></li>
+<li><p>4 (3732.93056 km at equator)</p></li>
+<li><p>3 (7465.86112 km at equator)</p></li>
+<li><p>2 (14931.72224 km at equator)</p></li>
+<li><p>1 (29863.44448 km at equator)</p></li>
+</ul>
+<p>Data Types for Raster:</p>
+<ul class="simple">
+<li><p>bt (Byte)</p></li>
+<li><p>sh (Short Integer)</p></li>
+<li><p>in (Integer)</p></li>
+<li><p>db (Double)</p></li>
+<li><p>fl (Float)</p></li>
+</ul>
+</section>
+<section id="Data-Layer-Dimensions">
+<h3>Data Layer Dimensions<a class="headerlink" href="#Data-Layer-Dimensions" title="Link to this heading">¶</a></h3>
+<p>A Data Layer Dimension gives context to the value recorded for the data layer. For example, weather forecast models typically create a prediction for each day in the future for a number of days. When the weather model is run on a Monday it will generate a predictions for temperature on Tuesday, Wednesday, Thursday, Friday and Saturday. When the forecast is run on the Tuesday the predications are made for Wednesday, Thursday, Friday etc. The days for which predictions are generated are the data
+layer dimensions.</p>
+<p>Imagine a temperature prediction data layer which records the temperate against a spatial and temporal key:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>lat/long/timestamp = temperature
+</pre></div>
+</div>
+<p>This only stores one temperature value per key. Each time we run the weather model we generate 5 temperature predictions. One for each of the 5 future days. How can we store them? The answer is that the key is extended with a dimension:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>lat/long/timestamp/dimension = temperature
+</pre></div>
+</div>
+<p>Now each place and time can also have 5 predictions associated with it.</p>
+<p>In Geospatial APIs we typically arrange that data so that:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>timestamp = the date/time that the value is valid
+dimenion  = the predicted day number (horizon) from the model run
+</pre></div>
+</div>
+<p>Using this scheme is it straightforward to compare different model predictions for the same date and time.</p>
+</section>
+</section>
+<section id="Searching-the-Catalog">
+<h2>Searching the Catalog<a class="headerlink" href="#Searching-the-Catalog" title="Link to this heading">¶</a></h2>
+<section id="Search-by-Word">
+<h3>Search by Word<a class="headerlink" href="#Search-by-Word" title="Link to this heading">¶</a></h3>
+<p>In order to search the whole catalog for a term, you can use the catalog sub-module and the method <code class="docutils literal notranslate"><span class="pre">search</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>catalog.search<span class="o">(</span>&lt;search_term&gt;<span class="o">)</span>
+</pre></div>
+</div>
+<p>In the example below, the catalog is searched for all datasets and datalayers that contain references to <code class="docutils literal notranslate"><span class="pre">Sentinel</span></code>. The information returned is a reduced version of the metadata held by the catalog that can be used to determine the prima facie usefulness of the returned datasets and datalayers to the user.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">ibmpairs.authentication</span> <span class="k">as</span> <span class="nn">authentication</span>
+<span class="kn">import</span> <span class="nn">ibmpairs.client</span> <span class="k">as</span> <span class="nn">client</span>
+<span class="kn">import</span> <span class="nn">ibmpairs.catalog</span> <span class="k">as</span> <span class="nn">catalog</span>
+
+<span class="n">EI_API_KEY</span>   <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;EI_API_KEY&#39;</span><span class="p">)</span>
+<span class="n">EI_TENANT_ID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;EI_TENANT_ID&#39;</span><span class="p">)</span>
+<span class="n">EI_ORG_ID</span>    <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;EI_ORG_ID&#39;</span><span class="p">)</span>
+
+<span class="n">ei_client</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_client</span><span class="p">(</span><span class="n">api_key</span>   <span class="o">=</span> <span class="n">EI_API_KEY</span><span class="p">,</span>
+                              <span class="n">tenant_id</span> <span class="o">=</span> <span class="n">EI_TENANT_ID</span><span class="p">,</span>
+                              <span class="n">org_id</span>    <span class="o">=</span> <span class="n">EI_ORG_ID</span><span class="p">)</span>
+
+<span class="n">search_by_word</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;Sentinel&quot;</span><span class="p">)</span>
+<span class="n">search_by_word</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2023-08-15 09:05:47 - paw - INFO - The client authentication method is assumed to be OAuth2.
+2023-08-15 09:05:47 - paw - INFO - Legacy Environment is False
+2023-08-15 09:05:49 - paw - INFO - Authentication success.
+2023-08-15 09:05:49 - paw - INFO - HOST: https://api.ibm.com/geospatial/run/na/core/v3
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dataset_id</th>
+      <th>data_layer_id</th>
+      <th>data_layer_name</th>
+      <th>data_layer_description_short</th>
+      <th>data_layer_description_long</th>
+      <th>data_layer_level</th>
+      <th>data_layer_type</th>
+      <th>data_layer_unit</th>
+      <th>data_set_id</th>
+      <th>data_set_name</th>
+      <th>data_set_description_short</th>
+      <th>data_set_description_long</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>176</td>
+      <td>51648</td>
+      <td>Band 11 (SWIR 1612 nm)</td>
+      <td>Central wavelength 1613.7/1610.4 nm, bandwidth...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>176</td>
+      <td>High res imagery (ESA Sentinel 2) (TOA)</td>
+      <td>This dataset contains layers from the Level-1C...</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>176</td>
+      <td>50364</td>
+      <td>hollstein</td>
+      <td>A cloud mask as defined in a paper by Hollstei...</td>
+      <td>A cloud mask as defined in a paper by Hollstei...</td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>176</td>
+      <td>High res imagery (ESA Sentinel 2) (TOA)</td>
+      <td>This dataset contains layers from the Level-1C...</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>176</td>
+      <td>49358</td>
+      <td>Band 4 (red)</td>
+      <td>Central wavelength 664.5/665.0 nm, bandwidth 3...</td>
+      <td></td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>176</td>
+      <td>High res imagery (ESA Sentinel 2) (TOA)</td>
+      <td>This dataset contains layers from the Level-1C...</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>176</td>
+      <td>49359</td>
+      <td>Band 8 (NIR)</td>
+      <td>Central wavelength 835.1/833.0 nm, bandwidth 1...</td>
+      <td></td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>176</td>
+      <td>High res imagery (ESA Sentinel 2) (TOA)</td>
+      <td>This dataset contains layers from the Level-1C...</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>176</td>
+      <td>50096</td>
+      <td>Band 10 (SWIR 1370 nm)</td>
+      <td>Central wavelength 1373.5/1376.9 nm, bandwidth...</td>
+      <td></td>
+      <td>20</td>
+      <td>Raster</td>
+      <td></td>
+      <td>176</td>
+      <td>High res imagery (ESA Sentinel 2) (TOA)</td>
+      <td>This dataset contains layers from the Level-1C...</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>176</td>
+      <td>51649</td>
+      <td>Band 12 (SWIR 2202 nm)</td>
+      <td>Central wavelength 2202.4/2185.7 nm, bandwidth...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>176</td>
+      <td>High res imagery (ESA Sentinel 2) (TOA)</td>
+      <td>This dataset contains layers from the Level-1C...</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>177</td>
+      <td>49464</td>
+      <td>Normalized difference vegetation index</td>
+      <td>A measure of the amount of vegetation at the p...</td>
+      <td>NDVI is generally calculated as (NIR - VIR) / ...</td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>177</td>
+      <td>49683</td>
+      <td>Band 6 (vegetation red edge)</td>
+      <td>Central wavelength 740.2/739.1 nm, bandwidth 1...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>177</td>
+      <td>49680</td>
+      <td>Band 2 (blue)</td>
+      <td>Central wavelength 496.6/492.1 nm, bandwidth 9...</td>
+      <td></td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>177</td>
+      <td>49689</td>
+      <td>Water vapor</td>
+      <td>Atmospheric water vapor content derived from b...</td>
+      <td>"Water vapour retrieval over land is performed...</td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>177</td>
+      <td>49360</td>
+      <td>Band 4 (red)</td>
+      <td>Central wavelength 664.5/665.0 nm, bandwidth 3...</td>
+      <td></td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>177</td>
+      <td>49361</td>
+      <td>Band 8 (NIR)</td>
+      <td>Central wavelength 835.1/833.0 nm, bandwidth 1...</td>
+      <td></td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>177</td>
+      <td>50250</td>
+      <td>Cloud probability map</td>
+      <td>A 20m mask indicating the calculated probabili...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>177</td>
+      <td>49686</td>
+      <td>Band 11 (SWIR 1610 nm)</td>
+      <td>Central wavelength 1613.7/1610.4 nm, bandwidth...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>177</td>
+      <td>49687</td>
+      <td>Band 12 (SWIR 2200 nm)</td>
+      <td>Central wavelength 2202.4/2185.7 nm, bandwidth...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>177</td>
+      <td>49690</td>
+      <td>Band 1 (coastal aerosol)</td>
+      <td>Central wavelength 443.9/442.3 nm, bandwidth 2...</td>
+      <td></td>
+      <td>20</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>177</td>
+      <td>49688</td>
+      <td>Aerosol optical thickness</td>
+      <td>"AOT describes attenuation of sunlight by a co...</td>
+      <td>For Sentinel 2 level 2A products, the "aerosol...</td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>177</td>
+      <td>49691</td>
+      <td>Band 9 (water vapor)</td>
+      <td>Central wavelength 945.0/943.2 nm, bandwidth 2...</td>
+      <td></td>
+      <td>20</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>177</td>
+      <td>49685</td>
+      <td>Band 8a (narrow IR)</td>
+      <td>Central wavelength 864.8/864.0 nm, bandwidth 3...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>177</td>
+      <td>49684</td>
+      <td>Band 7 (vegetation red edge)</td>
+      <td>Central wavelength 782.5/779.7 nm, bandwidth 2...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>177</td>
+      <td>49681</td>
+      <td>Band 3 (green)</td>
+      <td>Central wavelength 560.0/559.0 nm, bandwidth 4...</td>
+      <td></td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>177</td>
+      <td>49682</td>
+      <td>Band 5 (vegetation red edge)</td>
+      <td>Central wavelength 703.9/703.8 nm, bandwidth 1...</td>
+      <td></td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>177</td>
+      <td>49362</td>
+      <td>Scene classification</td>
+      <td>Pixel-by-pixel classification in image of 4 ty...</td>
+      <td>The different labels and classifications are: ...</td>
+      <td>22</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>335</td>
+      <td>50254</td>
+      <td>VH polarization</td>
+      <td>Synthetic Aperture Radar with VH Partial polar...</td>
+      <td>The data is preprocessed following correction ...</td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>335</td>
+      <td>Satellite based radar  (ESA Sentinel 1)</td>
+      <td>Sentinel-1 is an imaging radar mission providi...</td>
+      <td>Sentinel-1 provides dual polarization capabili...</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>335</td>
+      <td>50253</td>
+      <td>VV polarization</td>
+      <td>Synthetic Aperture Radar with VV Partial polar...</td>
+      <td>The data is preprocessed following correction ...</td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>335</td>
+      <td>Satellite based radar  (ESA Sentinel 1)</td>
+      <td>Sentinel-1 is an imaging radar mission providi...</td>
+      <td>Sentinel-1 provides dual polarization capabili...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>The full metadata for the dataset or datalayer can then be retrieved by subsequent methods, e.g.:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dl</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_data_layer</span><span class="p">(</span><span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;49464&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dl</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+    &#34;color_table&#34;: {
+        &#34;colors&#34;: &#34;153A91,84F588,FFF787,FF7C3B,FF1921&#34;,
+        &#34;id&#34;: &#34;4&#34;,
+        &#34;name&#34;: &#34;Spectral&#34;
+    },
+    &#34;created_at&#34;: &#34;1593733829000&#34;,
+    &#34;crs&#34;: &#34;&#34;,
+    &#34;data_layer_response&#34;: {},
+    &#34;dataset_id&#34;: &#34;177&#34;,
+    &#34;datatype&#34;: &#34;sh&#34;,
+    &#34;description_long&#34;: &#34;NDVI is generally calculated as (NIR - VIR) / (NIR + VIR). For Sentinel 2, this translates to (band 8 - band 4) / (band 8 + band 4).&#34;,
+    &#34;description_short&#34;: &#34;A measure of the amount of vegetation at the pixel.&#34;,
+    &#34;id&#34;: &#34;49464&#34;,
+    &#34;interpolation&#34;: &#34;bilinear&#34;,
+    &#34;latitude_max&#34;: 90.0,
+    &#34;latitude_min&#34;: -90.0,
+    &#34;level&#34;: 23,
+    &#34;longitude_max&#34;: 180.0,
+    &#34;longitude_min&#34;: -180.0,
+    &#34;name&#34;: &#34;Normalized difference vegetation index&#34;,
+    &#34;name_alternate&#34;: &#34;Normalized difference vegetation index&#34;,
+    &#34;permanence&#34;: true,
+    &#34;properties&#34;: {},
+    &#34;rating&#34;: 1.0,
+    &#34;spatial_coverage&#34;: {
+        &#34;country&#34;: [
+            &#34;Belgium&#34;,
+            &#34;Bolivia&#34;,
+            &#34;France&#34;,
+            &#34;Germany&#34;,
+            &#34;India&#34;,
+            &#34;Indonesia&#34;,
+            &#34;Luxembourg&#34;,
+            &#34;Netherlands&#34;,
+            &#34;Switzerland&#34;,
+            &#34;Thailand&#34;,
+            &#34;United Kingdom&#34;,
+            &#34;United States of America&#34;
+        ]
+    },
+    &#34;temporal_max&#34;: &#34;1665604800000&#34;,
+    &#34;temporal_min&#34;: &#34;1438387200000&#34;,
+    &#34;type&#34;: &#34;R&#34;,
+    &#34;units&#34;: &#34;[-1, 1]&#34;,
+    &#34;updated_at&#34;: &#34;1665648134000&#34;
+}
+</pre></div></div>
+</div>
+</section>
+<section id="Search-by-ID">
+<h3>Search by ID<a class="headerlink" href="#Search-by-ID" title="Link to this heading">¶</a></h3>
+<p>In the event that you already know the Geospatial APIs ID for a data set or data layer the search method can also be used to retrieve the limited metadata returned by the <code class="docutils literal notranslate"><span class="pre">search</span></code> method:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">search_by_id</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;49464&quot;</span><span class="p">)</span>
+<span class="n">search_by_id</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dataset_id</th>
+      <th>data_layer_id</th>
+      <th>data_layer_name</th>
+      <th>data_layer_description_short</th>
+      <th>data_layer_description_long</th>
+      <th>data_layer_level</th>
+      <th>data_layer_type</th>
+      <th>data_layer_unit</th>
+      <th>data_set_id</th>
+      <th>data_set_name</th>
+      <th>data_set_description_short</th>
+      <th>data_set_description_long</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>177</td>
+      <td>49464</td>
+      <td>Normalized difference vegetation index</td>
+      <td>A measure of the amount of vegetation at the p...</td>
+      <td>NDVI is generally calculated as (NIR - VIR) / ...</td>
+      <td>23</td>
+      <td>Raster</td>
+      <td></td>
+      <td>177</td>
+      <td>High res  imagery (ESA Sentinel 2)</td>
+      <td>Images from the European Space Agency Sentinel...</td>
+      <td>Sentinel-2 is a set of two satellites in polar...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+<section id="Retrieve-Metadata">
+<h2>Retrieve Metadata<a class="headerlink" href="#Retrieve-Metadata" title="Link to this heading">¶</a></h2>
+<p>A series of helper methods can be used to retrieve the metadata concerning Data Sets, Data Layers and Data Layer Dimensions. The results for these catalog methods can be displayed (returned in a truncated form as a dataframe):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">ds_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>catalog.get_data_sets<span class="o">()</span>
+ds_list.display<span class="o">()</span>
+</pre></div>
+</div>
+<p>or printed (which returns a string representation of an object):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>catalog.get_data_set<span class="o">(</span><span class="nv">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>&lt;data_set_id&gt;<span class="o">)</span>
+print<span class="o">(</span>ds<span class="o">)</span>
+</pre></div>
+</div>
+<p>Where applicable, the methods also allow for return of lists of embedded objects (e.g. Data Layers per Data Set):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>catalog.get_data_layers<span class="o">(</span><span class="nv">data_set_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>&lt;data_set_id&gt;<span class="o">)</span>
+</pre></div>
+</div>
+<section id="Get-a-List-of-Data-Sets">
+<h3>Get a List of Data Sets<a class="headerlink" href="#Get-a-List-of-Data-Sets" title="Link to this heading">¶</a></h3>
+<p>In order to return all data sets available to a user, you can execute the <code class="docutils literal notranslate"><span class="pre">get_data_sets</span></code> method:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ds_list</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_data_sets</span><span class="p">()</span>
+<span class="n">ds_list</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>name</th>
+      <th>description_short</th>
+      <th>description_long</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>574</td>
+      <td>15-46 day ECMWF weather forecast (ML post-proc...</td>
+      <td>ML Post-processed temperature and precipitatio...</td>
+      <td>ML Post-processed temperature and precipitatio...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>575</td>
+      <td>1-15 day ECMWF weather forecast (ML post-proce...</td>
+      <td>ML Post-processed temperature and precipitatio...</td>
+      <td>ML Post-processed temperature and precipitatio...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>306</td>
+      <td>Atmospheric weather (ERA5)</td>
+      <td>A global reanalysis data set produced by ECMWF...</td>
+      <td>ERA5 is the direct successor to the ERA Interi...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>63</td>
+      <td>High resolution aerial imagery (USDA NAIP)</td>
+      <td>High resolution (&lt;1m) aerial imagery from the ...</td>
+      <td>National Agriculture Imagery Program (NAIP) ac...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>369</td>
+      <td>Buoy Data Wave Summary</td>
+      <td>Precise wave conditions around bouys belonging...</td>
+      <td>Local measurements of wave attributes and thei...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>93</th>
+      <td>379</td>
+      <td>US healthcare infrastructure</td>
+      <td>Dataset includes data layers with relevant inf...</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>94</th>
+      <td>392</td>
+      <td>US mobility (Descartes Labs)</td>
+      <td>Mobility data derived from mobile devices.</td>
+      <td>Note that the exact source of the data -- i.e....</td>
+    </tr>
+    <tr>
+      <th>95</th>
+      <td>93</td>
+      <td>Soil properties USA</td>
+      <td>The USA soil property data is derived from the...</td>
+      <td>It contains information about soil as collecte...</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>332</td>
+      <td>Ocean wave forecast (ECMWF ENS)</td>
+      <td>15-day ahead forecast of ocean conditions.</td>
+      <td>The ECMWF Ensemble Prediction System (EPS) cre...</td>
+    </tr>
+    <tr>
+      <th>97</th>
+      <td>284</td>
+      <td>Wildfire risk potential</td>
+      <td>Wildfire Hazard Potential can help to inform e...</td>
+      <td>Wildfire Hazard Potential* for the conterminou...</td>
+    </tr>
+  </tbody>
+</table>
+<p>98 rows × 4 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Get-a-Data-Set">
+<h3>Get a Data Set<a class="headerlink" href="#Get-a-Data-Set" title="Link to this heading">¶</a></h3>
+<p>In order to return all metadata about a Data Set, the <code class="docutils literal notranslate"><span class="pre">get_data_set</span></code> method can be used with a provided Data Set ID:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_data_set</span><span class="p">(</span><span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;177&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+    &#34;category&#34;: {
+        &#34;id&#34;: 1,
+        &#34;name&#34;: &#34;Satellite&#34;
+    },
+    &#34;created_at&#34;: &#34;1593733829000&#34;,
+    &#34;crs&#34;: &#34;&#34;,
+    &#34;data_set_response&#34;: {},
+    &#34;data_source_attribution&#34;: &#34;Source: European Space Agency - ESA; Contains modified Copernicus Sentinel data [2018 and Ongoing]&#34;,
+    &#34;data_source_description&#34;: &#34;Level-2A is generated by the Payload Data Ground Segment using the Sen2Cor processor. Level-2A products are made available to users via the Copernicus Open Access Hub: https://scihub.copernicus.eu/dhus/#/home&#34;,
+    &#34;data_source_name&#34;: &#34;European Space Agency Sentinel-2&#34;,
+    &#34;description_long&#34;: &#34;Sentinel-2 is a set of two satellites in polar orbit 180 degrees apart. It monitors land surface and coastal waters every 5 days at the equator and more frequently at mid-latitudes. The coverage is between latitudes 56\u00b0 south and 84\u00b0 north. Images are in 13 spectral bands at various ground resolutions: 4 bands at 10 m, 6 at 20 m and 3 at 60 m; the orbital swath is 290 km wide. Level 2A (L2A) images are 100x100 km ortho-rectified and spatially registered on a  global reference system; they are corrected for the atmosphere so they represent ground conditions. Currently Geospatial APIs ingests Bands 4 (red), 8 (NIR) and SCL (Scene Classification). An NDVI layer, called \&#34;NDVI sh\&#34;, is calculated from Bands 4 and 8. Tiles are ingested on request. Currently there is some coverage for tiles in USA, Brazil, India and the Netherlands for selected days in 2018 and 2019. Timestamps in this dataset are rounded down to 0:00 UTC from the Satellite&#39;s sensing time.&#34;,
+    &#34;description_short&#34;: &#34;Images from the European Space Agency Sentinel 2 satellite pair which view land surface regions in 13 spectral bands every 5 days or faster.&#34;,
+    &#34;id&#34;: &#34;177&#34;,
+    &#34;key&#34;: &#34;esa-sentinel-2-l2a&#34;,
+    &#34;lag_horizon&#34;: &#34;0 years 0 mons 0 days 0 hours 0 mins 432000.0 secs&#34;,
+    &#34;lag_horizon_description&#34;: &#34;Data is available within 24 hours.&#34;,
+    &#34;latitude_max&#34;: 90.0,
+    &#34;latitude_min&#34;: -90.0,
+    &#34;level&#34;: 23,
+    &#34;longitude_max&#34;: 180.0,
+    &#34;longitude_min&#34;: -180.0,
+    &#34;max_layers&#34;: 30,
+    &#34;name&#34;: &#34;High res  imagery (ESA Sentinel 2)&#34;,
+    &#34;name_alternate&#34;: &#34;ESA Sentinel 2 Level-2A&#34;,
+    &#34;offering_status&#34;: &#34;Commercial Use&#34;,
+    &#34;permanence&#34;: true,
+    &#34;properties&#34;: {
+        &#34;application&#34;: [
+            &#34;Agriculture&#34;
+        ],
+        &#34;domain&#34;: [
+            &#34;Land surface&#34;
+        ],
+        &#34;sector&#34;: [
+            &#34;Animals/livestock&#34;,
+            &#34;Transportation/infrastructure&#34;,
+            &#34;Vegetation/crops&#34;
+        ],
+        &#34;source&#34;: [
+            &#34;Satellite&#34;,
+            &#34;Survey&#34;
+        ],
+        &#34;type&#34;: [
+            &#34;Data product&#34;
+        ]
+    },
+    &#34;rating&#34;: 4.0,
+    &#34;spatial_coverage&#34;: {
+        &#34;country&#34;: [
+            &#34;Belgium&#34;,
+            &#34;Bolivia&#34;,
+            &#34;France&#34;,
+            &#34;Germany&#34;,
+            &#34;India&#34;,
+            &#34;Indonesia&#34;,
+            &#34;Luxembourg&#34;,
+            &#34;Netherlands&#34;,
+            &#34;Switzerland&#34;,
+            &#34;Thailand&#34;,
+            &#34;United Kingdom&#34;,
+            &#34;United States of America&#34;
+        ]
+    },
+    &#34;status&#34;: &#34;Active&#34;,
+    &#34;temporal_max&#34;: &#34;1665604800000&#34;,
+    &#34;temporal_min&#34;: &#34;1438387200000&#34;,
+    &#34;temporal_resolution&#34;: &#34;0 years 0 mons 0 days 0 hours 0 mins 432000.0 secs&#34;,
+    &#34;temporal_resolution_description&#34;: &#34;5 days at the equator, less at mid latitudes.&#34;,
+    &#34;update_interval_description&#34;: &#34;Uploads are run daily. However, note the temporal resolution.&#34;,
+    &#34;update_interval_max&#34;: &#34;0 years 0 mons 0 days 0 hours 0 mins 86400.0 secs&#34;,
+    &#34;updated_at&#34;: &#34;1665645277000&#34;
+}
+</pre></div></div>
+</div>
+</section>
+<section id="Get-a-List-of-Data-Layers-per-Data-Set">
+<h3>Get a List of Data Layers per Data Set<a class="headerlink" href="#Get-a-List-of-Data-Layers-per-Data-Set" title="Link to this heading">¶</a></h3>
+<p>As discussed above in §. The Storage Model, Data Layers belong to Data Sets. The <code class="docutils literal notranslate"><span class="pre">get_data_layers</span></code> method can be used to return a list of all Data Layers in a specific Data Set by providing the Data Set ID:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dl_list_by_set</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_data_layers</span><span class="p">(</span><span class="n">data_set_id</span> <span class="o">=</span> <span class="s2">&quot;177&quot;</span><span class="p">)</span>
+<span class="n">dl_list_by_set</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dataset_id</th>
+      <th>id</th>
+      <th>name</th>
+      <th>description_short</th>
+      <th>description_long</th>
+      <th>level</th>
+      <th>type</th>
+      <th>unit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>177</td>
+      <td>49464</td>
+      <td>Normalized difference vegetation index</td>
+      <td>A measure of the amount of vegetation at the p...</td>
+      <td>NDVI is generally calculated as (NIR - VIR) / ...</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>177</td>
+      <td>49683</td>
+      <td>Band 6 (vegetation red edge)</td>
+      <td>Central wavelength 740.2/739.1 nm, bandwidth 1...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>177</td>
+      <td>49680</td>
+      <td>Band 2 (blue)</td>
+      <td>Central wavelength 496.6/492.1 nm, bandwidth 9...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>177</td>
+      <td>49689</td>
+      <td>Water vapor</td>
+      <td>Atmospheric water vapor content derived from b...</td>
+      <td>"Water vapour retrieval over land is performed...</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>177</td>
+      <td>49360</td>
+      <td>Band 4 (red)</td>
+      <td>Central wavelength 664.5/665.0 nm, bandwidth 3...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>177</td>
+      <td>49361</td>
+      <td>Band 8 (NIR)</td>
+      <td>Central wavelength 835.1/833.0 nm, bandwidth 1...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>177</td>
+      <td>50250</td>
+      <td>Cloud probability map</td>
+      <td>A 20m mask indicating the calculated probabili...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>177</td>
+      <td>49686</td>
+      <td>Band 11 (SWIR 1610 nm)</td>
+      <td>Central wavelength 1613.7/1610.4 nm, bandwidth...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>177</td>
+      <td>49687</td>
+      <td>Band 12 (SWIR 2200 nm)</td>
+      <td>Central wavelength 2202.4/2185.7 nm, bandwidth...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>177</td>
+      <td>49690</td>
+      <td>Band 1 (coastal aerosol)</td>
+      <td>Central wavelength 443.9/442.3 nm, bandwidth 2...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>177</td>
+      <td>49688</td>
+      <td>Aerosol optical thickness</td>
+      <td>"AOT describes attenuation of sunlight by a co...</td>
+      <td>For Sentinel 2 level 2A products, the "aerosol...</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>177</td>
+      <td>49691</td>
+      <td>Band 9 (water vapor)</td>
+      <td>Central wavelength 945.0/943.2 nm, bandwidth 2...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>177</td>
+      <td>49685</td>
+      <td>Band 8a (narrow IR)</td>
+      <td>Central wavelength 864.8/864.0 nm, bandwidth 3...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>177</td>
+      <td>49684</td>
+      <td>Band 7 (vegetation red edge)</td>
+      <td>Central wavelength 782.5/779.7 nm, bandwidth 2...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>177</td>
+      <td>49681</td>
+      <td>Band 3 (green)</td>
+      <td>Central wavelength 560.0/559.0 nm, bandwidth 4...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>177</td>
+      <td>49682</td>
+      <td>Band 5 (vegetation red edge)</td>
+      <td>Central wavelength 703.9/703.8 nm, bandwidth 1...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>177</td>
+      <td>49362</td>
+      <td>Scene classification</td>
+      <td>Pixel-by-pixel classification in image of 4 ty...</td>
+      <td>The different labels and classifications are: ...</td>
+      <td>NaN</td>
+      <td>nan</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Get-a-List-of-Data-Layers">
+<h3>Get a List of Data Layers<a class="headerlink" href="#Get-a-List-of-Data-Layers" title="Link to this heading">¶</a></h3>
+<p>In the same way as the <code class="docutils literal notranslate"><span class="pre">get_data_sets</span></code> method can be used to return all Data Sets a user has access to, the <code class="docutils literal notranslate"><span class="pre">get_data_layers</span></code> method can be used to return all Data Layers a user has access to:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dl_list</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_data_layers</span><span class="p">()</span>
+<span class="n">dl_list</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>dataset_id</th>
+      <th>id</th>
+      <th>name</th>
+      <th>description_short</th>
+      <th>description_long</th>
+      <th>level</th>
+      <th>type</th>
+      <th>unit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5</td>
+      <td>55</td>
+      <td>Mid infrared (band 7)</td>
+      <td>MODIS Aqua 16 Day Spectral Image of Band 7 (mi...</td>
+      <td>250m resolution Surface Reflectance Band 7 (21...</td>
+      <td>18</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5</td>
+      <td>51</td>
+      <td>Normalized difference vegetation index (NDVI)</td>
+      <td>MODIS Aqua 16 day normalized vegetation index</td>
+      <td>The NDVI is calculated from the near-infrared ...</td>
+      <td>18</td>
+      <td>Raster</td>
+      <td>[0-1]</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5</td>
+      <td>53</td>
+      <td>Near infrared (band 2)</td>
+      <td>MODIS Aqua 16 Day Spectral Image of Band 2 (Ne...</td>
+      <td>250m resolution Surface Reflectance Band 2 (84...</td>
+      <td>18</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5</td>
+      <td>56</td>
+      <td>Composite day of the year</td>
+      <td>MODIS Aqua 16 Days Composite Day of the Year</td>
+      <td>This is a day number, from 1 to 366</td>
+      <td>18</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>54</td>
+      <td>Blue (band 3)</td>
+      <td>MODIS Aqua 16 Day Spectral Image of Band 3 (blue)</td>
+      <td>250m resolution Surface Reflectance Band 3 (45...</td>
+      <td>18</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>892</th>
+      <td>580</td>
+      <td>51586</td>
+      <td>LIDAR Composite DSM 1m 2017</td>
+      <td>Environment Agency LIDAR Composite Digital Sur...</td>
+      <td>NaN</td>
+      <td>26</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>893</th>
+      <td>580</td>
+      <td>51583</td>
+      <td>LIDAR Composite DTM 10m 2019</td>
+      <td>Environment Agency LIDAR Composite Digital Ter...</td>
+      <td>NaN</td>
+      <td>23</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>894</th>
+      <td>581</td>
+      <td>51628</td>
+      <td>Risk of Surface Water Flooding Depth</td>
+      <td>Surface water flood depth in integer categorie...</td>
+      <td>NaN</td>
+      <td>25</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>895</th>
+      <td>1020</td>
+      <td>49554</td>
+      <td>Maximum temperature</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>11</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>896</th>
+      <td>1020</td>
+      <td>49555</td>
+      <td>Minimum temperature</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>11</td>
+      <td>Raster</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>897 rows × 8 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Get-a-Data-Layer">
+<h3>Get a Data Layer<a class="headerlink" href="#Get-a-Data-Layer" title="Link to this heading">¶</a></h3>
+<p>The metadata about a specific Data Layer can be returned by providing the <code class="docutils literal notranslate"><span class="pre">get_data_layer</span></code> method a Data Layer ID:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dl</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_data_layer</span><span class="p">(</span><span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;49464&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dl</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+    &#34;color_table&#34;: {
+        &#34;colors&#34;: &#34;153A91,84F588,FFF787,FF7C3B,FF1921&#34;,
+        &#34;id&#34;: &#34;4&#34;,
+        &#34;name&#34;: &#34;Spectral&#34;
+    },
+    &#34;created_at&#34;: &#34;1593733829000&#34;,
+    &#34;crs&#34;: &#34;&#34;,
+    &#34;data_layer_response&#34;: {},
+    &#34;dataset_id&#34;: &#34;177&#34;,
+    &#34;datatype&#34;: &#34;sh&#34;,
+    &#34;description_long&#34;: &#34;NDVI is generally calculated as (NIR - VIR) / (NIR + VIR). For Sentinel 2, this translates to (band 8 - band 4) / (band 8 + band 4).&#34;,
+    &#34;description_short&#34;: &#34;A measure of the amount of vegetation at the pixel.&#34;,
+    &#34;id&#34;: &#34;49464&#34;,
+    &#34;interpolation&#34;: &#34;bilinear&#34;,
+    &#34;latitude_max&#34;: 90.0,
+    &#34;latitude_min&#34;: -90.0,
+    &#34;level&#34;: 23,
+    &#34;longitude_max&#34;: 180.0,
+    &#34;longitude_min&#34;: -180.0,
+    &#34;name&#34;: &#34;Normalized difference vegetation index&#34;,
+    &#34;name_alternate&#34;: &#34;Normalized difference vegetation index&#34;,
+    &#34;permanence&#34;: true,
+    &#34;properties&#34;: {},
+    &#34;rating&#34;: 1.0,
+    &#34;spatial_coverage&#34;: {
+        &#34;country&#34;: [
+            &#34;Belgium&#34;,
+            &#34;Bolivia&#34;,
+            &#34;France&#34;,
+            &#34;Germany&#34;,
+            &#34;India&#34;,
+            &#34;Indonesia&#34;,
+            &#34;Luxembourg&#34;,
+            &#34;Netherlands&#34;,
+            &#34;Switzerland&#34;,
+            &#34;Thailand&#34;,
+            &#34;United Kingdom&#34;,
+            &#34;United States of America&#34;
+        ]
+    },
+    &#34;temporal_max&#34;: &#34;1665604800000&#34;,
+    &#34;temporal_min&#34;: &#34;1438387200000&#34;,
+    &#34;type&#34;: &#34;R&#34;,
+    &#34;units&#34;: &#34;[-1, 1]&#34;,
+    &#34;updated_at&#34;: &#34;1665648134000&#34;
+}
+</pre></div></div>
+</div>
+</section>
+<section id="Get-a-List-of-Data-Layer-Dimensions-per-Data-Layer">
+<h3>Get a List of Data Layer Dimensions per Data Layer<a class="headerlink" href="#Get-a-List-of-Data-Layer-Dimensions-per-Data-Layer" title="Link to this heading">¶</a></h3>
+<p>To list all Data Layer Dimensions belonging to a Data Layer, the <code class="docutils literal notranslate"><span class="pre">get_data_layer_dimensions</span></code> method is provided a Data Layer ID:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dlds</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_data_layer_dimensions</span><span class="p">(</span><span class="n">data_layer_id</span> <span class="o">=</span> <span class="s2">&quot;49166&quot;</span><span class="p">)</span>
+<span class="n">dlds</span><span class="o">.</span><span class="n">display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2023-08-15 09:06:08 - paw - INFO - https://api.ibm.com/geospatial/run/na/core/v3/datalayers/49166/datalayer_dimensions
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>short_name</th>
+      <th>identifier</th>
+      <th>order</th>
+      <th>full_name</th>
+      <th>type</th>
+      <th>unit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>243</td>
+      <td>issuetime</td>
+      <td>A</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>244</td>
+      <td>horizon</td>
+      <td>B</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Get-a-Data-Layer-Dimension">
+<h3>Get a Data Layer Dimension<a class="headerlink" href="#Get-a-Data-Layer-Dimension" title="Link to this heading">¶</a></h3>
+<p>To find out more about a Data Layer Dimension, once the Data Layer Dimension ID is known, the <code class="docutils literal notranslate"><span class="pre">get_data_layer_dimension</span></code> method is provided a Data Layer Dimension ID:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dld</span> <span class="o">=</span> <span class="n">catalog</span><span class="o">.</span><span class="n">get_data_layer_dimension</span><span class="p">(</span><span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;243&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dld</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+    &#34;data_layer_dimension_response&#34;: {},
+    &#34;full_name&#34;: &#34;Issuetime&#34;,
+    &#34;id&#34;: &#34;243&#34;,
+    &#34;identifier&#34;: &#34;A&#34;,
+    &#34;order&#34;: 1,
+    &#34;short_name&#34;: &#34;issuetime&#34;,
+    &#34;type&#34;: &#34;integer&#34;,
+    &#34;unit&#34;: &#34;hour&#34;
+}
+</pre></div></div>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../tutorial/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">SDK Model</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="quickstartaoiquery.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Quick Start - Area of Interest (AOI) Query</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, IBM Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Quick Start - Catalog</a><ul>
+<li><a class="reference internal" href="#The-Storage-Model">The Storage Model</a><ul>
+<li><a class="reference internal" href="#Data-Sets">Data Sets</a></li>
+<li><a class="reference internal" href="#Data-Layers">Data Layers</a></li>
+<li><a class="reference internal" href="#Data-Layer-Dimensions">Data Layer Dimensions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Searching-the-Catalog">Searching the Catalog</a><ul>
+<li><a class="reference internal" href="#Search-by-Word">Search by Word</a></li>
+<li><a class="reference internal" href="#Search-by-ID">Search by ID</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Retrieve-Metadata">Retrieve Metadata</a><ul>
+<li><a class="reference internal" href="#Get-a-List-of-Data-Sets">Get a List of Data Sets</a></li>
+<li><a class="reference internal" href="#Get-a-Data-Set">Get a Data Set</a></li>
+<li><a class="reference internal" href="#Get-a-List-of-Data-Layers-per-Data-Set">Get a List of Data Layers per Data Set</a></li>
+<li><a class="reference internal" href="#Get-a-List-of-Data-Layers">Get a List of Data Layers</a></li>
+<li><a class="reference internal" href="#Get-a-Data-Layer">Get a Data Layer</a></li>
+<li><a class="reference internal" href="#Get-a-List-of-Data-Layer-Dimensions-per-Data-Layer">Get a List of Data Layer Dimensions per Data Layer</a></li>
+<li><a class="reference internal" href="#Get-a-Data-Layer-Dimension">Get a Data Layer Dimension</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

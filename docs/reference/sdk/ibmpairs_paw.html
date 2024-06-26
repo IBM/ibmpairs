@@ -1,0 +1,841 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Query" href="ibmpairs_query.html" /><link rel="prev" title="External - IBM" href="ibmpairs_external_ibm.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>PAW - IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs) documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorials/index.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/introducingpairsgeospatialanalytics.html">Introducing Environmental Intelligence: Geospatial APIs</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorials/quickstart/index.html">Quick Start</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Quick Start</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartsetup.html">Quick Start - Setting Up for the API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartpointquery.html">Quick Start - Point Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartrasterquery.html">Quick Start - Raster Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartaoiquery.html">Quick Start - Area of Interest (AOI) Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/quickstart/quickstartcatalog.html">Quick Start - Catalog</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorials/tutorial/index.html">SDK Model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of SDK Model</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/tutorial/pythonapiwrapper.html">ibmpairs SDK</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api/ibm_api_hub.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/udf_function_reference.html">User Defined Functions (UDF)</a></li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">SDK</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of SDK</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_authentication.html">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_catalog.html">Catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_client.html">Client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_common.html">Common</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_external_ibm.html">External - IBM</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">PAW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_query.html">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ibmpairs_utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/reference/sdk/ibmpairs_paw.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-paw">
+<span id="paw"></span><h1>PAW<a class="headerlink" href="#module-paw" title="Link to this heading">¶</a></h1>
+<p>IBM PAIRS RESTful API wrapper: A Python module to access PAIRS’s core API to
+load data into Python compatible data formats.</p>
+<p>Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.</p>
+<p>SPDX-License-Identifier: BSD-3-Clause</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="paw.MockSubmitResponse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paw.</span></span><span class="sig-name descname"><span class="pre">MockSubmitResponse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.MockSubmitResponse" title="Link to this definition">¶</a></dt>
+<dd><p>Helper class for mocking a PAIRS query submit response.</p>
+<p>It is useful to simulate a query submission when reloading a previously submitted
+query based on a given PAIRS query ID.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paw.PAIRSQuery">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paw.</span></span><span class="sig-name descname"><span class="pre">PAIRSQuery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairsHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwriteExisting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deleteDownload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downloadDir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./downloads'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseURI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verifySSL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vectorFormat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inMemory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guiURL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publish2GUI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guiPassword</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'password'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery" title="Link to this definition">¶</a></dt>
+<dd><p>Representation of a PAIRS query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>dict</em><em> or
+</em><em>str</em>) – dictionary equivalent to PAIRS JSON load that defines a query or
+path that references a ZIP file identified with a PAIRS query or
+ID of existing (submitted) query</p></li>
+<li><p><strong>pairsHost</strong> (<em>str</em>) – base URL + scheme of PAIRS host to connect to,
+e.g. ‘<a class="reference external" href="https://pairs.res.ibm.com">https://pairs.res.ibm.com</a>’
+<em>note</em>: the initialization tries its best to autodetect
+even the <cite>baseURI</cite> and <cite>port</cite> if contained in <cite>pairsHost</cite> already</p></li>
+<li><p><strong>auth</strong> (<em>(</em><em>str</em><em>, </em><em>str</em><em>) or </em><a class="reference internal" href="ibmpairs_authentication.html#authentication.OAuth2" title="authentication.OAuth2"><em>authentication.OAuth2</em></a>) – user name and password as tuple for access to pairsHost</p></li>
+<li><p><strong>port</strong> (<em>str</em>) – port to use for pairsHost</p></li>
+<li><p><strong>overwriteExisting</strong> (<em>bool</em>) – destroy locally cached data, if existing, otherwise grab the latest
+locally cached data, <cite>latest</cite> is defined by alphanumerical ordering
+of the PAIRS query ID
+<em>note:</em> ignored in case of a file path (string) is provided as query</p></li>
+<li><p><strong>deleteDownload</strong> (<em>bool</em>) – destroy downloaded data with destruction of class instance</p></li>
+<li><p><strong>downloadDir</strong> (<em>str</em>) – directory where to store downloaded data
+note: ignored if the <cite>query</cite> is a string representing the
+PAIRS query ZIP directory</p></li>
+<li><p><strong>baseURI</strong> (<em>str</em>) – PAIRS API base URI to append to the base URL (cf. <cite>pairsHost</cite>)</p></li>
+<li><p><strong>verifySSL</strong> (<em>bool</em>) – if SSL connections get verified</p></li>
+<li><p><strong>vectorFormat</strong> (<em>str</em>) – data format of the vector data</p></li>
+<li><p><strong>inMemory</strong> (<em>bool</em>) – triggers storing files directly in memory
+note: ignored if query is loaded from existing ZIP file</p></li>
+<li><p><strong>guiURL</strong> (<em>str</em>) – URL of PAIRS GUI to be used for publishing query result (if any)</p></li>
+<li><p><strong>publish2GUI</strong> (<em>bool</em>) – determines whether or not the query result is automatically published
+to the PAIRS GUI</p></li>
+<li><p><strong>guiPassword</strong> (<em>str</em>) – password to be used when PAIRS GUI password is different from
+PAIRS API password, note: the user is the same as for the PAIRS API
+(typically the user’s e-mail address)</p></li>
+<li><p><strong>authType</strong> – ‘password’ or ‘api-key’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if an invalid URL was specified
+if the query defintion is not understood
+if a manually set PAIRS query ZIP directory does not exist</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.create_layer">
+<span class="sig-name descname"><span class="pre">create_layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fileName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerMeta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">defaultExtension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.create_layer" title="Link to this definition">¶</a></dt>
+<dd><p>Load layer data such as raster or vector data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fileName</strong> (<em>str</em>) – the key to identify a data layer, associated with the
+corresponding file’s name</p></li>
+<li><p><strong>layerMeta</strong> (<em>dict</em>) – meta information of layer to load</p></li>
+<li><p><strong>defaultExtension</strong> (<em>str</em>) – sets default extension for data layer types not specified</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if layer data cannot be loaded from query ZIP file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.create_layers">
+<span class="sig-name descname"><span class="pre">create_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaultExtension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.create_layers" title="Link to this definition">¶</a></dt>
+<dd><p>From PAIRS query ZIP file generate Python data structures for layers in memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>defaultExtension</strong> (<em>str</em>) – sets default extension for data layer types not specified</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.download">
+<span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cosInfoJSON</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cosPollIntSec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cosTimeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printStatus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.download" title="Link to this definition">¶</a></dt>
+<dd><p>Get the data previously queried and save the ZIP file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cosInfoJSON</strong> (<em>dict</em>) – <p>IBM PAIRS with Cloud Object Storage bucket information like
+<a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>JSON
+{</p>
+<blockquote>
+<div><p>”provider”: “ibm”,
+“endpoint”: “<a class="reference external" href="https://s3.us.cloud-object-storage.appdomain.cloud">https://s3.us.cloud-object-storage.appdomain.cloud</a>”,
+“bucket”: “&lt;your bucket name&gt;”,
+“token”: “&lt;your secret token for bucket&gt;”</p>
+</div></blockquote>
+<p>if set, the query result is published in the cloud
+and not stored locally on your machine. It is a
+useful feature in combination with IBM Watson Studio notebooks</p>
+</p></li>
+<li><p><strong>cosPollIntSec</strong> (<em>float</em>) – seconds to idle between polls to IBM COS</p></li>
+<li><p><strong>printStatus</strong> (<em>bool</em>) – triggers printing the poll status information</p></li>
+<li><p><strong>cosTimeout</strong> (<em>int</em>) – maximum (positive) time in seconds allowed to poll
+till finished, the default is infinitely polling</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.from_query_result_dir">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_query_result_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryDir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairsHost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queryID</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseURI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.from_query_result_dir" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a PAIRS query object from a native PAIRS query directory.</p>
+<p><em>Note</em>: Used for PAIRS query Jupyter notebook service.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queryDir</strong> (<em>str</em>) – query directory from which to load raster and vector data</p></li>
+<li><p><strong>pairsHost</strong> (<em>str</em>) – PAIRS host to be used for PAIRS API calls</p></li>
+<li><p><strong>queryID</strong> (<em>str</em>) – PAIRS query ID associated with the data folder queryDir</p></li>
+<li><p><strong>baseURI</strong> (<em>str</em>) – base URI to use for PAIRS API calls</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PAIRS API wrapper query object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>api_wrapper.PAIRSQuery</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.get_query_JSON">
+<span class="sig-name descname"><span class="pre">get_query_JSON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reloadData</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.get_query_JSON" title="Link to this definition">¶</a></dt>
+<dd><p>Obtain JSON load that defines a PAIRS query assigned a given ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>queryID</strong> (<em>str</em>) – PAIRS query ID for which to obtain the defining query JSON load</p></li>
+<li><p><strong>reloadData</strong> (<em>bool</em>) – triggers usage of already retrieved/cached data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PAIRS query defining JSON load</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if the data cannot be obtained from PAIRS through an API call
+if cached data do not contain valid JSON load information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.get_query_dir_name">
+<span class="sig-name descname"><span class="pre">get_query_dir_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.get_query_dir_name" title="Link to this definition">¶</a></dt>
+<dd><p>Compute query directory name by setting self.queryDir.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if required information is missing
+if the query hash cannot be constructed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.get_vector_polygon_table">
+<span class="sig-name descname"><span class="pre">get_vector_polygon_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">includeGeometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.get_vector_polygon_table" title="Link to this definition">¶</a></dt>
+<dd><p>For vector data obtain polygon geometry information from PAIRS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>includeGeometry</strong> (<em>bool</em>) – triggers whether to include the geometrys of the polygons or not</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if there is no polygon geometry specified,
+if it fails to retrieve vector geometries or info from PAIRS</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.list_layers">
+<span class="sig-name descname"><span class="pre">list_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaultExtension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refresh</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.list_layers" title="Link to this definition">¶</a></dt>
+<dd><p>Get general metadata information for data of the query.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>defaultExtension</strong> (<em>str</em>) – sets default extension for data layer types not specified</p></li>
+<li><p><strong>refresh</strong> (<em>bool</em>) – triggers the reload of the meta data from scratch</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if no PAIRS meta data can be found to list layer information
+if there is an issue reading the meta data information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.poll">
+<span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">passNonSubmitted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.poll" title="Link to this definition">¶</a></dt>
+<dd><p>Polls the status a single time and updating self.queryStatus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>passNonSubmitted</strong> (<em>bool</em>) – allow the method to pass although no query has been submitted
+(this is used for locally cached data)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if query submit response is unsuccessful,
+if no query or query ID is defined,
+if the provided credentials are incorrect</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.poll_till_finished">
+<span class="sig-name descname"><span class="pre">poll_till_finished</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pollIntSec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printStatus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.poll_till_finished" title="Link to this definition">¶</a></dt>
+<dd><p>Polls the status until not running anymore. If successful the result is
+published in the PAIRS GUI (given the user specified this on query generation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pollIntSec</strong> (<em>float</em>) – seconds to idle between polls</p></li>
+<li><p><strong>printStatus</strong> (<em>bool</em>) – triggers printing the poll status information</p></li>
+<li><p><strong>timeout</strong> (<em>int</em>) – maximum (positive) time in seconds allowed to poll
+till finished, the default is infinitely polling</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if query submit response is unsuccessful or not existing,
+if no query or query ID is defined
+if a user set timeout has been reached</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.print_data_acknowledgement">
+<span class="sig-name descname"><span class="pre">print_data_acknowledgement</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.print_data_acknowledgement" title="Link to this definition">¶</a></dt>
+<dd><p>Simply print out data acknowledgement statement.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.query_pairs_polygon">
+<span class="sig-name descname"><span class="pre">query_pairs_polygon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polyID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.query_pairs_polygon" title="Link to this definition">¶</a></dt>
+<dd><p>Uses PAIRS API to obtain the polygon that corresponds to a given AoI ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>polyID</strong> (<em>int</em>) – PAIRS AoI ID to query data for</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>shapely.geometry.shape of the polygon associated with polyID
+if there is an error on retrieval, <cite>None</cite> is returned</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.query_pairs_polygon_meta">
+<span class="sig-name descname"><span class="pre">query_pairs_polygon_meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polyID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.query_pairs_polygon_meta" title="Link to this definition">¶</a></dt>
+<dd><p>Uses PAIRS API to obtain polygon meta-information that corresponds to a given AoI ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>polyID</strong> (<em>int</em>) – PAIRS AoI ID to query data for</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict of polygon meta-data associated with polyID
+if there is an error on retrieval, <cite>None</cite> is returned</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.read_data_acknowledgement">
+<span class="sig-name descname"><span class="pre">read_data_acknowledgement</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.read_data_acknowledgement" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts data acknowledge statement from PAIRS query result ZIP file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if no acknowledgement is found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.set_geometry_id_column">
+<span class="sig-name descname"><span class="pre">set_geometry_id_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">regionName</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.set_geometry_id_column" title="Link to this definition">¶</a></dt>
+<dd><p>Set geometry column for vector data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>regionName</strong> (<em>str</em>) – pandas dataframe column name of data with region information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.set_lat_lon_columns">
+<span class="sig-name descname"><span class="pre">set_lat_lon_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latColName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lonColName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geomColName</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.set_lat_lon_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Set latitude and longitude columns in order to generate a GeoPandas dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>latColName</strong> (<em>str</em>) – self.vdf Pandas data frame column name for latitude coordinate</p></li>
+<li><p><strong>lonColName</strong> (<em>str</em>) – self.vdf Pandas data frame column name for longitude coordinate</p></li>
+<li><p><strong>geomColName</strong> (<em>str</em>) – self.vdf GeoPandas data frame column name for point geometry</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if it fails to generate a GeoPandas dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.set_timestamp_column">
+<span class="sig-name descname"><span class="pre">set_timestamp_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeName</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.set_timestamp_column" title="Link to this definition">¶</a></dt>
+<dd><p>Set timestamp column for vector data and try to convert it to datetime objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeName</strong> (<em>str</em>) – pandas dataframe column name of data with timestamps</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if it fails to convert timestamps</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.split_property_string_column">
+<span class="sig-name descname"><span class="pre">split_property_string_column</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.split_property_string_column" title="Link to this definition">¶</a></dt>
+<dd><p>Split the property string into multiple pandas vector dataframe columns.</p>
+<p><em>note:</em> Applies with CSV vector data import only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if existing columns clash with the generation of property
+columns produced here</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSQuery.submit">
+<span class="sig-name descname"><span class="pre">submit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSQuery.submit" title="Link to this definition">¶</a></dt>
+<dd><p>Submit query to PAIRS (if defined).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>Exception</strong> – if no query is defined
+if no local cache is available which is requested to use
+if no PAIRS query ID can be identified from the return of the PAIRS server</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="paw.PAIRSTimeSeries">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">paw.</span></span><span class="sig-name descname"><span class="pre">PAIRSTimeSeries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">querySpecs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSTimeSeries" title="Link to this definition">¶</a></dt>
+<dd><p>Assemble time series data from PAIRS data layers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>querySpecs</strong> (<em>dict</em>) – defines layers and spatio-temporal intervals to pull from PAIRS,
+the JSON schema is defined by PAIRSTimeSeries.QUERY_INPUT_JSON_SCHEMA</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>jsonschema.exceptions.ValidationError</strong> – in case the input <cite>querySpecs</cite> does not conform to the required format</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="paw.PAIRSTimeSeries.get_dataframe">
+<span class="sig-name descname"><span class="pre">get_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pairsBaseURL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verifySSL</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatioTemporalIndex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authType</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'password'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.PAIRSTimeSeries.get_dataframe" title="Link to this definition">¶</a></dt>
+<dd><p>Function to query point data from PAIRS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pairsBaseURL</strong> (<em>str</em>) – PAIRS base URL to be used for API endpoint,
+example: <cite>https://pairs.res.ibm.com:443</cite></p></li>
+<li><p><strong>verifySSL</strong> (<em>bool</em>) – if SSL connections get verified</p></li>
+<li><p><strong>auth</strong> (<em>(</em><em>str</em><em>, </em><em>str</em><em>)</em>) – PAIRS API credentials in (user, password) format</p></li>
+<li><p><strong>spatioTemporalIndex</strong> – whether or not to spatio-temorally index the Pandas dataframe to be returned,
+<em>note</em>: temporal index comes last for time series optimization</p></li>
+</ul>
+</dd>
+</dl>
+<p>:type spatioTemporalIndex                  bool
+:param authType:                           ‘password’ or ‘api-key’
+:type port:                                str
+:returns:                                  table with PAIRS data
+:rtype:                                    pandas.DataFrame
+:raises urllib3.exceptions.MaxRetryError:  in case PAIRS is unreachable
+:raises requests.HTTPError:                in case the PAIRS HTTP response code is not 200</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paw.get_pairs_api_password">
+<span class="sig-prename descclassname"><span class="pre">paw.</span></span><span class="sig-name descname"><span class="pre">get_pairs_api_password</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">server</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passFile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#paw.get_pairs_api_password" title="Link to this definition">¶</a></dt>
+<dd><p>Tries to obtain the PAIRS API password for a given user on a given server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server</strong> (<em>str</em>) – PAIRS API server name, e.g. ‘pairs.res.ibm.com’</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – user name for which to obtain the corresponding password</p></li>
+<li><p><strong>passFile</strong> (<em>str</em>) – path to file with password, it is expected to have the format
+<cite>&lt;server&gt;:&lt;user&gt;:&lt;password&gt;</cite>, colons in passwords need to be escaped</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>corresponding password if available, <cite>None</cite> otherwise
+<em>note</em>: if either user or server is <cite>None</cite>, no password searched
+for, and <cite>None</cite> is returned</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – if password file does not exist
+if password was not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="paw.load_environment_variables">
+<span class="sig-prename descclassname"><span class="pre">paw.</span></span><span class="sig-name descname"><span class="pre">load_environment_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#paw.load_environment_variables" title="Link to this definition">¶</a></dt>
+<dd><p>Some settings of this module can be set by environment variables. This function loads them.</p>
+<p>In particular, server credentials and connection details are set via
+<code class="docutils literal notranslate"><span class="pre">paw.ENVIRONMENT_VARIABLES</span></code> prefixed by <code class="docutils literal notranslate"><span class="pre">paw.PAW_ENV_BASE_NAME+'_'</span></code>, e.g. by
+starting your Python shell with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PAW_PAIRS_DEFAULT_USER</span><span class="o">=</span><span class="s1">&#39;&lt;your PAIRS user name&gt;&#39;</span><span class="w"> </span>PAW_PAIRS_DEFAULT_BASE_URI<span class="w"> </span>python
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="ibmpairs_query.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Query</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="ibmpairs_external_ibm.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">External - IBM</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, IBM Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">PAW</a><ul>
+<li><a class="reference internal" href="#paw.MockSubmitResponse"><code class="docutils literal notranslate"><span class="pre">MockSubmitResponse</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery</span></code></a><ul>
+<li><a class="reference internal" href="#paw.PAIRSQuery.create_layer"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.create_layer()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.create_layers"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.create_layers()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.download"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.download()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.from_query_result_dir"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.from_query_result_dir()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.get_query_JSON"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.get_query_JSON()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.get_query_dir_name"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.get_query_dir_name()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.get_vector_polygon_table"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.get_vector_polygon_table()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.list_layers"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.list_layers()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.poll"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.poll()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.poll_till_finished"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.poll_till_finished()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.print_data_acknowledgement"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.print_data_acknowledgement()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.query_pairs_polygon"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.query_pairs_polygon()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.query_pairs_polygon_meta"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.query_pairs_polygon_meta()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.read_data_acknowledgement"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.read_data_acknowledgement()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.set_geometry_id_column"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.set_geometry_id_column()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.set_lat_lon_columns"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.set_lat_lon_columns()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.set_timestamp_column"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.set_timestamp_column()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.split_property_string_column"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.split_property_string_column()</span></code></a></li>
+<li><a class="reference internal" href="#paw.PAIRSQuery.submit"><code class="docutils literal notranslate"><span class="pre">PAIRSQuery.submit()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#paw.PAIRSTimeSeries"><code class="docutils literal notranslate"><span class="pre">PAIRSTimeSeries</span></code></a><ul>
+<li><a class="reference internal" href="#paw.PAIRSTimeSeries.get_dataframe"><code class="docutils literal notranslate"><span class="pre">PAIRSTimeSeries.get_dataframe()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#paw.get_pairs_api_password"><code class="docutils literal notranslate"><span class="pre">get_pairs_api_password()</span></code></a></li>
+<li><a class="reference internal" href="#paw.load_environment_variables"><code class="docutils literal notranslate"><span class="pre">load_environment_variables()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

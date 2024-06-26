@@ -4,3 +4,8 @@ pytest-cov
 coverage
 responses
 flake8
+sphinx
+sphinxcontrib-httpdomain
+furo
+nbsphinx
+pandoc

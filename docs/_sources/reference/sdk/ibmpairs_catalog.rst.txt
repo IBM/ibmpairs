@@ -1,0 +1,5 @@
+Catalog
+=======
+
+.. automodule:: catalog
+   :members:
