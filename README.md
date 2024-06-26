@@ -34,7 +34,7 @@ import ibmpairs.query as query
 
 # Getting started
 
-See the documentation [here](https://pages.github.com/IBM/ibmpairs/) and try our tutorials.
+See the documentation [here](https://ibm.github.io/ibmpairs/) and try our tutorials.
 
 
 # Running in a Docker container
