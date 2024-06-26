@@ -1,0 +1,494 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quick Start - Point Query" href="quickstartpointquery.html" /><link rel="prev" title="Quick Start" href="index.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>Quick Start - Setting Up for the API - IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs) documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../introducingpairsgeospatialanalytics.html">Introducing Environmental Intelligence: Geospatial APIs</a></li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Quick Start</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Quick Start</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Quick Start - Setting Up for the API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartpointquery.html">Quick Start - Point Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartrasterquery.html">Quick Start - Raster Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartaoiquery.html">Quick Start - Area of Interest (AOI) Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartcatalog.html">Quick Start - Catalog</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../tutorial/index.html">SDK Model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of SDK Model</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tutorial/pythonapiwrapper.html">ibmpairs SDK</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/api/ibm_api_hub.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/api/udf_function_reference.html">User Defined Functions (UDF)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/sdk/index.html">SDK</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of SDK</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_authentication.html">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_catalog.html">Catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_client.html">Client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_common.html">Common</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_external_ibm.html">External - IBM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_paw.html">PAW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_query.html">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/tutorials/quickstart/quickstartsetup.ipynb.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Quick-Start---Setting-Up-for-the-API">
+<h1>Quick Start - Setting Up for the API<a class="headerlink" href="#Quick-Start---Setting-Up-for-the-API" title="Link to this heading">¶</a></h1>
+<section id="Our-Jupyter-Notebooks">
+<h2>Our Jupyter Notebooks<a class="headerlink" href="#Our-Jupyter-Notebooks" title="Link to this heading">¶</a></h2>
+<p>All of the documentation and samples we provide are built using Jupyter notebooks. You can read the documentation in text form <a class="reference external" href="https://pages.github.com/IBM/ibmpairs/">here</a>. You can run the notebooks yourself by cloning the <a class="reference external" href="https://github.com/IBM/ibmpairs">ibmpairs repository</a> and looking at the “notebooks” directory.</p>
+<p>To run the notebooks you will need a number of things:</p>
+<ul class="simple">
+<li><p>IBM Environmental Intelligence: Geospatial APIs credentials stored in EI_API_KEY, EI_TENANT_ID (or EI_CLIENT_ID) and EI_ORG_ID environment variables</p></li>
+<li><p>A Python3.7 or higher environment</p></li>
+<li><p>A Jupyter Notebook environment</p></li>
+<li><p>The ibmpairs pip package at version 3.0.0 or greater installed into you Python3 environment.</p></li>
+</ul>
+<div class="admonition note">
+<p>Note that the notebooks include runnable examples but you need to run them in order from top to bottom. This is because there are some lines of set up code, for example, setting authentication credentials, that only appear in the first code cell. We leave them out subsequent cells to avoid clutter.</p>
+</div>
+<div class="admonition note">
+<p>Also note that in point 1 above you could change the notebooks so that you place your username and api key in-line in the code rather than using the environment variables included. However, we don’t recommend this, as inclusion in a notebook increases the risk of your credentials being passed on to other people.</p>
+</div>
+</section>
+<section id="Geospatial-APIs-Credentials">
+<h2>Geospatial APIs Credentials<a class="headerlink" href="#Geospatial-APIs-Credentials" title="Link to this heading">¶</a></h2>
+<p>The Geospatial APIs component provides an API (at <a class="reference external" href="https://api.ibm.com/geospatial/run/na/">https://api.ibm.com/geospatial/run/na/</a>). To use this you will also need an API key, a Tenant (or Client) Id and an Org Id. If you don’t have an API key, a Tenant (or Client) Id and an Org Id please contact your IBM representative.</p>
+<p>In the Jupyter Notebooks that are part of this quick start tutorial we don’t include secret credentials. We read the credentials from operating system environment variables when they are required:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>EI_API_KEY   = os.environ.get(&#39;EI_API_KEY&#39;)
+EI_TENANT_ID = os.environ.get(&#39;EI_TENANT_ID&#39;)
+EI_ORG_ID    = os.environ.get(&#39;EI_ORG_ID&#39;)
+</pre></div>
+</div>
+<div class="admonition note">
+<p>If you do not have a tenant id you can instead set a client id (e.g. EI_CLIENT_ID) and pass client_id = EI_CLIENT_ID to the authentication.OAuth2 object init or the get_client() call.</p>
+</div>
+<p>Set these values in your environment before you start so that they are ready to be used when required, for example,</p>
+<section id="On-Linux">
+<h3>On Linux<a class="headerlink" href="#On-Linux" title="Link to this heading">¶</a></h3>
+<p>In the shell where you will launch the Jupyter notebooks do the following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>export EI_API_KEY   = &lt;your IBM Environmental Intelligence api key key here&gt;
+export EI_TENANT_ID = &lt;your IBM Environmental Intelligence tenant key here&gt;
+export EI_ORG_ID    = &lt;your IBM Environmental Intelligence org id here&gt;
+</pre></div>
+</div>
+<p>From here, you can now start to use the notebooks provided.</p>
+</section>
+<section id="On-Windows">
+<h3>On Windows<a class="headerlink" href="#On-Windows" title="Link to this heading">¶</a></h3>
+<p>Open the ‘Environment Variables’ dialog by doing the following</p>
+<ul class="simple">
+<li><p>Type ‘sysdm.cpl’ into the ‘Type here to search’ box to bring up the ‘System Properties’ dialog</p></li>
+<li><p>Select the ‘Advanced’ tab</p></li>
+<li><p>Press the ‘Environment Variables…’ button</p></li>
+</ul>
+<p>On the ‘Environment Variables’ dialog you can create ‘New…’ environment variables for EI_API_KEY, EI_TENANT_ID and EI_ORG_ID setting the values to the ones you have been given.</p>
+<p>Now you have set environment variables you need to start a new DOS prompt or Powershell. The new shells will adopt these new environment variables. From here, you can now start to use the notebooks provided.</p>
+</section>
+</section>
+<section id="Python3">
+<h2>Python3<a class="headerlink" href="#Python3" title="Link to this heading">¶</a></h2>
+<p>The API tutorials are written in Python3. You can use any programming language by talking to the Geospatial APIs HTTPs endpoints using the standard HTTPs libraries from your language of choice.</p>
+<p>If you want to use Python3 but don’t have an environment set up including Jupyter notebooks there are many resources on the internet that can help you.</p>
+</section>
+<section id="ibmpairs-SDK">
+<h2>ibmpairs SDK<a class="headerlink" href="#ibmpairs-SDK" title="Link to this heading">¶</a></h2>
+<p>The Jupyter notebooks in this tutorial use the <a class="reference external" href="https://github.com/IBM/ibmpairs">ibmpairs</a> API wrapper for convenience. You will need to install this into your Python3 environment. Make sure you have install at least version 3.0.0.</p>
+<p>There is a more detailed overview of the ibmpairs SDK <a class="reference internal" href="../tutorial/pythonapiwrapper.html"><span class="doc">here</span></a>.</p>
+<section id="PIP">
+<h3>PIP<a class="headerlink" href="#PIP" title="Link to this heading">¶</a></h3>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip3 install ibmpairs&gt;=3.0.0
+</pre></div>
+</div>
+</section>
+<section id="Installing-in-Watson-Studio-Notebook">
+<h3>Installing in Watson Studio Notebook<a class="headerlink" href="#Installing-in-Watson-Studio-Notebook" title="Link to this heading">¶</a></h3>
+<p>put the following code in a cell</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>!pip install ibmpairs
+</pre></div>
+</div>
+</section>
+</section>
+<section id="Common-Python3-Issues">
+<h2>Common Python3 Issues<a class="headerlink" href="#Common-Python3-Issues" title="Link to this heading">¶</a></h2>
+<section id="Supported-Python3-Versions">
+<h3>Supported Python3 Versions<a class="headerlink" href="#Supported-Python3-Versions" title="Link to this heading">¶</a></h3>
+<p>The ibmpairs SDK is only tested on Python3 Version 3.7 and above. If you see an error like the following when you are installing the wrapper then your Python3 version may be too old.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Collecting pandas&gt;=1.0.1 (from ibmpairs==3.0.0)
+  Could not find a version that satisfies the requirement pandas&gt;=1.0.1 (from ibmpairs==0.2.1) (from versions: 0.1, 0.2, 0.3.0, 0.4.0, 0.4.1, 0.4.2, 0.4.3, 0.5.0, 0.6.0, 0.6.1, 0.7.0, 0.7.1, 0.7.2, 0.7.3, 0.8.0, 0.8.1, 0.9.0, 0.9.1, 0.10.0, 0.10.1, 0.11.0, 0.12.0, 0.13.0, 0.13.1, 0.14.0, 0.14.1, 0.15.0, 0.15.1, 0.15.2, 0.16.0, 0.16.1, 0.16.2, 0.17.0, 0.17.1, 0.18.0, 0.18.1, 0.19.0, 0.19.1, 0.19.2, 0.20.0, 0.20.1, 0.20.2, 0.20.3, 0.21.0, 0.21.1, 0.22.0, 0.23.0, 0.23.1, 0.23.2, 0.23.3, 0.23.4, 0.24.0, 0.24.1, 0.24.2)
+No matching distribution found for pandas&gt;=1.0.1 (from ibmpairs==3.0.0)
+</pre></div>
+</div>
+</section>
+<section id="Missing-Geospatial-APIs-Libraries-On-Windows">
+<h3>Missing Geospatial APIs Libraries On Windows<a class="headerlink" href="#Missing-Geospatial-APIs-Libraries-On-Windows" title="Link to this heading">¶</a></h3>
+<p>If you see the following error while builds are progressing as part of the ibmpairs SDK install:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>A GDAL API version must be specified. Provide a path to gdal-config using a GDAL_CONFIG environment variable or use a GDAL_VERSION environment variable.
+</pre></div>
+</div>
+<p>This indicates that your Windows environment is not configured properly in order to build the geospatial dependencies of the Geospatial APIs wrapper. This can be tricky to get right. The easiest solution is to download and install the pre-build wheels for the following packages:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Fiona-1.8.18-cp37-cp37m-win_amd64.whl
+GDAL-3.2.1-cp37-cp37m-win_amd64.whl
+rasterio-1.2.0-cp37-cp37m-win_amd64.whl
+Shapely-1.6.4.post2-cp37-cp37m-win_amd64.whl
+basemap-1.2.2-cp37-cp37m-win_amd64.whl
+</pre></div>
+</div>
+<p>You may be able to take newer versions of these wheel packages but these are known to work.</p>
+<p>There are many resources on the internet that give suggestion about how to obtain these packages, <a class="reference external" href="https://stackoverflow.com/questions/50876702/cant-install-fiona-on-windows">for example</a></p>
+<p>Once you have a <code class="docutils literal notranslate"><span class="pre">.whl</span></code> file you can install it using pip by referencing it directly, for example:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip3 install Fiona-1.8.18-cp37-cp37m-win_amd64.whl
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="quickstartpointquery.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Quick Start - Point Query</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Quick Start</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, IBM Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Quick Start - Setting Up for the API</a><ul>
+<li><a class="reference internal" href="#Our-Jupyter-Notebooks">Our Jupyter Notebooks</a></li>
+<li><a class="reference internal" href="#Geospatial-APIs-Credentials">Geospatial APIs Credentials</a><ul>
+<li><a class="reference internal" href="#On-Linux">On Linux</a></li>
+<li><a class="reference internal" href="#On-Windows">On Windows</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Python3">Python3</a></li>
+<li><a class="reference internal" href="#ibmpairs-SDK">ibmpairs SDK</a><ul>
+<li><a class="reference internal" href="#PIP">PIP</a></li>
+<li><a class="reference internal" href="#Installing-in-Watson-Studio-Notebook">Installing in Watson Studio Notebook</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Common-Python3-Issues">Common Python3 Issues</a><ul>
+<li><a class="reference internal" href="#Supported-Python3-Versions">Supported Python3 Versions</a></li>
+<li><a class="reference internal" href="#Missing-Geospatial-APIs-Libraries-On-Windows">Missing Geospatial APIs Libraries On Windows</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

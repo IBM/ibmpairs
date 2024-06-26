@@ -1,15 +1,15 @@
-# IBM Environmental Intelligence Suite (EIS): Geospatial Analytics open source modules
+# IBM Environmental Intelligence (EI): Geospatial APIs SDK
 
-[![Build Status](https://travis-ci.org/IBM/ibmpairs.svg?branch=master)](https://travis-ci.org/IBM/ibmpairs)
 [![PyPI Package](https://badge.fury.io/py/ibmpairs.svg)](https://pypi.org/project/ibmpairs/)
 
+This repository provides an interface to the IBM EI: Geospatial APIs component:
+[IBM EI: Geospatial APIs](https://www.ibm.com/products/environmental-intelligence).
 
-This repository provides an interface to the geo-spatial big data platform
-[IBM EIS: Geospatial Analytics](https://www.ibm.com/products/environmental-intelligence-suite).
+E.g. the `query` module in the subdirectory `ibmpairs` serves as a wrapper employing the IBM EI: 
+Geospatial APIs served through the RESTful host reachable via
+[https://api.ibm.com/geospatial/run/na/core/v3/](https://developer.ibm.com/apis/catalog/envintelsuite--ibm-environmental-intelligence).
 
-E.g. the `query` module in the subdirectory `ibmpairs` serves as a wrapper employing the IBM EIS: 
-Geospatial Analytics core RESTful API served through the host reachable via
-[https://api.ibm.com/geospatial/run/na/core/v3/](https://pairs.res.ibm.com/manual/api-doc/).
+Sample applications that use `ibmpairs` can be located in the [Environmental-Intelligence](https://github.com/IBM/Environmental-Intelligence/tree/main) project.
 
 
 # General Notes
@@ -25,7 +25,7 @@ simply run
 ```Bash
 pip install --user ibmpairs
 ```
-Then you can import the IBM EIS: Geospatial Analytics API wrapper modules e.g.:
+Then you can import the IBM EI: Geospatial APIs SDK wrapper modules e.g.:
 ```Python
 import ibmpairs.client as client
 import ibmpairs.query as query
@@ -34,21 +34,7 @@ import ibmpairs.query as query
 
 # Getting started
 
-Simply get your feet wet with the [tutorial](https://github.com/ibm/ibmpairs/blob/master/tutorials/IBM-EIS-Geospatial-Analytics-API-wrapper.ipynb).
-Having cloned into the repo, the full API documentation you can generate by [Sphinx](https://www.sphinx-doc.org/) and the corresponding
-[ReadTheDocs](https://readthedocs.org/) theme by running e.g.
-```Bash
-pip install sphinx sphinx_rtd_theme
-```
-then make the html pages,
-```Bash
-make docs
-```
-or without Make
-```Bash
-cd docs && make html
-```
-then open `docs/_build/html/index.html` with your favorite browser.
+See the documentation [here](https://pages.github.com/IBM/ibmpairs/) and try our tutorials.
 
 
 # Running in a Docker container

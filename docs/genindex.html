@@ -1,0 +1,1936 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 --><title>Index - IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs) documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="tutorials/index.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/introducingpairsgeospatialanalytics.html">Introducing Environmental Intelligence: Geospatial APIs</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorials/quickstart/index.html">Quick Start</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Quick Start</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/quickstart/quickstartsetup.html">Quick Start - Setting Up for the API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/quickstart/quickstartpointquery.html">Quick Start - Point Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/quickstart/quickstartrasterquery.html">Quick Start - Raster Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/quickstart/quickstartaoiquery.html">Quick Start - Area of Interest (AOI) Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/quickstart/quickstartcatalog.html">Quick Start - Catalog</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorials/tutorial/index.html">SDK Model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of SDK Model</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/tutorial/pythonapiwrapper.html">ibmpairs SDK</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/api/ibm_api_hub.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/api/udf_function_reference.html">User Defined Functions (UDF)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="reference/sdk/index.html">SDK</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of SDK</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="reference/sdk/ibmpairs_authentication.html">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/sdk/ibmpairs_catalog.html">Catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/sdk/ibmpairs_client.html">Client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/sdk/ibmpairs_common.html">Common</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/sdk/ibmpairs_external_ibm.html">External - IBM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/sdk/ibmpairs_paw.html">PAW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/sdk/ibmpairs_query.html">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference/sdk/ibmpairs_utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#A"><strong>A</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#U"><strong>U</strong></a></div>
+</section>
+<section id="A" class="genindex-section">
+  <h2>A</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Aggregation">Aggregation (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.aggregation_from_dict">aggregation_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.aggregation_from_json">aggregation_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.aggregation_to_dict">aggregation_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.aggregation_to_json">aggregation_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Search.all">all() (catalog.Search method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.AOI">AOI (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.aoi_from_json">aoi_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.aoi_to_json">aoi_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.AOIs">AOIs (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.aois_from_json">aois_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.aois_to_json">aois_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.api_connect_get_auth_token">api_connect_get_auth_token() (authentication.OAuth2 method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.api_connect_refresh_auth_token">api_connect_refresh_auth_token() (authentication.OAuth2 method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.async_check_status_and_download">async_check_status_and_download() (query.Query method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.async_download">async_download() (query.Query method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.Client.async_get">async_get() (client.Client method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.Client.async_post">async_post() (client.Client method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.async_status">async_status() (query.Query method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.async_submit">async_submit() (query.Query method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.async_submit_and_check_status">async_submit_and_check_status() (query.Query method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.async_submit_check_status_and_download">async_submit_check_status_and_download() (query.Query method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.AsyncThreadWrapper">AsyncThreadWrapper (class in common)</a>
+</li>
+        <li>
+    authentication
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#module-authentication">module</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.Client.authentication_mode">authentication_mode() (client.Client static method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.Basic">Basic (class in authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.basic_from_dict">basic_from_dict() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.basic_from_json">basic_from_json() (in module authentication)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.basic_to_dict">basic_to_dict() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.basic_to_json">basic_to_json() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.batch_query">batch_query() (in module query)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    catalog
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#module-catalog">module</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Category">Category (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.category_from_dict">category_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.category_from_json">category_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.category_to_dict">category_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.category_to_json">category_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.check_bool">check_bool() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.check_class">check_class() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.check_dict">check_dict() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.check_float">check_float() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.check_int">check_int() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.check_list">check_list() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.check_status_and_download">check_status_and_download() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.check_status_and_download">(query.Query method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.check_str">check_str() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.class_to_dict">class_to_dict() (in module common)</a>
+</li>
+        <li>
+    client
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_client.html#module-client">module</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.Client">Client (class in client)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.ClientResponse">ClientResponse (class in client)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.color_table_from_dict">color_table_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.color_table_from_json">color_table_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.color_table_to_dict">color_table_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.color_table_to_json">color_table_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.ColorTable">ColorTable (class in catalog)</a>
+</li>
+        <li>
+    common
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_common.html#module-common">module</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.create">create() (catalog.DataLayer method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.create">(catalog.DataLayerDimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.create">(catalog.DataLayerProperty method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.create">(catalog.DataLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.create">(catalog.DataSet method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.create_data_layer">create_data_layer() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.create_data_layer_dimension">create_data_layer_dimension() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.create_data_layer_property">create_data_layer_property() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.create_data_layers">create_data_layers() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.create_data_set">create_data_set() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.create_layer">create_layer() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.create_layers">create_layers() (paw.PAIRSQuery method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_from_dict">data_layer_dimension_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_from_json">data_layer_dimension_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_return_from_dict">data_layer_dimension_return_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_return_from_json">data_layer_dimension_return_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_return_to_dict">data_layer_dimension_return_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_return_to_json">data_layer_dimension_return_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_to_dict">data_layer_dimension_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_to_dict_post">data_layer_dimension_to_dict_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_to_json">data_layer_dimension_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimension_to_json_post">data_layer_dimension_to_json_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimensions_from_dict">data_layer_dimensions_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimensions_from_json">data_layer_dimensions_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimensions_to_dict">data_layer_dimensions_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_dimensions_to_json">data_layer_dimensions_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_from_dict">data_layer_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_from_json">data_layer_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_properties_from_dict">data_layer_properties_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_properties_from_json">data_layer_properties_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_properties_to_dict">data_layer_properties_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_properties_to_json">data_layer_properties_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_from_dict">data_layer_property_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_from_json">data_layer_property_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_return_from_dict">data_layer_property_return_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_return_from_json">data_layer_property_return_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_return_to_dict">data_layer_property_return_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_return_to_json">data_layer_property_return_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_to_dict">data_layer_property_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_to_dict_post">data_layer_property_to_dict_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_to_json">data_layer_property_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_property_to_json_post">data_layer_property_to_json_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_return_from_dict">data_layer_return_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_return_from_json">data_layer_return_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_return_to_dict">data_layer_return_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_return_to_json">data_layer_return_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_to_dict">data_layer_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_to_dict_post">data_layer_to_dict_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_to_dict_put">data_layer_to_dict_put() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_to_json">data_layer_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_to_json_post">data_layer_to_json_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layer_to_json_put">data_layer_to_json_put() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Search.data_layers">data_layers() (catalog.Search method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layers_from_dict">data_layers_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layers_from_json">data_layers_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layers_to_dict">data_layers_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layers_to_dict_post">data_layers_to_dict_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layers_to_json">data_layers_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_layers_to_json_post">data_layers_to_json_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_from_dict">data_set_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_from_json">data_set_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_return_from_dict">data_set_return_from_dict() (in module catalog)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_return_from_json">data_set_return_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_return_to_dict">data_set_return_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_return_to_json">data_set_return_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_to_dict">data_set_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_to_dict_post">data_set_to_dict_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_to_dict_put">data_set_to_dict_put() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_to_json">data_set_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_to_json_post">data_set_to_json_post() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_set_to_json_put">data_set_to_json_put() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Search.data_sets">data_sets() (catalog.Search method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_sets_from_dict">data_sets_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_sets_from_json">data_sets_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_sets_to_dict">data_sets_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.data_sets_to_json">data_sets_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer">DataLayer (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension">DataLayerDimension (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensionReturn">DataLayerDimensionReturn (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensions">DataLayerDimensions (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperties">DataLayerProperties (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty">DataLayerProperty (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerPropertyReturn">DataLayerPropertyReturn (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerReturn">DataLayerReturn (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers">DataLayers (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet">DataSet (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSetReturn">DataSetReturn (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSets">DataSets (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.delete">delete() (catalog.DataLayer method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.delete">(catalog.DataSet method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_client.html#client.Client.delete">(client.Client method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.delete">(external.ibm.IBMCOSBucket method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.delete_data_layer">delete_data_layer() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.delete_data_set">delete_data_set() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Dimension">Dimension (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.dimension_from_dict">dimension_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.dimension_from_json">dimension_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.dimension_to_dict">dimension_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.dimension_to_json">dimension_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.display">display() (catalog.DataLayer method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.display">(catalog.DataLayerDimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensions.display">(catalog.DataLayerDimensions method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperties.display">(catalog.DataLayerProperties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.display">(catalog.DataLayerProperty method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.display">(catalog.DataLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.display">(catalog.DataSet method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSets.display">(catalog.DataSets method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOI.display">(query.AOI method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOIs.display">(query.AOIs method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.download">download() (external.ibm.IBMCOSBucket method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.download">(in module query)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.download">(paw.PAIRSQuery method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.download">(query.Query method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.eis_get_auth_token">eis_get_auth_token() (authentication.OAuth2 method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.eis_refresh_auth_token">eis_refresh_auth_token() (authentication.OAuth2 method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.ensure_api_path">ensure_api_path() (in module common)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.ensure_protocol">ensure_protocol() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.ensure_slash">ensure_slash() (in module common)</a>
+</li>
+        <li>
+    external.ibm
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#module-external.ibm">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.favorite">favorite() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.favorite">(query.Query method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Filter">Filter (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.filter_data_layers_by_attribute">filter_data_layers_by_attribute() (catalog.DataLayers method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.filter_from_dict">filter_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.filter_from_json">filter_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.filter_to_dict">filter_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.filter_to_json">filter_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.Basic.from_dict">from_dict() (authentication.Basic method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.from_dict">(authentication.OAuth2 method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2Return.from_dict">(authentication.OAuth2Return method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Category.from_dict">(catalog.Category method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.ColorTable.from_dict">(catalog.ColorTable method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.from_dict">(catalog.DataLayer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.from_dict">(catalog.DataLayerDimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensionReturn.from_dict">(catalog.DataLayerDimensionReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensions.from_dict">(catalog.DataLayerDimensions method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperties.from_dict">(catalog.DataLayerProperties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.from_dict">(catalog.DataLayerProperty method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerPropertyReturn.from_dict">(catalog.DataLayerPropertyReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerReturn.from_dict">(catalog.DataLayerReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.from_dict">(catalog.DataLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.from_dict">(catalog.DataSet method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSetReturn.from_dict">(catalog.DataSetReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSets.from_dict">(catalog.DataSets method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Properties.from_dict">(catalog.Properties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.SpatialCoverage.from_dict">(catalog.SpatialCoverage method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.from_dict">(external.ibm.IBMCOSBucket method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSClient.from_dict">(external.ibm.IBMCOSClient method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSFile.from_dict">(external.ibm.IBMCOSFile method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSHMACKeys.from_dict">(external.ibm.IBMCOSHMACKeys method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSResource.from_dict">(external.ibm.IBMCOSResource method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSServiceCredentials.from_dict">(external.ibm.IBMCOSServiceCredentials method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Aggregation.from_dict">(query.Aggregation method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOI.from_dict">(query.AOI method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOIs.from_dict">(query.AOIs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Dimension.from_dict">(query.Dimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Filter.from_dict">(query.Filter method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Group.from_dict">(query.Group method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Interval.from_dict">(query.Interval method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.LatestQueries.from_dict">(query.LatestQueries method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Layer.from_dict">(query.Layer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Notification.from_dict">(query.Notification method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Options.from_dict">(query.Options method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Polygon.from_dict">(query.Polygon method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Processor.from_dict">(query.Processor method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.from_dict">(query.Query method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryHistory.from_dict">(query.QueryHistory method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJob.from_dict">(query.QueryJob method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayer.from_dict">(query.QueryJobLayer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayers.from_dict">(query.QueryJobLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobs.from_dict">(query.QueryJobs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryOutputInfoFile.from_dict">(query.QueryOutputInfoFile method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponse.from_dict">(query.QueryResponse method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponseData.from_dict">(query.QueryResponseData method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Spatial.from_dict">(query.Spatial method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Temporal.from_dict">(query.Temporal method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Upload.from_dict">(query.Upload method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.User.from_dict">(query.User method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.Basic.from_json">from_json() (authentication.Basic method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.from_json">(authentication.OAuth2 method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2Return.from_json">(authentication.OAuth2Return method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Category.from_json">(catalog.Category method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.ColorTable.from_json">(catalog.ColorTable method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.from_json">(catalog.DataLayer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.from_json">(catalog.DataLayerDimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensionReturn.from_json">(catalog.DataLayerDimensionReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensions.from_json">(catalog.DataLayerDimensions method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperties.from_json">(catalog.DataLayerProperties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.from_json">(catalog.DataLayerProperty method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerPropertyReturn.from_json">(catalog.DataLayerPropertyReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerReturn.from_json">(catalog.DataLayerReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.from_json">(catalog.DataLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.from_json">(catalog.DataSet method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSetReturn.from_json">(catalog.DataSetReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSets.from_json">(catalog.DataSets method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Properties.from_json">(catalog.Properties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.SpatialCoverage.from_json">(catalog.SpatialCoverage method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.from_json">(external.ibm.IBMCOSBucket method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSClient.from_json">(external.ibm.IBMCOSClient method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSFile.from_json">(external.ibm.IBMCOSFile method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSHMACKeys.from_json">(external.ibm.IBMCOSHMACKeys method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSResource.from_json">(external.ibm.IBMCOSResource method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSServiceCredentials.from_json">(external.ibm.IBMCOSServiceCredentials method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Aggregation.from_json">(query.Aggregation method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOI.from_json">(query.AOI method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOIs.from_json">(query.AOIs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Dimension.from_json">(query.Dimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Filter.from_json">(query.Filter method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Group.from_json">(query.Group method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Interval.from_json">(query.Interval method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.LatestQueries.from_json">(query.LatestQueries method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Layer.from_json">(query.Layer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Notification.from_json">(query.Notification method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Options.from_json">(query.Options method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Polygon.from_json">(query.Polygon method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Processor.from_json">(query.Processor method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.from_json">(query.Query method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryHistory.from_json">(query.QueryHistory method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJob.from_json">(query.QueryJob method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayer.from_json">(query.QueryJobLayer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayers.from_json">(query.QueryJobLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobs.from_json">(query.QueryJobs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryOutputInfoFile.from_json">(query.QueryOutputInfoFile method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponse.from_json">(query.QueryResponse method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponseData.from_json">(query.QueryResponseData method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Spatial.from_json">(query.Spatial method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Temporal.from_json">(query.Temporal method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Upload.from_json">(query.Upload method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.User.from_json">(query.User method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.from_query_result_dir">from_query_result_dir() (paw.PAIRSQuery class method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.get">get() (catalog.DataLayer method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.get">(catalog.DataLayerDimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensions.get">(catalog.DataLayerDimensions method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperties.get">(catalog.DataLayerProperties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.get">(catalog.DataLayerProperty method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.get">(catalog.DataLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.get">(catalog.DataSet method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSets.get">(catalog.DataSets method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_client.html#client.Client.get">(client.Client method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.get">(external.ibm.IBMCOSBucket method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOI.get">(query.AOI method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOIs.get">(query.AOIs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.LatestQueries.get">(query.LatestQueries method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryHistory.get">(query.QueryHistory method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.get_aoi">get_aoi() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.get_aois">get_aois() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Search.get_catalog">get_catalog() (catalog.Search method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.get_client">get_client() (in module client)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.get_cos_auth_endpoint">get_cos_auth_endpoint() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.get_cos_endpoint_by_region">get_cos_endpoint_by_region() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.Basic.get_credentials_from_file">get_credentials_from_file() (authentication.Basic method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.get_data_layer">get_data_layer() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.get_data_layer_dimension">get_data_layer_dimension() (in module catalog)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.get_data_layer_dimensions">get_data_layer_dimensions() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.get_data_layer_properties">get_data_layer_properties() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.get_data_layer_property">get_data_layer_property() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.get_data_layers">get_data_layers() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.get_data_set">get_data_set() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.get_data_sets">get_data_sets() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSTimeSeries.get_dataframe">get_dataframe() (paw.PAIRSTimeSeries method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.get_latest_favorites">get_latest_favorites() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.get_latest_queries">get_latest_queries() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.get_pairs_api_password">get_pairs_api_password() (in module paw)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.get_password_from_file">get_password_from_file() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.get_presigned_url">get_presigned_url() (external.ibm.IBMCOSBucket method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.get_query_by_id">get_query_by_id() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryHistory.get_query_by_id">(query.QueryHistory method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.get_query_dir_name">get_query_dir_name() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.get_query_JSON">get_query_JSON() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.get_tenant_id">get_tenant_id() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.get_vector_polygon_table">get_vector_polygon_table() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_utils.html#utils.PAIRSProject.getQueryJSONs">getQueryJSONs() (utils.PAIRSProject method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Group">Group (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.group_from_dict">group_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.group_from_json">group_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.group_to_dict">group_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.group_to_json">group_to_json() (in module query)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_bucket_from_dict">ibm_cos_bucket_from_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_bucket_from_json">ibm_cos_bucket_from_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_bucket_to_dict">ibm_cos_bucket_to_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_bucket_to_json">ibm_cos_bucket_to_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_client_from_dict">ibm_cos_client_from_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_client_from_json">ibm_cos_client_from_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_client_to_dict">ibm_cos_client_to_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_client_to_json">ibm_cos_client_to_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_file_from_dict">ibm_cos_file_from_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_file_from_json">ibm_cos_file_from_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_file_to_dict">ibm_cos_file_to_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_file_to_json">ibm_cos_file_to_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_hmac_keys_from_dict">ibm_cos_hmac_keys_from_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_hmac_keys_from_json">ibm_cos_hmac_keys_from_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_hmac_keys_to_dict">ibm_cos_hmac_keys_to_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_hmac_keys_to_json">ibm_cos_hmac_keys_to_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_resource_from_dict">ibm_cos_resource_from_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_resource_from_json">ibm_cos_resource_from_json() (in module external.ibm)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_resource_to_dict">ibm_cos_resource_to_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_resource_to_json">ibm_cos_resource_to_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_service_credentials_from_dict">ibm_cos_service_credentials_from_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_service_credentials_from_json">ibm_cos_service_credentials_from_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_service_credentials_to_dict">ibm_cos_service_credentials_to_dict() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.ibm_cos_service_credentials_to_json">ibm_cos_service_credentials_to_json() (in module external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket">IBMCOSBucket (class in external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSClient">IBMCOSClient (class in external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSFile">IBMCOSFile (class in external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSHMACKeys">IBMCOSHMACKeys (class in external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSResource">IBMCOSResource (class in external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSServiceCredentials">IBMCOSServiceCredentials (class in external.ibm)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Interval">Interval (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.interval_from_dict">interval_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.interval_from_json">interval_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.interval_to_dict">interval_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.interval_to_json">interval_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.is_bulk">is_bulk() (query.Query method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.latest_queries_from_dict">latest_queries_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.latest_queries_from_json">latest_queries_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.latest_queries_to_dict">latest_queries_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.latest_queries_to_json">latest_queries_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.LatestQueries">LatestQueries (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Layer">Layer (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.layer_from_dict">layer_from_dict() (in module query)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.layer_from_dict_post">layer_from_dict_post() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.layer_from_json">layer_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.layer_from_json_post">layer_from_json_post() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.layer_to_dict">layer_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.layer_to_json">layer_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.list_files">list_files() (query.Query method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.list_layers">list_layers() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.load_environment_variables">load_environment_variables() (in module paw)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.merge_query_into_base">merge_query_into_base() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.merge_query_into_base">(query.Query method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.MockSubmitResponse">MockSubmitResponse (class in paw)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#module-authentication">authentication</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#module-catalog">catalog</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_client.html#module-client">client</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_common.html#module-common">common</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#module-external.ibm">external.ibm</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_paw.html#module-paw">paw</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#module-query">query</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_utils.html#module-utils">utils</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Notification">Notification (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.notification_from_dict">notification_from_dict() (in module query)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.notification_from_json">notification_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.notification_to_dict">notification_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.notification_to_json">notification_to_json() (in module query)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2">OAuth2 (class in authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.oauth2_from_dict">oauth2_from_dict() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.oauth2_from_json">oauth2_from_json() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.oauth2_return_from_dict">oauth2_return_from_dict() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.oauth2_return_from_json">oauth2_return_from_json() (in module authentication)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.oauth2_return_to_dict">oauth2_return_to_dict() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.oauth2_return_to_json">oauth2_return_to_json() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.oauth2_to_dict">oauth2_to_dict() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.oauth2_to_json">oauth2_to_json() (in module authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2Return">OAuth2Return (class in authentication)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Options">Options (class in query)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_utils.html#utils.PAIRSProject">PAIRSProject (class in utils)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery">PAIRSQuery (class in paw)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSTimeSeries">PAIRSTimeSeries (class in paw)</a>
+</li>
+        <li>
+    paw
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_paw.html#module-paw">module</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.PAWException">PAWException</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.phoenix_get_auth_token">phoenix_get_auth_token() (authentication.OAuth2 method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.phoenix_refresh_auth_token">phoenix_refresh_auth_token() (authentication.OAuth2 method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.poll">poll() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.poll_till_finished">poll_till_finished() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Polygon">Polygon (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.polygon_from_dict">polygon_from_dict() (in module query)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.polygon_from_json">polygon_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.polygon_to_dict">polygon_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.polygon_to_json">polygon_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.Client.post">post() (client.Client method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.print_data_acknowledgement">print_data_acknowledgement() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Processor">Processor (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Properties">Properties (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.properties_from_dict">properties_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.properties_from_json">properties_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.properties_to_dict">properties_to_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.properties_to_json">properties_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.Client.put">put() (client.Client method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Q" class="genindex-section">
+  <h2>Q</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    query
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#module-query">module</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query">Query (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_from_dict">query_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_from_json">query_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_history_from_dict">query_history_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_history_from_json">query_history_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_history_to_dict">query_history_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_history_to_json">query_history_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_from_dict">query_job_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_from_json">query_job_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_layer_from_dict">query_job_layer_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_layer_from_json">query_job_layer_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_layer_to_dict">query_job_layer_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_layer_to_json">query_job_layer_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_layers_from_dict">query_job_layers_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_layers_from_json">query_job_layers_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_layers_to_dict">query_job_layers_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_layers_to_json">query_job_layers_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_to_dict">query_job_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_job_to_json">query_job_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_jobs_from_dict">query_jobs_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_jobs_from_json">query_jobs_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_jobs_to_dict">query_jobs_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_jobs_to_json">query_jobs_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_output_info_file_from_dict">query_output_info_file_from_dict() (in module query)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_output_info_file_from_json">query_output_info_file_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_output_info_file_to_dict">query_output_info_file_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_output_info_file_to_json">query_output_info_file_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.query_pairs_polygon">query_pairs_polygon() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.query_pairs_polygon_meta">query_pairs_polygon_meta() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_response_data_from_dict">query_response_data_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_response_data_from_json">query_response_data_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_response_data_to_dict">query_response_data_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_response_data_to_json">query_response_data_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_response_from_dict">query_response_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_response_from_json">query_response_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_response_to_dict">query_response_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_response_to_json">query_response_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_to_dict">query_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_to_dict_post">query_to_dict_post() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_to_json">query_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_to_json_post">query_to_json_post() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.query_worker">query_worker() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.QueryHistory">QueryHistory (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJob">QueryJob (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayer">QueryJobLayer (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayers">QueryJobLayers (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobs">QueryJobs (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.QueryOutputInfoFile">QueryOutputInfoFile (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponse">QueryResponse (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponseData">QueryResponseData (class in query)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.read_data_acknowledgement">read_data_acknowledgement() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.replace_dates">replace_dates() (query.Query method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.AsyncThreadWrapper.run">run() (common.AsyncThreadWrapper method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.run_async_in_thread">run_async_in_thread() (in module common)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Search">Search (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.search">search() (in module catalog)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOIs.search">(query.AOIs method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.search_aois">search_aois() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_client.html#client.Client.session">session() (client.Client method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.set_client">set_client() (external.ibm.IBMCOSBucket method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSClient.set_client">(external.ibm.IBMCOSClient method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_common.html#common.set_client">(in module common)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.Basic.set_credentials_from_file">set_credentials_from_file() (authentication.Basic method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.set_credentials_from_file">(authentication.OAuth2 method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.set_geometry_id_column">set_geometry_id_column() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.set_lat_lon_columns">set_lat_lon_columns() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.set_resource">set_resource() (external.ibm.IBMCOSBucket method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSResource.set_resource">(external.ibm.IBMCOSResource method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.set_timestamp_column">set_timestamp_column() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Spatial">Spatial (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.spatial_coverage_from_dict">spatial_coverage_from_dict() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.spatial_coverage_from_json">spatial_coverage_from_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.spatial_coverage_to_dict">spatial_coverage_to_dict() (in module catalog)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.spatial_coverage_to_json">spatial_coverage_to_json() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.spatial_from_dict">spatial_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.spatial_from_json">spatial_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.spatial_to_dict">spatial_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.spatial_to_json">spatial_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.SpatialCoverage">SpatialCoverage (class in catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.split_property_string_column">split_property_string_column() (paw.PAIRSQuery method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.status">status() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.status">(query.Query method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.strip_api_path">strip_api_path() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.strip_protocol">strip_protocol() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_common.html#common.strip_slash">strip_slash() (in module common)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.submit">submit() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_paw.html#paw.PAIRSQuery.submit">(paw.PAIRSQuery method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.submit">(query.Query method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.submit_and_check_status">submit_and_check_status() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.submit_and_check_status">(query.Query method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.submit_check_status_and_download">submit_check_status_and_download() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.submit_check_status_and_download">(query.Query method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_utils.html#utils.PAIRSProject.submitAllQueued">submitAllQueued() (utils.PAIRSProject method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Temporal">Temporal (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.temporal_from_dict">temporal_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.temporal_from_json">temporal_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.temporal_to_dict">temporal_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.temporal_to_json">temporal_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.Basic.to_dict">to_dict() (authentication.Basic method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.to_dict">(authentication.OAuth2 method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2Return.to_dict">(authentication.OAuth2Return method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Category.to_dict">(catalog.Category method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.ColorTable.to_dict">(catalog.ColorTable method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.to_dict">(catalog.DataLayer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.to_dict">(catalog.DataLayerDimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensionReturn.to_dict">(catalog.DataLayerDimensionReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensions.to_dict">(catalog.DataLayerDimensions method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperties.to_dict">(catalog.DataLayerProperties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.to_dict">(catalog.DataLayerProperty method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerPropertyReturn.to_dict">(catalog.DataLayerPropertyReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerReturn.to_dict">(catalog.DataLayerReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.to_dict">(catalog.DataLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.to_dict">(catalog.DataSet method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSetReturn.to_dict">(catalog.DataSetReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSets.to_dict">(catalog.DataSets method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Properties.to_dict">(catalog.Properties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.SpatialCoverage.to_dict">(catalog.SpatialCoverage method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.to_dict">(external.ibm.IBMCOSBucket method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSClient.to_dict">(external.ibm.IBMCOSClient method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSFile.to_dict">(external.ibm.IBMCOSFile method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSHMACKeys.to_dict">(external.ibm.IBMCOSHMACKeys method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSResource.to_dict">(external.ibm.IBMCOSResource method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSServiceCredentials.to_dict">(external.ibm.IBMCOSServiceCredentials method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Aggregation.to_dict">(query.Aggregation method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOI.to_dict">(query.AOI method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOIs.to_dict">(query.AOIs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Dimension.to_dict">(query.Dimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Filter.to_dict">(query.Filter method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Group.to_dict">(query.Group method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Interval.to_dict">(query.Interval method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.LatestQueries.to_dict">(query.LatestQueries method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Layer.to_dict">(query.Layer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Notification.to_dict">(query.Notification method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Options.to_dict">(query.Options method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Polygon.to_dict">(query.Polygon method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Processor.to_dict">(query.Processor method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.to_dict">(query.Query method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryHistory.to_dict">(query.QueryHistory method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJob.to_dict">(query.QueryJob method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayer.to_dict">(query.QueryJobLayer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayers.to_dict">(query.QueryJobLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobs.to_dict">(query.QueryJobs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryOutputInfoFile.to_dict">(query.QueryOutputInfoFile method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponse.to_dict">(query.QueryResponse method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponseData.to_dict">(query.QueryResponseData method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Spatial.to_dict">(query.Spatial method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Temporal.to_dict">(query.Temporal method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Upload.to_dict">(query.Upload method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.User.to_dict">(query.User method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.to_dict_data_layer_dimension_post">to_dict_data_layer_dimension_post() (catalog.DataLayerDimension method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.to_dict_data_layer_post">to_dict_data_layer_post() (catalog.DataLayer method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.to_dict_data_layer_property_post">to_dict_data_layer_property_post() (catalog.DataLayerProperty method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.to_dict_data_layer_put">to_dict_data_layer_put() (catalog.DataLayer method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.to_dict_data_layers_post">to_dict_data_layers_post() (catalog.DataLayers method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.to_dict_data_set_post">to_dict_data_set_post() (catalog.DataSet method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.to_dict_data_set_put">to_dict_data_set_put() (catalog.DataSet method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Layer.to_dict_layer_post">to_dict_layer_post() (query.Layer method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.to_dict_query_post">to_dict_query_post() (query.Query method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.Basic.to_json">to_json() (authentication.Basic method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2.to_json">(authentication.OAuth2 method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_authentication.html#authentication.OAuth2Return.to_json">(authentication.OAuth2Return method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Category.to_json">(catalog.Category method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.ColorTable.to_json">(catalog.ColorTable method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.to_json">(catalog.DataLayer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.to_json">(catalog.DataLayerDimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensionReturn.to_json">(catalog.DataLayerDimensionReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimensions.to_json">(catalog.DataLayerDimensions method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperties.to_json">(catalog.DataLayerProperties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.to_json">(catalog.DataLayerProperty method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerPropertyReturn.to_json">(catalog.DataLayerPropertyReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerReturn.to_json">(catalog.DataLayerReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.to_json">(catalog.DataLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.to_json">(catalog.DataSet method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSetReturn.to_json">(catalog.DataSetReturn method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSets.to_json">(catalog.DataSets method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.Properties.to_json">(catalog.Properties method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.SpatialCoverage.to_json">(catalog.SpatialCoverage method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.to_json">(external.ibm.IBMCOSBucket method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSClient.to_json">(external.ibm.IBMCOSClient method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSFile.to_json">(external.ibm.IBMCOSFile method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSHMACKeys.to_json">(external.ibm.IBMCOSHMACKeys method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSResource.to_json">(external.ibm.IBMCOSResource method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSServiceCredentials.to_json">(external.ibm.IBMCOSServiceCredentials method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Aggregation.to_json">(query.Aggregation method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOI.to_json">(query.AOI method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.AOIs.to_json">(query.AOIs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Dimension.to_json">(query.Dimension method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Filter.to_json">(query.Filter method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Group.to_json">(query.Group method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Interval.to_json">(query.Interval method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.LatestQueries.to_json">(query.LatestQueries method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Layer.to_json">(query.Layer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Notification.to_json">(query.Notification method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Options.to_json">(query.Options method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Polygon.to_json">(query.Polygon method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Processor.to_json">(query.Processor method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.to_json">(query.Query method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryHistory.to_json">(query.QueryHistory method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJob.to_json">(query.QueryJob method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayer.to_json">(query.QueryJobLayer method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobLayers.to_json">(query.QueryJobLayers method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryJobs.to_json">(query.QueryJobs method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryOutputInfoFile.to_json">(query.QueryOutputInfoFile method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponse.to_json">(query.QueryResponse method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.QueryResponseData.to_json">(query.QueryResponseData method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Spatial.to_json">(query.Spatial method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Temporal.to_json">(query.Temporal method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Upload.to_json">(query.Upload method)</a>
+</li>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.User.to_json">(query.User method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerDimension.to_json_data_layer_dimension_post">to_json_data_layer_dimension_post() (catalog.DataLayerDimension method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.to_json_data_layer_post">to_json_data_layer_post() (catalog.DataLayer method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayerProperty.to_json_data_layer_property_post">to_json_data_layer_property_post() (catalog.DataLayerProperty method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.to_json_data_layer_put">to_json_data_layer_put() (catalog.DataLayer method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayers.to_json_data_layers_post">to_json_data_layers_post() (catalog.DataLayers method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.to_json_data_set_post">to_json_data_set_post() (catalog.DataSet method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.to_json_data_set_put">to_json_data_set_put() (catalog.DataSet method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Layer.to_json_layer_post">to_json_layer_post() (query.Layer method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Query.to_json_query_post">to_json_query_post() (query.Query method)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="U" class="genindex-section">
+  <h2>U</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.unfavorite">unfavorite() (in module query)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_query.html#query.Query.unfavorite">(query.Query method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataLayer.update">update() (catalog.DataLayer method)</a>
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.DataSet.update">(catalog.DataSet method)</a>
+</li>
+        </ul></li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.update_data_layer">update_data_layer() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_catalog.html#catalog.update_data_set">update_data_set() (in module catalog)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.Upload">Upload (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_external_ibm.html#external.ibm.IBMCOSBucket.upload">upload() (external.ibm.IBMCOSBucket method)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.upload_from_dict">upload_from_dict() (in module query)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.upload_from_json">upload_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.upload_to_dict">upload_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.upload_to_json">upload_to_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.User">User (class in query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.user_from_dict">user_from_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.user_from_json">user_from_json() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.user_to_dict">user_to_dict() (in module query)</a>
+</li>
+        <li><a href="reference/sdk/ibmpairs_query.html#query.user_to_json">user_to_json() (in module query)</a>
+</li>
+        <li>
+    utils
+
+        <ul>
+          <li><a href="reference/sdk/ibmpairs_utils.html#module-utils">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, IBM Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

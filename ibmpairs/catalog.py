@@ -1,8 +1,8 @@
 """
-IBM PAIRS Catalog: A Python module to assist with the retrival, creation, 
-update and deletion of metadata in the IBM PAIRS catalog.
+Environmental Intelligence: Geospatial APIs SDK (ibmpairs): A Python module to 
+wrap the core functionality of the Geospatial APIs component.            
 
-Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2024 IBM Software: Sustainability, IBM Corp. All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 """

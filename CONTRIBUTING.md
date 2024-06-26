@@ -1,6 +1,6 @@
 ## Contributing
 
-You are very welcome to contribute to the open source repository of the IBM Environmental Intelligence Suite: Geospatial Analytics python SDK (ibmpairs).
+You are very welcome to contribute to the open source repository of the IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs).
 To contribute code or documentation, please submit a [pull request](https://github.com/IBM/ibmpairs/pulls).
 
 

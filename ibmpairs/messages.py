@@ -1,8 +1,8 @@
 """
-IBM PAIRS RESTful API wrapper: A Python module to access PAIRS's core API to
-load data into Python compatible data formats.
+Environmental Intelligence: Geospatial APIs SDK (ibmpairs): A Python module to 
+wrap the core functionality of the Geospatial APIs component.            
 
-Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.
+Copyright 2019-2024 IBM Software: Sustainability, IBM Corp. All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 """
@@ -203,6 +203,7 @@ ERROR_QUERY_LATEST_QUERIES_TYPE_UNKNOWN = 'The latest_queries list can only be s
 WARN_QUERY_LATEST_QUERIES_QUERY_OBJECT_NO_NAME = 'A query in the latest_queries object has no name and therefore cannot be searched.'
 ERROR_QUERY_COULD_NOT_LOAD_POINT_QUERY = 'Unable to load point data into dataframe: {}.'
 ERROR_QUERY_NO_POINT_DATA = 'There is no point data in the Query object at Query.submit_response.data available to load/return.'
+INFO_QUERY_AOI_SUCCESSFUL = 'The AOI metadata for {} was retreived.'
 ERROR_QUERY_NO_AOI_ID = 'The AOI object has no ID set and none was provided.'
 ERROR_QUERY_NO_GEOJSON = 'Sorry, the GeoJSON Python module (e.g. via `pip install geojson`) is required for AOI.get() to operate. Please install and try again.'
 WARN_QUERY_AOI_OBJECT_NO_ID = 'An AOI in the AOIs object has no id and therefore cannot be searched.'

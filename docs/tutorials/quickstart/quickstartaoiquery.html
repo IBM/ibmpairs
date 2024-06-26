@@ -1,0 +1,669 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Quick Start - Catalog" href="quickstartcatalog.html" /><link rel="prev" title="Quick Start - Raster Query" href="quickstartrasterquery.html" />
+
+    <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
+        <title>Quick Start - Area of Interest (AOI) Query - IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs) documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=362ab14a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=387cc868" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" /
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">IBM Environmental Intelligence: Geospatial APIs SDK (ibmpairs)  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../introducingpairsgeospatialanalytics.html">Introducing Environmental Intelligence: Geospatial APIs</a></li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="index.html">Quick Start</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Quick Start</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="quickstartsetup.html">Quick Start - Setting Up for the API</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartpointquery.html">Quick Start - Point Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartrasterquery.html">Quick Start - Raster Query</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Quick Start - Area of Interest (AOI) Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstartcatalog.html">Quick Start - Catalog</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../tutorial/index.html">SDK Model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of SDK Model</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../tutorial/pythonapiwrapper.html">ibmpairs SDK</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/index.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/api/ibm_api_hub.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/api/udf_function_reference.html">User Defined Functions (UDF)</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/sdk/index.html">SDK</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of SDK</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_authentication.html">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_catalog.html">Catalog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_client.html">Client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_common.html">Common</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_external_ibm.html">External - IBM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_paw.html">PAW</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_query.html">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../reference/sdk/ibmpairs_utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/tutorials/quickstart/quickstartaoiquery.ipynb.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Quick-Start---Area-of-Interest-(AOI)-Query">
+<h1>Quick Start - Area of Interest (AOI) Query<a class="headerlink" href="#Quick-Start---Area-of-Interest-(AOI)-Query" title="Link to this heading">¶</a></h1>
+<p>In this section, we will find and request a pre-defined area of interest (AOI) and use it to initiate a Environmental Intelligence (EI): Geospatial APIs raster query.</p>
+<p>In order to run this notebook, <code class="docutils literal notranslate"><span class="pre">ibmpairs</span></code>, <code class="docutils literal notranslate"><span class="pre">geopandas</span></code>, <code class="docutils literal notranslate"><span class="pre">geoplot</span></code>, <code class="docutils literal notranslate"><span class="pre">numpy</span></code> and <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> must be installed to your python environment using your package manager of choice, e.g. with pip:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install ibmpairs geopandas geoplot numpy matplotlib
+</pre></div>
+</div>
+<section id="Search-for-AOI">
+<h2>Search for AOI<a class="headerlink" href="#Search-for-AOI" title="Link to this heading">¶</a></h2>
+<p>An AOI, in Geospatial APIs, is a pre-defined labelled spatial definition that can be specified as the spatial extent (area) of a raster query; usually a jurisdiction (e.g. country, state etc).</p>
+<p>To use an AOI in a raster query, we must find an area that we wish to query; to do so, we can use the SDK method <code class="docutils literal notranslate"><span class="pre">query.search_aois</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">ibmpairs.query</span> <span class="k">as</span> <span class="nn">query</span>
+<span class="kn">import</span> <span class="nn">ibmpairs.client</span> <span class="k">as</span> <span class="nn">client</span>
+
+<span class="kn">import</span> <span class="nn">geopandas</span>
+<span class="kn">import</span> <span class="nn">geoplot</span>
+<span class="kn">import</span> <span class="nn">PIL.Image</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># It is best practice not to include secrets in source code so</span>
+<span class="c1"># we read an api key, tenant id and org id from operating system</span>
+<span class="c1"># environment variables.</span>
+<span class="n">EI_API_KEY</span>   <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;EI_API_KEY&#39;</span><span class="p">)</span>
+<span class="n">EI_TENANT_ID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;EI_TENANT_ID&#39;</span><span class="p">)</span>
+<span class="n">EI_ORG_ID</span>    <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;EI_ORG_ID&#39;</span><span class="p">)</span>
+
+<span class="c1"># Authenticate and get a client object.</span>
+<span class="n">ei_client</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_client</span><span class="p">(</span><span class="n">api_key</span>   <span class="o">=</span> <span class="n">EI_API_KEY</span><span class="p">,</span>
+                              <span class="n">tenant_id</span> <span class="o">=</span> <span class="n">EI_TENANT_ID</span><span class="p">,</span>
+                              <span class="n">org_id</span>    <span class="o">=</span> <span class="n">EI_ORG_ID</span><span class="p">)</span>
+
+<span class="c1"># Search for AOIs that contain the word &#39;texas&#39;</span>
+<span class="n">aois_list</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">search_aois</span><span class="p">(</span><span class="s1">&#39;texas&#39;</span><span class="p">)</span>
+<span class="n">aois_list</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2024-06-19 10:03:54 - paw - INFO - The client authentication method is assumed to be OAuth2.
+2024-06-19 10:03:54 - paw - INFO - Legacy Environment is False
+2024-06-19 10:03:54 - paw - INFO - The authentication api key type is assumed to be IBM Cloud IAM, because the api key prefix &#39;PHX&#39; is not present.
+2024-06-19 10:03:55 - paw - INFO - Authentication success.
+2024-06-19 10:03:55 - paw - INFO - HOST: https://api.ibm.com/geospatial/run/na/core/v3
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>key</th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>51575</td>
+      <td>missouri.texas</td>
+      <td>Missouri.Texas</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>52132</td>
+      <td>oklahoma.texas</td>
+      <td>Oklahoma.Texas</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>52653</td>
+      <td>texas.anderson</td>
+      <td>Texas.Anderson</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>52558</td>
+      <td>texas.andrews</td>
+      <td>Texas.Andrews</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>52661</td>
+      <td>texas.angelina</td>
+      <td>Texas.Angelina</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>509</th>
+      <td>52553</td>
+      <td>texas.yoakum</td>
+      <td>Texas.Yoakum</td>
+    </tr>
+    <tr>
+      <th>510</th>
+      <td>52595</td>
+      <td>texas.young</td>
+      <td>Texas.Young</td>
+    </tr>
+    <tr>
+      <th>511</th>
+      <td>52769</td>
+      <td>texas.zapata</td>
+      <td>Texas.Zapata</td>
+    </tr>
+    <tr>
+      <th>512</th>
+      <td>52758</td>
+      <td>texas.zavala</td>
+      <td>Texas.Zavala</td>
+    </tr>
+    <tr>
+      <th>513</th>
+      <td>164</td>
+      <td>usa-texas</td>
+      <td>USA - Texas</td>
+    </tr>
+  </tbody>
+</table>
+<p>514 rows × 3 columns</p>
+</div></div>
+</div>
+<p>The search includes the results that contain the word <code class="docutils literal notranslate"><span class="pre">texas</span></code>; the <code class="docutils literal notranslate"><span class="pre">usa-texas</span></code> key represents the AOI of the state of Texas (USA), the <code class="docutils literal notranslate"><span class="pre">texas.*</span></code> entries represent the counties of the state of Texas.</p>
+<p>To get the metadata information about the <code class="docutils literal notranslate"><span class="pre">usa-texas</span></code> area of interest (id: 164) it can be requested with <code class="docutils literal notranslate"><span class="pre">query.get_aoi</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">texas_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">aois_list</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">aois_list</span><span class="p">[</span><span class="s1">&#39;key&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;usa-texas&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">texas</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">get_aoi</span><span class="p">(</span><span class="n">texas_id</span><span class="p">)</span>
+<span class="n">texas</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2024-06-19 10:03:56 - paw - INFO - The AOI metadata for 164 was retreived.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+    &#34;bbox&#34;: [
+        25.795808134,
+        -106.683192366,
+        36.543596825,
+        -93.457684889
+    ],
+    &#34;geojson&#34;: &#34;{\&#34;type\&#34;:\&#34;Polygon\&#34;,\&#34;coordinates\&#34;:[[[-106.683192366,31.942887307],[-106.623555771,32.051088309],[-103.106759183,32.052422446],[-103.069255984,36.518767545],[-100.001664892,36.543596825],[-99.947481351,34.629539979],[-99.666860972,34.42584217],[-99.443502852,34.421964197],[-99.35225105,34.498731218],[-99.168595192,34.365424006],[-99.151419194,34.258301545],[-98.617954477,34.207820825],[-98.45306249,34.106891538],[-98.364816544,34.190188117],[-98.09945857,34.196541332],[-98.046652334,34.041269506],[-97.952756011,34.041201779],[-97.864138897,33.907847955],[-97.676628909,34.038434165],[-97.405805152,33.873028749],[-97.212875245,33.955774758],[-97.038044097,33.898091427],[-96.926673431,34.011772333],[-96.735380541,33.884608678],[-96.680475368,33.961655112],[-96.564887797,33.942126555],[-96.337457867,33.777559085],[-95.955516065,33.938561937],[-95.839855327,33.89476448],[-95.606920256,33.994652663],[-95.381475661,33.918893627],[-95.231846792,34.014910591],[-94.698494179,33.743140481],[-94.004066235,33.594411362],[-93.985199649,32.032647195],[-93.791098661,31.826988238],[-93.767547467,31.588362385],[-93.662551777,31.545530928],[-93.457684889,31.033670436],[-93.700113749,30.381833203],[-93.665049423,30.045410481],[-93.890130492,29.821797319],[-93.799781583,29.639425381],[-94.056090317,29.624317626],[-94.657152118,29.389436631],[-94.718038976,29.280154556],[-95.159355468,29.06646069],[-95.213790288,28.942762424],[-95.50016826,28.761183681],[-96.186041713,28.443188984],[-96.289079434,28.601154175],[-96.432821374,28.529113479],[-96.34373839,28.450730681],[-96.359955447,28.313841319],[-97.006743803,27.814142144],[-97.337113518,27.096559989],[-97.124072365,25.942387258],[-97.439608822,25.795808134],[-97.679904807,25.978401576],[-98.21225533,26.007020435],[-98.836320548,26.322054341],[-99.140934462,26.383114572],[-99.327120372,26.827148364],[-99.50162411,27.00994253],[-99.592395872,27.573469602],[-99.909497886,27.761719649],[-99.981046649,27.94715027],[-100.336999739,28.249004006],[-100.838189521,29.20917135],[-101.100663006,29.430928588],[-101.292388839,29.487132103],[-101.454690557,29.711166129],[-102.071783739,29.735317214],[-102.315415773,29.823623154],[-102.367950031,29.721216833],[-102.654036124,29.685139842],[-102.839343066,29.326617625],[-102.827541717,29.198036795],[-103.128945492,28.935570357],[-103.298967082,28.939999442],[-104.072183054,29.285652478],[-104.567370224,29.640927351],[-104.936146093,30.541708409],[-105.420535727,30.813004765],[-106.026575894,31.351101793],[-106.244681586,31.439332696],[-106.415717092,31.691927148],[-106.653129721,31.785506674],[-106.683192366,31.942887307]],[[-97.239626055,26.128786906],[-97.407263982,26.696945754],[-97.446677021,26.958965578],[-97.515484394,26.938223626],[-97.410651734,26.466128023],[-97.239626055,26.128786906]],[[-97.450153219,27.076390578],[-97.450269297,27.080311662],[-97.450868042,27.078870744],[-97.450153219,27.076390578]],[[-97.291085769,27.754783882],[-97.21678344,27.726390349],[-97.187452766,27.763276336],[-97.343308575,27.793643851],[-97.291085769,27.754783882]]]}&#34;,
+    &#34;id&#34;: 164,
+    &#34;key&#34;: &#34;usa-texas&#34;,
+    &#34;name&#34;: &#34;USA - Texas&#34;
+}
+</pre></div></div>
+</div>
+<p>In order to check the AOI has the desired shape, it can be loaded into a geopandas dataframe and plotted with geoplot:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">texas_geopandas</span> <span class="o">=</span> <span class="n">geopandas</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">texas</span><span class="o">.</span><span class="n">geojson</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s1">&#39;GeoJSON&#39;</span><span class="p">)</span>
+<span class="n">gx</span> <span class="o">=</span> <span class="n">geoplot</span><span class="o">.</span><span class="n">polyplot</span><span class="p">(</span><span class="n">texas_geopandas</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_quickstart_quickstartaoiquery_5_0.png" src="../../_images/tutorials_quickstart_quickstartaoiquery_5_0.png" />
+</div>
+</div>
+</section>
+<section id="Query-with-AOI">
+<h2>Query with AOI<a class="headerlink" href="#Query-with-AOI" title="Link to this heading">¶</a></h2>
+<p>Once it has been verified that the AOI is of the desired location for the query, we can run a raster query (see <a class="reference internal" href="quickstartrasterquery.html"><span class="doc">Quick Start- Raster Query</span></a>) with the texas AOI id as the specified spatial definition:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ERA 5 Temperature query for Texas</span>
+<span class="n">ERA5_texas_query_json</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s2">&quot;layers&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;49423&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;raster&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ERA5 1h Query for Texas for 2024-04-01&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;spatial&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;aoi&quot;</span><span class="p">:</span> <span class="n">texas_id</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;poly&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;temporal&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;intervals&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-04-01T01:00:00Z&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-04-01T00:00:00Z&quot;</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">ERA5_texas_query_result</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">submit_check_status_and_download</span><span class="p">(</span><span class="n">ERA5_texas_query_json</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2024-06-19 10:03:56 - paw - INFO - TASK: submit_check_status_and_download STARTING.
+2024-06-19 10:03:57 - paw - INFO - The query was successfully submitted with the id: 1718755200_32637744.
+2024-06-19 10:03:58 - paw - INFO - The query 1718755200_32637744 has the status Queued.
+2024-06-19 10:04:28 - paw - INFO - The query 1718755200_32637744 has the status Succeeded.
+2024-06-19 10:04:28 - paw - INFO - The query 1718755200_32637744 was successful after checking the status.
+2024-06-19 10:04:59 - paw - INFO - The query 1718755200_32637744 has the status Succeeded.
+2024-06-19 10:04:59 - paw - INFO - The query 1718755200_32637744 was successful after checking the status.
+2024-06-19 10:04:59 - paw - INFO - The query download folder is set to the path /Users/ibmpairs/tutorials/notebooks/quickstart/download/.
+2024-06-19 10:05:01 - paw - INFO - The query 1718755200_32637744 is a zip.
+2024-06-19 10:05:01 - paw - INFO - The query file for 1718755200_32637744 will be downloaded to the following path /Users/ibmpairs/tutorials/notebooks/quickstart/download/1718755200_32637744.zip.
+2024-06-19 10:05:01 - paw - INFO - The query file for 1718755200_32637744 was successfully downloaded to /Users/ibmpairs/tutorials/notebooks/quickstart/download/1718755200_32637744.zip.
+2024-06-19 10:05:01 - paw - INFO - The query zip /Users/ibmpairs/tutorials/notebooks/quickstart/download/1718755200_32637744.zip will be unzipped to the following path /Users/ibmpairs/tutorials/notebooks/quickstart/download/1718755200_32637744.
+2024-06-19 10:05:01 - paw - INFO - The query zip /Users/ibmpairs/tutorials/notebooks/quickstart/download/1718755200_32637744.zip was successfully unzipped to /Users/ibmpairs/tutorials/notebooks/quickstart/download/1718755200_32637744.
+2024-06-19 10:05:31 - paw - INFO - TASK: submit_check_status_and_download COMPLETED.
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find layer files to load from downloaded zip.</span>
+<span class="n">files</span> <span class="o">=</span> <span class="n">ERA5_texas_query_result</span><span class="o">.</span><span class="n">list_files</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Display the resulting image</span>
+<span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">cmap</span> <span class="o">=</span> <span class="s1">&#39;hot_r&#39;</span><span class="p">,</span> <span class="n">vmin</span> <span class="o">=</span> <span class="mi">293</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="mi">307</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Temperature (Kelvin)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_quickstart_quickstartaoiquery_9_0.png" src="../../_images/tutorials_quickstart_quickstartaoiquery_9_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="quickstartcatalog.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Quick Start - Catalog</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="quickstartrasterquery.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Quick Start - Raster Query</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2024, IBM Corporation
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Quick Start - Area of Interest (AOI) Query</a><ul>
+<li><a class="reference internal" href="#Search-for-AOI">Search for AOI</a></li>
+<li><a class="reference internal" href="#Query-with-AOI">Query with AOI</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=4e2eecee"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>
