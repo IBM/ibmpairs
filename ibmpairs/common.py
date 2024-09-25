@@ -538,8 +538,6 @@ def ensure_api_path(host: str,
             else:
                 result = result + "/core" + version_path
                 
-            print(result)
-                
     return result
 
 #

@@ -866,7 +866,7 @@ class OAuth2(object):
             self._version = 3
         
         if host is not None:
-            self._host = common.ensure_api_path(common.ensure_protocol(host))
+            self._host = common.ensure_api_path(common.ensure_protocol(host), version)
         else:
             if self._legacy is True:
                 self.set_version(2)
