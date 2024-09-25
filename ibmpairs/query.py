@@ -1,6 +1,6 @@
 """
 Environmental Intelligence: Geospatial APIs SDK (ibmpairs): A Python module to 
-wrap the core functionality of the Geospatial APIs component.            
+wrap the core functionality of the Geospatial APIs component.
 
 Copyright 2019-2024 IBM Software: Sustainability, IBM Corp. All Rights Reserved.
 
@@ -6498,6 +6498,7 @@ class Query:
                                    error making request to server, 
                                    the status of the request is not 200.
         """
+
         online_skip = False
     
         cli = common.set_client(input_client  = client,
@@ -6530,8 +6531,9 @@ class Query:
                     
             if download_file_name is not None:
                 self.download_file_name  = download_file_name
-                
-            if self.download_file_name is None:
+
+            # None or Rerun
+            if ((self.download_file_name is None) or (re.match(str(constants.QUERY_ID_PATTERN), self.download_file_name))):
                 self.download_file_name  = self.id
                 
             incomplete = True
@@ -6555,7 +6557,9 @@ class Query:
                 # Deleted(31)
                 # Failed(40)
                 # FailedConversion(41)
-                
+                # FailedProcessor(42)
+                # MaxAllowedQuerySizeExceeded(43)
+
                 if query.status_response.status_code == 20:
                     
                     self._create_download_folder()
@@ -6726,7 +6730,7 @@ class Query:
                 else:
                     self.download_status = "FAILED"
                     
-                    msg = messages.ERROR_QUERY_FAILED.format(query.id, query.status_response.status, ' and therefore cannot be downloaded.')
+                    msg = messages.ERROR_QUERY_FAILED.format(query.id, query.status_response.status + ': ' + str(query.status_response.message), ' and therefore cannot be downloaded.')
                     logger.error(msg)
                     raise common.PAWException(msg)
                     
@@ -9629,11 +9633,8 @@ class AOIs:
                     float(search_term)
                     search = aoi_df.query('id ==' + search_term, engine='python')
                 except:
-                    key          = aoi_df.query('key.str.contains("'+search_term+'", case = False)', engine='python')
-                    name         = aoi_df.query('name.str.contains("'+ search_term +'", case = False)', engine='python')
-                    search = pandas.concat([key, name])
-                  
-                search.drop_duplicates(subset=None, keep='first', inplace=False)
+                    search = aoi_df.query('key.str.contains("'+search_term+'", case = False)', engine='python')
+
                 search.reset_index(inplace=True, drop=True)
                 
                 return search

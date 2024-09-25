@@ -224,10 +224,18 @@ class Client:
                 client_dict["authentication"] = self._authentication
         if self._body is not None:
             client_dict["body"] = self._body
-        if self._client_id is not None:
-            client_dict["client_id"] = self._client_id
-        if self._tenant_id is not None:
-            client_dict["tenant_id"] = self._tenant_id
+
+        try:
+            if self._client_id is not None:
+                client_dict["client_id"] = self._client_id
+        except Exception as e:
+            pass
+        try:
+            if self._tenant_id is not None:
+                client_dict["tenant_id"] = self._tenant_id
+        except Exception as e:
+            pass
+
         if self._legacy is not None:
             client_dict["legacy"] = self._legacy
         return client_dict
@@ -274,11 +282,11 @@ class Client:
                 self._headers = headers
             else:
                 self._headers = dict(constants.CLIENT_JSON_HEADER)
-            
+
             if (host is not None):
-                self._host = common.ensure_api_path(common.ensure_protocol(host))
+                self._host = common.ensure_api_path(common.ensure_protocol(host), version)
             elif (host is None) and (self._authentication is not None) and (self._authentication.host is not None) and (self._legacy is False):
-                self._host = common.ensure_api_path(common.ensure_protocol(self._authentication.host))
+                self._host = common.ensure_api_path(common.ensure_protocol(self._authentication.host), version)
             else:
                 if self._legacy is True:
                     self.set_version(2)
@@ -294,7 +302,7 @@ class Client:
                     else:
                         self.set_version(3)
                         self._host = common.ensure_api_path(common.ensure_protocol(constants.CLIENT_URL_V3))
-                    
+
             logger.info("HOST: " + self._host)
             
             self._body = body
@@ -593,7 +601,7 @@ class Client:
         elif ((self._legacy is False) and (client_response.status == 500)):
             token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
             if client_response.body is not None:
-                response_string = client_response.body
+                response_string = str(client_response.body)
                 if token_refresh_message in response_string:
                     logger.info(response_string)
                     retry = True
@@ -845,7 +853,7 @@ class Client:
         elif ((self._legacy is False) and (client_response.status == 500)):
             token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
             if client_response.body is not None:
-                response_string = client_response.body
+                response_string = str(client_response.body)
                 if token_refresh_message in response_string:
                     logger.info(response_string)
                     retry = True
