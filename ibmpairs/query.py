@@ -4659,6 +4659,7 @@ class Query:
     #_batch: str
     #_processor: List[Processor]
     #_debug: bool
+    #_auto_ingest: bool
     
     # Query Submit Response
     #_submit_response: QueryResponse
@@ -4707,6 +4708,8 @@ class Query:
     :type processor:            List[ibmpairs.query.Processor]
     :param debug:               A debug flag.
     :type debug:                bool
+    :param auto_ingest:         Enables automatic data ingestion
+    :type auto_ingest:          bool
     :param id:                  A Query id.
     :type id:                   str
     :param submit_response:     A response from the submit phase.        
@@ -4770,6 +4773,7 @@ class Query:
                  batch: str                     = None,
                  processor: List[Processor]     = None,
                  debug: bool                    = None,
+                 auto_ingest: bool              = None,
                  id: str                        = None,
                  submit_response: QueryResponse = None,
                  status_response: QueryJob      = None,
@@ -4794,6 +4798,7 @@ class Query:
         self._batch               = batch
         self._processor           = processor
         self._debug               = debug
+        self._auto_ingest         = auto_ingest
         self._id                  = id
         
         if submit_response is None:
@@ -5040,7 +5045,22 @@ class Query:
         del self._debug
       
     #
-    debug = property(get_debug, set_debug, del_debug) 
+    debug = property(get_debug, set_debug, del_debug)
+    
+    #
+    def get_auto_ingest(self):
+        return self._auto_ingest
+    
+    #
+    def set_auto_ingest(self, auto_ingest):
+        self._auto_ingest = common.check_bool(auto_ingest)
+        
+    #
+    def del_auto_ingest(self): 
+        del self._auto_ingest
+        
+    #
+    auto_ingest = property(get_auto_ingest, set_auto_ingest, del_auto_ingest) 
     
     #
     def get_id(self):
@@ -5187,6 +5207,7 @@ class Query:
         batch              = None
         processor          = None
         debug              = None
+        auto_ingest        = None
         id                 = None
         submit_response    = None
         status_response    = None
@@ -5242,6 +5263,12 @@ class Query:
         if "debug" in query_dict:
             if query_dict.get("debug") is not None:
                 debug = common.check_bool(query_dict.get("debug"))
+        if "autoIngest" in query_dict:
+            if query_dict.get("autoIngest") is not None:
+                auto_ingest = common.check_bool(query_dict.get("autoIngest"))
+        elif "auto_ingest" in query_dict:
+            if query_dict.get("auto_ingest") is not None:
+                auto_ingest = common.check_bool(query_dict.get("auto_ingest"))
         if "id" in query_dict:
             if query_dict.get("id") is not None:
                 id = common.check_str(query_dict.get("id"))
@@ -5279,6 +5306,7 @@ class Query:
                      batch              = batch,
                      processor          = processor,
                      debug              = debug,
+                     auto_ingest        = auto_ingest,
                      id                 = id,
                      submit_response    = submit_response,
                      status_response    = status_response,
@@ -5325,6 +5353,8 @@ class Query:
             query_dict["processor"] = common.from_list(self._processor, lambda item: common.class_to_dict(item, Processor))
         if self._debug is not None:
             query_dict["debug"] = self._debug
+        if self._auto_ingest is not None:
+            query_dict["auto_ingest"] = self._auto_ingest
         if self._id is not None:
             query_dict["id"] = self._id
         if self._submit_response is not None:
@@ -5376,6 +5406,8 @@ class Query:
             query_dict["upload"] = common.class_to_dict(self._upload, Upload)
         if self._batch is not None:
             query_dict["batch"] = self._batch
+        if self._auto_ingest is not None:
+            query_dict["autoIngest"] = self._auto_ingest
         if self._processor is not None:
             query_dict["processor"] = common.from_list(self._processor, lambda item: item.to_dict())
         if self._debug is not None:

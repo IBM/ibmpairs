@@ -596,14 +596,14 @@ class Client:
             if client_response.body is not None:
                 response_string = client_response.body
                 if token_refresh_message in response_string:
-                    logger.info(response_string)
+                    logger.debug(response_string)
                     retry = True
         elif ((self._legacy is False) and (client_response.status == 500)):
             token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
             if client_response.body is not None:
                 response_string = str(client_response.body)
                 if token_refresh_message in response_string:
-                    logger.info(response_string)
+                    logger.debug(response_string)
                     retry = True
 
         if retry is True:
@@ -682,14 +682,14 @@ class Client:
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        logger.info(response_string)
+                        logger.debug(response_string)
                         retry = True
             elif ((self._legacy is False) and (response.status_code == 500)):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        logger.info(response_string)
+                        logger.debug(response_string)
                         retry = True
             
             if retry is True:
@@ -768,14 +768,14 @@ class Client:
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        logger.info(response_string)
+                        logger.debug(response_string)
                         retry = True
             elif ((self._legacy is False) and (response.status_code == 500)):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        logger.info(response_string)
+                        logger.debug(response_string)
                         retry = True
             
             if retry is True:
@@ -848,14 +848,14 @@ class Client:
             if client_response.body is not None:
                 response_string = client_response.body
                 if token_refresh_message in response_string:
-                    logger.info(response_string)
+                    logger.debug(response_string)
                     retry = True
         elif ((self._legacy is False) and (client_response.status == 500)):
             token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
             if client_response.body is not None:
                 response_string = str(client_response.body)
                 if token_refresh_message in response_string:
-                    logger.info(response_string)
+                    logger.debug(response_string)
                     retry = True
         
         if retry is True:
@@ -942,14 +942,14 @@ class Client:
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        logger.info(response_string)
+                        logger.debug(response_string)
                         retry = True
             elif ((self._legacy is False) and (response.status_code == 500)):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        logger.info(response_string)
+                        logger.debug(response_string)
                         retry = True
             
             if retry is True:
@@ -1029,14 +1029,14 @@ class Client:
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        logger.info(response_string)
+                        logger.debug(response_string)
                         retry = True
             elif ((self._legacy is False) and (response.status_code == 500)):
                 token_refresh_message = constants.CLIENT_TOKEN_REFRESH_MESSAGE_APIC
                 if response.json() is not None:
                     response_string = json.dumps(response.json())
                     if token_refresh_message in response_string:
-                        logger.info(response_string)
+                        logger.debug(response_string)
                         retry = True
           
             if retry is True:
