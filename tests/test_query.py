@@ -3831,6 +3831,8 @@ query_dict = {
     "outputLevel": 0,
     "description": "string",
     "publish": True,
+    "debug": True,
+    "autoIngest": True,
     "notification": 
         {
             "type": "rabbitmq",
@@ -3932,6 +3934,8 @@ query_json = r'''{
     "outputLevel": 0,
     "description": "string",
     "publish": true,
+    "debug": true,
+    "autoIngest": true,
     "notification": 
         {
             "type": "rabbitmq",
@@ -4416,6 +4420,8 @@ class QueryUnitTest(unittest.TestCase):
             processor.type            = "string"
             processor.options         = [options]
             query.processor           = [processor]
+            query.debug               = True
+            query.auto_ingest         = True
         except Exception as ex:
             got_exception = True
         
@@ -4459,8 +4465,10 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query.processor[0].type, "string")
         self.assertEqual(query.processor[0].options[0].name, "string")
         self.assertEqual(query.processor[0].options[0].value, "string")
+        self.assertEqual(query.debug, True)
+        self.assertEqual(query.auto_ingest, True)
 
-    #    
+    #
     def test_query_from_dict(self):
         self.logger.info('test_query_from_dict')
         
@@ -4504,6 +4512,8 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_dict.output_level, 0)
         self.assertEqual(query_from_dict.description, "string")
         self.assertEqual(query_from_dict.publish, True)
+        self.assertEqual(query_from_dict.debug, True)
+        self.assertEqual(query_from_dict.auto_ingest, True)
         self.assertEqual(query_from_dict.notification.type, "rabbitmq")
         self.assertEqual(query_from_dict.notification.host, "string")
         self.assertEqual(query_from_dict.notification.queue, "string")
@@ -4567,6 +4577,8 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_to_dict["output_level"], 0)
         self.assertEqual(query_to_dict["description"], "string")
         self.assertEqual(query_to_dict["publish"], True)
+        self.assertEqual(query_to_dict["debug"], True)
+        self.assertEqual(query_to_dict["auto_ingest"], True)
         self.assertEqual(query_to_dict["notification"]["type"], "rabbitmq")
         self.assertEqual(query_to_dict["notification"]["host"], "string")
         self.assertEqual(query_to_dict["notification"]["queue"], "string")
@@ -4630,6 +4642,8 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_to_dict_query_post["outputLevel"], 0)
         self.assertEqual(query_to_dict_query_post["description"], "string")
         self.assertEqual(query_to_dict_query_post["publish"], True)
+        self.assertEqual(query_to_dict_query_post["debug"], True)
+        self.assertEqual(query_to_dict_query_post["autoIngest"], True)
         self.assertEqual(query_to_dict_query_post["notification"]["type"], "rabbitmq")
         self.assertEqual(query_to_dict_query_post["notification"]["host"], "string")
         self.assertEqual(query_to_dict_query_post["notification"]["queue"], "string")
@@ -4691,6 +4705,8 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_json.output_level, 0)
         self.assertEqual(query_from_json.description, "string")
         self.assertEqual(query_from_json.publish, True)
+        self.assertEqual(query_from_json.debug, True)
+        self.assertEqual(query_from_json.auto_ingest, True)
         self.assertEqual(query_from_json.notification.type, "rabbitmq")
         self.assertEqual(query_from_json.notification.host, "string")
         self.assertEqual(query_from_json.notification.queue, "string")
