@@ -91,7 +91,7 @@ QUERY_STATUS_FAILURE_CODES     = [21, 30, 31, 40, 41]
 QUERY_DOWNLOAD_DEFAULT_FOLDER  = 'download'
 QUERY_WORKER_DEBUG             = os.environ.get('QUERY_WORKER_DEBUG', "False")
 QUERY_WORKER_DEBUG             = False
-QUERY_ID_PATTERN               = "[0-9]{10}+_[0-9]{8}+"
+QUERY_ID_PATTERN               = "[0-9]{10}_[0-9]{8}"
 
 #
 IBM_CLOUD_OBJECT_STORE_CONTROL_URL = 'control.cloud-object-storage.cloud.ibm.com'
