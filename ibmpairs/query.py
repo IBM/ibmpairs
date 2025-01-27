@@ -4639,6 +4639,251 @@ class Processor:
         """
         
         return json.dumps(self.to_dict())
+    
+#
+class Info:
+    #_size: int
+    #_max_size: float
+    #_count: int
+    #_interactive_max_count: int
+    #_max_count: int
+    
+    """
+    A Query info return from a dry run.
+    
+    :param size:                  The estimated query size in mb.
+    :type size:                   int
+    :param max_size:              The max query size in mb.
+    :type max_size:               float
+    :param count:                 The estimated count.
+    :type count:                  int
+    :param interactive_max_count: The interactive max count.
+    :type interactive_max_count:  int
+    :param max_count:             The max count.
+    :type max_count:              int
+    """
+  
+    #
+    def __str__(self):
+      
+        """
+        The method creates a string representation of the internal class structure.
+        
+        :returns:       A string representation of the internal class structure.
+        :rtype:         str
+        """
+      
+        return json.dumps(self.to_dict(), 
+                          indent    = constants.GLOBAL_JSON_REPR_INDENT, 
+                          sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
+  
+    #
+    def __repr__(self):
+      
+        """
+        The method creates a dict representation of the internal class structure.
+        
+        :returns:       A dict representation of the internal class structure.
+        :rtype:         dict
+        """
+      
+        return json.dumps(self.to_dict(), 
+                          indent    = constants.GLOBAL_JSON_REPR_INDENT, 
+                          sort_keys = constants.GLOBAL_JSON_REPR_SORT_KEYS)
+                          
+    #
+    def __init__(self, 
+                 size = None,
+                 max_size = None,
+                 count = None,
+                 interactive_max_count = None,
+                 max_count = None
+                ): 
+        self._size                  = size
+        self._max_size              = max_size
+        self._count                 = count
+        self._interactive_max_count = interactive_max_count
+        self._max_count             = max_count
+        
+    #
+    def get_size(self):
+        return self._size
+  
+    #
+    def set_size(self, size):
+        self._size = common.check_int(size)
+      
+    #
+    def del_size(self): 
+        del self._size
+      
+    #
+    size = property(get_size, set_size, del_size)
+    
+    #
+    def get_max_size(self):
+        return self._max_size
+  
+    #
+    def set_max_size(self, max_size):
+        self._max_size = common.check_float(max_size)
+      
+    #
+    def del_max_size(self): 
+        del self._max_size
+      
+    #
+    max_size = property(get_max_size, set_max_size, del_max_size) 
+    
+    #
+    def get_count(self):
+        return self._count
+  
+    #
+    def set_count(self, count):
+        self._count = common.check_int(count)
+      
+    #
+    def del_count(self): 
+        del self._count
+      
+    #
+    count = property(get_count, set_count, del_count)
+    
+    #
+    def get_interactive_max_count(self):
+        return self._interactive_max_count
+  
+    #
+    def set_interactive_max_count(self, interactive_max_count):
+        self._interactive_max_count = common.check_int(interactive_max_count)
+      
+    #
+    def del_interactive_max_count(self): 
+        del self._interactive_max_count
+      
+    #
+    interactive_max_count = property(get_interactive_max_count, set_interactive_max_count, del_interactive_max_count)
+    
+    #
+    def get_max_count(self):
+        return self._max_count
+  
+    #
+    def set_max_count(self, max_count):
+        self._max_count = common.check_int(max_count)
+      
+    #
+    def del_max_count(self): 
+        del self._max_count
+      
+    #
+    max_count = property(get_max_count, set_max_count, del_max_count)
+    
+    #
+    def from_dict(info_dict: Any):
+      
+        """
+        Create a Info object from a dictionary.
+        
+        :param info_dict:          A dictionary that contains the keys of an Info.
+        :type info_dict:           Any
+        :rtype:                    ibmpairs.query.Info
+        :raises Exception:         if not a dictionary.
+        """
+      
+        size                  = None
+        max_size              = None
+        count                 = None
+        interactive_max_count = None
+        max_count             = None
+      
+        common.check_dict(info_dict)
+        if "size" in info_dict:
+            if info_dict.get("size") is not None:
+                size = common.check_int(info_dict.get("size"))
+        if "maxSize" in info_dict:
+            if info_dict.get("maxSize") is not None:
+                max_size = common.check_float(info_dict.get("maxSize"))
+        elif "max_size" in info_dict:
+            if info_dict.get("max_size") is not None:
+                max_size = common.check_float(info_dict.get("max_size"))
+        if "count" in info_dict:
+            if info_dict.get("count") is not None:
+                count = common.check_int(info_dict.get("count"))
+        if "interactiveMaxCount" in info_dict:
+            if info_dict.get("interactiveMaxCount") is not None:
+                interactive_max_count = common.check_int(info_dict.get("interactiveMaxCount"))
+        elif "interactive_max_count" in info_dict:
+            if info_dict.get("interactive_max_count") is not None:
+                interactive_max_count = common.check_int(info_dict.get("interactive_max_count"))
+        if "maxCount" in info_dict:
+            if info_dict.get("maxCount") is not None:
+                max_count = common.check_int(info_dict.get("maxCount"))
+        elif "max_count" in info_dict:
+            if info_dict.get("max_count") is not None:
+                max_count = common.check_int(info_dict.get("max_count"))
+        return Info(size                  = size,
+                    max_size              = max_size,
+                    count                 = count,
+                    interactive_max_count = interactive_max_count,
+                    max_count             = max_count
+                   )
+  
+    #
+    def to_dict(self):
+      
+        """
+        Create a dictionary from the objects structure.  
+                  
+        :rtype: dict
+        """
+      
+        info_dict: dict = {}
+        if self._size is not None:
+            info_dict["size"] = self._size
+        if self._max_size is not None:
+            info_dict["max_size"] = self._max_size
+        if self._count is not None:
+            info_dict["count"] = self._count
+        if self._interactive_max_count is not None:
+            info_dict["interactive_max_count"] = self._interactive_max_count
+        if self._max_count is not None:
+            info_dict["max_count"] = self._max_count
+        return info_dict
+  
+    #
+    def from_json(info_json: Any):
+        """
+        Create an Info object from json (dictonary or str).
+        
+        :param info_json:      A json dictionary that contains the keys of an Info or a string representation of a json dictionary.
+        :type info_json:       Any
+        :rtype:                ibmpairs.query.Info
+        :raises Exception:     if not a dictionary or a string.
+        """
+      
+        if isinstance(info_json, dict):
+            info = Info.from_dict(info_json)
+        elif isinstance(info_json, str):
+            info_dict = json.loads(info_json)
+            info = Info.from_dict(info_dict)
+        else:
+            msg = messages.ERROR_FROM_JSON_TYPE_NOT_RECOGNIZED.format(type(info_json), "info_json")
+            logger.error(msg)
+            raise common.PAWException(msg)
+        return info
+  
+    #
+    def to_json(self):
+      
+        """
+        Create a string representation of a json dictionary from the objects structure.  
+                  
+        :rtype:  string
+        """
+      
+        return json.dumps(self.to_dict())
 
 #
 class Query:
@@ -4660,6 +4905,8 @@ class Query:
     #_processor: List[Processor]
     #_debug: bool
     #_auto_ingest: bool
+    #_dry_run: bool
+    #_info: Info
     
     # Query Submit Response
     #_submit_response: QueryResponse
@@ -4710,6 +4957,10 @@ class Query:
     :type debug:                bool
     :param auto_ingest:         Enables automatic data ingestion
     :type auto_ingest:          bool
+    :param dry_run:             Calculates cost rather than executes the query
+    :type dry_run:              bool
+    :param info:                An info object definition.
+    :type info:                 ibmpairs.query.Info
     :param id:                  A Query id.
     :type id:                   str
     :param submit_response:     A response from the submit phase.        
@@ -4774,6 +5025,8 @@ class Query:
                  processor: List[Processor]     = None,
                  debug: bool                    = None,
                  auto_ingest: bool              = None,
+                 dry_run: bool                  = None,
+                 info: Info                     = None,
                  id: str                        = None,
                  submit_response: QueryResponse = None,
                  status_response: QueryJob      = None,
@@ -4799,6 +5052,8 @@ class Query:
         self._processor           = processor
         self._debug               = debug
         self._auto_ingest         = auto_ingest
+        self._dry_run             = dry_run
+        self._info                = info
         self._id                  = id
         
         if submit_response is None:
@@ -5063,6 +5318,36 @@ class Query:
     auto_ingest = property(get_auto_ingest, set_auto_ingest, del_auto_ingest) 
     
     #
+    def get_dry_run(self):
+        return self._dry_run
+  
+    #
+    def set_dry_run(self, dry_run):
+        self._dry_run = common.check_bool(dry_run)
+      
+    #
+    def del_dry_run(self): 
+        del self._dry_run
+      
+    #
+    dry_run = property(get_dry_run, set_dry_run, del_dry_run) 
+    
+    #
+    def get_info(self):
+        return self._info
+  
+    #
+    def set_info(self, info):
+        self._info = common.check_class(info, Info)
+      
+    #    
+    def del_info(self): 
+        del self._info
+      
+    #    
+    info = property(get_info, set_info, del_info) 
+    
+    #
     def get_id(self):
         return self._id
 
@@ -5208,6 +5493,8 @@ class Query:
         processor          = None
         debug              = None
         auto_ingest        = None
+        dry_run            = None
+        info               = None
         id                 = None
         submit_response    = None
         status_response    = None
@@ -5269,6 +5556,15 @@ class Query:
         elif "auto_ingest" in query_dict:
             if query_dict.get("auto_ingest") is not None:
                 auto_ingest = common.check_bool(query_dict.get("auto_ingest"))
+        if "dryRun" in query_dict:
+            if query_dict.get("dryRun") is not None:
+                dry_run = common.check_bool(query_dict.get("dryRun"))
+        elif "dry_run" in query_dict:
+            if query_dict.get("dry_run") is not None:
+                dry_run = common.check_bool(query_dict.get("dry_run"))
+        if "info" in query_dict:
+            if query_dict.get("info") is not None:
+                info = Info.from_dict(query_dict.get("info"))
         if "id" in query_dict:
             if query_dict.get("id") is not None:
                 id = common.check_str(query_dict.get("id"))
@@ -5307,6 +5603,8 @@ class Query:
                      processor          = processor,
                      debug              = debug,
                      auto_ingest        = auto_ingest,
+                     dry_run            = dry_run,
+                     info               = info,
                      id                 = id,
                      submit_response    = submit_response,
                      status_response    = status_response,
@@ -5355,6 +5653,10 @@ class Query:
             query_dict["debug"] = self._debug
         if self._auto_ingest is not None:
             query_dict["auto_ingest"] = self._auto_ingest
+        if self._dry_run is not None:
+            query_dict["dry_run"] = self._dry_run
+        if self._info is not None:
+            query_dict["info"] = common.class_to_dict(self._info, Info)
         if self._id is not None:
             query_dict["id"] = self._id
         if self._submit_response is not None:
@@ -5408,6 +5710,8 @@ class Query:
             query_dict["batch"] = self._batch
         if self._auto_ingest is not None:
             query_dict["autoIngest"] = self._auto_ingest
+        if self._dry_run is not None:
+            query_dict["dryRun"] = self._dry_run
         if self._processor is not None:
             query_dict["processor"] = common.from_list(self._processor, lambda item: item.to_dict())
         if self._debug is not None:
