@@ -3833,6 +3833,15 @@ query_dict = {
     "publish": True,
     "debug": True,
     "autoIngest": True,
+    "dryRun": True,
+    "info": 
+        {
+            "size" : 2,
+            "maxSize" : 1.2,
+            "count" : 2,
+            "interactiveMaxCount" : 2,
+            "maxCount" : 2
+        },
     "notification": 
         {
             "type": "rabbitmq",
@@ -3936,6 +3945,15 @@ query_json = r'''{
     "publish": true,
     "debug": true,
     "autoIngest": true,
+    "dryRun": true,
+    "info": 
+        {
+            "size" : 2,
+            "maxSize" : 1.2,
+            "count" : 2,
+            "interactiveMaxCount" : 2,
+            "maxCount" : 2
+        },
     "notification": 
         {
             "type": "rabbitmq",
@@ -4355,73 +4373,81 @@ class QueryUnitTest(unittest.TestCase):
         got_exception = False
         
         try:
-            query.name                = "string"
-            layer                     = query_module.Layer()
-            layer.id                  = "string"
-            layer.type                = "raster"
-            temporal                  = query_module.Temporal()
-            interval                  = query_module.Interval()
-            interval.snapshot         = "string"
-            interval.end              = "string"
-            interval.start            = "string"
-            temporal.intervals        = [interval]
-            layer.temporal            = temporal
-            layer.alias               = "string"
-            layer.filter_only         = True
-            layer.aggregation         = "None"
-            filter_                   = query_module.Filter() 
-            filter_.value             = "string"
-            filter_.operator          = "EQ"
-            layer.filter              = filter_
-            dimension                 = query_module.Dimension()
-            dimension.name            = "string"
-            dimension.value           = "string"
-            dimension.operator        = "EQ"
-            dimension.options         = ["string"]
-            layer.dimensions          = [dimension]
-            layer.expression          = "string"
-            layer.output              = True
-            query.layers              = [layer]
-            global_temporal           = query_module.Temporal()
-            global_interval           = query_module.Interval()
-            global_interval.snapshot  = "string"
-            global_interval.end       = "string"
-            global_interval.start     = "string"
-            global_temporal.intervals = [global_interval]
-            query.temporal            = global_temporal
-            spatial                   = query_module.Spatial()
-            spatial.type              = "point"
-            spatial.aoi               = "string"
-            spatial.coordinates       = [0]
-            aggregation               = query_module.Aggregation()
-            aggregation.aoi           = ["string"]
-            spatial.aggregation       = aggregation
-            query.spatial             = spatial
-            query.output_type         = "json"
-            query.output_level        = 0
-            query.description         = "string"
-            query.publish             = True
-            notification              = query_module.Notification()
-            notification.type         = "rabbitmq"
-            notification.host         = "string"
-            notification.queue        = "string"
-            query.notification        = notification
-            upload                    = query_module.Upload()
-            upload.provider           = "ibm"
-            upload.endpoint           = "string"
-            upload.bucket             = "string"
-            upload.token              = "string"
-            query.upload              = upload
-            options                   = query_module.Options()
-            options.name              = "string"
-            options.value             = "string"
-            processor                 = query_module.Processor()
-            processor.order           = 0
-            processor.type            = "string"
-            processor.options         = [options]
-            query.processor           = [processor]
-            query.debug               = True
-            query.auto_ingest         = True
+            query.name                 = "string"
+            layer                      = query_module.Layer()
+            layer.id                   = "string"
+            layer.type                 = "raster"
+            temporal                   = query_module.Temporal()
+            interval                   = query_module.Interval()
+            interval.snapshot          = "string"
+            interval.end               = "string"
+            interval.start             = "string"
+            temporal.intervals         = [interval]
+            layer.temporal             = temporal
+            layer.alias                = "string"
+            layer.filter_only          = True
+            layer.aggregation          = "None"
+            filter_                    = query_module.Filter() 
+            filter_.value              = "string"
+            filter_.operator           = "EQ"
+            layer.filter               = filter_
+            dimension                  = query_module.Dimension()
+            dimension.name             = "string"
+            dimension.value            = "string"
+            dimension.operator         = "EQ"
+            dimension.options          = ["string"]
+            layer.dimensions           = [dimension]
+            layer.expression           = "string"
+            layer.output               = True
+            query.layers               = [layer]
+            global_temporal            = query_module.Temporal()
+            global_interval            = query_module.Interval()
+            global_interval.snapshot   = "string"
+            global_interval.end        = "string"
+            global_interval.start      = "string"
+            global_temporal.intervals  = [global_interval]
+            query.temporal             = global_temporal
+            spatial                    = query_module.Spatial()
+            spatial.type               = "point"
+            spatial.aoi                = "string"
+            spatial.coordinates        = [0]
+            aggregation                = query_module.Aggregation()
+            aggregation.aoi            = ["string"]
+            spatial.aggregation        = aggregation
+            query.spatial              = spatial
+            query.output_type          = "json"
+            query.output_level         = 0
+            query.description          = "string"
+            query.publish              = True
+            notification               = query_module.Notification()
+            notification.type          = "rabbitmq"
+            notification.host          = "string"
+            notification.queue         = "string"
+            query.notification         = notification
+            upload                     = query_module.Upload()
+            upload.provider            = "ibm"
+            upload.endpoint            = "string"
+            upload.bucket              = "string"
+            upload.token               = "string"
+            query.upload               = upload
+            options                    = query_module.Options()
+            options.name               = "string"
+            options.value              = "string"
+            processor                  = query_module.Processor()
+            processor.order            = 0
+            processor.type             = "string"
+            processor.options          = [options]
+            query.processor            = [processor]
+            query.debug                = True
+            query.auto_ingest          = True
+            query.dry_run              = True
+            info                       = query_module.Info()
+            info.size                  = 1
+            info.max_size              = 1.1
+            info.count                 = 1
+            info.interactive_max_count = 1
+            info.max_count             = 1
+            query.info                 = info
         except Exception as ex:
             got_exception = True
         
@@ -4467,6 +4493,12 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query.processor[0].options[0].value, "string")
         self.assertEqual(query.debug, True)
         self.assertEqual(query.auto_ingest, True)
+        self.assertEqual(query.dry_run, True)
+        self.assertEqual(query.info.size, 1)
+        self.assertEqual(query.info.max_size, 1.1)
+        self.assertEqual(query.info.count, 1)
+        self.assertEqual(query.info.interactive_max_count, 1)
+        self.assertEqual(query.info.max_count, 1)
 
     #
     def test_query_from_dict(self):
@@ -4514,6 +4546,7 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_dict.publish, True)
         self.assertEqual(query_from_dict.debug, True)
         self.assertEqual(query_from_dict.auto_ingest, True)
+        self.assertEqual(query_from_dict.dry_run, True)
         self.assertEqual(query_from_dict.notification.type, "rabbitmq")
         self.assertEqual(query_from_dict.notification.host, "string")
         self.assertEqual(query_from_dict.notification.queue, "string")
@@ -4529,6 +4562,11 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_dict.processor[1].type, "string2")
         self.assertEqual(query_from_dict.processor[1].options[0].name, "string2")
         self.assertEqual(query_from_dict.processor[1].options[0].value, "string2")
+        self.assertEqual(query_from_dict.info.size, 2)
+        self.assertEqual(query_from_dict.info.max_size, 1.2)
+        self.assertEqual(query_from_dict.info.count, 2)
+        self.assertEqual(query_from_dict.info.interactive_max_count, 2)
+        self.assertEqual(query_from_dict.info.max_count, 2)
         
     #    
     def test_query_to_dict(self):
@@ -4579,6 +4617,7 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_to_dict["publish"], True)
         self.assertEqual(query_to_dict["debug"], True)
         self.assertEqual(query_to_dict["auto_ingest"], True)
+        self.assertEqual(query_to_dict["dry_run"], True)
         self.assertEqual(query_to_dict["notification"]["type"], "rabbitmq")
         self.assertEqual(query_to_dict["notification"]["host"], "string")
         self.assertEqual(query_to_dict["notification"]["queue"], "string")
@@ -4594,6 +4633,11 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_to_dict["processor"][1]["type"], "string2")
         self.assertEqual(query_to_dict["processor"][1]["options"][0]["name"], "string2")
         self.assertEqual(query_to_dict["processor"][1]["options"][0]["value"], "string2")
+        self.assertEqual(query_to_dict["info"]["size"], 2)
+        self.assertEqual(query_to_dict["info"]["max_size"], 1.2)
+        self.assertEqual(query_to_dict["info"]["count"], 2)
+        self.assertEqual(query_to_dict["info"]["interactive_max_count"], 2)
+        self.assertEqual(query_to_dict["info"]["max_count"], 2)
         
     #
     def test_query_to_dict_query_post(self):
@@ -4644,6 +4688,7 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_to_dict_query_post["publish"], True)
         self.assertEqual(query_to_dict_query_post["debug"], True)
         self.assertEqual(query_to_dict_query_post["autoIngest"], True)
+        self.assertEqual(query_to_dict_query_post["dryRun"], True)
         self.assertEqual(query_to_dict_query_post["notification"]["type"], "rabbitmq")
         self.assertEqual(query_to_dict_query_post["notification"]["host"], "string")
         self.assertEqual(query_to_dict_query_post["notification"]["queue"], "string")
@@ -4707,6 +4752,7 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_json.publish, True)
         self.assertEqual(query_from_json.debug, True)
         self.assertEqual(query_from_json.auto_ingest, True)
+        self.assertEqual(query_from_json.dry_run, True)
         self.assertEqual(query_from_json.notification.type, "rabbitmq")
         self.assertEqual(query_from_json.notification.host, "string")
         self.assertEqual(query_from_json.notification.queue, "string")
@@ -4722,6 +4768,11 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_json.processor[1].type, "string2")
         self.assertEqual(query_from_json.processor[1].options[0].name, "string2")
         self.assertEqual(query_from_json.processor[1].options[0].value, "string2")
+        self.assertEqual(query_from_json.info.size, 2)
+        self.assertEqual(query_from_json.info.max_size, 1.2)
+        self.assertEqual(query_from_json.info.count, 2)
+        self.assertEqual(query_from_json.info.interactive_max_count, 2)
+        self.assertEqual(query_from_json.info.max_count, 2)
     
     #
     def test_query_to_json(self):

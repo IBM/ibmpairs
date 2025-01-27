@@ -83,10 +83,7 @@ Please make sure
 ```Bash
 pytest
 ```
-passes without error. Note, there is a set of environment variables such as
-`PAW_TESTS_REAL_CONNECT`, `PAW_TESTS_PAIRS_PASSWORD_FILE_NAME`, `PAW_TESTS_PAIRS_USER`,
-etc. which can be employed to configure the test suite at runtime.
-
+passes without error. 
 
 ## Coding style guidelines
 
