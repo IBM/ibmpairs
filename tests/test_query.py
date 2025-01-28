@@ -2382,7 +2382,17 @@ query_response_dict = {
             "aggregation": "string"
         }
     ],
-    "message": "string"
+    "message": "string",
+    "info": {
+        "size": 2,
+        "count": 2,
+        "interactive_max_count": 2,
+        "max_count": 2,
+        "max_size": 2.2,
+        "usage": 2,
+        "usage_unit": "bytes",
+        "max_usage": 2.2
+    }
 }
 
 query_response_csv_dict = {
@@ -2410,7 +2420,17 @@ query_response_json = r'''{
             "aggregation": "string"
         }
     ],
-    "message": "string"
+    "message": "string",
+    "info": {
+        "size": 2,
+        "count": 2,
+        "interactive_max_count": 2,
+        "max_count": 2,
+        "max_size": 2.2,
+        "usage": 2,
+        "usage_unit": "bytes",
+        "max_usage": 2.2
+    }
 }'''
 
 query_response_csv_json = r'''{
@@ -2457,6 +2477,16 @@ class QueryResponseUnitTest(unittest.TestCase):
             query_response_data.aggregation  = "string"
             query_response.data              = [query_response_data]
             query_response.message           = "string"
+            info                             = query_module.Info()
+            info.usage                       = 1
+            info.usage_unit                  = "bytes"
+            info.max_usage                   = 1.1
+            info.size                        = 1
+            info.max_size                    = 1.1
+            info.count                       = 1
+            info.interactive_max_count       = 1
+            info.max_count                   = 1
+            query_response.info              = info
         except Exception as ex:
             got_exception = True
         
@@ -2475,6 +2505,14 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response.data[0].pty, "string")
         self.assertEqual(query_response.data[0].aggregation, "string")
         self.assertEqual(query_response.message, "string")
+        self.assertEqual(query_response.info.usage, 1)
+        self.assertEqual(query_response.info.usage_unit, "bytes")
+        self.assertEqual(query_response.info.max_usage, 1.1)
+        self.assertEqual(query_response.info.size, 1)
+        self.assertEqual(query_response.info.max_size, 1.1)
+        self.assertEqual(query_response.info.count, 1)
+        self.assertEqual(query_response.info.interactive_max_count, 1)
+        self.assertEqual(query_response.info.max_count, 1)
 
     #    
     def test_query_response_from_dict(self):
@@ -2506,6 +2544,14 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_from_dict.data[0].pty, "string")
         self.assertEqual(query_response_from_dict.data[0].aggregation, "string")
         self.assertEqual(query_response_from_dict.message, "string")
+        self.assertEqual(query_response_from_dict.info.usage, 2)
+        self.assertEqual(query_response_from_dict.info.usage_unit, 2)
+        self.assertEqual(query_response_from_dict.info.max_usage, 2.2)
+        self.assertEqual(query_response_from_dict.info.size, 2)
+        self.assertEqual(query_response_from_dict.info.max_size, 2.2)
+        self.assertEqual(query_response_from_dict.info.count, 2)
+        self.assertEqual(query_response_from_dict.info.interactive_max_count, 2)
+        self.assertEqual(query_response_from_dict.info.max_count, 2)
     
     #    
     def test_query_response_csv_from_dict(self):
@@ -2562,6 +2608,14 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_to_dict["data"][0]["property"], "string")
         self.assertEqual(query_response_to_dict["data"][0]["aggregation"], "string")
         self.assertEqual(query_response_to_dict["message"], "string")
+        self.assertEqual(query_response_to_dict["info"]["usage"], 2)
+        self.assertEqual(query_response_to_dict["info"]["usage_unit"], 2)
+        self.assertEqual(query_response_to_dict["info"]["max_usage"], 2.2)
+        self.assertEqual(query_response_to_dict["info"]["size"], 2)
+        self.assertEqual(query_response_to_dict["info"]["max_size"], 2.2)
+        self.assertEqual(query_response_to_dict["info"]["count"], 2)
+        self.assertEqual(query_response_to_dict["info"]["interactive_max_count"], 2)
+        self.assertEqual(query_response_to_dict["info"]["max_count"], 2)
     
     #    
     def test_query_response_csv_to_dict(self):
@@ -2619,6 +2673,14 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_from_json.data[0].pty, "string")
         self.assertEqual(query_response_from_json.data[0].aggregation, "string")
         self.assertEqual(query_response_from_json.message, "string")
+        self.assertEqual(query_response_from_json.info.usage, 2)
+        self.assertEqual(query_response_from_json.info.usage_unit, 2)
+        self.assertEqual(query_response_from_json.info.max_usage, 2.2)
+        self.assertEqual(query_response_from_json.info.size, 2)
+        self.assertEqual(query_response_from_json.info.max_size, 2.2)
+        self.assertEqual(query_response_from_json.info.count, 2)
+        self.assertEqual(query_response_from_json.info.interactive_max_count, 2)
+        self.assertEqual(query_response_from_json.info.max_count, 2)
     
     #
     def test_query_response_csv_from_json(self):
@@ -3834,14 +3896,6 @@ query_dict = {
     "debug": True,
     "autoIngest": True,
     "dryRun": True,
-    "info": 
-        {
-            "size" : 2,
-            "maxSize" : 1.2,
-            "count" : 2,
-            "interactiveMaxCount" : 2,
-            "maxCount" : 2
-        },
     "notification": 
         {
             "type": "rabbitmq",
@@ -3946,14 +4000,6 @@ query_json = r'''{
     "debug": true,
     "autoIngest": true,
     "dryRun": true,
-    "info": 
-        {
-            "size" : 2,
-            "maxSize" : 1.2,
-            "count" : 2,
-            "interactiveMaxCount" : 2,
-            "maxCount" : 2
-        },
     "notification": 
         {
             "type": "rabbitmq",
@@ -4441,13 +4487,6 @@ class QueryUnitTest(unittest.TestCase):
             query.debug                = True
             query.auto_ingest          = True
             query.dry_run              = True
-            info                       = query_module.Info()
-            info.size                  = 1
-            info.max_size              = 1.1
-            info.count                 = 1
-            info.interactive_max_count = 1
-            info.max_count             = 1
-            query.info                 = info
         except Exception as ex:
             got_exception = True
         
@@ -4494,11 +4533,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query.debug, True)
         self.assertEqual(query.auto_ingest, True)
         self.assertEqual(query.dry_run, True)
-        self.assertEqual(query.info.size, 1)
-        self.assertEqual(query.info.max_size, 1.1)
-        self.assertEqual(query.info.count, 1)
-        self.assertEqual(query.info.interactive_max_count, 1)
-        self.assertEqual(query.info.max_count, 1)
 
     #
     def test_query_from_dict(self):
@@ -4562,11 +4596,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_dict.processor[1].type, "string2")
         self.assertEqual(query_from_dict.processor[1].options[0].name, "string2")
         self.assertEqual(query_from_dict.processor[1].options[0].value, "string2")
-        self.assertEqual(query_from_dict.info.size, 2)
-        self.assertEqual(query_from_dict.info.max_size, 1.2)
-        self.assertEqual(query_from_dict.info.count, 2)
-        self.assertEqual(query_from_dict.info.interactive_max_count, 2)
-        self.assertEqual(query_from_dict.info.max_count, 2)
         
     #    
     def test_query_to_dict(self):
@@ -4633,11 +4662,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_to_dict["processor"][1]["type"], "string2")
         self.assertEqual(query_to_dict["processor"][1]["options"][0]["name"], "string2")
         self.assertEqual(query_to_dict["processor"][1]["options"][0]["value"], "string2")
-        self.assertEqual(query_to_dict["info"]["size"], 2)
-        self.assertEqual(query_to_dict["info"]["max_size"], 1.2)
-        self.assertEqual(query_to_dict["info"]["count"], 2)
-        self.assertEqual(query_to_dict["info"]["interactive_max_count"], 2)
-        self.assertEqual(query_to_dict["info"]["max_count"], 2)
         
     #
     def test_query_to_dict_query_post(self):
