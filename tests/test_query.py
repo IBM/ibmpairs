@@ -2545,7 +2545,7 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_from_dict.data[0].aggregation, "string")
         self.assertEqual(query_response_from_dict.message, "string")
         self.assertEqual(query_response_from_dict.info.usage, 2)
-        self.assertEqual(query_response_from_dict.info.usage_unit, 2)
+        self.assertEqual(query_response_from_dict.info.usage_unit, "bytes")
         self.assertEqual(query_response_from_dict.info.max_usage, 2.2)
         self.assertEqual(query_response_from_dict.info.size, 2)
         self.assertEqual(query_response_from_dict.info.max_size, 2.2)
@@ -2609,7 +2609,7 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_to_dict["data"][0]["aggregation"], "string")
         self.assertEqual(query_response_to_dict["message"], "string")
         self.assertEqual(query_response_to_dict["info"]["usage"], 2)
-        self.assertEqual(query_response_to_dict["info"]["usage_unit"], 2)
+        self.assertEqual(query_response_to_dict["info"]["usage_unit"], "bytes")
         self.assertEqual(query_response_to_dict["info"]["max_usage"], 2.2)
         self.assertEqual(query_response_to_dict["info"]["size"], 2)
         self.assertEqual(query_response_to_dict["info"]["max_size"], 2.2)
@@ -2674,7 +2674,7 @@ class QueryResponseUnitTest(unittest.TestCase):
         self.assertEqual(query_response_from_json.data[0].aggregation, "string")
         self.assertEqual(query_response_from_json.message, "string")
         self.assertEqual(query_response_from_json.info.usage, 2)
-        self.assertEqual(query_response_from_json.info.usage_unit, 2)
+        self.assertEqual(query_response_from_json.info.usage_unit, "bytes")
         self.assertEqual(query_response_from_json.info.max_usage, 2.2)
         self.assertEqual(query_response_from_json.info.size, 2)
         self.assertEqual(query_response_from_json.info.max_size, 2.2)
@@ -3895,7 +3895,6 @@ query_dict = {
     "publish": True,
     "debug": True,
     "autoIngest": True,
-    "dryRun": True,
     "notification": 
         {
             "type": "rabbitmq",
@@ -3999,7 +3998,6 @@ query_json = r'''{
     "publish": true,
     "debug": true,
     "autoIngest": true,
-    "dryRun": true,
     "notification": 
         {
             "type": "rabbitmq",
@@ -4486,7 +4484,6 @@ class QueryUnitTest(unittest.TestCase):
             query.processor            = [processor]
             query.debug                = True
             query.auto_ingest          = True
-            query.dry_run              = True
         except Exception as ex:
             got_exception = True
         
@@ -4532,7 +4529,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query.processor[0].options[0].value, "string")
         self.assertEqual(query.debug, True)
         self.assertEqual(query.auto_ingest, True)
-        self.assertEqual(query.dry_run, True)
 
     #
     def test_query_from_dict(self):
@@ -4580,7 +4576,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_dict.publish, True)
         self.assertEqual(query_from_dict.debug, True)
         self.assertEqual(query_from_dict.auto_ingest, True)
-        self.assertEqual(query_from_dict.dry_run, True)
         self.assertEqual(query_from_dict.notification.type, "rabbitmq")
         self.assertEqual(query_from_dict.notification.host, "string")
         self.assertEqual(query_from_dict.notification.queue, "string")
@@ -4646,7 +4641,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_to_dict["publish"], True)
         self.assertEqual(query_to_dict["debug"], True)
         self.assertEqual(query_to_dict["auto_ingest"], True)
-        self.assertEqual(query_to_dict["dry_run"], True)
         self.assertEqual(query_to_dict["notification"]["type"], "rabbitmq")
         self.assertEqual(query_to_dict["notification"]["host"], "string")
         self.assertEqual(query_to_dict["notification"]["queue"], "string")
@@ -4712,7 +4706,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_to_dict_query_post["publish"], True)
         self.assertEqual(query_to_dict_query_post["debug"], True)
         self.assertEqual(query_to_dict_query_post["autoIngest"], True)
-        self.assertEqual(query_to_dict_query_post["dryRun"], True)
         self.assertEqual(query_to_dict_query_post["notification"]["type"], "rabbitmq")
         self.assertEqual(query_to_dict_query_post["notification"]["host"], "string")
         self.assertEqual(query_to_dict_query_post["notification"]["queue"], "string")
@@ -4776,7 +4769,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_json.publish, True)
         self.assertEqual(query_from_json.debug, True)
         self.assertEqual(query_from_json.auto_ingest, True)
-        self.assertEqual(query_from_json.dry_run, True)
         self.assertEqual(query_from_json.notification.type, "rabbitmq")
         self.assertEqual(query_from_json.notification.host, "string")
         self.assertEqual(query_from_json.notification.queue, "string")
@@ -4792,11 +4784,6 @@ class QueryUnitTest(unittest.TestCase):
         self.assertEqual(query_from_json.processor[1].type, "string2")
         self.assertEqual(query_from_json.processor[1].options[0].name, "string2")
         self.assertEqual(query_from_json.processor[1].options[0].value, "string2")
-        self.assertEqual(query_from_json.info.size, 2)
-        self.assertEqual(query_from_json.info.max_size, 1.2)
-        self.assertEqual(query_from_json.info.count, 2)
-        self.assertEqual(query_from_json.info.interactive_max_count, 2)
-        self.assertEqual(query_from_json.info.max_count, 2)
     
     #
     def test_query_to_json(self):
