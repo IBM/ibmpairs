@@ -6695,8 +6695,16 @@ class Query:
             logger.error(msg)
             raise common.PAWException(msg)
         else:
+            csv = False
+            if compact_csv or (
+                self._output_type and self._output_type.lower() == 'csv'
+                and self._spatial and self._spatial.type
+                and self._spatial.type.lower() in ['point']
+            ):                
+                csv = True
+
             query_response = query_response_from_json(response.body,
-                                                      compact_csv = compact_csv)
+                                                      compact_csv = csv)
             
             query.submit_response = query_response
             

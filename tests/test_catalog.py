@@ -2110,7 +2110,7 @@ class DataSetUnitTest(unittest.TestCase):
             result = ds3.get(id = "3")
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -2190,7 +2190,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_create3.create()
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/ encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/ encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
             got_exception3 = True
             
         self.assertTrue(got_exception3)
@@ -2273,7 +2273,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_update3.update(id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The PUT request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_put.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The PUT request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -2369,7 +2369,7 @@ class DataSetUnitTest(unittest.TestCase):
             data_set_delete3.delete(id = 4)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The DELETE request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/4 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_set_requests_delete.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The DELETE request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/4 encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -2384,7 +2384,7 @@ class DataSetUnitTest(unittest.TestCase):
         except Exception as ex:
             self.logger.info(ex)        
             got_exception4 = True
-            self.assertEqual(str(ex), "DataSet.delete() missing 1 required positional argument: 'id'")
+            self.assertEqual(str(ex), "delete() missing 1 required positional argument: 'id'")
 
         self.assertTrue(got_exception4)
         
@@ -3460,7 +3460,7 @@ class DataSetsUnitTest(unittest.TestCase):
             result = ds3.get()
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/full encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_sets_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/full encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -4168,7 +4168,7 @@ class DataLayerDimensionUnitTest(unittest.TestCase):
             result = dld3.get(id = "3")
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayer_dimensions/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimension_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayer_dimensions/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -4252,7 +4252,7 @@ class DataLayerDimensionUnitTest(unittest.TestCase):
            dld3 = data_layer_dimension_create3.create(data_layer_id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_dimensions encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimension_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_dimensions encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
             got_exception3 = True
             
         self.assertTrue(got_exception3)
@@ -4663,7 +4663,7 @@ class DataLayerDimensionsUnitTest(unittest.TestCase):
             result = dld3.get(data_layer_id = 3)
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_dimensions encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_dimensions_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_dimensions encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
 
@@ -5049,7 +5049,7 @@ class DataLayerPropertyUnitTest(unittest.TestCase):
             result = dlp3.get(id = "3")
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayer_properties/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_property_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayer_properties/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -5132,7 +5132,7 @@ class DataLayerPropertyUnitTest(unittest.TestCase):
             dlp3 = data_layer_property_create3.create(data_layer_id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_properties encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_property_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3/datalayer_properties encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
             got_exception3 = True
             
         self.assertTrue(got_exception3)
@@ -6409,7 +6409,7 @@ class DataLayerUnitTest(unittest.TestCase):
             result = dl3.get(id = "3")
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -6505,7 +6505,7 @@ class DataLayerUnitTest(unittest.TestCase):
                                             data_layer_group = None)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3/datalayers encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_post.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The POST request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/3/datalayers encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
             got_exception3 = True
             
         self.assertTrue(got_exception3)
@@ -6595,7 +6595,7 @@ class DataLayerUnitTest(unittest.TestCase):
             data_layer_update3.update(id = 3)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The PUT request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_put.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The PUT request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/3 encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -6690,7 +6690,7 @@ class DataLayerUnitTest(unittest.TestCase):
             data_layer_delete3.delete(id = 4)
         except Exception as ex:
             self.logger.info(ex)
-            self.assertEqual(str(ex), "The DELETE request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/4 encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layer_requests_delete.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The DELETE request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/4 encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
             got_exception = True
             
         self.assertTrue(got_exception)
@@ -8063,7 +8063,7 @@ class DataLayersUnitTest(unittest.TestCase):
             result = dl3.get()
         except Exception as ex:
             got_exception3 = True
-            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/full encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layers_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datalayers/full encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception3)
         
@@ -8077,7 +8077,7 @@ class DataLayersUnitTest(unittest.TestCase):
             result4 = dl4.get(data_set_id = 997)
         except Exception as ex:
             got_exception4 = True
-            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/997/datalayers encountered an unspecified error contacting the server; the request was unsuccessful, error message: mocked_data_layers_requests_get.<locals>.MockResponse.__init__() got an unexpected keyword argument 'status'")
+            self.assertEqual(str(ex), "The GET request to https://api.ibm.com/geospatial/run/na/core/v3/datasets/997/datalayers encountered an unspecified error contacting the server; the request was unsuccessful, error message: __init__() got an unexpected keyword argument 'status'")
 
         self.assertTrue(got_exception4)
         
