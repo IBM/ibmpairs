@@ -6120,11 +6120,11 @@ class QueryUnitTest(unittest.TestCase):
             got_exception = True
 
         self.assertFalse(got_exception)
-        self.assertEqual(int(query_as_df_csv.head(1)["layer_id"]), 16100)
-        self.assertEqual(int(query_as_df_csv.head(1)["timestamp"]), 1421528400000)
-        self.assertEqual(float(query_as_df_csv.head(1)["longitude"]), 139.7)
-        self.assertEqual(float(query_as_df_csv.head(1)["latitude"]), 35.7)
-        self.assertEqual(float(query_as_df_csv.head(1)["value"]), 273.918212890625)
+        self.assertEqual(int(query_as_df_csv["layer_id"].iloc[0]), 16100)
+        self.assertEqual(int(query_as_df_csv["timestamp"].iloc[0]), 1421528400000)
+        self.assertEqual(float(query_as_df_csv["longitude"].iloc[0]), 139.7)
+        self.assertEqual(float(query_as_df_csv["latitude"].iloc[0]), 35.7)
+        self.assertEqual(float(query_as_df_csv["value"].iloc[0]), 273.918212890625)
         
     @mock.patch('ibmpairs.client.Client.async_get', 
                 side_effect=mocked_download_async_get
