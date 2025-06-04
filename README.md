@@ -1,4 +1,4 @@
-# IBM Environmental Intelligence (EI): Geospatial APIs SDK
+# IBM Environmental Intelligence (EI): Geospatial APIs SDK 
 
 [![PyPI Package](https://badge.fury.io/py/ibmpairs.svg)](https://pypi.org/project/ibmpairs/)
 
