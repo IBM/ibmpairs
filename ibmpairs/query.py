@@ -6650,7 +6650,7 @@ class Query:
         if ((self._spatial is not None) and (self._spatial.type is not None)):
             if self._spatial.type.lower() in ['point']:
                 if ((self._batch is None) or (self._batch.lower() == 'false') or (self._batch == '') or (self._batch is False)): 
-                    if ((self._output_type is None) or ((self._output_type.lower() != 'json') and (self._output_type.lower() != 'csv'))):
+                    if (self._output_type is not None) and (self._output_type.lower() not in ['json', 'csv']):
                         self._output_type = 'json'
                             
         query_json = query.to_dict_query_post()
