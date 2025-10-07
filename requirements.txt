@@ -1,6 +1,5 @@
 aiohttp>=3.0.0
 fs>=2.4.16
-future
 geojson
 ibm_cos_sdk
 jsonschema
