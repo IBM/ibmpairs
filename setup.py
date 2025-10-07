@@ -2,7 +2,7 @@
 from setuptools import setup
 
 # define package version
-version = '3.1.13'
+version = '3.1.14'
 
 # ... and record it for ibmpairs package
 with open("ibmpairs/version.py", 'w') as f:
