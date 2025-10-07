@@ -6,10 +6,6 @@ Copyright 2019-2021 Physical Analytics, IBM Research All Rights Reserved.
 
 SPDX-License-Identifier: BSD-3-Clause
 """
-# compatibility imports for Python 2 and 3
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import absolute_import
 
 __maintainer__  = "Physical Analytics, TJ Watson Research Center"
 __copyright__   = "(c) 2017-2021, IBM Research"
